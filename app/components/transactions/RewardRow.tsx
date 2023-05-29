@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { chevronLeftBlack, chevronLeftWhite } from '../../assets/images';
 import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { RewardView } from '../../redux/wallet/selectors';
-import { HexString } from '../../../shared/types';
+import { Bech32Address } from '../../../shared/types';
 import Address from '../common/Address';
 
-const Wrapper = styled.div<{ isDetailed: boolean }>`
+const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) =>
     isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
+  ${({ isHidden }) => isHidden && 'display: none'}
 `;
 
 const Header = styled.div`
@@ -30,7 +28,13 @@ const Header = styled.div`
   }
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft },
+    },
+  }) => ({ src: chevronPrimaryLeft })
+)`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -59,17 +63,16 @@ const Text = styled.span`
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${({ color, theme }) => {
     if (color) {
       return color;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;
@@ -108,7 +111,7 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   padding: 5px 0;
   border-bottom: ${({ isLast, theme }) =>
     isLast
-      ? `0px`
+      ? '0px'
       : `1px solid ${
           theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
         };`};
@@ -124,16 +127,14 @@ const TextRow = styled.div<{ isLast?: boolean }>`
 `;
 
 type Props = {
-  publicKey: HexString;
+  address: Bech32Address;
   tx: RewardView;
+  isHidden?: boolean;
 };
 
-const RewardRow = ({ tx, publicKey }: Props) => {
+const RewardRow = ({ tx, address, isHidden = false }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
-
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const { layer, layerReward, amount, timestamp } = tx;
+  const { layer, layerReward, amount } = tx;
 
   const toggleTxDetails = () => {
     setIsDetailed(!isDetailed);
@@ -150,7 +151,7 @@ const RewardRow = ({ tx, publicKey }: Props) => {
       <TextRow>
         <BlackText>TO</BlackText>
         <BoldText>
-          <Address address={publicKey} suffix="(Me)" />
+          <Address address={address} suffix="(Me)" />
         </BoldText>
       </TextRow>
       <TextRow>
@@ -166,9 +167,9 @@ const RewardRow = ({ tx, publicKey }: Props) => {
   );
 
   return (
-    <Wrapper isDetailed={isDetailed}>
+    <Wrapper isDetailed={isDetailed} isHidden={isHidden}>
       <Header onClick={toggleTxDetails}>
-        <Icon src={isDarkMode ? chevronLeftWhite : chevronLeftBlack} />
+        <Icon />
         <HeaderInner>
           <HeaderSection>
             <DarkGrayText>SMESHING REWARD</DarkGrayText>
@@ -177,7 +178,7 @@ const RewardRow = ({ tx, publicKey }: Props) => {
             <Amount color={smColors.darkerGreen}>
               +{formatSmidge(amount)}
             </Amount>
-            <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
+            <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
           </HeaderSection>
         </HeaderInner>
       </Header>

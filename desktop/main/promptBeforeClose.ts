@@ -1,6 +1,8 @@
-import { app, dialog } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ipcConsts } from '../../app/vars';
-import { AppContext } from './context';
+import Logger from '../logger';
+import { Managers } from './app.types';
 import { showNotification } from './utils';
 
 enum CloseAppPromptResult {
@@ -9,11 +11,17 @@ enum CloseAppPromptResult {
   CLOSE = 3,
 }
 
-export default (context: AppContext) => {
-  context.isAppClosing = false;
+const logger = Logger({ className: 'promptBeforeClose' });
 
+let isCloseTriggered = false;
+
+const promptBeforeClose = (
+  mainWindow: BrowserWindow,
+  managers: Partial<Managers>,
+  $isAppClosing: BehaviorSubject<boolean>,
+  $showWindowOnLoad: Subject<boolean>
+) => {
   const showPrompt = async () => {
-    const { mainWindow } = context;
     if (!mainWindow) return CloseAppPromptResult.KEEP_SMESHING;
     const { response } = await dialog.showMessageBox(mainWindow, {
       title: 'Quit App',
@@ -34,41 +42,55 @@ export default (context: AppContext) => {
         return CloseAppPromptResult.CLOSE;
     }
   };
-  const isSmeshing = async () =>
-    context.managers.smesher?.isSmeshing() || false;
+  const isNodeRunning = async () => managers?.node?.isNodeRunning() || false;
   const notify = () =>
-    showNotification(context, {
+    showNotification(mainWindow, {
       title: 'Spacemesh',
       body: 'Smesher is running in the background.',
     });
 
-  const quit = () => {
-    context.isAppClosing = true;
-    app.quit();
+  const quit = async () => {
+    try {
+      mainWindow.hide();
+      managers.smesher?.unsubscribe();
+      managers.wallet?.unsubscribe();
+      await managers.node?.stopNode().then(() => managers.node?.unsubscribe());
+      $isAppClosing.next(true);
+    } catch (err) {
+      logger.error('quit', err);
+    } finally {
+      app.quit();
+    }
   };
 
   const handleClosingApp = async (event: Electron.Event) => {
-    if (context.isAppClosing) return;
     event.preventDefault();
-    const { mainWindow } = context;
     if (!mainWindow) {
-      quit();
+      await quit();
       return;
     }
+    if (isCloseTriggered) {
+      mainWindow.hide();
+      return;
+    }
+
     const promptResult =
-      ((await isSmeshing()) && (await showPrompt())) ||
+      ((await isNodeRunning()) && (await showPrompt())) ||
       CloseAppPromptResult.CLOSE;
+
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
       setTimeout(notify, 1000);
       mainWindow.hide();
-      context.showWindowOnLoad = false;
+      $showWindowOnLoad.next(false);
       mainWindow.reload();
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
+      isCloseTriggered = true;
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      await context.managers?.node?.stopNode();
-      quit();
+      await quit();
     }
   };
 
   return handleClosingApp;
 };
+
+export default promptBeforeClose;

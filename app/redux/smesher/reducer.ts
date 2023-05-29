@@ -1,36 +1,52 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
 import {
-  PostSetupComputeProvider,
+  DEFAULT_POS_MAX_FILE_SIZE,
+  PostSetupProvider as PostSetupProviders,
   PostSetupState,
   SmesherConfig,
 } from '../../../shared/types';
 import { BITS } from '../../types';
+import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   DELETED_POS_DATA,
   STARTED_SMESHING,
   SET_POST_DATA_CREATION_STATUS,
-  SET_ACCOUNT_REWARDS,
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
   RESUMED_SMESHING,
+  SET_METADATA,
 } from './actions';
 
 const initialState = {
   smesherId: '',
-  postSetupComputeProviders: [] as PostSetupComputeProvider[],
+  isSmeshingStarted: false,
+  postSetupProviders: [] as PostSetupProviders[],
   coinbase: '',
   dataDir: '',
   numUnits: 0,
   throttle: false,
   provider: null,
+  maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
   commitmentSize: 0,
   numLabelsWritten: 0,
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
+  metadata: {
+    smeshingStart: null,
+    posInitStart: null,
+  },
+  rewardsInfo: {
+    total: 0,
+    dailyAverage: 0,
+    epochs: 0,
+    lastEpoch: 0,
+    layers: 0,
+  },
+  activations: [],
   config: {} as SmesherConfig,
 };
 
@@ -41,10 +57,11 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         payload: {
           config,
           smesherId,
+          isSmeshingStarted,
           postSetupState,
           numLabelsWritten,
-          errorMessage,
           numUnits,
+          maxFileSize,
         },
       } = action;
 
@@ -57,15 +74,19 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         config,
         smesherId,
         numUnits,
+        maxFileSize,
         numLabelsWritten,
         postSetupState,
-        postProgressError:
-          postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
         commitmentSize,
+        isSmeshingStarted,
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {
-      return { ...state, postSetupComputeProviders: action.payload };
+      const newState: SmesherState = {
+        ...state,
+        postSetupProviders: action.payload,
+      };
+      return newState;
     }
     case SET_SMESHER_CONFIG: {
       return {
@@ -75,7 +96,14 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case STARTED_SMESHING: {
       const {
-        payload: { coinbase, dataDir, numUnits, provider, throttle },
+        payload: {
+          coinbase,
+          dataDir,
+          numUnits,
+          provider,
+          throttle,
+          maxFileSize,
+        },
       } = action;
       const commitmentSize = state.config
         ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) /
@@ -86,6 +114,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         coinbase,
         dataDir,
         numUnits,
+        maxFileSize,
         throttle,
         provider,
         commitmentSize,
@@ -97,18 +126,18 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         coinbase: '',
         dataDir: '',
         numUnits: 0,
+        maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
         throttle: false,
         provider: null,
         commitmentSize: 0,
         numLabelsWritten: 0,
         postSetupState: PostSetupState.STATE_NOT_STARTED,
-        postProgressError: '',
       };
     }
     case PAUSED_SMESHING: {
       return {
         ...state,
-        postSetupState: PostSetupState.STATE_NOT_STARTED,
+        postSetupState: PostSetupState.STATE_PAUSED,
       };
     }
     case RESUMED_SMESHING: {
@@ -119,24 +148,28 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case SET_POST_DATA_CREATION_STATUS: {
       const {
-        payload: { error, postSetupState, numLabelsWritten, errorMessage },
+        payload: { postSetupState, numLabelsWritten },
       } = action;
-      if (error || postSetupState === PostSetupState.STATE_ERROR) {
-        return { ...state, postProgressError: errorMessage || error.message };
-      }
+
       return {
         ...state,
         numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
         postSetupState,
-        postProgressError: '',
       };
-    }
-    case SET_ACCOUNT_REWARDS: {
-      const { rewards } = action.payload;
-      return { ...state, rewards };
     }
     case LOGOUT:
       return initialState;
+    case SET_METADATA: {
+      const { payload } = action;
+
+      return {
+        ...state,
+        metadata: { ...payload },
+      };
+    }
+    case IPC_BATCH_SYNC: {
+      return reduceChunkUpdate('smesher', action.payload, state);
+    }
     default:
       return state;
   }

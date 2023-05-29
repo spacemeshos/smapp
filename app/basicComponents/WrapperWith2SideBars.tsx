@@ -1,11 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  sidePanelRightLong,
-  sidePanelRightLongWhite,
-  sidePanelLeftLong,
-  sidePanelLeftLongWhite,
-} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div<{ width: number; height: number | string }>`
@@ -17,12 +11,28 @@ const Wrapper = styled.div<{ width: number; height: number | string }>`
     typeof height === 'string' ? height : `${height}px`};
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img.attrs<{ isLeft: boolean }>(
+  ({
+    theme: {
+      icons: { sidePanelLeft, sidePanelRight },
+    },
+    isLeft,
+  }) => ({
+    src: isLeft ? sidePanelLeft : sidePanelRight,
+  })
+)<{ isLeft: boolean }>`
   display: block;
   width: 16px;
   height: 100%;
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const MainWrapperInner = styled.div`
@@ -48,14 +58,13 @@ const HeaderIcon = styled.img`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const SubHeader = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 type Props = {
@@ -66,7 +75,6 @@ type Props = {
   height?: number | string;
   children: any;
   style?: any;
-  isDarkMode: boolean;
 };
 
 const WrapperWith2SideBars = ({
@@ -77,14 +85,10 @@ const WrapperWith2SideBars = ({
   subHeader,
   children,
   style,
-  isDarkMode,
 }: Props) => {
-  const leftImg = isDarkMode ? sidePanelLeftLongWhite : sidePanelLeftLong;
-  const rightImg = isDarkMode ? sidePanelRightLongWhite : sidePanelRightLong;
-
   return (
     <Wrapper width={width} height={height} style={style}>
-      <SideBar src={leftImg} />
+      <SideBar isLeft />
       <MainWrapperInner>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
@@ -94,7 +98,7 @@ const WrapperWith2SideBars = ({
         {subHeader && <SubHeader>{subHeader}</SubHeader>}
         {children}
       </MainWrapperInner>
-      <SideBar src={rightImg} />
+      <SideBar isLeft={false} />
     </Wrapper>
   );
 };

@@ -1,21 +1,38 @@
 import React from 'react';
 import styled from 'styled-components';
-import { tooltip, tooltipWhite } from '../assets/images';
 import { smColors } from '../vars';
 
-const InnerWrapper = styled.div<{ top: number; left: number; width: number }>`
-  display: none;
+const InnerWrapper = styled.div<{
+  top: number;
+  left: number;
+  width: number;
+  hide: boolean;
+}>`
+  display: ${({ hide }) => (hide ? 'none' : 'block')};
   position: absolute;
   top: ${({ top }) => top}px;
   left: ${({ left }) => left}px;
   width: ${({ width }) => width}px;
-  padding: 10px 15px;
-  background-color: ${smColors.disabledGray};
+  padding: 13px 15px 10px 19px;
+  background-color: ${({
+    theme: {
+      popups: {
+        states: { infoTooltip },
+      },
+    },
+  }) => infoTooltip.backgroundColor};
   border: 1px solid ${smColors.realBlack};
   z-index: 10;
+  border-radius: ${({
+    theme: {
+      popups: { boxRadius },
+    },
+  }) => boxRadius}px;
 `;
 
-const InnerIcon = styled.img`
+const InnerIcon = styled.img.attrs((props) => ({
+  src: props.theme.icons.tooltip,
+}))`
   position: absolute;
   top: 2px;
   left: 2px;
@@ -27,17 +44,33 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  white-space: pre-wrap;
+  color: ${({
+    theme: {
+      popups: {
+        states: { infoTooltip },
+      },
+    },
+  }) => infoTooltip.color};
 `;
 
-const OuterIcon = styled.img`
+const OuterIcon = styled.img.attrs((props) => ({
+  src: props.theme.icons.tooltip,
+}))`
   width: 13px;
   height: 13px;
+  color: ${({
+    theme: {
+      popups: {
+        states: { infoTooltip },
+      },
+    },
+  }) => infoTooltip.color};
 `;
 
-const Wrapper = styled.div<{ marginTop: number }>`
+const Wrapper = styled.div<{ marginTop: number; marginLeft: number }>`
   position: relative;
-  margin-left: 5px;
+  margin-left: ${({ marginLeft }) => marginLeft}px;
   display: inline-block;
   margin-top: ${({ marginTop }) => marginTop}px;
   &:hover ${InnerWrapper} {
@@ -50,8 +83,9 @@ type Props = {
   left?: number;
   width: number;
   marginTop?: number;
+  marginLeft?: number;
   text: string;
-  isDarkMode: boolean;
+  hide?: boolean;
 };
 
 const Tooltip = ({
@@ -60,12 +94,13 @@ const Tooltip = ({
   width,
   text,
   marginTop = 2,
-  isDarkMode,
+  marginLeft = 5,
+  hide = true,
 }: Props) => (
-  <Wrapper marginTop={marginTop}>
-    <OuterIcon src={isDarkMode ? tooltipWhite : tooltip} />
-    <InnerWrapper top={top} left={left} width={width}>
-      <InnerIcon src={isDarkMode ? tooltipWhite : tooltip} />
+  <Wrapper marginTop={marginTop} marginLeft={marginLeft}>
+    <OuterIcon />
+    <InnerWrapper top={top} left={left} width={width} hide={hide}>
+      <InnerIcon />
       <Text>{text}</Text>
     </InnerWrapper>
   </Wrapper>

@@ -1,13 +1,18 @@
 import path from 'path';
-import os from 'os';
 import fs from 'fs';
+import { ChildProcess } from 'node:child_process';
+import { Writable } from 'stream';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
-import { app, ipcMain, BrowserWindow, dialog } from 'electron';
-import { ChildProcess } from 'node:child_process';
+import { ipcMain, BrowserWindow, dialog } from 'electron';
+import { debounce } from 'throttle-debounce';
+import rotator from 'logrotate-stream';
+import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
-import { delay } from '../shared/utils';
+import { debounceShared, delay } from '../shared/utils';
+import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
+  HexString,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
@@ -15,6 +20,10 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../shared/warning';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -23,22 +32,27 @@ import NodeService, {
 } from './NodeService';
 import SmesherManager from './SmesherManager';
 import {
-  checksum,
   createDebouncePool,
+  getSpawnErrorReason,
   isEmptyDir,
   isFileExists,
 } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
-import NodeConfig from './main/NodeConfig';
-import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
+import {
+  DEFAULT_GRPC_PRIVATE_PORT,
+  DEFAULT_GRPC_PUBLIC_PORT,
+  getGrpcPrivatePort,
+  getGrpcPublicPort,
+  getNodeLogsPath,
+  getProofOfServerClientValue,
+  readLinesFromBottom,
+} from './main/utils';
+import AbstractManager from './AbstractManager';
+import { ResettableSubject } from './main/rx.utils';
+import { getBinaryPath, getNodePath } from './main/binaries';
+import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 
 const logger = Logger({ className: 'NodeManager' });
-
-const osTargetNames = {
-  Darwin: 'mac',
-  Linux: 'linux',
-  Windows_NT: 'windows',
-};
 
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
 const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
@@ -59,16 +73,28 @@ type PoolExitCode = {
 };
 type ErrorPoolObject = PoolNodeError | PoolExitCode;
 
-class NodeManager {
-  private readonly mainWindow: BrowserWindow;
+export enum SmeshingSetupState {
+  Failed = 0,
+  ViaAPI = 1,
+  ViaRestart = 2,
+}
 
+class NodeManager extends AbstractManager {
   private nodeService: NodeService;
 
   private smesherManager: SmesherManager;
 
   private nodeProcess: ChildProcess | null;
 
-  private netId: number;
+  private nodeLogStream: Writable | null = null;
+
+  private genesisID: string;
+
+  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS);
+
+  public $nodeStatus = this.$_nodeStatus.asObservable();
+
+  public $warnings = new Subject<Warning>();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -85,22 +111,20 @@ class NodeManager {
       // Checking for `!exitError` is needed to avoid showing some fatal errors
       // that are consequence of Node crash
       // E.G. SIGKILL of Node will also produce a bunch of GRPC errors
-      if (!exitError) {
-        const errors = poolList.filter(
-          (a) => a.type === 'NodeError'
-        ) as PoolNodeError[];
-        if (errors.length > 1) {
-          const mostCriticalError = errors.sort(
-            (a, b) => b.error.level - a.error.level
-          )[0].error;
-          this.sendNodeError(mostCriticalError);
-          return;
-        }
+      const errors = poolList.filter(
+        (a) => a.type === 'NodeError'
+      ) as PoolNodeError[];
+      if (errors.length > 0) {
+        const mostCriticalError = errors.sort(
+          (a, b) => b.error.level - a.error.level
+        )[0].error;
+        this.sendNodeError(mostCriticalError);
+        return;
       }
       // Otherwise if Node exited, but there are no critical errors
       // in the pool — search for fatal error in the logs
       const lastLines = await readLinesFromBottom(
-        getNodeLogsPath(this.netId),
+        getNodeLogsPath(this.genesisID),
         100
       );
       const fatalErrorLine = lastLines.find((line) =>
@@ -130,23 +154,32 @@ class NodeManager {
 
   constructor(
     mainWindow: BrowserWindow,
-    netId: number,
+    genesisID: string,
     smesherManager: SmesherManager
   ) {
-    this.mainWindow = mainWindow;
+    super(mainWindow);
     this.nodeService = new NodeService();
-    this.subscribeToEvents();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
-    this.netId = netId;
+    this.genesisID = genesisID;
   }
 
-  subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.N_M_START_NODE, async () =>
-      this.isNodeRunning() ? true : this.startNode()
-    );
+  // Before deleting
+  unsubscribe = () => {
+    this.stopNode();
+    this.nodeService.cancelStreams();
+    this.unsubscribeIPC();
+  };
 
-    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
+  getGenesisID = () => this.genesisID;
+
+  setGenesisID = (id: HexString) => {
+    this.genesisID = id;
+  };
+
+  subscribeIPCEvents() {
+    // Handlers
+    const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
           this.mainWindow.webContents.send(
@@ -154,86 +187,11 @@ class NodeManager {
             payload
           )
         )
-        .catch((error) => {
-          this.sendNodeError(error);
-          logger.error('getVersionAndBuild', error);
-        })
-    );
-    ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
+        .catch((error) => this.pushNodeError(error));
+    const setNodePort = (_event, request) => {
       StoreService.set('node.port', request.port);
-    });
-
-    // Always return true / false to notify caller that it is done
-    ipcMain.handle(
-      ipcConsts.N_M_RESTART_NODE,
-      (): Promise<boolean> =>
-        this.restartNode().catch((error) => {
-          this.sendNodeError(error);
-          logger.error('restartNode', error);
-          return false;
-        })
-    );
-
-    ipcMain.handle(
-      ipcConsts.SMESHER_START_SMESHING,
-      async (_event, { postSetupOpts }: { postSetupOpts: PostSetupOpts }) => {
-        if (!postSetupOpts.dataDir) {
-          throw new Error(
-            'Can not setup Smeshing without specified data directory'
-          );
-        }
-        // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
-        const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
-        const CURRENT_KEYBIN_PATH = path.resolve(
-          CURRENT_DATADIR_PATH,
-          'key.bin'
-        );
-        const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
-
-        const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
-        const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
-        const isSameDataDir = CURRENT_DATADIR_PATH === postSetupOpts?.dataDir;
-
-        const startSmeshingAsUsual = async (opts) => {
-          // Next two lines is a normal workflow.
-          // It can be moved back to SmesherManager when issue
-          // https://github.com/spacemeshos/go-spacemesh/issues/2858
-          // will be solved, and all these kludges can be removed.
-          await this.smesherManager.startSmeshing(opts);
-          return this.smesherManager.updateSmeshingConfig(opts);
-        };
-
-        // If post data-dir does not changed and it contains key.bin file
-        // assume that everything is fine and start smeshing as usual
-        if (isSameDataDir && isDataDirKeyFileExist)
-          return startSmeshingAsUsual(postSetupOpts);
-
-        // In other cases:
-        // NextDataDir    CurrentDataDir     Action
-        // Not exist      Exist              Copy key.bin & start
-        // Not exist      Not exist          Update config & restart node
-        // Exist          Not exist          Update config & restart node
-        // Exist          Exist              Compare checksum
-        //                                   - if equal: start as usual
-        //                                   - if not: update config & restart node
-        if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
-          await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
-          return startSmeshingAsUsual(postSetupOpts);
-        } else if (isDefaultKeyFileExist && isDataDirKeyFileExist) {
-          const defChecksum = await checksum(CURRENT_KEYBIN_PATH);
-          const dataChecksum = await checksum(NEXT_KEYBIN_PATH);
-          if (defChecksum === dataChecksum) {
-            return startSmeshingAsUsual(postSetupOpts);
-          }
-        }
-        // In other cases — update config first and then restart the node
-        // it will start Smeshing automatically based on the config
-        await this.smesherManager.updateSmeshingConfig(postSetupOpts);
-        return this.restartNode();
-      }
-    );
-
-    ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, async () => {
+    };
+    const promptChangeDir = async () => {
       const oldPath = StoreService.get('node.dataPath');
       const prompt = await dialog.showOpenDialog(this.mainWindow, {
         title: 'Choose new directory for Mesh database',
@@ -260,93 +218,275 @@ class NodeManager {
       StoreService.set('node.dataPath', newPath);
       // Start the Node
       return this.startNode();
-    });
+    };
+    // Subscriptions
+    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
+    ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
+    ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
+    // Unsub
+    return () => {
+      ipcMain.removeListener(
+        ipcConsts.N_M_GET_VERSION_AND_BUILD,
+        getVersionAndBuild
+      );
+      ipcMain.removeListener(ipcConsts.SET_NODE_PORT, setNodePort);
+      ipcMain.removeHandler(ipcConsts.N_M_RESTART_NODE);
+      ipcMain.removeHandler(ipcConsts.PROMPT_CHANGE_DATADIR);
+    };
+  }
+
+  isNodeAlive = debounceShared(
+    200,
+    async (retries = 60): Promise<boolean> => {
+      if (!this.isNodeRunning()) {
+        return false;
+      }
+      const isReady = await this.nodeService.echo();
+      if (isReady) {
+        return true;
+      } else if (retries > 0) {
+        await delay(1000);
+        return this.isNodeAlive(retries - 1);
+      } else {
+        return false;
+      }
+    }
+  );
+
+  isNodeRunning = () => {
+    return !!this.nodeProcess && this.nodeProcess.exitCode === null;
   };
 
-  waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
-    const isReady = await this.nodeService.echo();
-    if (isReady) {
-      resolve(true);
-    } else if (attempts > 0) {
-      setTimeout(async () => {
-        await this.waitForNodeServiceResponsiveness(resolve, attempts - 1);
-      }, 5000);
+  connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    this.nodeService.cancelStreams();
+    await this.stopNode();
+    this.$_nodeStatus.reset();
+
+    this.nodeService.createService(apiUrl);
+    const success = await this.updateNodeStatus();
+    if (success) {
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      return true;
     } else {
-      resolve(false);
+      this.pushNodeError({
+        msg: 'Remote API is not responding',
+        stackTrace: '',
+        module: 'NodeManager',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+      });
+      return false;
     }
   };
 
-  isNodeRunning = () => !!this.nodeProcess;
-
-  connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
-    this.nodeService.createService(apiUrl);
-    return this.getNodeStatus(5);
+  startGRPCClient = async () => {
+    this.nodeService.createService();
+    const success = await this.isNodeAlive();
+    if (success) {
+      // update node status once by query request
+      await this.updateNodeStatus();
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      // resubscribe smesherManager IPC Events if needed
+      this.smesherManager.subscribeIPC();
+      // and then call method to update renderer data
+      // TODO: move into `sources/smesherInfo` module
+      await this.smesherManager.serviceStartupFlow();
+      return true;
+    } else {
+      return this.startGRPCClient();
+    }
   };
 
   startNode = async () => {
+    if (this.isNodeRunning()) return true;
+    this.$_nodeStatus.reset();
     await this.spawnNode();
-    this.nodeService.createService();
-    const success = await new Promise<boolean>((resolve) => {
-      this.waitForNodeServiceResponsiveness(resolve, 15);
-    });
-    if (success) {
-      await this.getNodeStatus(5);
-      this.activateNodeErrorStream();
-      await this.smesherManager.serviceStartupFlow();
-      return true;
+    this.startGRPCClient();
+    return true;
+  };
+
+  updateNodeStatus = async () => {
+    // wait for status response
+    const status = await this.getNodeStatus(5);
+    // update node status
+    this.sendNodeStatus(status);
+    return true;
+  };
+
+  //
+  startSmeshing = async (
+    postSetupOpts: PostSetupOpts,
+    provingOpts: PostProvingOpts
+  ) => {
+    if (!postSetupOpts.dataDir) {
+      throw new Error(
+        'Can not setup Smeshing without specified data directory'
+      );
     }
-    return false; // TODO: add error handling
+
+    if (!this.isNodeRunning()) {
+      await this.startNode();
+    }
+
+    // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
+    const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir(
+      this.genesisID
+    );
+    const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');
+    const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
+
+    const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
+    const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
+
+    if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
+      // Copy current `key.bin` file into newly created PoS directory
+      await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
+    }
+
+    const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
+      posInitStart: Date.now(),
+    });
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, metadata);
+
+    // In other cases — update config and restart the node
+    // it will start Smeshing automatically based on the config
+    await this.smesherManager.updateSmeshingConfig(
+      postSetupOpts,
+      provingOpts,
+      this.genesisID
+    );
+    await this.restartNode();
+    return SmeshingSetupState.ViaRestart;
   };
 
   private spawnNode = async () => {
-    if (this.nodeProcess) return;
-    const userDataPath = app.getPath('userData');
-    const nodeDir = path.resolve(
-      app.getAppPath(),
-      process.env.NODE_ENV === 'development'
-        ? `../node/${osTargetNames[os.type()]}/`
-        : '../../node/'
+    if (this.isNodeRunning()) return;
+    const nodeDir = getBinaryPath();
+    const nodePath = getNodePath();
+    const nodeDataFilesPath = path.join(
+      StoreService.get('node.dataPath'),
+      this.genesisID.substring(0, 8)
     );
-    const nodePath = path.resolve(
-      nodeDir,
-      `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
-    );
-    const nodeDataFilesPath = StoreService.get('node.dataPath');
-    const nodeConfig = await NodeConfig.load();
-    const logFilePath = path.resolve(
-      `${userDataPath}`,
-      `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`
+    const logFilePath = getNodeLogsPath(this.genesisID);
+
+    this.nodeLogStream = rotator({
+      file: logFilePath,
+      size: '100m',
+      keep: 5,
+      compress: true,
+    });
+
+    this.nodeLogStream.on('error', (err) =>
+      this.$warnings.next(
+        Warning.fromError(
+          WarningType.WriteFilePermission,
+          {
+            kind: WriteFilePermissionWarningKind.Logger,
+            filePath: logFilePath,
+          },
+          err
+        )
+      )
     );
 
-    const logFileStream = fs.createWriteStream(logFilePath, {
-      flags: 'a',
-      encoding: 'utf-8',
-    });
+    const nodeArgumentsMap = {
+      'pprof-server': getProofOfServerClientValue(),
+    };
+
+    const nodeUserArguments = {
+      'grpc-private-listener':
+        getGrpcPublicPort() === DEFAULT_GRPC_PRIVATE_PORT
+          ? undefined
+          : `127.0.0.1:${getGrpcPrivatePort()}`,
+      'grpc-public-listener':
+        getGrpcPublicPort() === DEFAULT_GRPC_PUBLIC_PORT
+          ? undefined
+          : `127.0.0.1:${getGrpcPublicPort()}`,
+    };
+
     const args = [
       '--config',
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
-      '--log-encoder',
-      'json',
+      ...Object.values(nodeArgumentsMap)
+        .filter((value) => value)
+        .map((value) => `--${value}`), // ['--key']
+      ...Object.keys(nodeUserArguments)
+        .filter((key) => nodeUserArguments[key])
+        .map((key) => [`--${key}`, nodeUserArguments[key]])
+        .reduce((prev, curr) => prev.concat(curr), []), // ['--key', 'value']
     ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
-    this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
-    this.nodeProcess.stdout?.pipe(logFileStream);
-    this.nodeProcess.stderr?.pipe(logFileStream);
-    this.nodeProcess.on('error', (error) => {
-      logger.error('Node Process error', error);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (process.env.NODE_ENV !== 'production' ||
-        process.env.DEBUG_PROD === 'true') &&
-        dialog.showErrorBox('Smesher Error', `${error}`);
-      this.pushToErrorPool({
-        type: 'NodeError',
-        error: defaultCrashError(error),
-      });
+
+    const transformNodeError = (error: any) => {
+      if (error?.code && error?.syscall?.startsWith('spawn')) {
+        const reason = getSpawnErrorReason(error);
+        return {
+          msg: 'Cannot spawn the Node process'.concat(reason),
+          level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
+          module: 'NodeManager',
+          stackTrace: JSON.stringify(error),
+        };
+      }
+      return defaultCrashError(error);
+    };
+
+    try {
+      this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
+    } catch (err) {
+      this.nodeProcess = null;
+      logger.error('spawnNode: can not spawn process', err);
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
+      return;
+    }
+
+    this.nodeProcess.stderr?.on('data', (data) => {
+      // In case if we can not spawn the process we'll have
+      // an empty stderr.pipe`, but we can catch the error here
+      if (this.nodeProcess?.exitCode && this.nodeProcess.exitCode > 0) {
+        const decoder = new TextDecoder();
+        const spawnError = decoder
+          .decode(data)
+          .replaceAll(`${nodePath}: `, '')
+          .replaceAll('\n', ' ')
+          .trim();
+        const error: NodeError = {
+          level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
+          module: 'NodeManager',
+          msg: `Can't start the Node: ${spawnError}`,
+          stackTrace: '',
+        };
+        this.nodeLogStream?.write(JSON.stringify(error));
+        this.pushToErrorPool({
+          type: 'NodeError',
+          error,
+        });
+
+        logger.error('spawnNode', error);
+
+        return;
+      }
+
+      this.nodeLogStream?.write(data);
+    });
+
+    this.nodeProcess.stdout?.pipe(this.nodeLogStream, { end: false });
+    this.nodeProcess.stderr?.pipe(this.nodeLogStream, { end: false });
+
+    this.nodeProcess.on('error', (err) => {
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
+      this.nodeLogStream?.write(JSON.stringify(error));
     });
     this.nodeProcess.on('close', (code, signal) => {
+      logger.error('Node Process close', code, signal);
+      this.nodeLogStream?.end();
       this.pushToErrorPool({ type: 'Exit', code, signal });
     });
   };
@@ -357,21 +497,27 @@ class NodeManager {
     interval: number
   ): Promise<boolean> => {
     if (!this.nodeProcess) return true;
-    const isFinished = !this.nodeProcess.kill(0);
+    const isFinished = this.nodeProcess.exitCode !== null;
+    logger.log(
+      'Spawn process',
+      `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
+    );
     if (timeout <= 0) return isFinished;
-    if (isFinished) return true;
-    return isFinished
-      ? true
-      : delay(interval).then(() =>
-          this.waitProcessFinish(timeout - interval, interval)
-        );
+    return (
+      isFinished ||
+      delay(interval).then(() =>
+        this.waitProcessFinish(timeout - interval, interval)
+      )
+    );
   };
 
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.smesherManager.unsubscribe();
       // Request Node shutdown
-      await this.nodeService.shutdown();
+      this.nodeProcess.kill('SIGTERM');
+      logger.log('stop node', 'kill SIGTERM');
       // Wait until the process finish in a proper way
       !(await this.waitProcessFinish(
         PROCESS_EXIT_TIMEOUT,
@@ -390,6 +536,8 @@ class NodeManager {
         )) &&
         // Send a SIGKILL to force kill the process
         this.nodeProcess.kill('SIGKILL');
+
+      logger.log('stop node', 'node process is null');
       // Finally, drop the reference
       this.nodeProcess = null;
     } catch (err) {
@@ -400,29 +548,31 @@ class NodeManager {
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
     await this.stopNode();
-    const res = await this.startNode();
-    if (!res) {
-      throw {
-        msg: 'Cannot restart the Node',
-        level: NodeErrorLevel.LOG_LEVEL_FATAL,
-        stackTrace: '',
-        module: 'NodeManager',
-      } as NodeError;
-    }
-    return res;
+    return this.startNode();
   };
 
   getVersionAndBuild = async () => {
-    const version = await this.nodeService.getNodeVersion();
-    const build = await this.nodeService.getNodeBuild();
-    return { version, build };
+    try {
+      const alive = await this.isNodeAlive();
+      if (alive) {
+        const version = await this.nodeService.getNodeVersion();
+        const build = await this.nodeService.getNodeBuild();
+        return { version, build };
+      } else {
+        return { version: '', build: 'node-not-started' };
+      }
+    } catch (err) {
+      logger.error('getVersionAndBuild', err);
+      return { version: '', build: '' };
+    }
   };
 
-  sendNodeStatus: StatusStreamHandler = (status) => {
+  sendNodeStatus: StatusStreamHandler = debounce(200, (status: NodeStatus) => {
+    this.$_nodeStatus.next(status);
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
-  };
+  });
 
-  sendNodeError: ErrorStreamHandler = async (error) => {
+  sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
@@ -442,7 +592,7 @@ class NodeManager {
       // Send only critical errors
       this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
     }
-  };
+  });
 
   pushNodeError = (error: NodeError) => {
     this.pushToErrorPool({ type: 'NodeError', error });
@@ -450,17 +600,18 @@ class NodeManager {
 
   getNodeStatus = async (retries: number): Promise<NodeStatus> => {
     try {
-      const status = await this.nodeService.getNodeStatus();
-      this.sendNodeStatus(status);
-      this.nodeService.activateStatusStream(
-        this.sendNodeStatus,
-        this.pushNodeError
-      );
-      return status;
+      return await this.nodeService.getNodeStatus();
     } catch (error) {
       if (retries > 0)
-        return delay(200).then(() => this.getNodeStatus(retries - 1));
-      throw error;
+        return delay(500).then(() => this.getNodeStatus(retries - 1));
+      logger.error('getNodeStatus', error);
+      return {
+        connectedPeers: 0,
+        isSynced: false,
+        syncedLayer: 0,
+        topLayer: 0,
+        verifiedLayer: 0,
+      };
     }
   };
 
@@ -468,13 +619,11 @@ class NodeManager {
     this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
-  isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
-    const res = await this.nodeService.echo();
-    if (!res && attemptNumber < 3) {
-      return delay(200).then(() => this.isNodeAlive(attemptNumber + 1));
-    }
-    return res;
-  };
+  activateNodeStatusStream = () =>
+    this.nodeService.activateStatusStream(
+      this.sendNodeStatus,
+      this.pushNodeError
+    );
 }
 
 export default NodeManager;

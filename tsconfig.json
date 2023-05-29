@@ -3,6 +3,8 @@
     "target": "ES2018",
     "module": "CommonJS",
     "lib": ["dom", "esnext"],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,
@@ -13,8 +15,6 @@
     "inlineSources": true,
     "sourceRoot": "/",
     /* Additional Checks */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     /* Module Resolution Options */
@@ -31,14 +31,15 @@
   },
   "exclude": [
     "node_modules",
-    "test",
     "release",
     "desktop/main.prod.js",
     "desktop/renderer.prod.js",
-    "dist",
+    "dist/",
     "dll",
     "configs",
     "node",
-    "scripts"
+    "scripts",
+    "proto",
+    "storybook-static",
   ]
 }

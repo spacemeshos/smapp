@@ -4,6 +4,7 @@ import type { ActivationId as _spacemesh_v1_ActivationId, ActivationId__Output a
 import type { LayerNumber as _spacemesh_v1_LayerNumber, LayerNumber__Output as _spacemesh_v1_LayerNumber__Output } from '../../spacemesh/v1/LayerNumber';
 import type { SmesherId as _spacemesh_v1_SmesherId, SmesherId__Output as _spacemesh_v1_SmesherId__Output } from '../../spacemesh/v1/SmesherId';
 import type { AccountId as _spacemesh_v1_AccountId, AccountId__Output as _spacemesh_v1_AccountId__Output } from '../../spacemesh/v1/AccountId';
+import type { Long } from '@grpc/proto-loader';
 
 export interface Activation {
   'id'?: (_spacemesh_v1_ActivationId | null);
@@ -12,6 +13,7 @@ export interface Activation {
   'coinbase'?: (_spacemesh_v1_AccountId | null);
   'prevAtx'?: (_spacemesh_v1_ActivationId | null);
   'numUnits'?: (number);
+  'sequence'?: (number | string | Long);
 }
 
 export interface Activation__Output {
@@ -21,4 +23,5 @@ export interface Activation__Output {
   'coinbase': (_spacemesh_v1_AccountId__Output | null);
   'prevAtx': (_spacemesh_v1_ActivationId__Output | null);
   'numUnits': (number);
+  'sequence': (Long);
 }

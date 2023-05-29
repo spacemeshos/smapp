@@ -3,12 +3,11 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { LatestTransactions } from '../../components/transactions';
-import { Button, Link } from '../../basicComponents';
+import { BoldText, Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
-import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
-import { PostSetupState } from '../../../shared/types';
+import { PostSetupState, TxState } from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
@@ -23,30 +22,42 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const MiddleSectionHeader = styled.div`
+const MiddleSectionHeader = styled(BoldText)`
   margin-bottom: 10px;
-  font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const MiddleSectionText = styled.div`
   flex: 1;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Overview = ({ history }: RouteComponentProps) => {
-  const account = useSelector(
-    (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]
+  const accountIndex = useSelector(
+    (state: RootState) => state.wallet.currentAccountIndex || 0
   );
+  const currentLayer = useSelector(
+    (state: RootState) => state.node.status?.topLayer || 0
+  );
+
+  const account = useSelector(
+    (state: RootState) => state.wallet.accounts[accountIndex]
+  );
+  const txs = useSelector(
+    (state: RootState) =>
+      (account?.address &&
+        Object.values(state?.wallet?.transactions?.[account.address] || {})) ||
+      []
+  );
+
   const isSmeshing = useSelector(
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_COMPLETE
@@ -55,6 +66,10 @@ const Overview = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS
   );
+
+  const navigateToSpawnAccount = async () => {
+    history.push(WalletPath.SpawnAccount);
+  };
 
   const navigateToSendCoins = () => {
     history.push(WalletPath.SendCoins);
@@ -73,6 +88,39 @@ const Overview = ({ history }: RouteComponentProps) => {
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
+  const pendingSpawnTx = txs.find(
+    (tx) =>
+      tx.meta?.templateName === 'SingleSig' &&
+      tx.method === 0 &&
+      (tx.status === TxState.MEMPOOL ||
+        tx.status === TxState.MESH ||
+        tx.status === TxState.PROCESSED) &&
+      tx.layer &&
+      currentLayer > 0 &&
+      currentLayer - 5 < tx.layer
+  );
+  const isAccountPendingSpawnTx = !!pendingSpawnTx;
+  const isAccountSpawned = !!txs.find(
+    (tx) =>
+      tx.meta?.templateName === 'SingleSig' &&
+      tx.method === 0 &&
+      tx.status === TxState.SUCCESS
+  );
+
+  const renderMiddleSection = () =>
+    isAccountSpawned ? (
+      <MiddleSectionText>
+        Send SMH to anyone, or request to receive SMH.
+      </MiddleSectionText>
+    ) : (
+      <MiddleSectionText>
+        <strong>The account is not spawned yet.</strong>
+        <br />
+        It means you can receive SMH on this address, but to send SMH to someone
+        else you will need to spawn account first.
+      </MiddleSectionText>
+    );
+
   return (
     <Wrapper>
       <MiddleSection>
@@ -81,18 +129,29 @@ const Overview = ({ history }: RouteComponentProps) => {
           <br />
           --
         </MiddleSectionHeader>
-        <MiddleSectionText>
-          Send SMH to anyone, or request to receive SMH.
-        </MiddleSectionText>
-        <Button
-          onClick={navigateToSendCoins}
-          text="SEND"
-          isPrimary={false}
-          width={225}
-          img={sendIcon}
-          imgPosition="after"
-          style={{ marginBottom: 20 }}
-        />
+        {renderMiddleSection()}
+        {!isAccountSpawned ? (
+          <Button
+            onClick={navigateToSpawnAccount}
+            text="SPAWN"
+            isPrimary
+            width={225}
+            img={sendIcon}
+            imgPosition="after"
+            style={{ marginBottom: 20 }}
+            isDisabled={isAccountPendingSpawnTx}
+          />
+        ) : (
+          <Button
+            onClick={navigateToSendCoins}
+            text="SEND"
+            isPrimary={false}
+            width={225}
+            img={sendIcon}
+            imgPosition="after"
+            style={{ marginBottom: 20 }}
+          />
+        )}
         <Button
           onClick={navigateToRequestCoins}
           text="REQUEST"

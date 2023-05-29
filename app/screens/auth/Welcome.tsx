@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredContainer } from '../../components/common';
 import { SubHeader } from '../../components/common/CorneredContainer';
@@ -11,7 +10,6 @@ import {
   walletSecond,
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -30,8 +28,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.black};
+  background-color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Row = styled.div`
@@ -51,7 +48,7 @@ const Icon = styled.img`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const BottomPart = styled.div`
@@ -80,7 +77,7 @@ const LinkText = styled.span`
 `;
 
 const LearnMoreText = styled.div`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-top: 20px;
   margin-bottom: auto;
 `;
@@ -94,16 +91,10 @@ const SubHeaderExt = styled(SubHeader)`
 `;
 
 const Welcome = ({ history }: AuthRouterParams) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   return (
-    <CorneredContainer
-      width={760}
-      height={400}
-      header="WELCOME TO SPACEMESH"
-      isDarkMode={isDarkMode}
-    >
+    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH">
       <SubHeaderExt>
         <RowText>
           <span>
@@ -140,7 +131,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
             onClick={() => history.push(AuthPath.Recover)}
             text="OPEN AN EXISTING WALLET"
           />
-          <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
+          <Tooltip width={140} text="Locate a file or restore from 12 words" />
           <ButtonMargin>
             <Button
               text="SETUP"

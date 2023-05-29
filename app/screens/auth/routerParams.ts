@@ -7,7 +7,7 @@ type AuthLocationState = Partial<{
   creatingWallet: boolean;
   redirect: string; // TODO: Enums of paths?
   apiUrl: SocketAddress | null;
-  netId: number;
+  genesisID: string;
   isWalletOnly: boolean;
 }>;
 

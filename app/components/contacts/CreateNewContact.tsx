@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
-import { Input, Link, ErrorPopup } from '../../basicComponents';
+import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { Contact } from '../../../shared/types';
+import { handleInputFocus, validate } from './utils';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
   display: flex;
@@ -17,15 +17,14 @@ const Wrapper = styled.div<{ isStandalone: boolean }>`
     isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
-const Header = styled.div<{ isStandalone: boolean }>`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)<{ isStandalone: boolean }>`
   font-size: 15px;
   line-height: 20px;
   color: ${({ isStandalone, theme }) => {
     if (isStandalone) {
       return smColors.white;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;
@@ -45,6 +44,7 @@ const InputWrapperUpperPart = styled.div<{ isStandalone: boolean }>`
   width: ${({ isStandalone }) => (isStandalone ? '100%' : 'calc(100% - 5px)')};
   background-color: ${smColors.purple};
   z-index: 1;
+  ${({ theme: { form } }) => ` border-radius: ${form.input.boxRadius}px;`}
 `;
 
 const InputWrapperLowerPart = styled.div`
@@ -53,7 +53,8 @@ const InputWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 60px;
-  border: 1px solid ${smColors.purple};
+  ${({ theme }) => `
+  border: ${Number(theme.themeName !== 'modern')}px solid ${smColors.purple};`}
 `;
 
 const ButtonsWrapper = styled.div`
@@ -73,6 +74,10 @@ type Props = {
   onCancel: () => void;
 };
 
+type ValidateError = {
+  type: 'address' | 'name';
+  message: string;
+};
 const CreateNewContact = ({
   isStandalone = false,
   initialAddress = '',
@@ -80,57 +85,24 @@ const CreateNewContact = ({
   onCancel,
 }: Props) => {
   const [address, setAddress] = useState(initialAddress || '');
-  // const [initialAddress, setIn] = useState(initialAddress || '');
   const [nickname, setNickname] = useState('');
-  const [hasError, setHasError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState<ValidateError | null>();
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const dispatch = useDispatch();
 
-  // static getDerivedStateFromProps(props: Props, prevState: State) {
-  //   if (props.initialAddress !== prevState.initialAddress) {
-  //     return { address: props.initialAddress, initialAddress: props.initialAddress };
-  //   }
-  //   return null;
-  // }
-
-  const handleFocus = ({ target }: { target: EventTarget | null }) => {
-    // @ts-ignore
-    target?.select();
-  };
-
-  const validate = () => {
-    const nicknameRegex = /^([a-zA-Z0-9_-])$/;
-    if (nicknameRegex.test(nickname)) {
-      return 'Nickname is missing or invalid';
-    }
-    const addressRegex = /\b0[xX][a-zA-Z0-9]{40}\b/;
-    if (!addressRegex.test(address)) {
-      return 'Address is invalid';
-    }
-    let retVal = '';
-    contacts.forEach((contact: Contact) => {
-      if (contact.nickname === nickname) {
-        retVal = 'Nickname should be unique';
-      }
-    });
-    return retVal;
-  };
-
-  const preCreateContact = () => {
-    const errorMsg = validate();
-    if (errorMsg) {
-      setHasError(true);
-      setErrorMsg(errorMsg);
+  const onSave = () => {
+    const error = validate(nickname, address, contacts);
+    if (error) {
+      setError(error);
     } else {
       setShouldShowPasswordModal(true);
     }
   };
 
-  const createContact = async ({ password }: { password: string }) => {
-    await dispatch(addToContacts({ password, contact: { address, nickname } }));
+  const onValidPassword = async ({ password }: { password: string }) => {
+    dispatch(addToContacts({ password, contact: { address, nickname } }));
     onCompleteAction();
   };
 
@@ -141,6 +113,7 @@ const CreateNewContact = ({
         <br />
         --
       </Header>
+
       <InputsWrapper isStandalone={isStandalone}>
         <InputWrapperUpperPart isStandalone={isStandalone}>
           <Input
@@ -148,7 +121,7 @@ const CreateNewContact = ({
             placeholder="Nickname"
             onChange={({ value }) => {
               setNickname(value);
-              setHasError(false);
+              setError(null);
             }}
             maxLength="50"
             style={isStandalone ? inputStyle2 : inputStyle1}
@@ -156,20 +129,26 @@ const CreateNewContact = ({
           />
           <Input
             value={address}
-            placeholder="Account address 0x24f7..."
+            placeholder="Account address"
             onChange={({ value }) => {
               setAddress(value);
-              setHasError(false);
+              setError(null);
             }}
-            maxLength="64"
+            maxLength="90"
             style={isStandalone ? inputStyle3 : inputStyle1}
-            onFocus={handleFocus}
+            onFocus={handleInputFocus}
           />
-          {hasError && (
+          {error && (
             <ErrorPopup
-              onClick={() => setHasError(false)}
-              text={errorMsg}
-              style={{ bottom: 60, left: 'calc(50% - 90px)' }}
+              onClick={() => setError(null)}
+              text={error.message.toUpperCase()}
+              style={{
+                bottom: -33,
+                left:
+                  error.type === 'name'
+                    ? 'calc(0% + 10px)'
+                    : 'calc(50% + 10px)',
+              }}
             />
           )}
         </InputWrapperUpperPart>
@@ -177,7 +156,7 @@ const CreateNewContact = ({
       </InputsWrapper>
       <ButtonsWrapper>
         <Link
-          onClick={preCreateContact}
+          onClick={onSave}
           text="CREATE"
           style={{ color: smColors.green, marginRight: 15 }}
         />
@@ -189,7 +168,7 @@ const CreateNewContact = ({
       </ButtonsWrapper>
       {shouldShowPasswordModal && (
         <EnterPasswordModal
-          submitAction={createContact}
+          submitAction={onValidPassword}
           closeModal={() => setShouldShowPasswordModal(false)}
         />
       )}

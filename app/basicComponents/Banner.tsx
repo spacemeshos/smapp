@@ -21,6 +21,12 @@ const UpperPart = styled.div<{ color: string }>`
   height: 55px;
   background-color: ${({ color }) => color};
   z-index: 1;
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const LowerPart = styled.div<{ color: string }>`
@@ -29,7 +35,9 @@ const LowerPart = styled.div<{ color: string }>`
   left: 0;
   width: calc(100% - 5px);
   height: 55px;
-  border: 1px solid ${({ color }) => color};
+  border: 1px solid
+    ${({ theme: { themeName }, color }) =>
+      themeName === 'modern' ? 'transparent' : color};
 `;
 
 type Props = {

@@ -19,6 +19,7 @@ export const PAUSED_SMESHING = 'PAUSED_SMESHING';
 export const RESUMED_SMESHING = 'RESUMED_SMESHING';
 export const SET_POST_DATA_CREATION_STATUS = 'SET_POST_DATA_CREATION_STATUS';
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
+export const SET_METADATA = 'SET_METADATA';
 
 export const startSmeshing = ({
   coinbase,
@@ -26,22 +27,34 @@ export const startSmeshing = ({
   numUnits,
   provider,
   throttle,
-}: SmeshingOpts) => async (dispatch: AppThDispatch) => {
+  maxFileSize,
+  nonces,
+  threads,
+}: SmeshingOpts) => async (dispatch: AppThDispatch): Promise<boolean> => {
   try {
-    // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
-    await eventsService.startSmeshing({
-      coinbase,
-      dataDir,
-      numUnits,
-      numFiles: 1,
-      computeProviderId: provider,
-      throttle,
-    });
-    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
-    localStorage.removeItem('smesherSmeshingTimestamp');
+    await eventsService.startSmeshing([
+      {
+        coinbase,
+        dataDir,
+        numUnits,
+        maxFileSize,
+        provider,
+        throttle,
+      },
+      { nonces, threads },
+    ]);
     dispatch({
       type: STARTED_SMESHING,
-      payload: { coinbase, dataDir, numUnits, provider, throttle },
+      payload: {
+        coinbase,
+        dataDir,
+        numUnits,
+        provider,
+        throttle,
+        maxFileSize,
+        nonces,
+        threads,
+      },
     });
     return true;
   } catch (error) {
@@ -53,20 +66,12 @@ export const startSmeshing = ({
 };
 
 export const deletePosData = () => async (dispatch: AppThDispatch) => {
-  const res = await eventsService.stopSmeshing({ deleteFiles: true });
-  if (res?.error) {
-    console.error(res.error); // eslint-disable-line no-console
-    return;
-  }
+  await eventsService.stopSmeshing({ deleteFiles: true });
   dispatch({ type: DELETED_POS_DATA });
 };
 
 export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
-  const res = await eventsService.stopSmeshing({ deleteFiles: false });
-  if (res?.error) {
-    console.error(res.error); // eslint-disable-line no-console
-    return;
-  }
+  await eventsService.stopSmeshing({ deleteFiles: false });
   dispatch({ type: PAUSED_SMESHING });
 };
 

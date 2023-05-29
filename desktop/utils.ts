@@ -3,14 +3,15 @@ import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
-import { HexString } from '../shared/types';
+import { configCodecByFirstChar } from '../shared/utils';
+import { NodeConfig } from '../shared/types';
 
 // --------------------------------------------------------
 // ENV modes
 // --------------------------------------------------------
 export const isProd = () => process.env.NODE_ENV === 'production';
 export const isDev = () => process.env.NODE_ENV === 'development';
-export const isDebug = () => isDev() || process.env.DEBUG_PROD;
+export const isDebug = () => isDev() || !!process.env.DEBUG_PROD;
 
 export const isDevNet = (
   proc = process
@@ -19,30 +20,16 @@ export const isDevNet = (
 } => proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
 // --------------------------------------------------------
-// HexString conversion
-// --------------------------------------------------------
-export const fromHexString = (hexString: HexString) => {
-  const bytes = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    // @ts-ignore
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
-  bytes instanceof Buffer
-    ? bytes.toString('hex')
-    : bytes.reduce(
-        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
-        ''
-      );
-
-// --------------------------------------------------------
 // Network
 // --------------------------------------------------------
 
 export const fetchJSON = async (url?: string) =>
   url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
+
+export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
+  fetch(`${url}?no-cache=${Date.now()}`)
+    .then((res) => res.text())
+    .then((res) => configCodecByFirstChar(res).parse(res));
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 
@@ -59,6 +46,7 @@ export const isByteArray = (a: any): a is Uint8Array => a instanceof Uint8Array;
 export const readFileAsync = util.promisify(fs.readFile);
 
 export const writeFileAsync = util.promisify(fs.writeFile);
+export const deleteFileAsync = util.promisify(fs.unlink);
 
 export const isFileExists = (filePath: string) =>
   fs.promises
@@ -114,3 +102,25 @@ export const checksum = (path: string) =>
   new Promise((resolve, reject) => {
     cs.file(path, (err, hash) => (err ? reject(err) : resolve(hash)));
   });
+
+//
+//
+//
+
+// Transforms errors into user-friendly reason by codes (if exist)
+// It maps both types of system errors for Linux-based OS and Windows
+export const getSpawnErrorReason = (err: any) => {
+  switch (err?.code || 'UNKNOWN') {
+    case 'EPERM':
+    case 'EACCES':
+    case 'ERROR_ACCESS_DENIED':
+      return ': check permissions';
+    case 'ENOENT':
+    case 'ERROR_FILE_NOT_FOUND':
+    case 'ERROR_PATH_NOT_FOUND':
+      return ': go-spacemesh binary not found';
+    case 'UNKNOWN':
+    default:
+      return '';
+  }
+};

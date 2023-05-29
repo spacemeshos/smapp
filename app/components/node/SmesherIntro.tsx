@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link, Button } from '../../basicComponents';
+import { Link, Button, BoldText } from '../../basicComponents';
 import {
   posIcon,
-  fireworks,
-  fireworksWhite,
   posNotification,
   posComputer,
   posAwake,
@@ -12,7 +10,9 @@ import {
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
 
-const Fireworks = styled.img`
+const Fireworks = styled.img.attrs(({ theme: { icons: { fireworks } } }) => ({
+  src: fireworks,
+}))`
   width: 150px;
   height: 150px;
   margin-top: -25px;
@@ -28,22 +28,19 @@ const TextWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 15px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
-const GreenText = styled.div`
+const GreenText = styled(BoldText)`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
   color: ${smColors.green};
   margin-bottom: 10px;
 `;
 
-const RedText = styled.div`
+const RedText = styled(BoldText)`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
   color: ${smColors.red};
   margin-bottom: 10px;
 `;
@@ -88,10 +85,9 @@ const inlineLinkStyle = {
 
 type Props = {
   hideIntro: () => void;
-  isDarkMode: boolean;
 };
 
-const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
+const SmesherIntro = ({ hideIntro }: Props) => {
   const navigateToMiningGuide = () => window.open(ExternalLinks.SetupGuide);
 
   const navigateToPreventComputerSleep = () =>
@@ -99,7 +95,7 @@ const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
 
   return (
     <>
-      <Fireworks src={isDarkMode ? fireworksWhite : fireworks} />
+      <Fireworks />
       <GreenText>Your proof of space data is being created!</GreenText>
       <TextWrapper>
         <PosNotificationIcon src={posNotification} />

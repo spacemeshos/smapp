@@ -7,6 +7,8 @@ export interface PostConfigResponse {
   'labelsPerUnit'?: (number | string | Long);
   'minNumUnits'?: (number);
   'maxNumUnits'?: (number);
+  'k1'?: (number);
+  'k2'?: (number);
 }
 
 export interface PostConfigResponse__Output {
@@ -14,4 +16,6 @@ export interface PostConfigResponse__Output {
   'labelsPerUnit': (Long);
   'minNumUnits': (number);
   'maxNumUnits': (number);
+  'k1': (number);
+  'k2': (number);
 }

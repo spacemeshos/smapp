@@ -19,6 +19,11 @@ export enum AuthPath {
   // Wallet settings
   ConnectToAPI = '/auth/connect-to-api',
   SwitchNetwork = '/auth/switch-network',
+
+  ProtectWallet = '/auth/protect',
+  ProtectWalletTestMnemonic = '/auth/protect-test-menmonic',
+
+  WalletCreated = '/auth/wallet-created',
 }
 
 export enum MainPath {
@@ -39,6 +44,7 @@ export enum MainPath {
 export enum WalletPath {
   Overview = '/main/wallet/overview',
   Vault = '/main/wallet/vault',
+  SpawnAccount = '/main/wallet/spawn-account',
   SendCoins = '/main/wallet/send-coins',
   RequestCoins = '/main/wallet/request-coins',
 }

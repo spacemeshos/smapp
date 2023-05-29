@@ -1,28 +1,30 @@
 import { createGlobalStyle } from 'styled-components';
-import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
-import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
+import SourceCodeProRegular from './assets/fonts/SourceCodePro-Regular.ttf';
+import SourceCodeProBold from './assets/fonts/SourceCodePro-Bold.ttf';
 import { smColors } from './vars';
 
-const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
+export const fontsCss = `
     @font-face {
       font-family: SourceCodePro;
-      src: url(${srcReg});
-      font-weight:400;
-    }
-    
-    @font-face {
-      font-family: SourceCodeProBold;
-      src: url(${srcBold});
+      src: url(${SourceCodeProRegular});
+      font-style: normal;
       font-weight: 400;
     }
 
+    @font-face {
+      font-family: SourceCodePro;
+      src: url(${SourceCodeProBold});
+      font-weight: 800;
+    }
+`;
+
+const GlobalStyle = createGlobalStyle`
     html, body {
         width: 100%;
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${({ theme }) =>
-          theme.isDarkMode ? smColors.black : smColors.background};
+        background-color: ${({ theme: { skinBackground } }) => skinBackground};
     }
     
     html, body, div, span, applet, object, iframe,
@@ -64,8 +66,13 @@ const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
     
     input {
       box-sizing: border-box;
+      font-weight: 400;
       font-family: SourceCodePro, sans-serif;
-      font-weight: normal;
+    }
+
+    a {
+      color: ${smColors.blue};
+      cursor: pointer;
     }
 `;
 

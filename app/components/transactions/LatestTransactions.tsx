@@ -1,28 +1,24 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Button } from '../../basicComponents';
+import { BoldText, Button } from '../../basicComponents';
 import {
-  chevronLeftBlack,
-  chevronLeftWhite,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
-import {
-  getAbbreviatedText,
+  getAbbreviatedAddress,
   getFormattedTimestamp,
-  getAddress,
   formatSmidge,
+  getAbbreviatedText,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { TxState } from '../../../shared/types';
 import {
+  getContacts,
   getLatestTransactions,
   RewardView,
   TxView,
 } from '../../redux/wallet/selectors';
 import { isReward } from '../../../shared/types/guards';
+import { SingleSigMethods } from '../../../shared/templateConsts';
+import getStatusColor from '../../vars/getStatusColor';
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,15 +26,14 @@ const Wrapper = styled.div`
   width: 250px;
   height: 100%;
   padding: 20px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 10px;
 `;
 
@@ -48,7 +43,16 @@ const TxWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs<{ chevronRight: boolean }>(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft, chevronPrimaryRight },
+    },
+    chevronRight,
+  }) => ({
+    src: chevronRight ? chevronPrimaryRight : chevronPrimaryLeft,
+  })
+)<{ chevronRight: boolean }>`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -72,8 +76,7 @@ const Text = styled.div`
 `;
 
 const NickName = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Amount = styled.div`
@@ -85,54 +88,44 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
-  const publicKey = useSelector(
+  const address = useSelector(
     (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey
+      state.wallet.accounts[state.wallet.currentAccountIndex]?.address
   );
-  const latestTransactions = useSelector(getLatestTransactions(publicKey));
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const getColor = ({
-    status,
-    isSent,
-  }: {
-    status: number;
-    isSent: boolean;
-  }) => {
-    if (
-      status === TxState.TRANSACTION_STATE_MEMPOOL ||
-      status === TxState.TRANSACTION_STATE_MESH
-    ) {
-      return smColors.orange;
-    } else if (
-      status === TxState.TRANSACTION_STATE_REJECTED ||
-      status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS ||
-      status === TxState.TRANSACTION_STATE_CONFLICTING
-    ) {
-      return smColors.red;
-    }
-    return isSent ? smColors.blue : smColors.darkerGreen;
-  };
+  const latestTransactions = useSelector(getLatestTransactions(address));
+  const contacts = useSelector(getContacts);
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, amount, sender, timestamp, senderNickname } = tx;
-    const isSent = sender === getAddress(publicKey);
-    const color = getColor({ status, isSent });
-    const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
-    const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
+    const { id, status, timestamp, meta } = tx;
+    // TODO: Temporary solution until we don't support other account types
+    const isSent =
+      tx.method === SingleSigMethods.Spend && tx.principal === address;
+    const isSpawn = tx.method === SingleSigMethods.Spawn;
+    const color = getStatusColor(status, isSent);
     return (
       <TxWrapper key={`tx_${id}`}>
-        <Icon src={isSent ? chevronRight : chevronLeft} />
+        <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
-            <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
-            {id === 'reward' ? null : <Text>{getAbbreviatedText(id)}</Text>}
+            <Text>{meta && `${meta.templateName}.${meta.methodName}`}</Text>
+            <Text>{getAbbreviatedText(id)}</Text>
+            {isSent && (
+              <NickName>
+                {'-> '}
+                {contacts[tx.payload.Arguments.Destination] ||
+                  getAbbreviatedAddress(tx.payload.Arguments.Destination)}
+              </NickName>
+            )}
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              amount
-            )}`}</Amount>
+            <Text>{getFormattedTimestamp(timestamp, status)}</Text>
+            {!isSpawn && (
+              <Amount color={color}>
+                {`${isSent ? '-' : '+'}${formatSmidge(
+                  parseInt(tx.payload.Arguments.Amount, 10)
+                )}`}
+              </Amount>
+            )}
           </Section>
         </MainWrapper>
       </TxWrapper>
@@ -140,20 +133,19 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderReward = (tx: RewardView) => {
-    const { amount, timestamp, layer } = tx;
-    const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
+    const { amount, timestamp, layer, coinbase } = tx;
     return (
-      <TxWrapper key={`${publicKey}_reward_${layer}`}>
-        <Icon src={chevronLeft} />
+      <TxWrapper key={`${coinbase}_reward_${layer}`}>
+        <Icon chevronRight={false} />
         <MainWrapper>
           <Section>
             <NickName>Smeshing reward</NickName>
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={smColors.darkerGreen}>{`+${formatSmidge(
-              amount
-            )}`}</Amount>
+            <Text>{getFormattedTimestamp(timestamp, null)}</Text>
+            <Amount color={smColors.darkerGreen}>
+              {`+${formatSmidge(amount)}`}
+            </Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

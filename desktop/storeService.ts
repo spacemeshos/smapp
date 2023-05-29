@@ -1,40 +1,32 @@
 import path from 'path';
 import Store from 'electron-store';
-import { Function, Object, String } from 'ts-toolbelt';
-import { AccountBalance } from '../shared/types';
-import { Transaction } from '../proto/spacemesh/v1/Transaction';
-import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
+import { Object } from 'ts-toolbelt';
+import { AutoPath } from 'ts-toolbelt/out/Function/AutoPath';
+import { Split } from 'ts-toolbelt/out/String/Split';
+import { HexString } from '../shared/types';
 import { USERDATA_DIR } from './main/constants';
-
-export type TxStored = Required<Transaction> & {
-  id: string;
-  state: _spacemesh_v1_TransactionState_TransactionState;
-};
-
-export interface AccountStore {
-  publicKey: string;
-  account: AccountBalance;
-  txs: { [txId: TxStored['id']]: TxStored };
-  rewards: { [rewardId: TxStored['id']]: TxStored }; // TODO: Implement within #766
-}
-
-// TODO: Rewards?
+import { ValidSmeshingOpts } from './main/smeshingOpts';
+import { getGrpcPublicPort } from './main/utils';
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
+  startNodeOnNextLaunch: boolean;
   node: {
     dataPath: string;
     port: string;
   };
+  smeshing: Record<HexString, ValidSmeshingOpts>;
   walletFiles: string[];
 }
 
 const CONFIG_STORE_DEFAULTS = {
   isAutoStartEnabled: false,
+  startNodeOnNextLaunch: false,
   node: {
     dataPath: path.resolve(USERDATA_DIR, 'node-data'),
-    port: '9092',
+    port: getGrpcPublicPort(),
   },
+  smeshing: {},
   walletFiles: [],
 };
 
@@ -50,20 +42,20 @@ class StoreService {
   }
 
   static set = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>,
-    property: Object.Path<O, String.Split<P, '.'>>
+    key: AutoPath<O, P>,
+    property: Object.Path<O, Split<P, '.'>>
   ) => {
     StoreService.store.set(key, property);
   };
 
   static get = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>
-  ): Object.Path<O, String.Split<P, '.'>> => {
+    key: AutoPath<O, P>
+  ): Object.Path<O, Split<P, '.'>> => {
     return StoreService.store.get(key);
   };
 
   static remove = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>
+    key: AutoPath<O, P>
   ) => {
     StoreService.store.delete(key as keyof ConfigStore); // kludge to workaround StoreService types
   };
@@ -74,10 +66,22 @@ class StoreService {
 
   static dump = () => StoreService.store.store;
 
-  static onChange = (
+  static onChange = <
+    O extends ConfigStore,
+    P extends string,
+    V extends Object.Path<O, Split<P, '.'>>
+  >(
+    key: AutoPath<O, P>,
+    cb: (newValue?: V, prevValue?: V) => void
+  ) => {
+    // @ts-ignore
+    StoreService.store.onDidChange(key, cb); // TODO!
+  };
+
+  static onAnyChange = (
     cb: (newValue?: ConfigStore, prevValue?: ConfigStore) => void
   ) => {
-    StoreService.store.onDidAnyChange(cb);
+    return StoreService.store.onDidAnyChange(cb);
   };
 }
 

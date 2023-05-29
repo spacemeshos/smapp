@@ -1,19 +1,24 @@
-import { SocketAddress, TxState } from './types';
-
-export const LOCAL_NODE_API_URL: SocketAddress = {
-  host: 'localhost',
-  port: '9092',
-  protocol: 'http:',
-};
+import { NodeStatus, TxState } from './types';
 
 export const TX_STATE_LABELS: Record<TxState, string> = {
-  [TxState.TRANSACTION_STATE_UNSPECIFIED]: 'Unknown state',
-  [TxState.TRANSACTION_STATE_REJECTED]: 'Rejected',
-  [TxState.TRANSACTION_STATE_CONFLICTING]: 'Conflicting',
-  [TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS]: 'Insufficient funds',
-  [TxState.TRANSACTION_STATE_MEMPOOL]: 'Pending',
-  [TxState.TRANSACTION_STATE_MESH]: 'Accepted',
-  [TxState.TRANSACTION_STATE_PROCESSED]: 'Confirmed',
+  [TxState.UNSPECIFIED]: 'Unknown state',
+  [TxState.REJECTED]: 'Rejected',
+  [TxState.CONFLICTING]: 'Conflicting',
+  [TxState.INSUFFICIENT_FUNDS]: 'Insufficient funds',
+  [TxState.MEMPOOL]: 'Pending',
+  [TxState.MESH]: 'Accepted',
+  [TxState.PROCESSED]: 'Confirmed',
+  [TxState.SUCCESS]: 'Applied',
+  [TxState.FAILURE]: 'Failed to apply',
+  [TxState.INVALID]: 'Invalid transaction',
+};
+
+export const DEFAULT_NODE_STATUS: NodeStatus = {
+  connectedPeers: 0,
+  isSynced: false,
+  syncedLayer: 0,
+  topLayer: 0,
+  verifiedLayer: 0,
 };
 
 export enum ExternalLinks {
@@ -21,6 +26,7 @@ export enum ExternalLinks {
   UserGuide = 'https://testnet.spacemesh.io',
   Terms = 'https://testnet.spacemesh.io/#/terms',
   Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer',
+  Discord = 'https://discord.com/invite/yVhQ7rC',
   Privacy = 'https://testnet.spacemesh.io/#/privacy',
   SetupGuide = 'https://testnet.spacemesh.io/#/guide/setup',
   NoSleepGuide = 'https://testnet.spacemesh.io/#/no_sleep',
@@ -34,3 +40,9 @@ export enum ExternalLinks {
   Help = 'https://testnet.spacemesh.io/#/help',
   DiscordTapAccount = 'https://discord.gg/ASpy52C',
 }
+
+// TODO: When the API will be available to retrieve max gas
+// for the tx method before publishing it
+export const MAX_GAS = 500;
+
+export const BITS_PER_LABEL = 128;

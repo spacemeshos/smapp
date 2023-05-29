@@ -1,13 +1,16 @@
-import React from 'react';
+import { RootState } from 'app/types';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Tooltip, Button } from '../../basicComponents';
-import { smColors } from '../../vars';
+import { Modal } from '../common';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: space-around;
+  justify-content: start;
+  margin-top: 50px;
 `;
 const Row = styled.div`
   display: flex;
@@ -25,7 +28,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Dots = styled.div`
@@ -35,32 +38,57 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
+`;
+
+const StyledRow = styled(Row)`
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
 `;
 
 type Props = {
-  modify: () => void;
   deleteData: () => void;
-  isDarkMode: boolean;
 };
 
-const PoSModifyPostData = ({ modify, deleteData, isDarkMode }: Props) => (
-  <>
-    <Wrapper>
-      <Row>
-        <Text>Change your PoS data</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
-        <Dots>.....................................................</Dots>
-        <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
-      </Row>
-      <Row>
-        <Text>Stop smeshing and delete PoS data</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
-        <Dots>.....................................................</Dots>
-        <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
-      </Row>
-    </Wrapper>
-  </>
-);
+const PoSModifyPostData = ({ deleteData }: Props) => {
+  const nodeError = useSelector((state: RootState) => state.node.error);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const onDeleteClick = () => {
+    setShowModal(true);
+  };
+  return (
+    <>
+      <Wrapper>
+        <Row>
+          <Text>Stop smeshing and delete PoS data</Text>
+          <Tooltip
+            width={200}
+            text="Stop Smeshing and delete the POS data files."
+          />
+          <Dots>.....................................................</Dots>
+          <Button
+            isDisabled={!!nodeError}
+            onClick={onDeleteClick}
+            text="DELETE DATA"
+            isPrimary={false}
+          />
+          {showModal && (
+            <Modal header="Are you sure you want to delete your POS data?">
+              <StyledRow>
+                <Button
+                  isPrimary={false}
+                  text="CANCEL"
+                  onClick={() => setShowModal(false)}
+                />
+                <Button text="CONFIRM" onClick={() => deleteData()} />
+              </StyledRow>
+            </Modal>
+          )}
+        </Row>
+      </Wrapper>
+    </>
+  );
+};
 
 export default PoSModifyPostData;

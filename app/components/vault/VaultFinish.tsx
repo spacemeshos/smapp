@@ -1,20 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
-import {
-  vault,
-  circle,
-  wallet,
-  fireworksWhite,
-  fireworks,
-} from '../../assets/images';
+import { vault, circle, wallet } from '../../assets/images';
 
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: end;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 15px;
 `;
 
@@ -24,7 +18,9 @@ const Icon = styled.img`
   margin-right: 15px;
 `;
 
-const Fireworks = styled.img`
+const Fireworks = styled.img.attrs(({ theme: { icons: { fireworks } } }) => ({
+  src: fireworks,
+}))`
   width: 150px;
   height: 150px;
   margin-top: -25px;
@@ -36,13 +32,9 @@ const GreenText = styled.div`
   color: ${smColors.green};
 `;
 
-type Props = {
-  isDarkMode: boolean;
-};
-
-const VaultFinish = ({ isDarkMode }: Props) => (
+const VaultFinish = () => (
   <>
-    <Fireworks src={isDarkMode ? fireworksWhite : fireworks} />
+    <Fireworks />
     <GreenText>
       Your new vault transaction has been submitted to the mesh and is being
       created.

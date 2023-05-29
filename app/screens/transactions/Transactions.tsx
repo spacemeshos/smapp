@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { MutableRefObject, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import useVirtual from 'react-cool-virtual';
+import { MainPath } from '../../routerPaths';
 import { BackButton } from '../../components/common';
 import {
   TxRow,
@@ -15,17 +17,21 @@ import {
   CorneredWrapper,
   DropDown,
 } from '../../basicComponents';
-import { getAddress } from '../../infra/utils';
-import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import {
+  getContacts,
+  getRewards,
+  getTransactions,
+  getSentTransactions,
+  getReceivedTransactions,
   getTxAndRewards,
   RewardView,
   TxView,
 } from '../../redux/wallet/selectors';
-import { TxState, HexString } from '../../../shared/types';
+import { TxState, Bech32Address } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
 import { ExternalLinks } from '../../../shared/constants';
+import { SingleSigMethods } from '../../../shared/templateConsts';
 
 const Wrapper = styled.div`
   display: flex;
@@ -36,8 +42,7 @@ const Wrapper = styled.div`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const TransactionsListWrapper = styled.div`
@@ -49,41 +54,41 @@ const TransactionsListWrapper = styled.div`
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   display: flex;
   flex-direction: column;
   width: 260px;
   padding: 20px 14px;
 `;
 
-const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 5px 5px 5px 15px;
-  cursor: pointer;
-  text-align: left;
-  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
+const DropDownWrapper = styled.div`
+  position: absolute;
+  width: 150px;
+  right: 6px;
+  top: 7px;
+`;
+
+const FilterDropDownWrapper = styled(DropDownWrapper)`
+  right: 30px;
 `;
 
 const getNumOfCoinsFromTransactions = (
-  publicKey: HexString,
+  address: Bech32Address,
   transactions: (TxView | RewardView)[]
 ) => {
   const coins = { mined: 0, sent: 0, received: 0 };
-  const address = getAddress(publicKey);
   return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
     if (isTx(txOrReward)) {
-      const { status, sender, amount } = txOrReward;
+      const { status, principal: sender, method, payload } = txOrReward;
+      const amount =
+        method === SingleSigMethods.Spend
+          ? parseInt(payload?.Arguments?.Amount || 0, 10)
+          : 0;
       if (
-        status !== TxState.TRANSACTION_STATE_REJECTED &&
-        status !== TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS &&
-        status !== TxState.TRANSACTION_STATE_CONFLICTING
+        status !== TxState.REJECTED &&
+        status !== TxState.INSUFFICIENT_FUNDS &&
+        status !== TxState.CONFLICTING &&
+        status !== TxState.FAILURE
       ) {
         return sender === address
           ? { ...coins, sent: coins.sent + amount }
@@ -103,24 +108,119 @@ const TIME_SPANS = [
   { label: 'yearly', days: 365 },
 ];
 
+enum TxFilter {
+  All = 0,
+  Transactions = 1,
+  Rewards = 2,
+  Sent = 3,
+  Received = 4,
+}
+
+const TX_FILTERS = [
+  { label: 'all', filter: TxFilter.All },
+  { label: 'transactions', filter: TxFilter.Transactions },
+  { label: 'rewards', filter: TxFilter.Rewards },
+  { label: 'sent', filter: TxFilter.Sent },
+  { label: 'received', filter: TxFilter.Received },
+];
+
+const TransactionList = ({
+  address,
+  transactions,
+  contacts,
+  setAddressToAdd,
+}: {
+  address: Bech32Address;
+  transactions: (TxView | RewardView)[];
+  contacts: Record<Bech32Address, string>;
+  setAddressToAdd: (a: Bech32Address) => void;
+}) => {
+  const { outerRef, innerRef, items } = useVirtual({
+    itemCount: transactions.length,
+    itemSize: 60,
+  });
+  const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
+    el: HTMLElement | null
+  ) => {
+    ref.current = el;
+  };
+
+  return (
+    <TransactionsListWrapper ref={setRef(outerRef)}>
+      {!(transactions && transactions.length) ? (
+        <Text>No transactions yet.</Text>
+      ) : (
+        <div ref={setRef(innerRef)}>
+          {items.map(({ index, measureRef }) => {
+            const tx = transactions[index];
+            if (!tx) return null;
+            const isRew = isReward(tx);
+            const key = [address, tx.layer, isRew ? tx.amount : tx.id].join(
+              '_'
+            );
+            return (
+              <div key={key} ref={measureRef}>
+                {isReward(tx) ? (
+                  <RewardRow
+                    key={`${address}_reward_${tx.layer}`}
+                    address={address}
+                    tx={tx}
+                  />
+                ) : (
+                  <TxRow
+                    key={`tx_${tx.id}`}
+                    tx={tx}
+                    address={address}
+                    contacts={contacts}
+                    addToContacts={(addr) => setAddressToAdd(addr)}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </TransactionsListWrapper>
+  );
+};
+
 const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
+  const [txFilter, setTxFilter] = useState(TxFilter.All);
 
-  const publicKey = useSelector(
+  const address = useSelector(
     (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex].publicKey
+      state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
-  const transactions = useSelector(getTxAndRewards(publicKey));
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+
+  const nonce = useSelector(
+    (state: RootState) =>
+      state.wallet.balances[address]?.currentState?.counter ?? 0
+  );
+
+  const transactions = useSelector((state: RootState) => {
+    switch (txFilter) {
+      case TxFilter.Transactions:
+        return getTransactions(address, state);
+      case TxFilter.Rewards:
+        return getRewards(address, state);
+      case TxFilter.Received:
+        return getReceivedTransactions(address, state);
+      case TxFilter.Sent:
+        return getSentTransactions(address, state);
+      default:
+      case TxFilter.All:
+        return getTxAndRewards(address, state);
+    }
+  });
+
+  const contacts = useSelector(getContacts);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
-    const coins = getNumOfCoinsFromTransactions(
-      publicKey,
-      filteredTransactions
-    );
+    const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
     const totalCoins = getNumOfCoinsFromTransactions(
-      publicKey,
+      address,
       transactions || []
     );
     return {
@@ -139,11 +239,10 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setSelectedTimeSpan(index);
   };
 
-  const filterTransactions = () => {
-    const oneDayInMs = 86400000;
-    const spanInDays = TIME_SPANS[selectedTimeSpan].days || 1;
-    const startDate = Date.now() - spanInDays * oneDayInMs;
-    return transactions.filter(
+  const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
+    const oneDayInMs = 1000 * 60 * 60 * 24;
+    const startDate = Date.now() - days * oneDayInMs;
+    return txs.filter(
       (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
     );
   };
@@ -154,16 +253,12 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
-  const ddStyle = {
-    width: 120,
-    position: 'absolute',
-    right: 12,
-    top: 5,
-    color: isDarkMode ? smColors.white : smColors.black,
-  };
-
-  const filteredTransactions = filterTransactions();
+  const filteredTransactions = filterLastDays(
+    transactions,
+    TIME_SPANS[selectedTimeSpan].days
+  );
   const coinStats = getCoinStatistics(filteredTransactions);
+
   const {
     mined,
     sent,
@@ -172,39 +267,35 @@ const Transactions = ({ history }: RouteComponentProps) => {
     totalSent,
     totalReceived,
   } = coinStats;
+
   return (
     <Wrapper>
-      <BackButton action={history.goBack} width={7} height={10} />
+      <BackButton
+        action={() => history.replace(MainPath.Wallet)}
+        width={7}
+        height={10}
+      />
       <WrapperWith2SideBars
         width={680}
         header="TRANSACTION LOG"
         style={{ marginRight: 10 }}
-        isDarkMode={isDarkMode}
       >
-        <TransactionsListWrapper>
-          {transactions && transactions.length ? (
-            transactions.map((tx: TxView | RewardView) =>
-              isReward(tx) ? (
-                <RewardRow
-                  key={`${publicKey}_reward_${tx.layer}`}
-                  publicKey={publicKey}
-                  tx={tx}
-                />
-              ) : (
-                <TxRow
-                  key={`tx_${tx.id}`}
-                  tx={tx}
-                  publicKey={publicKey}
-                  addAddressToContacts={({ address }) =>
-                    setAddressToAdd(`0x${address}`)
-                  }
-                />
-              )
-            )
-          ) : (
-            <Text>No transactions yet.</Text>
-          )}
-        </TransactionsListWrapper>
+        <FilterDropDownWrapper>
+          <DropDown
+            data={TX_FILTERS}
+            onClick={({ index }) => setTxFilter(index)}
+            selectedItemIndex={txFilter}
+            rowHeight={40}
+            bold
+            dark
+          />
+        </FilterDropDownWrapper>
+        <TransactionList
+          address={address}
+          transactions={transactions}
+          contacts={contacts}
+          setAddressToAdd={setAddressToAdd}
+        />
         <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />
       </WrapperWith2SideBars>
       {addressToAdd ? (
@@ -216,19 +307,16 @@ const Transactions = ({ history }: RouteComponentProps) => {
         />
       ) : (
         <RightPaneWrapper>
-          <DropDown
-            data={TIME_SPANS}
-            DdElement={({ label, isMain }) => (
-              <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>
-            )}
-            onClick={handlePress}
-            selectedItemIndex={selectedTimeSpan}
-            rowHeight={40}
-            style={ddStyle}
-            bgColor={isDarkMode ? smColors.black : smColors.white}
-            rowContentCentered={false}
-            isDarkMode={isDarkMode}
-          />
+          <DropDownWrapper>
+            <DropDown
+              data={TIME_SPANS}
+              onClick={handlePress}
+              selectedItemIndex={selectedTimeSpan}
+              rowHeight={40}
+              bold
+              dark
+            />
+          </DropDownWrapper>
           <TransactionsMeta
             mined={mined}
             sent={sent}
@@ -237,6 +325,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalSent={totalSent}
             totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
+            nonce={nonce}
           />
         </RightPaneWrapper>
       )}

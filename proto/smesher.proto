@@ -44,11 +44,13 @@ service SmesherService {
     // Returns a stream of updates for the Post setup status
     rpc PostSetupStatusStream (google.protobuf.Empty) returns (stream PostSetupStatusStreamResponse);
 
-    // Returns a list of available Post setup compute providers
-    rpc PostSetupComputeProviders (PostSetupComputeProvidersRequest) returns (PostSetupComputeProvidersResponse);
+    // Returns a list of available Post setup providers
+    rpc PostSetupProviders (PostSetupProvidersRequest) returns (PostSetupProvidersResponse);
 
     // Returns the Post protocol config
     rpc PostConfig (google.protobuf.Empty) returns (PostConfigResponse);
 
+    // UpdatePoetServers updates poet servers
+    // All existing PoET servers will be substituted with this new list
+    rpc UpdatePoetServers(UpdatePoetServersRequest) returns (UpdatePoetServersResponse);
 }
-

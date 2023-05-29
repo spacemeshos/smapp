@@ -11,6 +11,10 @@
  * with exit code 1. It will stop build workflow.
  */
 
+if (process.env.DONT_CHECK_VERSION) {
+  return process.exit(0);
+}
+
 const { resolve } = require('path');
 const { promises } = require('fs');
 const os = require('os');
@@ -47,16 +51,22 @@ const getNodeVersion = (execPath) => new Promise((resolve, reject) => {
 });
 
 (async () => {
-  const { version: versionExpected } = parseVersion(await promises.readFile(USE_VERSION_PATH, { encoding: 'utf-8' }));
-  const { version, build } = await getNodeVersion(getBinaryPath());
-  
-  if (versionExpected === version) {
-    process.stdout.write(`${C_GREEN}OK:${C_RST} Go-spacemesh version matched with specified: ${version}\n`);
-    process.exit(0);
-  } else {
-    const lvl = IS_DEV ? `${C_YELLOW}WARNING:` : `${C_RED}ERROR:`;
-    const msg = `Go-spacemesh version mismatch\n${C_RST}Version expected: ${versionExpected}\nVersion installed: ${version}`;
-    process.stderr.write(`${lvl} ${msg}\n`);
+  try {
+    const { version: versionExpected } = parseVersion(await promises.readFile(USE_VERSION_PATH, { encoding: 'utf-8' }));
+    const { version, build } = await getNodeVersion(getBinaryPath());
+    
+    if (versionExpected === version) {
+      process.stdout.write(`${C_GREEN}OK:${C_RST} Go-spacemesh version matched with specified: ${version}\n`);
+      process.exit(0);
+    } else {
+      const lvl = IS_DEV ? `${C_YELLOW}WARNING:` : `${C_RED}ERROR:`;
+      const msg = `Go-spacemesh version mismatch\n${C_RST}Version expected: ${versionExpected}\nVersion installed: ${version}`;
+      process.stderr.write(`${lvl} ${msg}\n`);
+      process.exit(IS_DEV ? 0 : 1);
+    }
+  } catch (err) {
+    const stream = IS_DEV ? process.stdout : process.stderr;
+    stream.write(`${C_RED}ERROR: ${C_RST}Can not run the Node to check the version: ${err}`);
     process.exit(IS_DEV ? 0 : 1);
   }
 })();

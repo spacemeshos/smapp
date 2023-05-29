@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { isLocalNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
-import { CorneredContainer } from '../../components/common';
+import { CorneredContainer, PasswordInput } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
-import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import {
   getCurrentWalletFile,
   isWalletOnly,
 } from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
-import { MainPath } from '../../routerPaths';
+import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -24,11 +19,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const SubHeader = styled.div`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const UpperPart = styled.div`
@@ -50,11 +40,17 @@ const InputSection = styled.div`
   margin-bottom: 15px;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(({ theme: { icons: { chevronRight } } }) => ({
+  src: chevronRight,
+}))`
   width: 8px;
   height: 13px;
   margin-right: 10px;
   align-self: center;
+`;
+
+const ChevronPassword = styled(Chevron)`
+  margin-bottom: 28px;
 `;
 
 const ErrorSection = styled.div`
@@ -80,18 +76,28 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
+const SetNameInputTitle = styled.div`
+  margin-bottom: auto;
+  padding-bottom: 20px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
+`;
+
 const CreateWallet = ({ history, location }: AuthRouterParams) => {
-  const [subMode, setSubMode] = useState(1);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
+  const [convenientWalletName, setConvenientWalletName] = useState<string>();
 
   useEffect(() => {
     // Store create wallet to localStorage to choose it
@@ -100,40 +106,14 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     setLastSelectedWalletPath(currentWalletPath);
   }, [currentWalletPath]);
 
-  const renderSubHeader = (subMode: number) => {
-    return subMode === 1 ? (
-      <SubHeader>
-        Protect your wallet with a password. You will need it to access latter
-      </SubHeader>
-    ) : (
-      <SubHeader>
-        Your wallet was created and saved in a password-protected file
-        <br />
-        <br />
-        <Link
-          onClick={() => eventsService.showFileInFolder({})}
-          text="Browse file location"
-        />
-      </SubHeader>
-    );
-  };
-
   const validate = () => {
-    const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPasswordError =
-      !password || (!!password && password.length < pasMinLength);
     const hasVerifyPasswordError =
       !verifiedPassword || password !== verifiedPassword;
-    // eslint-disable-next-line no-template-curly-in-string
-    const passwordError = hasPasswordError
-      ? `Password has to be ${pasMinLength} characters or more.`
-      : '';
     const verifyPasswordError = hasVerifyPasswordError
-      ? "These passwords don't match, please try again."
+      ? "These passwords don't match"
       : '';
-    setPasswordError(passwordError);
-    setVerifiedPassword(verifyPasswordError);
-    return !passwordError && !verifyPasswordError;
+    setVerifyPasswordError(verifyPasswordError);
+    return !verifyPasswordError;
   };
 
   const createWallet = async () => {
@@ -146,24 +126,17 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           type: location?.state?.isWalletOnly
             ? WalletType.RemoteApi
             : WalletType.LocalNode,
-          netId: location?.state?.netId || -1,
+          genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
+          name: convenientWalletName,
         })
       );
-      setSubMode(2);
       setIsLoaderVisible(false);
-    }
-  };
-
-  const handleEnterPress = () => {
-    if (validate()) {
-      createWallet();
     }
   };
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
-    setPasswordError('');
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
@@ -171,31 +144,24 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     setVerifyPasswordError('');
   };
 
+  const handleNameTyping = ({ value }: { value: string }) => {
+    setConvenientWalletName(value);
+  };
+
   const nextAction = () => {
-    if (subMode === 1 && validate()) {
+    if (validate()) {
       createWallet();
-    } else if (subMode === 2) {
-      if (
-        location?.state?.netId &&
-        typeof location?.state?.apiUrl === 'string' &&
-        isLocalNodeApi(location.state.apiUrl)
-      ) {
-        history.push(MainPath.SmeshingSetup);
-        return;
-      }
-      history.push(MainPath.Wallet);
+      history.push(AuthPath.ProtectWallet);
     }
   };
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
-  const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {
     return (
       <LoaderWrapper>
         <Loader
           size={Loader.sizes.BIG}
-          isDarkMode={isDarkMode}
           note={
             isWalletOnlyMode
               ? 'Please wait, connecting to Spacemesh api...'
@@ -205,58 +171,68 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       </LoaderWrapper>
     );
   }
-  const header =
-    subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
-      <Steps step={Step.PROTECT_WALLET} isDarkMode={isDarkMode} />
+      <Steps step={Step.CREATE_WALLET} />
+
       <CorneredContainer
         width={650}
-        height={400}
-        header={header}
-        subHeader={renderSubHeader(subMode)}
-        isDarkMode={isDarkMode}
+        height={500}
+        header={'CREATE YOUR WALLET'}
+        subHeader={
+          'With this step, your Wallet will be created. Set up a password you will be using to access it later. Remember, there will be no way to recover the lost password.'
+        }
       >
-        {subMode === 1 && (
+        {
           <>
             <UpperPart>
               <Inputs>
                 <InputSection>
-                  <Chevron src={chevronRight} />
-                  <Input
-                    value={password}
-                    type="password"
-                    placeholder="ENTER PASSWORD"
-                    onEnterPress={handleEnterPress}
+                  <ChevronPassword />
+                  <PasswordInput
+                    password={password}
                     onChange={handlePasswordTyping}
-                    autofocus
+                    onEnterPress={nextAction}
+                    passwordIndicator
                   />
                 </InputSection>
                 <InputSection>
-                  <Chevron src={chevronRight} />
+                  <Chevron />
                   <Input
                     value={verifiedPassword}
                     type="password"
                     placeholder="VERIFY PASSWORD"
-                    onEnterPress={handleEnterPress}
+                    onEnterPress={nextAction}
                     onChange={handlePasswordVerifyTyping}
                   />
                 </InputSection>
               </Inputs>
               <ErrorSection>
-                {(!!passwordError || !!verifyPasswordError) && (
+                {Boolean(verifyPasswordError) && (
                   <ErrorPopup
-                    onClick={() => {
-                      setPasswordError('');
-                      setVerifyPasswordError('');
-                    }}
-                    text={passwordError || verifyPasswordError}
+                    onClick={() => setVerifyPasswordError('')}
+                    text={verifyPasswordError}
                   />
                 )}
               </ErrorSection>
             </UpperPart>
+            --
+            <SetNameInputTitle>
+              Set a convenient name for your wallet (optional):
+            </SetNameInputTitle>
+            <Inputs style={{ width: '49%' }}>
+              <InputSection>
+                <Chevron />
+                <Input
+                  value={convenientWalletName}
+                  type="text"
+                  placeholder="CONVENIENT NAME"
+                  onChange={handleNameTyping}
+                />
+              </InputSection>
+            </Inputs>
           </>
-        )}
+        }
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET GUIDE" />
           <Button onClick={nextAction} text="NEXT" />

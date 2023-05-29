@@ -1,10 +1,11 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { SecondaryButton, Link, Button } from '../../basicComponents';
-import { getAddress, formatSmidge } from '../../infra/utils';
+import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
+import { safeReactKey } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,8 +14,7 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  color: ${({ theme: { wrapper } }) => wrapper.color};
 `;
 
 const Header = styled.div`
@@ -23,23 +23,21 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderText = styled.div`
-  font-family: SourceCodeProBold;
+const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const SubHeader1 = styled(HeaderText)`
   margin-bottom: 15px;
 `;
 
-const SubHeader2 = styled.div`
+const SubHeader2 = styled(BoldText)`
   margin-bottom: 20px;
-  font-family: SourceCodeProBold;
   font-size: 24px;
   line-height: 30px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsRow = styled.div`
@@ -60,7 +58,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`
@@ -68,11 +66,10 @@ const DetailsTextLeft = styled(DetailsTextRight)`
   text-align: right;
 `;
 
-const TotalText = styled.div`
-  font-family: SourceCodeProBold;
+const TotalText = styled(BoldText)`
   font-size: 24px;
   line-height: 30px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Footer = styled.div`
@@ -87,6 +84,13 @@ const ComplexButton = styled.div`
   flex-direction: row;
   align-items: flex-end;
   margin-right: 10px;
+  ${({ theme: { themeName } }) => `
+  
+    img {
+      position: relative;
+      left: ${themeName === 'modern' ? -1 : 0}px;
+    }
+  `}
 `;
 
 const ComplexButtonText = styled.div`
@@ -98,36 +102,53 @@ const ComplexButtonText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.mediumGray};
 `;
 
+export enum TxConfirmationFieldType {
+  Default = 0,
+  Total = 1,
+}
+
+export type TxConfirmationField = {
+  label: string;
+  value: string;
+  type?: TxConfirmationFieldType;
+};
+
 type Props = {
-  fromAddress: string;
-  address: string;
-  amount: number;
-  fee: number;
-  note: string;
-  canSend: boolean;
+  fields: TxConfirmationField[];
+  isDisabled: boolean;
   doneAction: () => void;
   editTx: () => void;
-  cancelTx: () => void;
+  backButtonRoute: string;
 };
 
 const TxConfirmation = ({
-  fromAddress,
-  address,
-  amount,
-  fee,
-  note,
-  canSend,
+  fields,
+  isDisabled,
   doneAction,
   editTx,
-  cancelTx,
+  backButtonRoute,
 }: Props) => {
+  const history = useHistory();
+
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const renderFieldValue = (field: TxConfirmationField) => {
+    switch (field.type) {
+      case TxConfirmationFieldType.Total:
+        return <TotalText>{field.value}</TotalText>;
+      case TxConfirmationFieldType.Default:
+      default:
+        return <DetailsTextLeft>{field.value}</DetailsTextLeft>;
+    }
+  };
+  const cancelButton = () => {
+    history.replace(backButtonRoute);
+  };
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
         <Link
-          onClick={cancelTx}
+          onClick={cancelButton}
           text="CANCEL TRANSACTION"
           style={{ color: smColors.orange }}
         />
@@ -135,30 +156,14 @@ const TxConfirmation = ({
       <SubHeader1>--</SubHeader1>
       <SubHeader2>SUMMARY</SubHeader2>
       <>
-        <DetailsRow>
-          <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeft>{address}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Note</DetailsTextRight>
-          <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Amount</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Fee</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(fee)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{formatSmidge(amount + fee)}</TotalText>
-        </DetailsRow>
+        {fields.map((field, idx) => (
+          <DetailsRow
+            key={`txConfirmation_${idx}_${safeReactKey(field.label)}`}
+          >
+            <DetailsTextRight>{field.label}</DetailsTextRight>
+            {renderFieldValue(field)}
+          </DetailsRow>
+        ))}
       </>
       <Footer>
         <ComplexButton>
@@ -175,7 +180,7 @@ const TxConfirmation = ({
           onClick={doneAction}
           text="SEND"
           style={{ marginLeft: 'auto' }}
-          isDisabled={!canSend}
+          isDisabled={isDisabled}
         />
       </Footer>
     </Wrapper>

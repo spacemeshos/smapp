@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { ipcRenderer } from 'electron';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { readWalletFiles, unlockWallet } from '../../redux/wallet/actions';
+import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
 import {
@@ -12,15 +13,10 @@ import {
   Loader,
   DropDown,
 } from '../../basicComponents';
-import { smColors } from '../../vars';
-import {
-  smallInnerSideBar,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
-import { AppThDispatch, RootState } from '../../types';
+import { ipcConsts, smColors } from '../../vars';
+import { smallInnerSideBar } from '../../assets/images';
+import { AppThDispatch } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
-import { WalletMeta } from '../../../shared/types';
 import {
   setLastSelectedWalletPath,
   getIndexOfLastSelectedWalletPath,
@@ -39,7 +35,7 @@ const Wrapper = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Indicator = styled.div<{ hasError?: boolean }>`
@@ -50,7 +46,7 @@ const Indicator = styled.div<{ hasError?: boolean }>`
   height: 16px;
   background-color: ${({ hasError, theme }) => {
     if (hasError) return smColors.orange;
-    return theme.isDarkMode ? smColors.white : smColors.black;
+    return theme.color.primary;
   }};
 `;
 
@@ -70,7 +66,13 @@ const InputSection = styled.div`
   margin-bottom: 1em;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({ src: chevronPrimaryRight })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -104,24 +106,6 @@ const GrayText = styled.div`
   color: ${smColors.disabledGray};
 `;
 
-// TODO: Get rid from code duplication
-const AccItem = styled.div<{ isInDropDown: boolean }>`
-  width: 100%;
-  padding: 5px;
-  line-height: 17px;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: ${smColors.black};
-  cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
-`;
-
 const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [isWrongPassword, setWrongPassword] = useState(false);
@@ -130,57 +114,46 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const walletFiles = useSelector(listWalletFiles);
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
-  const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
     getIndexOfLastSelectedWalletPath(walletFiles)
   );
 
   useEffect(() => {
-    // Ensure that we had loaded wallet files
-    dispatch(readWalletFiles());
-  }, [dispatch]);
+    const goNext = () => {
+      setShowLoader(false);
+      history.push(
+        (location.state?.redirect !== AuthPath.Unlock &&
+          location.state?.redirect) ||
+          MainPath.Wallet
+      );
+    };
+    ipcRenderer.on(ipcConsts.WALLET_ACTIVATED, goNext);
+    return () => {
+      ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
+    };
+  }, [history, location]);
+
+  const nextPage =
+    (location.state?.redirect !== AuthPath.Unlock &&
+      location.state?.redirect) ||
+    MainPath.Wallet;
 
   const getDropDownData = () =>
     walletFiles.length === 0
       ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }]
-      : walletFiles.map(({ path, meta }) => ({
+      : walletFiles.map(({ meta }) => ({
           label: meta.displayName,
-          path,
-          meta,
+          description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
+            meta.genesisID
+          }`,
         }));
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
     updateSelectedWalletIndex(index);
   };
-
-  // TODO: Get rid from code duplication
-  const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
-    marginLeft: 'auto',
-  };
-  const renderAccElement = ({
-    label,
-    meta,
-    isMain,
-  }: {
-    label: string;
-    meta?: WalletMeta;
-    isMain: boolean;
-  }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
-      {label}
-      {meta && (
-        <small>
-          <br />
-          CREATED: {formatISOAsUS(meta.created)}, NET ID: {meta.netId}
-        </small>
-      )}
-    </AccItem>
-  );
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -197,21 +170,17 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       const status = await dispatch(
         unlockWallet(walletFiles[selectedWalletIndex].path, password)
       );
-      setShowLoader(false);
+
       if (status.success) {
-        const nextPage =
-          (location.state?.redirect !== AuthPath.Unlock &&
-            location.state?.redirect) ||
-          MainPath.Wallet;
         if (status.forceNetworkSelection) {
+          setShowLoader(false);
           history.push(AuthPath.SwitchNetwork, {
             redirect: nextPage,
             isWalletOnly: status.isWalletOnly,
           });
-          return;
         }
-        history.push(nextPage);
       } else {
+        setShowLoader(false);
         setWrongPassword(true);
       }
     }
@@ -221,7 +190,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
-      isDarkMode={isDarkMode}
       note={
         isWalletOnlyMode
           ? 'Please wait, connecting to Spacemesh api...'
@@ -237,21 +205,19 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         header="UNLOCK"
         subHeader="Welcome back to Spacemesh."
         key="main"
-        isDarkMode={isDarkMode}
       >
         {showWalletFileSelection ? (
           <>
             <Text>Select a wallet:</Text>
             <InputSection>
-              <Chevron src={chevronIcon} />
+              <Chevron />
               <DropDown
+                maxHeight={220}
                 data={getDropDownData()}
                 onClick={selectItem}
-                DdElement={renderAccElement}
                 selectedItemIndex={selectedWalletIndex}
-                rowHeight={55}
-                style={ddStyle}
-                bgColor={smColors.white}
+                rowHeight={60}
+                hideSelectedItem
               />
             </InputSection>
           </>
@@ -260,7 +226,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <Indicator hasError={isWrongPassword} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
-          <Chevron src={chevronIcon} />
+          <Chevron />
           <Input
             type="password"
             placeholder="ENTER PASSWORD"
@@ -303,7 +269,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           </LinksWrapper>
           <Button
             text="UNLOCK"
-            isDisabled={!password.trim() || !!isWrongPassword}
+            isDisabled={!password.trim() || Boolean(isWrongPassword)}
             onClick={decryptWallet}
             style={{ marginTop: 'auto' }}
           />

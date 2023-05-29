@@ -6,15 +6,13 @@ import { smColors } from '../../vars';
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled.span`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 10px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const TextRow = styled.div`
@@ -77,6 +75,7 @@ type Props = {
   totalMined: number;
   totalSent: number;
   totalReceived: number;
+  nonce: number;
 };
 
 const TransactionsMeta = ({
@@ -87,6 +86,7 @@ const TransactionsMeta = ({
   totalSent,
   totalReceived,
   filterName,
+  nonce,
 }: Props) => {
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
@@ -105,14 +105,16 @@ const TransactionsMeta = ({
       <Group>
         <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
-        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) =>
-          c.toUpperCase()
-        )} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
+        <Text style={{ marginBottom: 27 }}>
+          {`${filterName.replace(/^\w/, (c) =>
+            c.toUpperCase()
+          )} coins: ${formatSmidge(totalFilteredCoins)}`}
+        </Text>
         {coinsMeta.map((coinMeta) => (
           <ProgressBar key={coinMeta.title}>
-            <SmallText>{`${coinMeta.title} ${formatSmidge(
-              coinMeta.coins
-            )}`}</SmallText>
+            <SmallText>
+              {`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}
+            </SmallText>
             <Bar>
               <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
             </Bar>
@@ -130,6 +132,7 @@ const TransactionsMeta = ({
           </TextRow>
         ))}
       </Group>
+      <Text style={{ marginTop: 5 }}>Current Nonce: {nonce}</Text>
     </>
   );
 };

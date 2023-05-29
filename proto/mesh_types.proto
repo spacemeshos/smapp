@@ -19,19 +19,19 @@ message CurrentLayerResponse {
 message CurrentEpochRequest {}
 
 message CurrentEpochResponse {
-    SimpleInt epochnum = 1;
+    EpochNumber epochnum = 1;
 }
 
-message NetIDRequest {}
+message GenesisIDRequest {}
 
-message NetIDResponse {
-    SimpleInt netid = 1;
+message GenesisIDResponse {
+    bytes genesis_id = 1;
 }
 
 message EpochNumLayersRequest {}
 
 message EpochNumLayersResponse {
-    SimpleInt numlayers = 1;
+    LayerNumber numlayers = 1;
 }
 
 message LayerDurationRequest {}
@@ -98,4 +98,12 @@ message LayerStreamRequest {}
 
 message LayerStreamResponse {
     Layer layer = 1;
+}
+
+message EpochStreamRequest {
+    uint32 epoch = 1;
+}
+
+message EpochStreamResponse {
+    ActivationId id = 1;
 }

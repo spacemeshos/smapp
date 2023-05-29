@@ -1,12 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -21,27 +19,27 @@ const Wrapper = styled.div`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const PurpleText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.purple};
 `;
 const GreenText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.green};
 `;
 
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
-  font-weight: bold;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  font-weight: 800;
+  color: ${({ theme: { color } }) => color.primary};
 `;
 const Row = styled.div`
   display: flex;
@@ -101,8 +99,6 @@ const BottomPart = styled.div`
 `;
 
 const WalletType = ({ history, location }: AuthRouterParams) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const navigateToCreateWallet = async () => {
@@ -117,13 +113,12 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
 
   return (
     <Wrapper>
-      <Steps step={Step.NEW_WALLET_TYPE} isDarkMode={isDarkMode} />
+      <Steps step={Step.NEW_WALLET_TYPE} />
       <CorneredContainer
         width={650}
         height={400}
         header="WALLET SETUP"
         subHeader="Select which features you`d like to setup"
-        isDarkMode={isDarkMode}
       >
         <BackButton action={history.goBack} />
         <RowJust>
@@ -131,11 +126,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon src={walletSecondWhite} />
               <RowTitle>STANDARD WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="STANDARD WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={140} text="Stored locally on your computer" />
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
@@ -151,11 +142,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <IconWallet src={walletSecondWhite} />
               <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="HARDWARE WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={140} text="Stored offline on a physical device" />
             </Row>
             <RowText>Using a Ledger device</RowText>
             <GreenText>(ENHANCED SECURITY)</GreenText>
@@ -175,9 +162,8 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
               text="RESTORE  WALLET"
             />{' '}
             <Tooltip
-              width={100}
-              text="RESTORE EXISTING WALLET"
-              isDarkMode={isDarkMode}
+              width={120}
+              text="Locate a file or restore from 12 words"
             />
           </Row>
         </BottomPart>

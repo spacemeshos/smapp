@@ -1,72 +1,271 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { getAbbreviatedText } from '../infra/utils';
+import { getAbbreviatedAddress } from '../infra/utils';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 import { smColors } from '../vars';
 
-const AutocompleteField = styled.div<{ icon: any }>`
+const AutocompleteField = styled.div<{ icon: any; isDarkSkin: boolean }>`
   position: relative;
-  background-color: ${smColors.white};
 `;
 
-const InputField = styled.div<{ isFocused?: boolean; isDisabled?: boolean }>`
+const InputField = styled.div<{
+  isFocused?: boolean;
+  isDisabled?: boolean;
+  isOpened: boolean;
+  isDarkSkin: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
   height: 40px;
-  border: 1px solid
-    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
-  opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
-  ${({ isDisabled }) =>
-    !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
-  background-color: ${smColors.white};
+
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  `}
+  ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    `
+    color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
+    
+    &:hover {
+        color: ${
+          isDarkSkin ? light.states.normal.color : dark.states.normal.color
+        };
+     }; `}
+  border: ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isDarkSkin,
+  }) => (isDarkSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder))}px
+  solid
+  ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isDarkSkin,
+  }) => (isDarkSkin ? light.borderColor : dark.borderColor)};
 `;
 
-const ActualInput = styled.input<{ isDisabled?: boolean }>`
+const ActualInput = styled.input<{
+  isDisabled?: boolean;
+  isOpened: boolean;
+  isDarkSkin: boolean;
+}>`
   flex: 1;
   width: 100%;
   height: 36px;
   padding: 8px 14px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) =>
-    isDisabled ? smColors.darkGray : smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
+
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  `}
+  ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    `
+    color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
+    
+    &:hover {
+        color: ${
+          isDarkSkin ? light.states.normal.color : dark.states.normal.color
+        };
+     }; `}
 `;
 
-const AutocompleteList = styled.div<{ show?: boolean }>`
+const AutocompleteList = styled.div<{
+  isOpened?: boolean;
+  isDarkSkin: boolean;
+}>`
   position: absolute;
   top: 2em;
   width: 100%;
   background: ${smColors.white};
   overflow: auto;
-  height: ${({ show }) => (show ? 'unset' : '0')};
+  height: ${({ isOpened }) => (isOpened ? 'unset' : '0')};
   max-height: 214px;
   z-index: 9;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
   box-shadow: 0 2px 3px ${smColors.black30Alpha};
   > div {
     padding: 10px;
-    margin: 0 6px;
     font-size: 13px;
     background: ${smColors.white};
-    color: ${smColors.black30Alpha};
+    color: ${smColors.dark75Alpha};
     border-bottom: 1px solid ${smColors.disabledGray};
     cursor: pointer;
     outline: none;
   }
-  > div:hover {
-    background: ${smColors.black10Alpha};
+  > div {
+    background-color: ${({
+      isDarkSkin,
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+    }) =>
+      isDarkSkin
+        ? light.states.normal.backgroundColor
+        : dark.states.normal.backgroundColor};
+
+    ${({
+      isDarkSkin,
+      theme: {
+        form: {
+          dropdown: { light, dark },
+        },
+      },
+    }) =>
+      `&:hover, &.isFocus {
+            background-color: ${
+              isDarkSkin
+                ? light.states.hover.backgroundColor
+                : dark.states.hover.backgroundColor
+            }; 
+            color: ${
+              isDarkSkin ? light.states.hover.color : dark.states.hover.color
+            };
+     } `}
   }
   > div:last-child {
     border: none;
   }
-  > div.isFocus {
-    background: ${smColors.black20Alpha};
-  }
+
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (!isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (!isOpened ? 0 : dropdown.boxRadius)}px;
+
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? dark.states.normal.backgroundColor
+      : light.states.normal.backgroundColor};
+  border: ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isDarkSkin,
+    }) => (isDarkSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder))}px
+    solid
+    ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isDarkSkin,
+    }) => (isDarkSkin ? light.borderColor : dark.borderColor)};
+  ${({ isOpened }) => (isOpened ? 'border-top: none;' : 'border: none;')};
 `;
 
 const Icon = styled.img<{ isOpened?: boolean }>`
@@ -89,10 +288,13 @@ type Props = {
   onChange: (value: string) => void;
   onEnter: (p: any) => void;
   autofocus?: boolean;
+  autocomplete?: boolean;
 };
 
+export type AutocompleteDropdownProps = Props;
+
 const AutocompleteDropdown = (props: Props) => {
-  const { value, autofocus } = props;
+  const { value, autofocus, autocomplete = true } = props;
   let inputBlurTimer: any;
   const [isOpen, setIsOpen] = useState(false);
   const [list, setList] = useState<Array<any>>([]);
@@ -115,11 +317,13 @@ const AutocompleteDropdown = (props: Props) => {
     const { value } = inputField.current || {};
     let list: any = [];
 
-    if (value && value.trim()) {
+    if (value && value.trim() && autocomplete) {
       list = data.filter(
         (d) =>
           getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1
       );
+    } else {
+      list = data.slice(0, 5);
     }
     return list;
   };
@@ -139,7 +343,6 @@ const AutocompleteDropdown = (props: Props) => {
     const list = filterList();
     setList(list);
     setIsFocus(0);
-    setIsOpen(list.length > 0);
   };
 
   const handleInputBlur = () => {
@@ -234,12 +437,12 @@ const AutocompleteDropdown = (props: Props) => {
 
   const renderItem = (item: any) => (
     <div role="button" tabIndex={-1}>
-      {item.nickname} - {getAbbreviatedText(item.address)}
+      {item.nickname} - {getAbbreviatedAddress(item.address)}
     </div>
   );
 
-  const renderMenu = () => {
-    const menus = filterList().map((data, i) => {
+  const renderMenu = (list) => {
+    const menus = list.map((data, i) => {
       const item = renderItem(data);
 
       return React.cloneElement(item, {
@@ -272,10 +475,11 @@ const AutocompleteDropdown = (props: Props) => {
 
   const { id, name, placeholder, isDarkModeOn } = props;
   const icon = isDarkModeOn ? chevronBottomBlack : chevronBottomWhite;
+  const flatList = filterList();
 
   return (
-    <AutocompleteField icon={icon}>
-      <InputField>
+    <AutocompleteField icon={icon} isDarkSkin={isDarkModeOn}>
+      <InputField isOpened={isOpen} isDarkSkin={isDarkModeOn}>
         <ActualInput
           type="text"
           id={id}
@@ -289,12 +493,22 @@ const AutocompleteDropdown = (props: Props) => {
           value={editField}
           ref={inputField}
           autoFocus={!!autofocus}
+          isOpened={isOpen}
+          isDarkSkin={isDarkModeOn}
         />
-        <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
+        {flatList.length ? (
+          <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
+        ) : null}
       </InputField>
-      <AutocompleteList show={isOpen} ref={listContainer}>
-        {renderMenu()}
-      </AutocompleteList>
+      {flatList.length ? (
+        <AutocompleteList
+          isOpened={isOpen}
+          ref={listContainer}
+          isDarkSkin={isDarkModeOn}
+        >
+          {renderMenu(flatList)}
+        </AutocompleteList>
+      ) : null}
     </AutocompleteField>
   );
 };

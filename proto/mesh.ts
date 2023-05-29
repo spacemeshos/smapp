@@ -23,19 +23,23 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
       CurrentEpochRequest: MessageTypeDefinition
       CurrentEpochResponse: MessageTypeDefinition
       CurrentLayerRequest: MessageTypeDefinition
       CurrentLayerResponse: MessageTypeDefinition
       EpochNumLayersRequest: MessageTypeDefinition
       EpochNumLayersResponse: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
+      EpochStreamRequest: MessageTypeDefinition
+      EpochStreamResponse: MessageTypeDefinition
+      GenesisIDRequest: MessageTypeDefinition
+      GenesisIDResponse: MessageTypeDefinition
       GenesisTimeRequest: MessageTypeDefinition
       GenesisTimeResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerDurationRequest: MessageTypeDefinition
       LayerDurationResponse: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       LayerStreamRequest: MessageTypeDefinition
       LayerStreamResponse: MessageTypeDefinition
@@ -45,13 +49,10 @@ export interface ProtoGrpcType {
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
       MeshService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_MeshServiceClient> & { service: _spacemesh_v1_MeshServiceDefinition }
       MeshTransaction: MessageTypeDefinition
-      NetIDRequest: MessageTypeDefinition
-      NetIDResponse: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition

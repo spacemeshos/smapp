@@ -11,10 +11,7 @@ import {
   posGpuGrey,
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import {
-  ComputeApiClass,
-  PostSetupComputeProvider,
-} from '../../../shared/types';
+import { DeviceType, PostSetupProvider } from '../../../shared/types';
 import { formatWithCommas } from '../../infra/utils';
 
 const SLIDE_WIDTH = 170;
@@ -68,10 +65,10 @@ const InnerWrapper = styled.div<{
 const SlideUpperPart = styled.div<{ isSelected: boolean }>`
   position: absolute;
   z-index: 2;
-  top: 0;
   bottom: 5px;
-  left: 5px;
   right: 0;
+  left: ${({ theme: { themeName } }) => (themeName === 'modern' ? 0 : 5)}px;
+  top: ${({ theme: { themeName } }) => (themeName === 'modern' ? 5 : 0)}px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -95,6 +92,12 @@ const SlideUpperPart = styled.div<{ isSelected: boolean }>`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideMiddlePart = styled.div`
@@ -118,6 +121,12 @@ const SlideMiddlePart = styled.div`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideLowerPart = styled.div<{ isSelected: boolean }>`
@@ -145,6 +154,12 @@ const SlideLowerPart = styled.div<{ isSelected: boolean }>`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideWrapper = styled.div`
@@ -154,7 +169,10 @@ const SlideWrapper = styled.div`
   margin-right: ${SLIDE_MARGIN}px;
   cursor: pointer;
   &:active ${SlideUpperPart} {
-    transform: translate3d(-5px, 5px, 0);
+    transform: translate3d(
+      ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? '0, 0, 0' : '-5px, 5px, 0'}
+    );
     transition: transform 0.2s cubic-bezier;
     background-color: ${smColors.mediumGraySecond};
   }
@@ -169,6 +187,7 @@ const SlideWrapper = styled.div`
 const TextWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  ${({ grow }: { grow?: boolean }) => grow && 'flex-grow: 1;'}
   cursor: inherit;
 `;
 
@@ -181,18 +200,19 @@ const Text = styled.div`
   text-transform: uppercase;
 `;
 
-const GpuIcon = styled.img`
-  width: 30px;
-  height: 25px;
-`;
-
-const CpuIcon = styled.img`
+const Icon = styled.img`
   width: 30px;
   height: 30px;
 `;
 
+const GpuIcon = styled(Icon)`
+  height: 25px;
+`;
+
+const CpuIcon = styled(Icon)``;
+
 type Props = {
-  data: PostSetupComputeProvider[];
+  data: PostSetupProvider[];
   selectedItemIndex: number;
   onClick: ({ index }: { index: number }) => void;
   style?: any;
@@ -257,23 +277,8 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
               key={provider.id}
             >
               <SlideUpperPart isSelected={selectedItemIndex === index}>
-                <TextWrapper>
+                <TextWrapper grow>
                   <Text>{provider.model}</Text>
-                  {provider.computeApi ===
-                    ComputeApiClass.COMPUTE_API_CLASS_UNSPECIFIED && (
-                    <Text>(UNSPECIFIED)</Text>
-                  )}
-                  {provider.computeApi ===
-                    ComputeApiClass.COMPUTE_API_CLASS_CPU && null}
-                  {provider.computeApi ===
-                    ComputeApiClass.COMPUTE_API_CLASS_CUDA && (
-                    <Text>(CUDA)</Text>
-                  )}
-                  {provider.computeApi ===
-                    ComputeApiClass.COMPUTE_API_CLASS_VULKAN && (
-                    <Text>(VULCAN)</Text>
-                  )}
-                  <Text>--</Text>
                 </TextWrapper>
                 <TextWrapper>
                   <Text>
@@ -282,21 +287,16 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                   {/* <Text>TO SAVE DATA</Text> */}
                   {/* TODO: Return it back when estimated time will be available */}
                 </TextWrapper>
-                {provider.computeApi ===
-                  ComputeApiClass.COMPUTE_API_CLASS_CPU && (
-                  <CpuIcon
-                    src={
-                      selectedItemIndex === index ? posCpuActive : posCpuGrey
-                    }
-                  />
-                )}
-                {[
-                  ComputeApiClass.COMPUTE_API_CLASS_CUDA,
-                  ComputeApiClass.COMPUTE_API_CLASS_VULKAN,
-                ].includes(provider.computeApi) && (
+                {provider.deviceType === DeviceType.DEVICE_CLASS_GPU ? (
                   <GpuIcon
                     src={
                       selectedItemIndex === index ? posGpuActive : posGpuGrey
+                    }
+                  />
+                ) : (
+                  <CpuIcon
+                    src={
+                      selectedItemIndex === index ? posCpuActive : posCpuGrey
                     }
                   />
                 )}

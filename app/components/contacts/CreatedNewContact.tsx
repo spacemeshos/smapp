@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Contact } from '../../../shared/types';
-import { Button } from '../../basicComponents';
+import { BoldText, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
@@ -11,12 +11,10 @@ const Wrapper = styled.div`
   height: 115px;
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const MainWrapper = styled.div`
@@ -36,8 +34,7 @@ const MainWrapperUpperPart = styled.div`
   align-items: center;
   width: calc(100% - 5px);
   padding: 10px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.black};
+  background-color: ${({ theme: { color } }) => color.primary};
   z-index: 1;
 `;
 
@@ -47,8 +44,7 @@ const MainWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 65px;
-  border: ${({ theme }) =>
-    `1px solid ${theme.isDarkMode ? smColors.white : smColors.black}`};
+  border: 1px solid ${({ theme: { color } }) => color.primary};
 `;
 
 const Text = styled.div`

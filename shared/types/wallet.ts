@@ -1,12 +1,18 @@
-import { Tx } from './tx';
+import { HexString } from './misc';
 
-export interface Account {
+export interface KeyPair {
   displayName: string;
   created: string;
   path: string;
   publicKey: string;
   secretKey: string;
-  txs?: Tx[];
+}
+
+export interface Account {
+  displayName: string;
+  created: string;
+  address: string;
+  spawnArgs?: any;
 }
 
 export interface AccountBalance {
@@ -30,23 +36,39 @@ export interface WalletMeta {
   displayName: string;
   created: string;
   type: WalletType;
-  netId: number;
+  genesisID: string;
   remoteApi: string;
-  meta: {
-    salt: string;
-  };
 }
 
 export interface WalletSecrets {
   mnemonic: string;
-  accounts: Account[];
+  accounts: KeyPair[];
   contacts: Contact[];
 }
 
-export interface WalletSecretsEncrypted {
-  cipher: string;
+export interface WalletSecretsEncryptedLegacy {
+  cipher: 'AES-128-CTR';
   cipherText: string;
 }
+
+export interface WalletSecretsEncryptedGCM {
+  cipher: 'AES-GCM';
+  cipherParams: {
+    iv: HexString;
+  };
+  kdf: 'PBKDF2';
+  kdfparams: {
+    dklen: number;
+    hash: 'SHA-512';
+    iterations: number;
+    salt: HexString;
+  };
+  cipherText: string;
+}
+
+export type WalletSecretsEncrypted =
+  | WalletSecretsEncryptedLegacy
+  | WalletSecretsEncryptedGCM;
 
 export interface Wallet {
   meta: WalletMeta;

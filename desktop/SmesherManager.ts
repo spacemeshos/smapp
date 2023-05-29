@@ -1,47 +1,74 @@
-import fs from 'fs';
+import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import * as R from 'ramda';
-import { app, ipcMain, dialog, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
+  HexString,
   IPCSmesherStartupData,
+  NodeConfig,
+  PostProvingOpts,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
+import { configCodecByPath, delay } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
+import AbstractManager from './AbstractManager';
+import StoreService from './storeService';
+import { generateGenesisIDFromConfig } from './main/Networks';
+import { safeSmeshingOpts } from './main/smeshingOpts';
+import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
+import {
+  deleteSmeshingMetadata,
+  getSmeshingMetadata,
+  updateSmeshingMetadata,
+} from './SmesherMetadataUtils';
 
 const checkDiskSpace = require('check-disk-space');
 
 const logger = Logger({ className: 'SmesherService' });
 
-class SmesherManager {
+class SmesherManager extends AbstractManager {
   private smesherService: SmesherService;
-
-  private readonly mainWindow: BrowserWindow;
 
   private readonly configFilePath: string;
 
-  constructor(mainWindow: BrowserWindow, configFilePath: string) {
-    this.subscribeToEvents(mainWindow);
+  private genesisID: string;
+
+  constructor(
+    mainWindow: BrowserWindow,
+    configFilePath: string,
+    genesisID: string
+  ) {
+    super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
-    this.mainWindow = mainWindow;
     this.configFilePath = configFilePath;
+    this.genesisID = genesisID;
   }
 
   private loadConfig = async () => {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return JSON.parse(fileContent);
+    return configCodecByPath(this.configFilePath).parse(
+      fileContent
+    ) as NodeConfig;
   };
 
   private writeConfig = async (config) => {
-    await writeFileAsync(this.configFilePath, JSON.stringify(config));
+    const data = configCodecByPath(this.configFilePath).stringify(config);
+    await writeFileAsync(this.configFilePath, data);
     return true;
+  };
+
+  unsubscribe = () => {
+    this.smesherService.deactivateProgressStream();
+    this.smesherService.cancelStreams();
+    this.unsubscribeIPC();
   };
 
   getSmeshingConfig = async () => {
@@ -49,11 +76,20 @@ class SmesherManager {
     return config.smeshing || {};
   };
 
-  getCurrentDataDir = async () => {
+  getSmesherId = async () => {
+    const res = await this.smesherService.getSmesherID();
+    if (res.error) {
+      throw res.error;
+    }
+    return res.smesherId;
+  };
+
+  getCurrentDataDir = async (genesisID: HexString) => {
     const smeshingConfig = await this.getSmeshingConfig();
     const DEFAULT_KEYBIN_PATH = path.resolve(
       app.getPath('home'),
-      './post/data'
+      './post/',
+      genesisID.substring(0, 8)
     );
     return R.pathOr(
       DEFAULT_KEYBIN_PATH,
@@ -62,44 +98,73 @@ class SmesherManager {
     );
   };
 
+  updateSmesherState = async () => {
+    await this.sendSmesherSettingsAndStartupState();
+    await this.sendPostSetupProviders();
+    await this.sendSmesherMetadata();
+  };
+
   serviceStartupFlow = async () => {
     const cfg = await this.sendSmesherConfig();
     if (cfg?.start) {
-      // Subscribe on PoST cration progress stream ASAP
-      this.smesherService.activateProgressStream(
-        this.handlePostDataCreationStatusStream
-      );
+      // Ensure that we started service
+      this.smesherService.createService();
+      const { postSetupState } = await this.smesherService.getPostSetupStatus();
+      // Unsubscribe first
+      this.smesherService.deactivateProgressStream();
+      if (postSetupState !== PostSetupState.STATE_COMPLETE) {
+        // Subscribe on PoST cration progress stream ASAP
+        this.smesherService.activateProgressStream(
+          this.handlePostDataCreationStatusStream
+        );
+      }
     }
-    await this.sendSmesherSettingsAndStartupState();
-    await this.sendPostSetupComputeProviders();
+    await this.updateSmesherState();
   };
 
-  sendSmesherSettingsAndStartupState = async () => {
-    const { config } = await this.smesherService.getPostConfig();
+  sendSmesherSettingsAndStartupState = async (retries = 5) => {
+    const { config, error } = await this.smesherService.getPostConfig();
+    if (error) {
+      if (retries > 5) {
+        await delay(5000);
+        return this.sendSmesherSettingsAndStartupState(retries - 1);
+      }
+    }
+
     const { smesherId } = await this.smesherService.getSmesherID();
     const {
       postSetupState,
       numLabelsWritten,
-      errorMessage,
     } = await this.smesherService.getPostSetupStatus();
     const nodeConfig = await this.loadConfig();
     const numUnits =
-      (nodeConfig.smeshing &&
-        nodeConfig.smeshing['smeshing-opts'] &&
-        nodeConfig.smeshing['smeshing-opts']['smeshing-opts-numunits']) ||
+      nodeConfig.smeshing?.['smeshing-opts']?.['smeshing-opts-numunits'] || 0;
+    const maxFileSize =
+      nodeConfig.smeshing?.['smeshing-opts']?.['smeshing-opts-maxfilesize'] ||
       0;
+    const isSmeshingStarted = nodeConfig.smeshing?.['smeshing-start'] || false;
+
     const data: IPCSmesherStartupData = {
       config,
-      smesherId,
+      smesherId: smesherId || '',
+      isSmeshingStarted,
       postSetupState,
       numLabelsWritten,
       numUnits,
-      errorMessage,
+      maxFileSize,
     };
+
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS,
       data
     );
+
+    if (PostSetupState.STATE_ERROR === postSetupState && retries > 0) {
+      await delay(5000);
+      return this.sendSmesherSettingsAndStartupState(retries - 1);
+    }
+
+    return data;
   };
 
   sendSmesherConfig = async () => {
@@ -110,7 +175,7 @@ class SmesherManager {
       const smeshingConfig = {
         coinbase: nodeConfig.smeshing['smeshing-coinbase'],
         dataDir: opts['smeshing-opts-datadir'],
-        numFiles: opts['smeshing-opts-numfiles'],
+        maxFileSize: opts['smeshing-opts-maxfilesize'],
         numUnits: opts['smeshing-opts-numunits'],
         provider: opts['smeshing-opts-provider'],
         throttle: opts['smeshing-opts-throttle'],
@@ -126,72 +191,93 @@ class SmesherManager {
     return null;
   };
 
-  sendPostSetupComputeProviders = async () => {
-    const {
-      error,
-      providers,
-    } = await this.smesherService.getSetupComputeProviders();
+  sendPostSetupProviders = async () => {
+    const { error, providers } = await this.smesherService.getSetupProviders();
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS,
       { error, providers }
     );
   };
 
-  subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, async () => {
-      const res = await this.selectPostFolder({ mainWindow });
+  sendSmesherMetadata = async () => {
+    const dataDirPath = await this.getCurrentDataDir(this.genesisID);
+    const metadata = await getSmeshingMetadata(dataDirPath);
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, metadata);
+  };
+
+  clearSmesherMetadata = async () => {
+    const dataDirPath = await this.getCurrentDataDir(this.genesisID);
+    await deleteSmeshingMetadata(dataDirPath);
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, {});
+  };
+
+  getCoinbase = () => this.smesherService.getCoinbase();
+
+  subscribeIPCEvents() {
+    // handlers
+    const selectPostFolder = async () => {
+      return this.selectPostFolder({ mainWindow: this.mainWindow });
+    };
+    const smesherCheckFreeSpace = async (_event, request) => {
+      return this.selectPostFolder({ ...request });
+    };
+    const getCoinbase = () => this.smesherService.getCoinbase();
+    const setCoinbase = async (_event, { coinbase }) => {
+      // TODO: Unused handler
+      const res = await this.smesherService.setCoinbase({ coinbase });
+      const config = await this.loadConfig();
+      config.smeshing = config.smeshing || {};
+      config.smeshing['smeshing-coinbase'] = coinbase;
+      await this.writeConfig(config);
       return res;
-    });
-    ipcMain.handle(
-      ipcConsts.SMESHER_CHECK_FREE_SPACE,
-      async (_event, request) => {
-        const res = await this.selectPostFolder({ ...request });
-        return res;
-      }
-    );
+    };
+    const getMinGas = () => this.smesherService.getMinGas();
+    const getEstimatedRewards = () => this.smesherService.getEstimatedRewards();
+
+    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, selectPostFolder);
+    ipcMain.handle(ipcConsts.SMESHER_CHECK_FREE_SPACE, smesherCheckFreeSpace);
     ipcMain.handle(
       ipcConsts.SMESHER_STOP_SMESHING,
       async (_event, { deleteFiles }: { deleteFiles?: boolean }) => {
         const res = await this.smesherService.stopSmeshing({
           deleteFiles: deleteFiles || false,
         });
+        await this.clearSmesherMetadata();
         const config = await this.loadConfig();
+        const genesisId = generateGenesisIDFromConfig(config);
         if (deleteFiles) {
-          delete config.smeshing;
+          config.smeshing = {};
         } else {
-          config.smeshing['smeshing-start'] = false;
+          config.smeshing = {
+            ...config.smeshing,
+            'smeshing-start': false,
+          };
         }
+        const smeshingOpts = safeSmeshingOpts(config.smeshing, genesisId);
+        config.smeshing = smeshingOpts;
         await this.writeConfig(config);
-        const error = res?.error;
-        return error;
+        StoreService.set(`smeshing.${genesisId}`, smeshingOpts);
+        return res?.error;
       }
     );
-    ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, async () => {
-      // TODO: Unused handler
-      const res = await this.smesherService.getCoinbase();
-      return res;
-    });
+    ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, getCoinbase);
+    ipcMain.handle(ipcConsts.SMESHER_SET_COINBASE, setCoinbase);
+    ipcMain.handle(ipcConsts.SMESHER_GET_MIN_GAS, getMinGas);
     ipcMain.handle(
-      ipcConsts.SMESHER_SET_COINBASE,
-      async (_event, { coinbase }) => {
-        // TODO: Unused handler
-        const res = await this.smesherService.setCoinbase({ coinbase });
-        const config = await this.loadConfig();
-        config.smeshing['smeshing-coinbase'] = coinbase;
-        await this.writeConfig(config);
-        return res;
-      }
+      ipcConsts.SMESHER_GET_ESTIMATED_REWARDS,
+      getEstimatedRewards
     );
-    ipcMain.handle(ipcConsts.SMESHER_GET_MIN_GAS, async () => {
-      // TODO: Unused handler
-      const res = await this.smesherService.getMinGas();
-      return res;
-    });
-    ipcMain.handle(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS, async () => {
-      const res = await this.smesherService.getEstimatedRewards();
-      return res;
-    });
-  };
+
+    return () => {
+      ipcMain.removeHandler(ipcConsts.SMESHER_SELECT_POST_FOLDER);
+      ipcMain.removeHandler(ipcConsts.SMESHER_CHECK_FREE_SPACE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_STOP_SMESHING);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_COINBASE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_SET_COINBASE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_MIN_GAS);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
+    };
+  }
 
   startSmeshing = async (postSetupOpts: PostSetupOpts) =>
     this.smesherService.startSmeshing({
@@ -199,26 +285,48 @@ class SmesherManager {
       handler: this.handlePostDataCreationStatusStream,
     });
 
-  updateSmeshingConfig = async (postSetupOpts: PostSetupOpts) => {
+  updateSmeshingConfig = async (
+    postSetupOpts: PostSetupOpts,
+    provingOpts: PostProvingOpts,
+    genesisID: HexString
+  ) => {
     const {
       coinbase,
       dataDir,
       numUnits,
-      computeProviderId,
+      provider,
       throttle,
+      maxFileSize,
     } = postSetupOpts;
-    const config = await this.loadConfig();
-    config.smeshing = {
-      'smeshing-coinbase': coinbase,
-      'smeshing-opts': {
-        'smeshing-opts-datadir': dataDir,
-        'smeshing-opts-numfiles': 1,
-        'smeshing-opts-numunits': numUnits,
-        'smeshing-opts-provider': computeProviderId,
-        'smeshing-opts-throttle': throttle,
+    const { nonces, threads } = provingOpts;
+    const prevOpts = StoreService.get(`smeshing.${genesisID}`);
+    const opts = safeSmeshingOpts(
+      {
+        'smeshing-coinbase': coinbase,
+        'smeshing-opts': {
+          'smeshing-opts-datadir': dataDir,
+          'smeshing-opts-maxfilesize': maxFileSize,
+          'smeshing-opts-numunits': numUnits,
+          'smeshing-opts-provider': provider,
+          'smeshing-opts-throttle': throttle,
+          'smeshing-opts-compute-batch-size': R.pathOr(
+            DEFAULT_SMESHING_BATCH_SIZE,
+            ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
+            prevOpts
+          ),
+        },
+        'smeshing-proving-opts': {
+          'smeshing-opts-proving-nonces': nonces,
+          'smeshing-opts-proving-threads': threads,
+        },
+        'smeshing-start': true,
       },
-      'smeshing-start': true,
-    };
+      genesisID
+    );
+    StoreService.set(`smeshing.${genesisID}`, opts);
+
+    const config = await this.loadConfig();
+    config.smeshing = opts;
     return this.writeConfig(config);
   };
 
@@ -232,6 +340,17 @@ class SmesherManager {
     if (res.error) {
       return { error: res.error };
     }
+
+    const isEmpty = await this.isEmptyDir(filePaths[0]);
+
+    if (!isEmpty) {
+      await dialog.showMessageBox(mainWindow, {
+        message:
+          "Important information! \n The folder should be empty only for the new Genesis ID and for the new account. \n Otherwise the Smeshing process won't start",
+        type: 'warning',
+      });
+    }
+
     return {
       dataDir: filePaths[0],
       calculatedFreeSpace: res.calculatedFreeSpace,
@@ -240,9 +359,9 @@ class SmesherManager {
 
   checkDiskSpace = async ({ dataDir }: { dataDir: string }) => {
     try {
-      fs.accessSync(dataDir, fs.constants.W_OK);
+      await fs.access(dataDir, fsConstants.W_OK);
       const diskSpace = await checkDiskSpace(dataDir);
-      logger.log(`checkDiskSpace`, diskSpace.free, { dataDir });
+      logger.log('checkDiskSpace', diskSpace.free, { dataDir });
       return { calculatedFreeSpace: diskSpace.free };
     } catch (error) {
       logger.error('checkDiskSpace', error, { dataDir });
@@ -250,10 +369,50 @@ class SmesherManager {
     }
   };
 
+  isEmptyDir = async (path: string) => {
+    try {
+      const directory = await fs.opendir(path);
+      const entry = await directory.read();
+      await directory.close();
+
+      return entry === null;
+    } catch (error) {
+      logger.error('isEmptyDir', error, { dataDir: path });
+      return false;
+    }
+  };
+
   handlePostDataCreationStatusStream = (
     error: any,
     status: Partial<PostSetupStatus>
   ) => {
+    if (error) {
+      logger.error('handlePostDataCreationStatusStream', error);
+      return;
+    }
+
+    if (status.postSetupState === PostSetupState.STATE_COMPLETE) {
+      // eslint-disable-next-line promise/no-promise-in-callback
+      this.getCurrentDataDir(this.genesisID)
+        .then((dataDirPath) =>
+          updateSmeshingMetadata(dataDirPath, {
+            smeshingStart: Date.now(),
+          })
+        )
+        .then((metadata) =>
+          this.mainWindow.webContents.send(
+            ipcConsts.SMESHER_METADATA_INFO,
+            metadata
+          )
+        )
+        .catch((error) =>
+          logger.error(
+            'handlePostDataCreationStatusStream - updateSmeshingMetadata',
+            error
+          )
+        );
+    }
+
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS,
       { error, status }

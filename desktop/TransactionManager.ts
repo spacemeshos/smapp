@@ -1,11 +1,15 @@
 import { BrowserWindow } from 'electron';
+import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
+import Bech32 from '@spacemesh/address-wasm';
 import {
-  Account,
   AccountWithBalance,
+  asTx,
+  Bech32Address,
   HexString,
+  KeyPair,
   Reward,
+  toTxState,
   Tx,
-  TxCoinTransfer,
   TxSendRequest,
   TxState,
 } from '../shared/types';
@@ -13,31 +17,38 @@ import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
-import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
-import { addReceiptToTx, toTx } from '../shared/types/transformers';
 import { hasRequiredRewardFields } from '../shared/types/guards';
-import { debounce } from '../shared/utils';
-import cryptoService from './cryptoService';
-import { fromHexString, toHexString } from './utils';
+import {
+  debounceByArgs,
+  delay,
+  fromHexString,
+  longToNumber,
+  toHexString,
+} from '../shared/utils';
+import { MAX_GAS } from '../shared/constants';
+import { getMethodName, getTemplateName } from '../shared/templateMeta';
+import { toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
-import GlobalStateService from './GlobalStateService';
+import GlobalStateService, {
+  AccountDataStreamHandlerArg,
+  AccountDataValidFlags,
+} from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
-
-const DATA_BATCH = 50;
-const IPC_DEBOUNCE = 1000;
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
+import { sign } from './ed25519';
+import AbstractManager from './AbstractManager';
 
 type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
 
 type RewardHandlerArg = Reward__Output | null | undefined;
-type RewardHandler = (tx: RewardHandlerArg) => void;
 
-class TransactionManager {
+class TransactionManager extends AbstractManager {
   logger = Logger({ className: 'TransactionManager' });
 
   private readonly meshService: MeshService;
@@ -46,9 +57,9 @@ class TransactionManager {
 
   private readonly txService: TransactionService;
 
-  accounts: AccountWithBalance[] = [];
+  keychain: KeyPair[] = [];
 
-  private readonly mainWindow: BrowserWindow;
+  accounts: AccountWithBalance[] = [];
 
   private txStateStream: Record<
     string,
@@ -57,12 +68,34 @@ class TransactionManager {
 
   private accountStates: Record<string, AccountStateManager> = {};
 
-  constructor(meshService, glStateService, txService, mainWindow) {
+  private unsubs: Record<Bech32Address, (() => void)[]> = {};
+
+  private genesisID: string;
+
+  constructor(
+    meshService: MeshService,
+    glStateService: GlobalStateService,
+    txService: TransactionService,
+    mainWindow: BrowserWindow,
+    genesisID: string
+  ) {
+    super(mainWindow);
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
-    this.mainWindow = mainWindow;
+    this.genesisID = genesisID;
   }
+
+  setGenesisID(id: HexString) {
+    this.genesisID = id;
+  }
+
+  unsubscribeAllStreams = () => {
+    Object.values(this.unsubs).forEach((list) =>
+      list.forEach((unsub) => unsub())
+    );
+    this.unsubs = {};
+  };
 
   //
   appStateUpdater = (channel: ipcConsts, payload: any) => {
@@ -70,28 +103,31 @@ class TransactionManager {
   };
 
   // Debounce update functions to avoid excessive IPC calls
-  updateAppStateAccount = debounce(IPC_DEBOUNCE, (publicKey: string) => {
-    const account = this.accountStates[publicKey].getAccount();
+  updateAppStateAccount = debounceByArgs(100, (address: string) => {
+    const account = this.accountStates[address].getState();
+    if (!account) {
+      return;
+    }
     this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, {
       account,
-      accountId: publicKey,
+      accountId: address,
     });
   });
 
-  updateAppStateTxs = debounce(IPC_DEBOUNCE, (publicKey: string) => {
-    const txs = this.accountStates[publicKey].getTxs();
+  updateAppStateTxs = debounceByArgs(100, (publicKey: string) => {
+    const txs = this.accountStates[publicKey].getTxs() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
   });
 
-  updateAppStateRewards = debounce(IPC_DEBOUNCE, (publicKey: string) => {
-    const rewards = this.accountStates[publicKey].getRewards();
+  updateAppStateRewards = debounceByArgs(100, (publicKey: string) => {
+    const rewards = this.accountStates[publicKey].getRewards() || [];
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
   });
 
   private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
     this.accountStates[publicKey]
       .storeTransaction(tx)
-      .then(() => this.updateAppStateTxs(publicKey))
+      .then((isNew) => isNew && this.updateAppStateTxs(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeTx', err);
@@ -100,7 +136,7 @@ class TransactionManager {
   private storeReward = (publicKey: string, reward: Reward) =>
     this.accountStates[publicKey]
       .storeReward(reward)
-      .then(() => this.updateAppStateRewards(publicKey))
+      .then((isNew) => isNew && this.updateAppStateRewards(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeReward', err);
@@ -112,149 +148,152 @@ class TransactionManager {
   }) => {
     if (!tx.transaction || !tx.transactionState || !tx.transactionState.state)
       return;
-    const newTx = toTx(tx.transaction, tx.transactionState);
+    const newTx = toTx(tx.transaction, toTxState(tx.transactionState.state));
     if (!newTx) return;
-    await this.storeTx(publicKey, newTx);
+    await this.upsertTransaction(publicKey)(newTx);
   };
 
-  private subscribeTransactions = debounce(5000, (publicKey: string) => {
+  private subscribeTransactions = debounceByArgs(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
-    if (this.txStateStream[publicKey]) {
-      this.txStateStream[publicKey]();
-    }
+    const unsubTxStateStream = this.txStateStream[publicKey];
+    // Unsubscribe
+    unsubTxStateStream && unsubTxStateStream();
+
     this.txStateStream[publicKey] = this.txService.activateTxStream(
       this.handleNewTx(publicKey),
       txIds
     );
-
-    this.txService
-      .getTxsState(txIds)
-      .then((resp) =>
-        // two lists -> list of tuples
-        resp.transactions.map((tx, idx) => ({
-          transaction: tx,
-          transactionState: resp.transactionsState[idx],
-        }))
-      )
-      .then((txs) => txs.map(this.handleNewTx(publicKey)))
-      .catch((err) => {
-        console.log('grpc TransactionState', err); // eslint-disable-line no-console
-        this.logger.error('grpc TransactionState', err);
-      });
   });
 
-  private subscribeAccount = (account: AccountWithBalance): void => {
-    const { publicKey } = account;
+  private subscribeAccount = (address: Bech32Address): void => {
     // Cancel account Txs subscription
-    this.txStateStream[publicKey] && this.txStateStream[publicKey]();
+    this.txStateStream[address]?.();
 
-    const binaryAccountId = fromHexString(publicKey.substring(24));
-    const addTransaction = this.upsertTransactionFromMesh(publicKey);
+    const addTransaction = this.upsertTransactionFromMesh(address);
     this.retrieveHistoricTxData({
-      accountId: binaryAccountId,
+      accountId: address,
       offset: 0,
       handler: addTransaction,
       retries: 0,
     });
-    this.meshService.activateAccountMeshDataStream(
-      binaryAccountId,
-      addTransaction
+    this.unsubs[address].push(
+      this.meshService.listenMeshTransactions(address, addTransaction)
     );
 
-    const updateAccountData = this.updateAccountData({ accountId: publicKey });
+    const updateAccountData = this.updateAccountData(address);
     this.retrieveAccountData({
       filter: {
-        accountId: { address: binaryAccountId },
+        accountId: { address },
         accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
       },
       handler: updateAccountData,
       retries: 0,
     });
-    this.glStateService.activateAccountDataStream(
-      binaryAccountId,
-      AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
-      updateAccountData
+
+    this.unsubs[address].push(
+      this.glStateService.activateAccountDataStream(
+        address,
+        AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        updateAccountData
+      )
     );
 
-    setInterval(() => {
-      this.retrieveAccountData({
-        filter: {
-          accountId: { address: binaryAccountId },
-          accountDataFlags: 4,
-        },
-        handler: updateAccountData,
-        retries: 0,
-      });
-    }, 60 * 1000);
+    this.unsubs[address].push(
+      this.txService.watchTransactionsByAddress(address, (txRes) => {
+        if (!txRes.tx) return;
+        const state = toTxState(TxState.PROCESSED, txRes.status || 0);
+        const tx = toTx(txRes.tx, state);
+        if (!tx) return;
+        this.upsertTransaction(address)({
+          ...tx,
+          layer: txRes.layer,
+        });
+      })
+    );
 
-    const txs = Object.keys(this.accountStates[publicKey].getTxs());
+    const txs = Object.keys(this.accountStates[address].getTxs() || {});
     if (txs.length > 0) {
-      this.subscribeTransactions(publicKey, txs);
+      this.subscribeTransactions(address);
     }
 
-    // TODO: https://github.com/spacemeshos/go-spacemesh/issues/2072
-    // const addReceiptToTx = this.addReceiptToTx({ accountId: publicKey });
-    // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-    // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
+    const addReward = this.addReward(address);
+    this.retrieveRewards(address, 0)
+      .then((value) => value.forEach(addReward))
+      .catch((err) => {
+        this.logger.error('Can not retrieve and store rewards', err);
+      });
 
-    const addReward = this.addReward(publicKey);
-    this.retrieveRewards({
-      filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 },
-      offset: 0,
-      handler: addReward,
-      retries: 0,
-    });
-    this.glStateService.activateAccountDataStream(
-      binaryAccountId,
-      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
-      addReward
+    this.unsubs[address].push(
+      this.glStateService.listenRewardsByCoinbase(address, addReward)
     );
-
-    this.updateAppStateTxs(publicKey);
-    this.updateAppStateRewards(publicKey);
   };
 
-  addAccount = (account: Account) => {
-    const idx = this.accounts.findIndex(
-      (acc) => acc.publicKey === account.publicKey
-    );
-    const filtered =
-      idx > -1
-        ? this.accounts
+  addAccount = (keypair: KeyPair) => {
+    const { publicKey } = keypair;
+    const pkBytes = fromHexString(publicKey);
+    const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
+    const principal = tpl.principal({ PublicKey: pkBytes });
+    const address = Bech32.generateAddress(principal);
+
+    const idx = this.keychain.findIndex((kp) => kp.publicKey === publicKey);
+    this.keychain = [
+      ...(idx > -1
+        ? this.keychain
             .slice(0, Math.max(0, idx - 1))
-            .concat(this.accounts.slice(idx + 1))
-        : this.accounts;
-    this.accounts = [...filtered, account];
+            .concat(this.keychain.slice(idx + 1))
+        : this.keychain),
+      keypair,
+    ];
+    this.accountStates[address] = new AccountStateManager(
+      address,
+      this.genesisID
+    );
+    // Send stored Tx & Rewards
+    this.updateAppStateTxs(address);
+    this.updateAppStateRewards(address);
 
-    const accManager = new AccountStateManager(account.publicKey);
-    this.accountStates[account.publicKey] = accManager;
+    this.unsubs[address] = [];
     // Resubscribe
-    this.subscribeAccount(account);
+    this.subscribeAccount(address);
   };
 
-  setAccounts = (accounts: Account[]) => {
+  setAccounts = (accounts: KeyPair[]) => {
+    this.unsubscribeAllStreams();
+    this.keychain = [];
+    this.accountStates = {};
     accounts.forEach(this.addAccount);
   };
 
-  private upsertTransaction = (accountId: HexString) => async (tx: Tx) => {
-    const originalTx = this.accountStates[accountId].getTxById(tx.id);
+  private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
+    tx: Tx<T>
+  ) => {
+    if (!this.accountStates[accountAddress]) return;
+    const originalTx = this.accountStates[accountAddress].getTxById(tx.id);
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
       : originalTx?.receipt;
-    const updatedTx: Tx = { ...originalTx, ...tx, receipt };
-    await this.storeTx(accountId, updatedTx);
-    this.subscribeTransactions(accountId);
+    // Do not downgrade status from SUCCESS/FAILURE/INVALID
+    let { status } = tx;
+    if (
+      originalTx?.status > TxState.PROCESSED &&
+      originalTx?.status > tx.status
+    ) {
+      status = originalTx.status;
+    }
+    const updatedTx: Tx = { ...originalTx, ...tx, status, receipt };
+    await this.storeTx(accountAddress, updatedTx);
+    this.subscribeTransactions(accountAddress);
   };
 
-  private upsertTransactionFromMesh = (accountId: HexString) => async (
+  private upsertTransactionFromMesh = (accountAddress: Bech32Address) => async (
     tx: TxHandlerArg
   ) => {
-    if (!tx || !tx?.transaction?.id?.id || !tx.layerId) return;
+    if (!tx || !tx?.transaction?.id || !tx.layerId) return;
     const newTxData = toTx(tx.transaction, null);
     if (!newTxData) return;
-    this.upsertTransaction(accountId)({
+    this.upsertTransaction(accountAddress)({
       ...newTxData,
       ...(tx.layerId?.number ? { layer: tx.layerId.number } : {}),
     });
@@ -266,7 +305,7 @@ class TransactionManager {
     handler,
     retries,
   }: {
-    accountId: Uint8Array;
+    accountId: string;
     offset: number;
     handler: TxHandler;
     retries: number;
@@ -275,8 +314,9 @@ class TransactionManager {
       data,
       totalResults,
       error,
-    } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
+    } = await this.meshService.requestMeshTransactions(accountId, offset);
     if (error && retries < 5) {
+      await delay(1000);
       await this.retrieveHistoricTxData({
         accountId,
         offset,
@@ -285,10 +325,11 @@ class TransactionManager {
       });
     } else {
       data && data.length && data.forEach((tx) => handler(tx.meshTransaction));
-      if (offset + DATA_BATCH < totalResults) {
+      if (offset + GRPC_QUERY_BATCH_SIZE < totalResults) {
+        delay(100);
         await this.retrieveHistoricTxData({
           accountId,
-          offset: offset + DATA_BATCH,
+          offset: offset + GRPC_QUERY_BATCH_SIZE,
           handler,
           retries: 0,
         });
@@ -296,39 +337,35 @@ class TransactionManager {
     }
   };
 
-  updateAccountData = ({ accountId }: { accountId: string }) => (
-    data: Account__Output
-  ) => {
+  updateAccountData = (address: string) => (data: Account__Output) => {
+    if (!this.accountStates[address]) return;
     const currentState = {
-      counter: data.stateCurrent?.counter
-        ? data.stateCurrent.counter.toNumber()
-        : 0,
-      balance: data.stateCurrent?.balance?.value
-        ? data.stateCurrent.balance.value.toNumber()
-        : 0,
+      counter: longToNumber(data.stateCurrent?.counter || 0),
+      balance: longToNumber(data.stateCurrent?.balance?.value || 0),
     };
     const projectedState = {
-      counter: data.stateProjected?.counter
-        ? data.stateProjected.counter.toNumber()
-        : 0,
-      balance: data.stateProjected?.balance?.value
-        ? data.stateProjected.balance.value.toNumber()
-        : 0,
+      counter: longToNumber(data.stateProjected?.counter || 0),
+      balance: longToNumber(data.stateProjected?.balance?.value || 0),
     };
-    this.accountStates[accountId].storeAccountBalance({
-      currentState,
-      projectedState,
-    });
-    this.updateAppStateAccount(accountId);
+    this.accountStates[address] &&
+      this.accountStates[address].storeState({
+        currentState,
+        projectedState,
+      });
+
+    this.updateAppStateAccount(address);
   };
 
-  retrieveAccountData = async ({
+  retrieveAccountData = async <F extends AccountDataValidFlags>({
     filter,
     handler,
     retries,
   }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    handler: (data: Account__Output) => void;
+    filter: {
+      accountId: { address: string };
+      accountDataFlags: F;
+    };
+    handler: (data: AccountDataStreamHandlerArg[F]) => void;
     retries: number;
   }) => {
     const { data, error } = await this.glStateService.sendAccountDataQuery({
@@ -336,195 +373,277 @@ class TransactionManager {
       offset: 0,
     });
     if (error && retries < 5) {
-      await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
-    } else {
-      data &&
-        data.length > 0 &&
-        data[0].accountWrapper &&
-        handler(data[0].accountWrapper);
-    }
-  };
-
-  addReceiptToTx = ({ accountId }: { accountId: string }) => ({
-    datum,
-  }: {
-    datum: AccountData__Output;
-  }) => {
-    const { receipt } = datum;
-    if (!receipt || !receipt.id?.id) return;
-
-    const txId = toHexString(receipt.id.id);
-    const existingTx = this.accountStates[accountId].getTxById(txId) || {};
-    // TODO: Handle properly case when we got an receipt, but no tx data?
-    const updatedTx = addReceiptToTx(existingTx, receipt);
-    this.storeTx(accountId, updatedTx);
-  };
-
-  retrieveHistoricTxReceipt = async ({
-    filter,
-    offset,
-    handler,
-    retries,
-  }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    offset: number;
-    handler: ({ data }: { data: any }) => void;
-    retries: number;
-  }) => {
-    const {
-      totalResults,
-      data,
-      error,
-    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
-    if (error && retries < 5) {
-      await this.retrieveHistoricTxReceipt({
+      await this.retrieveAccountData({
         filter,
-        offset,
         handler,
         retries: retries + 1,
       });
     } else {
-      data &&
-        data.length &&
-        data.length > 0 &&
-        data.forEach((item) => handler({ data: item.receipt }));
-      if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveHistoricTxReceipt({
-          filter,
-          offset: offset + DATA_BATCH,
-          handler,
-          retries: 0,
-        });
-      }
+      data?.length > 0 && handler(data[0]);
     }
   };
 
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
     if (!reward || !hasRequiredRewardFields(reward)) return;
-
-    const coinbase = toHexString(reward.coinbase.address);
     const parsedReward: Reward = {
       layer: reward.layer.number,
-      amount: reward.total.value.toNumber(),
-      layerReward: reward.layerReward.value.toNumber(),
-      // layerComputed: reward.layerComputed.number, // TODO
-      coinbase: `0x${coinbase}`,
-      smesher: toHexString(reward.smesher.id),
+      amount: longToNumber(reward.total.value),
+      layerReward: longToNumber(reward.layerReward.value),
+      coinbase: reward.coinbase.address,
     };
     this.storeReward(accountId, parsedReward);
   };
 
-  retrieveRewards = async ({
-    filter,
-    offset,
-    handler,
-    retries,
-  }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    offset: number;
-    handler: RewardHandler;
-    retries: number;
-  }) => {
-    const {
-      totalResults,
-      data,
-      error,
-    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
-    if (error && retries < 5) {
-      await this.retrieveRewards({
-        filter,
-        offset,
-        handler,
-        retries: retries + 1,
-      });
-    } else {
-      data &&
-        data.length > 0 &&
-        data.forEach((reward) => handler(reward.reward));
-      if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveRewards({
-          filter,
-          offset: offset + DATA_BATCH,
-          handler,
-          retries: 0,
-        });
+  retrieveRewards = async (
+    coinbase: string,
+    offset = 0
+  ): Promise<Reward__Output[]> => {
+    const composeArg = (batchNumber: number) => ({
+      filter: {
+        accountId: { address: coinbase },
+        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
+      },
+      offset: offset + batchNumber * GRPC_QUERY_BATCH_SIZE,
+    });
+    const getAccountDataQuery = async (batch: number, retries = 5) => {
+      const res = await this.glStateService.sendAccountDataQuery(
+        composeArg(batch)
+      );
+      if (res.error && retries > 0) {
+        this.logger.debug(
+          `retrieveRewards (retry ${retries})`,
+          res,
+          composeArg(batch)
+        );
+        await delay(1000);
+        return getAccountDataQuery(batch, retries - 1);
       }
+      return res;
+    };
+    const { totalResults, data } = await getAccountDataQuery(0);
+    if (totalResults <= GRPC_QUERY_BATCH_SIZE) {
+      return data.filter(
+        (item): item is Reward__Output =>
+          !!item && hasRequiredRewardFields(item)
+      ) as Reward__Output[];
+    } else {
+      await delay(100);
+      const nextRewards = await this.retrieveRewards(
+        coinbase,
+        offset + GRPC_QUERY_BATCH_SIZE
+      );
+      return data ? [...data, ...nextRewards] : nextRewards;
     }
   };
 
-  sendTx = async ({
+  getOldRewards = (coinbase: HexString) =>
+    this.accountStates[coinbase]?.getRewards() || [];
+
+  retrieveNewRewards = async (coinbase: string) => {
+    const oldRewards = this.getOldRewards(coinbase);
+    const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
+      (acc, reward) => {
+        if (!reward || !hasRequiredRewardFields(reward)) return acc;
+        const parsedReward: Reward = {
+          layer: reward.layer.number,
+          amount: longToNumber(reward.total.value),
+          layerReward: longToNumber(reward.layerReward.value),
+          coinbase: reward.coinbase.address,
+        };
+        return [...acc, parsedReward];
+      },
+      <Reward[]>[]
+    );
+    const uniq = [...oldRewards, ...newRewards].reduce(
+      (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
+      <Record<string, Reward>>{}
+    );
+    return Object.values(uniq);
+  };
+
+  // TODO: Replace with generic `publishTx`
+  publishSelfSpawn = async (fee: number, accountIndex: number) => {
+    try {
+      const { publicKey, secretKey } = this.keychain[accountIndex];
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
+      const spawnArgs = { PublicKey: fromHexString(publicKey) };
+      const principal = tpl.principal(spawnArgs);
+      const address = Bech32.generateAddress(principal);
+      const { projectedState } = this.accountStates[address].getState();
+      const payload = {
+        Nonce: BigInt(projectedState?.counter || 0),
+        GasPrice: BigInt(fee),
+        Arguments: spawnArgs,
+      };
+      const txEncoded = tpl.encode(principal, payload);
+      const genesisID = await this.meshService.getGenesisID();
+      const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
+      const signed = tpl.sign(txEncoded, sig);
+      const response = await this.txService.submitTransaction({
+        transaction: signed,
+      });
+      const getTxResponseError = () =>
+        new Error('Can not retrieve a transaction data');
+
+      // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
+      const error =
+        response.error || response.txstate === null || !response.txstate.id?.id
+          ? response.error || getTxResponseError()
+          : null;
+      const { currentLayer } = await this.meshService.getCurrentLayer();
+      // Compose "initial" transaction record
+      const method = 0;
+      const tx =
+        response.error === null && response.txstate?.id?.id
+          ? asTx({
+              id: toHexString(response.txstate.id.id),
+              template: Bech32.generateAddress(SingleSigTemplate.publicKey),
+              method,
+              principal: address,
+              gas: {
+                gasPrice: fee,
+                maxGas: MAX_GAS,
+                fee: fee * MAX_GAS,
+              },
+              status: toTxState(response.txstate.state),
+              payload,
+              meta: {
+                templateName: getTemplateName(SingleSigTemplate.publicKey),
+                methodName: getMethodName(SingleSigTemplate.publicKey, method),
+              },
+              layer: currentLayer,
+            })
+          : null;
+      tx && this.upsertTransaction(address)(tx);
+
+      // TODO: Get rid of this call when we migrate to go-spacemesh
+      //       with this fix of the issue https://github.com/spacemeshos/go-spacemesh/issues/3687
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        },
+        handler: this.updateAccountData(address),
+        retries: 0,
+      });
+
+      return { error, tx };
+    } catch (err) {
+      this.logger.error('publishSelfSpawn', err);
+      return {
+        error: err,
+        tx: null,
+      };
+    }
+  };
+
+  publishSpendTx = async ({
     fullTx,
     accountIndex,
   }: {
     fullTx: TxSendRequest;
     accountIndex: number;
   }) => {
-    const { publicKey } = this.accounts[accountIndex];
-    const account = this.accountStates[publicKey].getAccount();
-    const { receiver, amount, fee } = fullTx;
-    const res = await cryptoService.signTransaction({
-      accountNonce: account.projectedState.counter,
-      receiver,
-      price: fee,
-      amount,
-      secretKey: this.accounts[accountIndex].secretKey,
-    });
-    const response = await this.txService.submitTransaction({
-      transaction: res,
-    });
-    const getTxResponseError = () =>
-      new Error('Can not retrieve a transaction data');
+    try {
+      const { publicKey, secretKey } = this.keychain[accountIndex];
+      const method = 16;
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, method);
+      const principal = tpl.principal({
+        PublicKey: fromHexString(publicKey),
+      });
+      const address = Bech32.generateAddress(principal);
+      const { projectedState } = this.accountStates[address].getState();
+      const { receiver, amount, fee } = fullTx;
+      const payload = {
+        Arguments: {
+          Destination: Bech32.parse(receiver),
+          Amount: BigInt(amount),
+        },
+        Nonce: BigInt(projectedState?.counter || 1),
+        GasPrice: BigInt(fee),
+      };
+      const txEncoded = tpl.encode(principal, payload);
+      const genesisID = await this.meshService.getGenesisID();
+      const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
+      const signed = tpl.sign(txEncoded, sig);
+      const response = await this.txService.submitTransaction({
+        transaction: signed,
+      });
+      const getTxResponseError = () =>
+        new Error('Can not retrieve a transaction data');
 
-    // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
-    const error =
-      response.error || response.txstate === null || !response.txstate.id?.id
-        ? response.error || getTxResponseError()
-        : null;
-    // Compose "initial" transaction record
-    const tx: TxCoinTransfer | null =
-      response.error === null && response.txstate?.id?.id
-        ? {
-            id: toHexString(response.txstate.id.id),
-            sender: fullTx.sender,
-            receiver: fullTx.receiver,
-            amount: fullTx.amount,
-            status: response.txstate.state,
-            receipt: {
-              fee: fullTx.fee,
-            },
-          }
-        : null;
-    const state =
-      response.error === null && response.txstate?.state
-        ? response.txstate.state
-        : null;
+      // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
+      const error =
+        response.error || response.txstate === null || !response.txstate.id?.id
+          ? response.error || getTxResponseError()
+          : null;
+      // Compose "initial" transaction record
+      const { currentLayer } = await this.meshService.getCurrentLayer();
+      const tx =
+        response.error === null && response.txstate?.id?.id
+          ? asTx({
+              id: toHexString(response.txstate.id.id),
+              template: Bech32.generateAddress(SingleSigTemplate.publicKey),
+              method,
+              principal: address,
+              gas: {
+                gasPrice: fee,
+                maxGas: MAX_GAS,
+                fee: fee * MAX_GAS,
+              },
+              status: toTxState(response.txstate.state),
+              payload: {
+                ...payload,
+                Arguments: {
+                  ...payload.Arguments,
+                  Destination: Bech32.generateAddress(
+                    payload.Arguments.Destination
+                  ),
+                },
+              },
+              meta: {
+                templateName: getTemplateName(SingleSigTemplate.publicKey),
+                methodName: getMethodName(SingleSigTemplate.publicKey, method),
+              },
+              layer: currentLayer,
+              ...((fullTx.note && { note: fullTx.note }) || {}),
+            })
+          : null;
 
-    if (
-      tx &&
-      state &&
-      ![
-        TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS,
-        TxState.TRANSACTION_STATE_REJECTED,
-        TxState.TRANSACTION_STATE_CONFLICTING,
-      ].includes(state)
-    ) {
-      this.upsertTransaction(publicKey)(tx);
+      tx && this.upsertTransaction(address)(tx);
+
+      // TODO: Get rid of this call when we migrate to go-spacemesh
+      //       with this fix of the issue https://github.com/spacemeshos/go-spacemesh/issues/3687
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        },
+        handler: this.updateAccountData(address),
+        retries: 0,
+      });
+
+      return { error, tx };
+    } catch (err) {
+      this.logger.error('publishSpendTx', err);
+      return {
+        error: err,
+        tx: null,
+      };
     }
-    return { error, tx, state };
   };
 
   updateTxNote = ({
-    accountIndex,
+    address,
     txId,
     note,
   }: {
-    accountIndex: number;
+    address: Bech32Address;
     txId: HexString;
     note: string;
   }) => {
-    const { publicKey } = this.accounts[accountIndex];
-    const tx = this.accountStates[publicKey].getTxById(txId);
-    this.storeTx(publicKey, { ...tx, note });
+    const tx = this.accountStates[address].getTxById(txId);
+    return this.upsertTransaction(address)({ ...tx, note });
   };
 }
 

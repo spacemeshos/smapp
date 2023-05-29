@@ -1,5 +1,5 @@
 type NetDescriptor = {
-  netId: number;
+  genesisID: string;
   netName: string;
 };
 

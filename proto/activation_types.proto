@@ -1,0 +1,13 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+
+import "types.proto";
+
+message GetRequest {
+    bytes id = 1;
+}
+
+message GetResponse {
+    Activation atx = 1;
+}

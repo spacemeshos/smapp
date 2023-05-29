@@ -7,11 +7,36 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.image }}
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - image: macos-latest
+            id: macos
+            platform: macos
+            node: macOS
+            arch: '' # x64
+          - image: windows-latest
+            id: windows
+            platform: windows
+            node: Windows
+            arch: '' # x64
+          - image: ubuntu-latest
+            id: linux
+            platform: linux
+            node: Linux
+            arch: amd64
+          - image: [self-hosted, macos, arm64]
+            id: macos-arm64
+            platform: macos
+            node: macOS_ARM64
+            arch: arm64
+          - image: [self-hosted, linux, arm64]
+            id: linux-arm64
+            platform: linux
+            node: Linux_ARM64
+            arch: arm64
 
     outputs:
       tagName: ${{ steps.tagName.outputs.tag }}
@@ -22,9 +47,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Node.js, NPM
-        uses: actions/setup-node@v2-beta
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Install Yarn
+        run: npm install -g yarn
 
       - name: Get Smapp version
         id: package-version
@@ -41,18 +70,7 @@ jobs:
           echo "Version: v${{ steps.package-version.outputs.version }}"
           exit 1
 
-      # Cache yarn cahe to fasten install process
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      # Install & Build
+      # Install & Lint
       - name: yarn install
         run: |
           yarn config set network-timeout 300000
@@ -61,41 +79,31 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Test
-        if: matrix.os != 'ubuntu-latest'
-        run: yarn test --forceExit
-
-      - name: Build
-        run: yarn build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
         id: latestNode
         run: echo "::set-output name=version::$(cat ./node/use-version)"
 
-      - id: cache-gospacemesh
-        uses: actions/cache@v2
+      - name: Restore go-spacemesh from cache
+        id: cache-gospacemesh
+        uses: actions/cache@v3
         with:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
-          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+          key: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-4
+          restore-keys: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-4
 
       - name: Prepare link to go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.node }}.zip"
 
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
           echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
           echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
         shell: bash
@@ -103,9 +111,9 @@ jobs:
       - id: platform
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
-          echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
-          echo "::set-output name=rm_flag::${{ matrix.os == 'windows-latest' && '-Recurse -Force' || '-rf' }}"
+          echo "::set-output name=dir::${{ matrix.platform == 'windows' && 'windows' || matrix.platform == 'macos' && 'mac' || 'linux'}}"
+          echo "::set-output name=ext::${{ matrix.platform == 'windows' && '.exe' || ''}}"
+          echo "::set-output name=rm_flag::${{ matrix.platform == 'windows' && '-Recurse -Force' || '-rf' }}"
 
       - name: Download go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -115,36 +123,58 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' '*.h' 'profiler*' -r
 
       - name: Set CHMOD on Go-Spacemesh and libs
-        if: matrix.os != 'windows-latest'
+        if: matrix.platform != 'windows'
         run: chmod -R +x ./node/${{ steps.platform.outputs.dir }}/*
 
-      - name: Disable quarantine for Go-Spacemesh and libs
-        if: matrix.os == 'macos-latest'
+      - name: Disable quarantine for Go-Spacemesh and libs (macOS x64)
+        if: matrix.id == 'macos'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: Disable quarantine for Go-Spacemesh and libs (macOS ARM64)
+        if: matrix.id == 'macos-arm64'
+        run: sudo /Users/aviv/xattr.sh
 
       - name: ls archive and ./node
         run: |
           7z l ./node/release.zip
-          ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
-        
+          ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
+
+      - name: Install libOpenCL.so
+        if: matrix.id == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install ocl-icd-opencl-dev
+
+      # Run tests and build
+      - name: Test
+        if: matrix.os == 'macos-latest'
+        run: yarn test --forceExit
+
+      - name: Build
+        run: yarn build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Create binaries
-      - if: matrix.os == 'ubuntu-latest'
+      - if: matrix.platform == 'linux'
         name: Build linux app
         run: yarn package-linux
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - if: matrix.os == 'windows-latest'
+          USE_SYSTEM_FPM: ${{ matrix.id == 'linux-arm64' && 'true' }}
+      - if: matrix.platform == 'windows'
         name: Build windows app
         run: yarn package-win
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - if: matrix.os == 'macos-latest'
+      - if: matrix.platform == 'macos'
         name: Build mac app
         run: yarn package-mac
         env:
@@ -154,13 +184,19 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLETEAMID: ${{ secrets.APPLE_TEAM_ID }}
           # TODO: Move notarizing MacOS application to another job, like `sign-win-app`
+
+      # Copy checksum util to release dir
+      - name: Copy checksum tool
+        shell: bash
+        run: cp ./scripts/checksum.js ./release/checksum.js
 
       # Store artifacts for further jobs
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.os }}
+          name: ${{ matrix.id }}
           path: |
             ./release/*
             !./release/*-unpacked
@@ -176,12 +212,12 @@ jobs:
       - name: Download windows artifact
         uses: actions/download-artifact@v2
         with:
-          name: windows-latest
+          name: windows
           path: ./release/
 
       - name: Cache CodeSignTool
         id: cache-codesigntool
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./codesigntool
           key: codesign-cache-2
@@ -223,14 +259,15 @@ jobs:
       - name: Copy latest.yml
         run: cp "./release/latest.yml" "./signed/latest.yml"
 
-      - name: Install hex64
-        run: yarn global add hex64
+      - name: Install Node.js, NPM
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16'
 
       - name: Get new sha512
         id: sha512
         run: |
-          sha=($(shasum -a512 "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"))
-          echo "::set-output name=value::$($(yarn global bin)/hex64 $sha | cut -c6-)"
+          echo "::set-output name=value::$(node ./release/checksum.js "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe")"
 
       - name: Update latest.yml (sha512)
         uses: endaft/action-yamler@v1.0.9
@@ -253,14 +290,86 @@ jobs:
           path: ./signed/*
           if-no-files-found: error
 
+  sign-app-image:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download x64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: linux
+          path: ./release/linux
+      - name: Download arm64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-arm64
+          path: ./release/linux-arm64
+
+      - name: Set filename
+        id: filename
+        run: |
+          echo "::set-output name=x64::Spacemesh-${{ needs.build.outputs.version }}.AppImage"
+          echo "::set-output name=arm64::Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage"
+
+      - name: Import GPG keys
+        run: |
+          export GPG_TTY=$(tty)
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE"
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: List files
+        run: |
+          ls -la ./release
+          ls -la ./release/linux
+          ls -la ./release/linux-arm64
+      
+      - name: Files to sign
+        run: |
+          echo "X64: ./release/linux/${{ steps.filename.outputs.x64 }}\n"
+          echo "ARM64: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}\n"
+
+      - name: Sign AppImages x64
+        run: |
+          gpg --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" --output ./release/linux/${{ steps.filename.outputs.x64 }}.sig --detach-sign ./release/linux/${{ steps.filename.outputs.x64 }}
+          gpg --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" --output ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig --detach-sign ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Store x64 signature
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: ./release/linux/${{ steps.filename.outputs.x64 }}.sig
+          if-no-files-found: error
+
+      - name: Store arm64 signature
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-arm64
+          path: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig
+          if-no-files-found: error
+
+
   release:
     runs-on: ubuntu-latest
-    needs: [build, sign-win-app]
+    needs: [build, sign-win-app, sign-app-image]
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v2
         with:
           path: ./release/
+
+      # Merge `latest-mac.yml` (x64 and arm64)
+      - name: Merge latest-mac.yml
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq ea '. as $item ireduce ({}; . *+ $item)' ./release/macos/latest-mac.yml ./release/macos-arm64/latest-mac.yml > ./release/latest-merged.yml
+
+      - run: cat ./release/latest-merged.yml
+      - run: cp -f ./release/latest-merged.yml ./release/macos/latest-mac.yml
+      - run: cp -f ./release/latest-merged.yml ./release/macos-arm64/latest-mac.yml
 
       # Upload artifacts to GCS
       - name: Set up GCloud SDK
@@ -273,7 +382,14 @@ jobs:
       - name: Upload macos artifact
         uses: google-github-actions/upload-cloud-storage@v0
         with:
-          path: ./release/macos-latest/
+          path: ./release/macos/
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
+
+      - name: Upload macos arm64 artifact
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: ./release/macos-arm64/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
@@ -287,7 +403,14 @@ jobs:
       - name: Upload linux build
         uses: google-github-actions/upload-cloud-storage@v0
         with:
-          path: ./release/ubuntu-latest/
+          path: ./release/linux/
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
+
+      - name: Upload linux arm64 build
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: ./release/linux-arm64/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
@@ -300,9 +423,12 @@ jobs:
           name: Release ${{ needs.build.outputs.tagName }}
           body: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
+            - Windows: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
+            - macOS: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
+            - Linux
+              - AppImage [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
+                GPG signatures: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
+              - deb [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
           draft: true
           prerelease: true
 
@@ -311,6 +437,8 @@ jobs:
         with:
           name: |
             windows-signed
-            windows-latest
-            ubuntu-latest
-            macos-latest
+            windows
+            linux
+            linux-arm64
+            macos
+            macos-arm64

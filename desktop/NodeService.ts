@@ -1,14 +1,17 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { ProtoGrpcType } from '../proto/node';
 import {
+  asNodeError,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
   PublicService,
   SocketAddress,
 } from '../shared/types';
-import NetServiceFactory, { Service } from './NetServiceFactory';
+import { longToNumber } from '../shared/utils';
+import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
+import { getLocalNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'proto/node.proto';
 
@@ -19,22 +22,32 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   msg: error.details,
   stackTrace: error.stack || '',
   module: 'NodeService',
+  level: NodeErrorLevel.LOG_LEVEL_WARN,
+});
+
+const LOST_CONNECTION_ERROR = asNodeError({
+  msg: 'Lost connection with the Node. Reconnecting...',
   level: NodeErrorLevel.LOG_LEVEL_ERROR,
+  module: 'NodeService',
+  stackTrace: new Error().stack || '',
+});
+
+const NODE_NOT_RESPONDING_ERROR = asNodeError({
+  msg: 'Can not connect to Node. Probably Node is down',
+  level: NodeErrorLevel.LOG_LEVEL_FATAL,
+  module: 'NodeService',
+  stackTrace: new Error().stack || '',
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
-  private statusStream: ReturnType<
-    Service<ProtoGrpcType, 'NodeService'>['StatusStream']
-  > | null = null;
-
-  private errorStream: ReturnType<
-    Service<ProtoGrpcType, 'NodeService'>['ErrorStream']
-  > | null = null;
-
   logger = Logger({ className: 'NodeService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'NodeService');
+    this.createNetService(
+      PROTO_PATH,
+      apiUrl || getLocalNodeConnectionConfig(),
+      'NodeService'
+    );
   };
 
   echo = () =>
@@ -43,21 +56,21 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       .catch(() => false);
 
   getNodeVersion = (): Promise<string> =>
-    this.callService('Version', {})
+    this.callServiceWithRetries('Version', {})
       .then((response) => response.versionString?.value || 'v?.?.?')
       .catch((error) => {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
   getNodeBuild = (): Promise<string> =>
-    this.callService('Build', {})
+    this.callServiceWithRetries('Build', {})
       .then((response) => response.buildString?.value || '')
       .catch((error) => {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
   getNodeStatus = (): Promise<NodeStatus> =>
-    this.callService('Status', {})
+    this.callServiceWithRetries('Status', {})
       .then((response) => {
         const DEFAULTS = {
           connectedPeers: 0,
@@ -76,7 +89,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           verifiedLayer,
         } = response.status;
         return {
-          connectedPeers: (connectedPeers && connectedPeers.toNumber()) || 0,
+          connectedPeers: longToNumber(connectedPeers || 0),
           isSynced: !!isSynced,
           syncedLayer: syncedLayer?.number || 0,
           topLayer: topLayer?.number || 0,
@@ -87,64 +100,56 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
-  shutdown = (): Promise<boolean> =>
-    this.callService('Shutdown', {})
-      .then(() => true)
-      .catch(() => false);
-
   activateStatusStream = (
     statusHandler: StatusStreamHandler,
     errorHandler: ErrorStreamHandler
   ) => {
-    if (!this.service) return;
-
-    this.statusStream = this.service.StatusStream({});
-    this.statusStream.on('data', (response: any) => {
-      const {
-        connectedPeers,
-        isSynced,
-        syncedLayer,
-        topLayer,
-        verifiedLayer,
-      } = response.status;
-      statusHandler({
-        connectedPeers: parseInt(connectedPeers),
-        isSynced: !!isSynced,
-        syncedLayer: syncedLayer.number,
-        topLayer: topLayer.number,
-        verifiedLayer: verifiedLayer.number,
-      });
-    });
-    this.statusStream.on('error', (error: ServiceError) => {
-      this.logger.error('grpc StatusStream', error);
-      errorHandler(normalizeGrpcErrorToNodeError(error));
-    });
-    this.statusStream.on('end', () => {
-      console.log('StatusStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc StatusStream ended', null);
-      this.statusStream = null;
-    });
+    let errCount = 0;
+    return this.runStream(
+      'StatusStream',
+      {},
+      (response) => {
+        if (!response.status) return;
+        const {
+          connectedPeers,
+          isSynced,
+          syncedLayer,
+          topLayer,
+          verifiedLayer,
+        } = response.status;
+        statusHandler({
+          connectedPeers: longToNumber(connectedPeers || 0),
+          isSynced: !!isSynced,
+          syncedLayer: syncedLayer?.number || 0,
+          topLayer: topLayer?.number || 0,
+          verifiedLayer: verifiedLayer?.number || 0,
+        });
+        errCount = 0;
+      },
+      () => {
+        if (errCount === 5) {
+          errorHandler(NODE_NOT_RESPONDING_ERROR);
+        } else if (errCount === 3) {
+          errorHandler(LOST_CONNECTION_ERROR);
+        }
+        errCount += 1;
+      }
+    );
   };
 
-  activateErrorStream = (handler: ErrorStreamHandler) => {
-    if (!this.service) return;
-
-    this.errorStream = this.service.ErrorStream({});
-    this.errorStream.on('data', (response: any) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { error } = response;
-      handler(error);
-    });
-    this.errorStream.on('error', (error: any) => {
-      this.logger.error('grpc ErrorStream', error);
-      handler(normalizeGrpcErrorToNodeError(error));
-    });
-    this.errorStream.on('end', () => {
-      console.log('ErrorStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc ErrorStream ended', null);
-      this.errorStream = null;
-    });
-  };
+  activateErrorStream = (handler: ErrorStreamHandler) =>
+    this.runStream(
+      'ErrorStream',
+      {},
+      (err) =>
+        err.error &&
+        handler(
+          asNodeError({
+            ...err.error,
+            level: (err.error.level as unknown) as NodeErrorLevel,
+          })
+        )
+    );
 }
 
 export default NodeService;

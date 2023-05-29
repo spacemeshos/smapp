@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../../vars';
 import { Tooltip, Input, Dots } from '../../basicComponents';
 
 const DetailsRow = styled.div`
@@ -14,8 +13,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const inputStyle = { flex: '0 0 240px' };
@@ -23,17 +21,15 @@ const inputStyle = { flex: '0 0 240px' };
 type Props = {
   vaultName: string;
   onChangeVaultName: ({ value }: { value: string }) => void;
-  isDarkMode: boolean;
 };
 
-const NewVault = ({ vaultName, onChangeVaultName, isDarkMode }: Props) => {
+const NewVault = ({ vaultName, onChangeVaultName }: Props) => {
   return (
     <>
       <DetailsRow>
         <DetailsText>Vault Name</DetailsText>
         <Tooltip
           width={250}
-          isDarkMode={isDarkMode}
           text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
         />
         <Dots />

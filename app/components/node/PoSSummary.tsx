@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Tooltip } from '../../basicComponents';
 import {
-  ComputeApiClass,
+  DeviceType,
   NodeStatus,
-  PostSetupComputeProvider,
+  PostSetupProvider,
 } from '../../../shared/types';
+import { convertBytesToMb } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -41,14 +42,14 @@ const TooltipWrap = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   text-transform: uppercase;
 `;
 
 const Link = styled.div<{ isDisabled: boolean }>`
   text-transform: uppercase;
   text-decoration: none;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   font-size: 15px;
   line-height: 17px;
   cursor: pointer;
@@ -59,8 +60,7 @@ const Link = styled.div<{ isDisabled: boolean }>`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) =>
-        theme.isDarkMode ? smColors.white : smColors.black};
+      color: ${({ theme: { color } }) => color.primary};
     }
   }
 `;
@@ -68,12 +68,12 @@ const Link = styled.div<{ isDisabled: boolean }>`
 type Props = {
   dataDir: string;
   commitmentSize: string;
-  provider: PostSetupComputeProvider | undefined;
+  provider: PostSetupProvider | undefined;
   throttle: boolean;
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
+  maxFileSize: number;
 };
 
 const PoSSummary = ({
@@ -84,7 +84,7 @@ const PoSSummary = ({
   nextAction,
   switchMode,
   status,
-  isDarkMode,
+  maxFileSize,
 }: Props) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -93,15 +93,11 @@ const PoSSummary = ({
     nextAction();
   };
 
-  let providerType = 'UNSPECIFIED';
-  if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU) {
+  let providerType = 'UNKNOWN';
+  if (provider?.deviceType === DeviceType.DEVICE_CLASS_CPU) {
     providerType = 'CPU';
-  } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA) {
-    providerType = 'CUDA';
-  } else if (
-    provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN
-  ) {
-    providerType = 'VULKAN';
+  } else if (provider?.deviceType === DeviceType.DEVICE_CLASS_GPU) {
+    providerType = 'GPU';
   }
 
   return (
@@ -123,6 +119,12 @@ const PoSSummary = ({
         </Link>
       </Row>
       <Row>
+        <Text>max file size</Text>
+        <Link onClick={() => switchMode({ mode: 2 })} isDisabled={isProcessing}>
+          {convertBytesToMb(maxFileSize)} MB
+        </Link>
+      </Row>
+      <Row>
         <Text>provider</Text>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>
           {`${provider?.model} (${providerType})`}
@@ -130,11 +132,10 @@ const PoSSummary = ({
       </Row>
       <Row>
         <TooltipWrap>
-          <Text>estimated setup time</Text>
+          <Text>data generation max speed</Text>
           <Tooltip
             width={100}
-            text="Placeholder text"
-            isDarkMode={isDarkMode}
+            text="Depending on the processor's capacity and availability. The final POS creation time might vary."
           />
         </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>

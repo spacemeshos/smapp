@@ -5,3 +5,4 @@ export { default as PoSProvider } from './PoSProvider';
 export { default as PoSSummary } from './PoSSummary';
 export { default as SmesherIntro } from './SmesherIntro';
 export { default as SmesherLog } from './SmesherLog';
+export { default as PoSRewards } from './PoSRewards';

@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown } from '../../basicComponents';
-// import { eventsService } from '../../infra/eventsService';
-import {
-  posSpace,
-  posRewardEst,
-  posDirectoryBlack,
-  posDirectoryWhite,
-} from '../../assets/images';
+import { Tooltip, Input } from '../../basicComponents';
+import { posSpace } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
+import { constrain, formatBytes } from '../../infra/utils';
+import { convertBytesToMb, convertMbToBytes } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -17,16 +13,26 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
+  position: relative;
   :first-child {
     margin-bottom: 10px;
   }
   :last-child {
     margin-bottom: 30px;
   }
+  font-size: 12px;
+`;
+
+const Group = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 317px;
+  margin-left: 0.5em;
 `;
 
 const BottomRow = styled(Row)`
-  margin: 5px 0;
+  margin: 25px 0 5px;
 `;
 
 const Icon1 = styled.img`
@@ -35,22 +41,22 @@ const Icon1 = styled.img`
   margin-right: 5px;
 `;
 
-const Icon2 = styled.img`
-  width: 15px;
-  height: 20px;
-  margin-right: 10px;
-`;
-
-const Icon3 = styled.img`
+const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
+  src: posDirectory,
+}))`
   width: 18px;
   height: 17px;
   margin-right: 7px;
 `;
 
 const Text = styled.div`
-  font-size: 15px;
-  line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  font-size: 1.2em;
+  line-height: 1.4em;
+  color: ${({ theme: { color } }) => color.primary};
+`;
+
+const InputWrapper = styled.div`
+  width: 245px;
 `;
 
 const Dots = styled.div`
@@ -58,63 +64,17 @@ const Dots = styled.div`
   flex-shrink: 1;
   overflow: hidden;
   margin: 0 5px;
-  font-size: 15px;
-  line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-`;
-
-const RewardText = styled(Text)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
-`;
-
-const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 5px 5px 5px 10px;
-  cursor: inherit;
-  color: ${smColors.realBlack};
-  &:hover {
-    opacity: 1;
-    color: ${({ theme }) =>
-      theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha};
-  }
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `
-     &:hover {
-      opacity: 1;
-      color: ${smColors.darkGray50Alpha};
-    }`}
-`;
-
-const ErrorText = styled.div`
-  height: 20px;
-  font-size: 15px;
-  line-height: 17px;
-  color: ${smColors.orange};
-  position: absolute;
-  left: 15px;
-  bottom: -15px;
-  width: 100%;
-}
-`;
-
-const Commitment = styled.div`
-  font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 22px;
-  cursor: inherit;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  font-size: 1.2em;
+  line-height: 1.4em;
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Link = styled.div`
   text-transform: uppercase;
   text-decoration: none;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-  font-size: 17px;
-  line-height: 19px;
+  color: ${({ theme: { color } }) => color.primary};
+  font-size: 1.4em;
+  line-height: 1.6em;
   cursor: pointer;
   &:hover {
     color: ${smColors.blue};
@@ -123,134 +83,142 @@ const Link = styled.div`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) =>
-        theme.isDarkMode ? smColors.white : smColors.black};
+      color: ${({ theme: { color } }) => color.primary};
     }
   }
 `;
 
-interface Commitment {
-  label: string;
-  size: number;
-  numUnits: number;
-}
+const WarningText = styled(Text)`
+  font-size: 14px;
+  position: absolute;
+  bottom: -25px;
+  right: 0;
+  color: ${smColors.orange};
+`;
 
 type Props = {
-  commitments: Commitment[];
+  calculatedSize: number;
+  numUnitsConstraint: [number, number];
   dataDir: string;
   numUnits: number;
+  numUnitSize: number;
   setNumUnit: (numUnit: number) => void;
   freeSpace: string;
   nextAction: () => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
+  setMaxFileSize: (maxFileSize: number) => void;
+  maxFileSize: number;
 };
 
+const DEFAULT_POS_MAX_FILE_SIZE_MB = 10;
+const POS_MAX_FILE_SIZE_WARNING_VALUE_MB = 4096;
+
 const PoSSize = ({
-  commitments,
+  calculatedSize,
+  numUnitsConstraint,
   dataDir,
   numUnits,
+  numUnitSize,
   setNumUnit,
   freeSpace,
   nextAction,
   status,
-  isDarkMode,
+  setMaxFileSize,
+  maxFileSize,
 }: Props) => {
-  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
-    numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
-  );
-  const [hasErrorFetchingEstimatedRewards] = useState(false);
-  // const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
+  const [showMaxFileSizeWarning, setShowMaxFileSizeWarning] = useState(false);
 
-  // useEffect(() => { // TODO: uncomment when api endpoint implemented in node
-  //   const loadEstimatedRewards = async () => {
-  //     const { error, estimatedRewards } = await eventsService.getEstimatedRewards();
-  //     if (error) {
-  //       setHasErrorFetchingEstimatedRewards(true);
-  //     } else {
-  //       setLoadedEstimatedRewards(estimatedRewards);
-  //       setHasErrorFetchingEstimatedRewards(false);
-  //     }
-  //   };
-  //   loadEstimatedRewards();
-  // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
-
-  const renderDDRow = ({
-    label,
-    isInDropDown,
-  }: {
-    label: string;
-    isInDropDown: boolean;
-  }) => (
-    <CommitmentWrapper isInDropDown={isInDropDown}>
-      <Commitment>{label}</Commitment>
-    </CommitmentWrapper>
-  );
-
-  const selectCommitment = ({ index }: { index: number }) => {
-    setSelectedCommitmentIndex(index);
-    setNumUnit(commitments[index].numUnits);
+  const handleOnChange = ({ value }) => {
+    const parsedValue = parseInt(value, 10);
+    const mb = Number.isNaN(parsedValue) ? 0 : parsedValue;
+    setShowMaxFileSizeWarning(mb > POS_MAX_FILE_SIZE_WARNING_VALUE_MB);
+    setMaxFileSize(convertMbToBytes(mb));
   };
 
-  const ddStyle = {
-    color: isDarkMode ? smColors.white : smColors.black,
-    marginLeft: 'auto',
-    flex: '0 0 125px',
+  const handleOnBlur = ({ value }) => {
+    const mb = parseInt(value, 10);
+    if (DEFAULT_POS_MAX_FILE_SIZE_MB >= mb) {
+      setMaxFileSize(convertMbToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
+    } else {
+      setMaxFileSize(convertMbToBytes(parseInt(value, 10)));
+    }
   };
-
-  const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   return (
     <>
       <Row>
         <Icon1 src={posSpace} />
-        <Text>Proof of space size</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
-        <Dots>.....................................................</Dots>
-        <DropDown
-          data={commitments}
-          DdElement={({ label, isMain }) =>
-            renderDDRow({ label, isInDropDown: !isMain })
-          }
-          onClick={selectCommitment}
-          selectedItemIndex={selectedCommitmentIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={isDarkMode ? smColors.black : smColors.white}
-          isDarkMode={isDarkMode}
-          rowContentCentered={false}
+        <Text>Proof of space size:</Text>
+        <Tooltip
+          width={250}
+          text={[
+            `In range ${formatBytes(
+              numUnitSize * numUnitsConstraint[0]
+            )}...${formatBytes(numUnitSize * numUnitsConstraint[1])}`,
+            'Generating this unique data takes time and the processor’s work. Choose thoughtfully.',
+          ].join('\n')}
         />
+        <Dots>.....................................................</Dots>
+        <Group>
+          <Text>{formatBytes(numUnitSize)} &times; </Text>
+          <Input
+            type="number"
+            value={numUnits}
+            onChange={(e) => setNumUnit(parseInt(e.value, 10))}
+            onBlur={(e) =>
+              setNumUnit(
+                constrain(
+                  numUnitsConstraint[0],
+                  numUnitsConstraint[1],
+                  parseInt(e.value || '0', 10)
+                )
+              )
+            }
+            min={numUnitsConstraint[0]}
+            max={numUnitsConstraint[1]}
+            style={{
+              width: '90px',
+              margin: '0 1em',
+            }}
+          />
+          <Text>units = {formatBytes(calculatedSize)}</Text>
+        </Group>
       </Row>
       <Row>
-        <Icon2 src={posRewardEst} />
-        <Text>Estimated coin reward</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Icon1 src={posSpace} />
+        <Text>Max file size (MB): </Text>
+        <Tooltip
+          width={200}
+          text={
+            'PoS data will be stored into a bunch of files with the specified max file size.\n\nPossible range: from 10MB to the value based on your FS (file system) restriction.'
+          }
+        />
         <Dots>.....................................................</Dots>
-        {hasErrorFetchingEstimatedRewards ? (
-          <ErrorText>
-            Failed to load estimated rewards. Please return to previous step
-          </ErrorText>
-        ) : (
-          <RewardText selected={selectedCommitmentIndex !== -1}>
-            {selectedCommitmentIndex !== -1
-              ? `10 SMESH / EPOCH`
-              : '0 SMESH / EPOCH'}
-          </RewardText>
+        <InputWrapper>
+          <Input
+            value={convertBytesToMb(maxFileSize)}
+            debounceTime={100}
+            min={DEFAULT_POS_MAX_FILE_SIZE_MB}
+            onChange={handleOnChange}
+            onBlur={handleOnBlur}
+          />
+        </InputWrapper>
+        {showMaxFileSizeWarning && (
+          <WarningText>
+            Warning: Max file size depends on your file system restriction.
+          </WarningText>
         )}
       </Row>
       <BottomRow>
-        <Icon3 src={posDirectoryIcon} />
-        <Text>PoS data folder</Text>
+        <Icon3 />
+        <Text>PoS data folder: </Text>
         <Dots>.....................................................</Dots>
         <Link>{dataDir}</Link>
       </BottomRow>
       <BottomRow>
         <Text>Free space: {freeSpace}</Text>
       </BottomRow>
-      <PoSFooter
-        action={nextAction}
-        isDisabled={selectedCommitmentIndex === -1 || !status}
-      />
+      <PoSFooter action={nextAction} isDisabled={numUnits === 0 || !status} />
     </>
   );
 };

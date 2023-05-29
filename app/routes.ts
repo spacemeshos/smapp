@@ -37,17 +37,19 @@ import {
   ConnectToApi,
   SwitchNetwork,
 } from './screens';
+import SpawnAccount from './screens/wallet/SpawnAccount';
+import ProtectWallet from './screens/auth/ProtectWallet';
+import ProtectWalletTestMnemonic from './screens/auth/ProtectWalletTestMnemonic';
+import WalletCreated from './screens/auth/WalletCreated';
 
 //
 // Types
 //
 
-type Route = {
+export type Route = {
   path: RouterPath;
   component: any;
 };
-
-type Routes = Record<string, Route[]>;
 
 //
 // Utils
@@ -71,6 +73,9 @@ const auth = formatRoutes([
   [AuthPath.Leaving, Leaving],
   [AuthPath.WalletType, WalletType],
   [AuthPath.CreateWallet, CreateWallet],
+  [AuthPath.ProtectWallet, ProtectWallet],
+  [AuthPath.ProtectWalletTestMnemonic, ProtectWalletTestMnemonic],
+  [AuthPath.WalletCreated, WalletCreated],
   [AuthPath.Unlock, UnlockWallet],
   [AuthPath.Recover, RestoreWallet],
   [AuthPath.RecoverFromFile, FileRestore],
@@ -92,6 +97,7 @@ const main = formatRoutes([
 const wallet = formatRoutes([
   [WalletPath.Overview, Overview],
   [WalletPath.Vault, Vault],
+  [WalletPath.SpawnAccount, SpawnAccount],
   [WalletPath.SendCoins, SendCoins],
   [WalletPath.RequestCoins, RequestCoins],
 ]);
@@ -103,6 +109,6 @@ const backup = formatRoutes([
   [BackupPath.File, FileBackup],
 ]);
 
-const path: Routes = { app, auth, main, wallet, backup };
+const path = { app, auth, main, wallet, backup };
 
 export default path;

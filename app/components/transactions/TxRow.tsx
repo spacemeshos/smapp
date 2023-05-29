@@ -1,33 +1,27 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import {
-  chevronLeftBlack,
-  chevronLeftWhite,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
 import { Modal } from '../common';
-import { Button, Link, Input } from '../../basicComponents';
-import {
-  getFormattedTimestamp,
-  getAddress,
-  formatSmidge,
-} from '../../infra/utils';
+import { Button, Link, Input, NetworkIndicator } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
-import { TxState } from '../../../shared/types';
-import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
+import {
+  formatSmidge,
+  getAbbreviatedAddress,
+  getFormattedTimestamp,
+} from '../../infra/utils';
+import getStatusColor from '../../vars/getStatusColor';
+import { TxView } from '../../redux/wallet/selectors';
+import { Bech32Address } from '../../../shared/types';
 
-const Wrapper = styled.div<{ isDetailed: boolean }>`
+const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) =>
     isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
+  ${({ isHidden }) => isHidden && 'display: none;'}
 `;
 
 const Header = styled.div`
@@ -43,7 +37,16 @@ const Header = styled.div`
   }
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs<{ chevronRight: boolean }>(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft, chevronPrimaryRight },
+    },
+    chevronRight,
+  }) => ({
+    src: chevronRight ? chevronPrimaryRight : chevronPrimaryLeft,
+  })
+)<{ chevronRight: boolean }>`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -72,17 +75,16 @@ const Text = styled.span`
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${({ color, theme }) => {
     if (color) {
       return color;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;
@@ -121,7 +123,7 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   padding: 5px 0;
   border-bottom: ${({ isLast, theme }) =>
     isLast
-      ? `0px`
+      ? '0px'
       : `1px solid ${
           theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
         };`};
@@ -142,7 +144,13 @@ const InputSection = styled.div`
   justify-content: center;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({ src: chevronPrimaryRight })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -173,47 +181,105 @@ const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
   tx: TxView;
-  publicKey: string;
-  addAddressToContacts: ({ address }: { address: string }) => void;
+  address: string;
+  contacts: Record<string, string>;
+  isHidden?: boolean;
+  addToContacts?: (address: Bech32Address) => void;
 };
 
-const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
+type RowProps = React.PropsWithChildren<{
+  title: string;
+  color?: string;
+}>;
+
+const Row = ({ title, color, children }: RowProps) => (
+  <TextRow>
+    <BlackText>{title}</BlackText>
+    <BoldText color={color}>{children}</BoldText>
+  </TextRow>
+);
+
+const dot = (x?: string) => (x ? `${x}.` : '');
+
+const flatten = (
+  o: Parameters<typeof Object.entries>[0],
+  parentPath = ''
+): any[] =>
+  Object.entries<any>(o).reduce((acc, [key, val]) => {
+    const newKey = `${dot(parentPath)}${key}`;
+    const nextVal =
+      val && typeof val === 'object' && val.toString() === '[object Object]'
+        ? flatten(val)
+        : [[newKey, val.toString()]];
+
+    return [...acc, ...nextVal];
+  }, [] as any[]);
+
+const renderPayloadRow = (k: string, v: any, opts: Record<string, any>) => {
+  switch (k) {
+    case 'Destination':
+    case 'PublicKey': {
+      if (typeof v === 'string') {
+        const isHex = v.startsWith('0x');
+        return (
+          <Address
+            address={v}
+            suffix={opts.contacts[v] && `(${opts.contacts[v]})`}
+            isHex={isHex}
+            addToContacts={
+              (!isHex && !opts.contacts[v] && opts.addToContacts) || undefined
+            }
+          />
+        );
+      }
+      return v;
+    }
+    case 'Amount':
+      return typeof v === 'number' || typeof v === 'string'
+        ? formatSmidge(typeof v === 'number' ? v : parseFloat(v))
+        : v;
+    default:
+      return v;
+  }
+};
+const renderTxPayload = (tx: TxView, opts: Record<string, any>) => {
+  const { payload } = tx;
+  const data = flatten(payload);
+  const rows = data.map(([k, v]) => (
+    <Row title={k} key={`TxPayloadRow_${k}`}>
+      {renderPayloadRow(k, v, { tx, ...opts })}
+    </Row>
+  ));
+  return <>{rows}</>;
+};
+
+const TxStatusBulb = styled(NetworkIndicator)`
+  margin-left: auto;
+`;
+
+const TxRow = ({
+  tx,
+  address,
+  contacts,
+  isHidden = false,
+  addToContacts,
+}: Props) => {
+  const note = tx.note || '';
+
   const [isDetailed, setIsDetailed] = useState(false);
-  const [note, setNote] = useState(tx.note || '');
+  const [noteInput, setNoteInput] = useState(note);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
-  const currentAccountIndex = useSelector(
-    (state: RootState) => state.wallet.currentAccountIndex
-  );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const getColor = (isSent: boolean) => {
-    const { status } = tx;
-    if (
-      status === TxState.TRANSACTION_STATE_MEMPOOL ||
-      status === TxState.TRANSACTION_STATE_MESH
-    ) {
-      return smColors.orange;
-    } else if (
-      status === TxState.TRANSACTION_STATE_REJECTED ||
-      status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS ||
-      status === TxState.TRANSACTION_STATE_CONFLICTING
-    ) {
-      return smColors.red;
-    } else if (status === TxState.TRANSACTION_STATE_UNSPECIFIED) {
-      return smColors.mediumGray;
-    }
-    return isSent ? smColors.blue : smColors.darkerGreen;
-  };
-
-  const isSent = tx.sender === getAddress(publicKey);
-  const color = getColor(isSent);
-  const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
-  const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
+  const isSent = tx.principal === address;
+  const color = getStatusColor(tx.status, isSent);
 
   const save = async () => {
-    await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
+    await eventsService.updateTransactionNote(address, tx.id, noteInput);
     setIsDetailed(false);
+    setShowNoteModal(false);
+  };
+  const cancel = () => {
+    setNoteInput(note);
     setShowNoteModal(false);
   };
 
@@ -221,123 +287,106 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     setIsDetailed(!isDetailed);
   };
 
-  const txFrom = isSent ? getAddress(publicKey) : tx.sender;
-  const txFromSuffix = (isSent && '(Me)') || undefined;
-  const txFromAddContact =
-    tx.senderNickname || isSent
-      ? undefined
-      : () => addAddressToContacts({ address: tx.sender });
+  const txFrom = isSent ? address : tx.principal;
+  const txFromSuffix =
+    (isSent && '(Me)') ||
+    (contacts[txFrom] && `(${contacts[txFrom]})`) ||
+    undefined;
 
-  const txTo = isSent
-    ? tx.receiverNickname || tx.receiver
-    : getAddress(publicKey);
-  const txToSuffix = (!isSent && '(Me)') || undefined;
-  const txToAddContract =
-    tx.receiverNickname || !isSent
-      ? undefined
-      : () => addAddressToContacts({ address: tx.receiver });
+  const isSpendTransaction = !!tx.payload?.Arguments?.Destination;
 
   const renderDetails = () => (
     <DetailsSection>
-      <TextRow>
-        <BlackText>TRANSACTION ID</BlackText>
-        <BoldText>
-          <Address type={AddressType.TX} address={`0x${tx.id}`} />
-        </BoldText>
-      </TextRow>
-      <TextRow>
-        <BlackText>STATUS</BlackText>
-        <BoldText color={color}>{TX_STATE_LABELS[tx.status]}</BoldText>
-      </TextRow>
-      {tx.layer ? (
-        <TextRow>
-          <BlackText>LAYER ID</BlackText>
-          <BoldText>{tx.layer}</BoldText>
-        </TextRow>
-      ) : null}
-      <TextRow>
-        <BlackText>FROM</BlackText>
-        <BoldText>
-          <Address
-            address={txFrom}
-            suffix={txFromSuffix}
-            overlapText={tx.senderNickname}
-            addToContacts={txFromAddContact}
-          />
-        </BoldText>
-      </TextRow>
-      <TextRow>
-        <BlackText>TO</BlackText>
-        <BoldText>
-          <Address
-            address={txTo}
-            suffix={txToSuffix}
-            overlapText={tx.receiverNickname}
-            addToContacts={txToAddContract}
-          />
-        </BoldText>
-      </TextRow>
-      <TextRow>
-        <BlackText>AMOUNT</BlackText>
-        <BoldText>{formatSmidge(tx.amount)}</BoldText>
-      </TextRow>
-      <TextRow>
-        <BlackText>FEE</BlackText>
-        <BoldText>
-          {formatSmidge(tx.gasOffered?.provided || tx.receipt?.fee || 0)}
-        </BoldText>
-      </TextRow>
-      <TextRow>
-        <BlackText>NOTE</BlackText>
-        <BlackText>
-          {note ? `${note}` : `NO NOTE`}
-          <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
-        </BlackText>
-      </TextRow>
+      <Row title="TRANSACTION ID">
+        <Address type={AddressType.TX} address={tx.id} isHex />
+      </Row>
+      <Row title="PRINCIPAL">
+        <Address
+          address={txFrom}
+          suffix={txFromSuffix}
+          addToContacts={
+            !isSent && !contacts[txFrom] ? addToContacts : undefined
+          }
+        />
+      </Row>
+      <Row title="TEMPLATE ADDRESS">
+        <Address
+          type={AddressType.ACCOUNT}
+          address={tx.template}
+          overlapText={tx.meta?.templateName}
+        />
+      </Row>
+      <Row title="METHOD SELECTOR">
+        {tx.method}
+        {tx.meta?.methodName && ` (${tx.meta?.methodName})`}
+      </Row>
+      <Row title="STATUS" color={color}>
+        {TX_STATE_LABELS[tx.status]}
+      </Row>
+      {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
+      {renderTxPayload(tx, { addToContacts, contacts })}
+      <Row title="FEE">{formatSmidge(tx.gas.fee)}</Row>
+      <Row title="NOTE">
+        {note ? `${note}` : 'NO NOTE'}
+        <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
+      </Row>
     </DetailsSection>
   );
 
-  const renderNickname = () => {
-    const nickname =
-      (isSent && tx.receiverNickname) || (!isSent && tx.senderNickname);
+  const renderTxMeta = ({ meta, payload }: TxView) => {
+    if (!meta || !meta.templateName) return null;
+    const name = meta.methodName
+      ? `${meta.templateName}.${meta.methodName}`
+      : meta.templateName;
+    const details = payload?.Arguments?.Destination
+      ? `-> ${getAbbreviatedAddress(payload.Arguments.Destination)}`
+      : '';
     return (
-      nickname && (
-        <DarkGrayText key="nickname">
-          {nickname && nickname.toUpperCase()}
-        </DarkGrayText>
-      )
+      <Text>
+        {name} {details}
+      </Text>
+    );
+  };
+  const renderSpendHeaderDetails = () => {
+    return (
+      <HeaderSection>
+        {isSpendTransaction ? (
+          <Amount color={color}>
+            {isSent ? '-' : '+'}
+            {formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
+          </Amount>
+        ) : (
+          <TxStatusBulb color={color} />
+        )}
+        <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
+      </HeaderSection>
     );
   };
 
   return (
-    <Wrapper isDetailed={isDetailed}>
+    <Wrapper isDetailed={isDetailed} isHidden={isHidden}>
       <Header onClick={toggleTxDetails}>
-        <Icon src={isSent ? chevronRight : chevronLeft} />
+        <Icon chevronRight={isSent} />
         <HeaderInner>
           <HeaderSection>
-            {renderNickname()}
-            <Text key={tx.id}>{formatTxId(tx.id)}</Text>
+            {renderTxMeta(tx)}
+            <Text>{formatTxId(tx.id)}</Text>
           </HeaderSection>
-          <HeaderSection>
-            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              tx.amount
-            )}`}</Amount>
-            <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
-          </HeaderSection>
+          {renderSpendHeaderDetails()}
         </HeaderInner>
       </Header>
       {isDetailed && renderDetails()}
       {showNoteModal && (
         <Modal header="Note" subHeader="enter your transaction note">
           <InputSection>
-            <Chevron src={chevronRight} />
+            <Chevron />
             <Input
               type="text"
               placeholder="NOTE"
-              value={note}
+              value={noteInput}
               onEnterPress={save}
               onChange={({ value }: { value: string }) => {
-                setNote(value);
+                setNoteInput(value);
               }}
               autofocus
             />
@@ -350,12 +399,12 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             <RightButton>
               <Link
                 style={{ color: smColors.orange, marginRight: '10px' }}
-                onClick={() => setShowNoteModal(false)}
+                onClick={cancel}
                 text="CANCEL"
               />
               <Button
                 text="NEXT"
-                isDisabled={note === tx.note}
+                isDisabled={noteInput === tx.note}
                 onClick={save}
               />
             </RightButton>

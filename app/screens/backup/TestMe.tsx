@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import {
   DragDropContext,
@@ -7,7 +6,8 @@ import {
   Draggable,
   DropResult,
 } from 'react-beautiful-dnd';
-import { RouteComponentProps } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import {
   WrapperWith2SideBars,
   Button,
@@ -15,16 +15,14 @@ import {
   CorneredWrapper,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
-import { WalletPath } from '../../routerPaths';
+import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
 const SubHeader = styled.div`
   margin-bottom: 25px;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Text = styled.span`
@@ -55,6 +53,7 @@ const TestWordsSection = styled.div`
   flex-direction: column;
   margin-right: 20px;
   min-width: 190px;
+  user-select: none;
 `;
 
 const WordsSection = styled.div`
@@ -62,11 +61,12 @@ const WordsSection = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
+  user-select: none;
 `;
 
 const WordContainer = styled.div<{ isDraggingOver?: boolean }>`
   border: ${({ isDraggingOver }) =>
-    isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`};
+    isDraggingOver ? 'none' : `1px dashed ${smColors.darkGray}`};
   height: 27px;
   width: 155px;
   border-radius: 5px;
@@ -86,23 +86,37 @@ const TestWordContainer = styled(WordContainer)<{
   `};
   border: none;
   opacity: ${({ isDragging }) => (isDragging ? 0.9 : 1)};
+  cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
+
+  * {
+    cursor: ${({ isDragging }) =>
+      isDragging ? 'grabbing' : 'grab'} !important;
+  }
 `;
 
-const TestWordDroppable = styled.div`
-  border: 1px solid ${smColors.darkGray};
+const TestWordDroppable = styled.div<{
+  isDraggingOver: boolean;
+}>`
+  border: 1px dashed ${smColors.darkGray};
   height: 29px;
   width: 157px;
   border-radius: 5px;
   margin-right: 20px;
   margin-bottom: 30px;
+  ${({ isDraggingOver }) =>
+    isDraggingOver &&
+    `
+    background-color: ${smColors.lightGray};
+  `};
 `;
 
 const WordDroppable = styled.div<{
   isDraggingOver: boolean;
   isDropped: boolean;
 }>`
-  height: 27px;
-  width: 155px;
+  height: 31px;
+  width: 160px;
+  border: 1px dashed ${smColors.darkGray};
   border-radius: 5px;
   margin-right: 20px;
   transform: none !important;
@@ -137,266 +151,209 @@ const WordWrapper = styled.div`
 
 const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
-  bottom: -40px;
-  right: 0px;
+  bottom: 30px;
+  right: 160px;
 `;
 
 const NotificationBox = styled.div`
-  width: 315px;
-  padding: 4px 9px;
-  background-color: ${smColors.lightGray};
-  font-size: 10px;
-  line-height: 13px;
+  min-width: 300px;
+  padding: 2px 7px;
+  font-size: 14px;
+  line-height: 14px;
   color: ${({ color }) => color};
 `;
 
-const getTestWords = (
-  mnemonic: string
-): Array<{ id: string; content: string }> => {
+const range = (offset: number, n: number) => {
+  const r: number[] = [];
+  for (let i = 0; i < n; i += 1) {
+    r.push(offset + i);
+  }
+  return r;
+};
+
+type TestWords = Record<
+  string,
+  {
+    word: string;
+    index: number;
+    validIndex: number;
+  }
+>;
+
+const TEST_WORDS_AMOUNT = 4;
+
+const TEST_WORDS_LIST = range(0, TEST_WORDS_AMOUNT);
+const PLACEHOLDERS_LIST = range(TEST_WORDS_AMOUNT, 12);
+
+const getTestWords = (mnemonic: string): TestWords => {
   const twelveWords = mnemonic.split(' ');
-  const indices: Array<number> = [];
-  while (indices.length < 4) {
+  const indices = new Set<number>();
+  while (indices.size < TEST_WORDS_AMOUNT) {
     const idx = Math.floor(Math.random() * 12);
-    if (!indices.includes(idx)) {
-      indices.push(idx);
+    if (!indices.has(idx)) {
+      indices.add(idx);
     }
   }
-  const testWords: Array<{ id: string; content: string }> = [];
-  indices.forEach((index: number) => {
-    testWords.push({ id: twelveWords[index], content: twelveWords[index] });
-  });
+  const testWords: TestWords = Object.fromEntries(
+    Array.from(indices).map((wordIndex, index) => {
+      const word = twelveWords[wordIndex];
+      return [word, { word, index, validIndex: wordIndex }];
+    })
+  );
   return testWords;
 };
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { mnemonic: string };
-  };
-}
+const getIndexFromId = (droppableId: string): number =>
+  parseInt(droppableId.match(/^slot_(\d{1,2})$/)?.[1] || '0', 10);
 
-const TestMe = ({ history, location }: Props) => {
-  const {
-    state: { mnemonic },
-  } = location;
-  const [testWords, setTestWords] = useState<{ id: string; content: string }[]>(
-    getTestWords(mnemonic)
-  );
-  const [twelveWords, setTwelveWords] = useState<
-    { id: string; content: string }[]
-  >(mnemonic.split(' ').map((word: string) => ({ id: word, content: '' })));
-  const [dropsCounter, setDropsCounter] = useState(0);
-  const [matchCounter, setMatchCounter] = useState(0);
+const TestMe = (props: { mnemonic?: string }) => {
+  const location = useLocation<{ mnemonic: string }>();
+  const history = useHistory();
+  const { mnemonic } = location.state || props;
+  const [testWords, setTestWords] = useState<TestWords>(getTestWords(mnemonic));
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
-
-  const resetTest = () => {
-    setTestWords(getTestWords(mnemonic));
-    setTwelveWords(
-      mnemonic.split(' ').map((word: string) => ({ id: word, content: '' }))
-    );
-    setDropsCounter(0);
-    setMatchCounter(0);
-  };
+  const resetTest = () => setTestWords(getTestWords(mnemonic));
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
-  const navigateToWallet = () => {
-    history.push(WalletPath.Overview);
-  };
+  const navigateToWallet = () => history.push(AuthPath.WalletCreated);
+
+  const getWordByIndex = (i: number) =>
+    Object.entries(testWords).find(([_, { index }]) => index === i)?.[0];
 
   const handleDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
-    // dropped outside the destination zone
-    if (
-      !destination ||
-      !destination.droppableId.startsWith('Droppable_Dest_')
-    ) {
-      return;
-    }
+    const { source, destination, draggableId } = result;
 
-    const wordId = destination.droppableId.split('_').pop() || '';
-    const wordIndex: number = twelveWords.findIndex(
-      (word: { id: string; content: string }) => word.id === wordId
-    );
-    const droppedWord = source.droppableId.split('_').pop() || '';
-    const isDraggedFromTestWords = source.droppableId.startsWith(
-      'Droppable_Src_'
-    );
-    const droppedWordIndex = isDraggedFromTestWords
-      ? testWords.findIndex(
-          (testWord: { id: string; content: string }) =>
-            testWord.id === droppedWord
-        )
-      : twelveWords.findIndex(
-          (testWord: { id: string; content: string }) =>
-            testWord.id === droppedWord
-        );
-    const droppedWordFromDropZone = twelveWords[droppedWordIndex].content;
-    const isDropMatch = isDraggedFromTestWords
-      ? droppedWord === destination.droppableId.split('_').pop()
-      : droppedWordFromDropZone === destination.droppableId.split('_').pop();
-    const wasDraggedPreviousMatch =
-      droppedWordFromDropZone === source.droppableId.split('_').pop();
+    // Dropped outside of any Droppable area
+    if (!destination) return;
 
-    if (twelveWords[wordIndex].content) {
-      return;
-    }
+    const oldIndex = getIndexFromId(source.droppableId);
+    const newIndex = getIndexFromId(destination.droppableId);
+    const ocuppiedWith = getWordByIndex(newIndex);
 
-    let tmpTwelveWords: Array<{ id: string; content: string }>;
-    let tmpTestWords: Array<{ id: string; content: string }>;
-
-    if (isDraggedFromTestWords) {
-      tmpTwelveWords = [
-        ...twelveWords.slice(0, wordIndex),
-        { id: wordId, content: droppedWord },
-        ...twelveWords.slice(wordIndex + 1),
-      ];
-      tmpTestWords = [
-        ...testWords.slice(0, droppedWordIndex),
-        { id: droppedWord, content: '' },
-        ...testWords.slice(droppedWordIndex + 1),
-      ];
-    } else {
-      tmpTwelveWords = [
-        ...twelveWords.slice(0, droppedWordIndex),
-        { id: droppedWord, content: '' },
-        ...twelveWords.slice(droppedWordIndex + 1),
-      ];
-      tmpTestWords = [
-        ...tmpTwelveWords.slice(0, wordIndex),
-        { id: wordId, content: droppedWordFromDropZone },
-        ...tmpTwelveWords.slice(wordIndex + 1),
-      ];
-    }
-
-    setTwelveWords(tmpTwelveWords);
-    setTestWords(tmpTestWords);
-
-    if (isDraggedFromTestWords) {
-      setDropsCounter(dropsCounter + 1);
-    }
-
-    if (isDropMatch) {
-      setMatchCounter(matchCounter + 1);
-    } else if (wasDraggedPreviousMatch) {
-      setMatchCounter(matchCounter - 1);
-    }
+    setTestWords({
+      ...testWords,
+      ...(ocuppiedWith
+        ? {
+            [ocuppiedWith]: { ...testWords[ocuppiedWith], index: oldIndex },
+          }
+        : {}),
+      [draggableId]: {
+        ...testWords[draggableId],
+        index: newIndex,
+      },
+    });
   };
+
+  const TestWord = ({ word, index }: { word: string; index: number }) => (
+    <Draggable draggableId={word} index={index}>
+      {(provided, snapshot) => (
+        <TestWordContainer
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          isDragging={snapshot.isDragging}
+          isDropped={!!word}
+        >
+          <WhiteText>{word || ''}</WhiteText>
+        </TestWordContainer>
+      )}
+    </Draggable>
+  );
 
   const renderDragAndDropArea = () => (
     <DragDropContext onDragEnd={handleDragEnd}>
       <MiddleSectionRow>
         <TestWordsSection>
-          {testWords.map(
-            (word: { id: string; content: string }, index: number) => (
-              <Droppable droppableId={`Droppable_Src_${word.id}`} key={word.id}>
-                {(provided) => (
+          {TEST_WORDS_LIST.map((index: number) => (
+            <Droppable droppableId={`slot_${index}`} key={`slot_${index}`}>
+              {(provided, snapshot) => {
+                const word = getWordByIndex(index);
+                return (
                   <TestWordDroppable
                     ref={provided.innerRef}
+                    isDraggingOver={snapshot.isDraggingOver}
                     {...provided.droppableProps}
                   >
-                    <Draggable
-                      draggableId={`Draggable_Src_${word.id}`}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <TestWordContainer
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          isDragging={snapshot.isDragging}
-                          isDropped={!!word.content}
-                        >
-                          <WhiteText>{word.content}</WhiteText>
-                        </TestWordContainer>
-                      )}
-                    </Draggable>
+                    {word && <TestWord word={word} index={index} />}
                     {provided.placeholder}
                   </TestWordDroppable>
-                )}
-              </Droppable>
-            )
-          )}
+                );
+              }}
+            </Droppable>
+          ))}
         </TestWordsSection>
         <WordsSection>
-          {twelveWords.map(
-            (word: { id: string; content: string }, index: number) => (
-              <WordWrapper key={word.id}>
-                <IndexWrapper>
-                  <Index>{`${index + 1}`}</Index>
-                </IndexWrapper>
-                <Droppable droppableId={`Droppable_Dest_${word.id}`}>
-                  {(provided, snapshot) => (
+          {PLACEHOLDERS_LIST.map((n, index) => (
+            <WordWrapper key={`word_field_${index}`}>
+              <IndexWrapper>
+                <Index>{`${index + 1}`}</Index>
+              </IndexWrapper>
+              <Droppable droppableId={`slot_${n}`}>
+                {(provided, snapshot) => {
+                  const word = getWordByIndex(n);
+                  return (
                     <WordDroppable
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       isDraggingOver={snapshot.isDraggingOver}
-                      isDropped={!!word.content}
+                      isDropped={!!word}
                     >
-                      <Draggable
-                        draggableId={`Draggable_Dest_${word.id}`}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <WordContainer
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            isDraggingOver={snapshot.isDraggingOver}
-                          >
-                            <Text>{word.content}</Text>
-                          </WordContainer>
-                        )}
-                      </Draggable>
+                      {word && <TestWord word={word} index={n} />}
+                      {provided.placeholder}
                     </WordDroppable>
-                  )}
-                </Droppable>
-              </WordWrapper>
-            )
-          )}
+                  );
+                }}
+              </Droppable>
+            </WordWrapper>
+          ))}
         </WordsSection>
       </MiddleSectionRow>
     </DragDropContext>
   );
 
-  return [
-    <WrapperWith2SideBars
-      width={920}
-      header="CONFIRM YOUR 12 WORDS BACKUP"
-      key="1"
-      isDarkMode={isDarkMode}
-    >
-      <SubHeader>
-        Drag each of the four words below to its matching number in your paper
-        backup word list
-      </SubHeader>
-      {renderDragAndDropArea()}
-      <BottomRow>
-        <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
-        <Button
-          onClick={isTestSuccess ? navigateToWallet : resetTest}
-          text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
-          isPrimary={isTestSuccess}
-        />
-      </BottomRow>
-    </WrapperWith2SideBars>,
-    dropsCounter === 4 && (
-      <NotificationBoxOuter key="2" isDarkMode={isDarkMode}>
-        <NotificationBox
-          color={isTestSuccess ? smColors.green : smColors.orange}
-        >
-          {isTestSuccess
-            ? 'All right! Your 12 word backup is confirmed.'
-            : 'That confirmation isn’t correct, please try again'}
-        </NotificationBox>
-      </NotificationBoxOuter>
-    ),
-  ];
+  const showResults = Object.values(testWords).every(
+    ({ index }) => index >= 4 && index <= 15
+  );
+  const isTestSuccess =
+    showResults &&
+    Object.values(testWords).every(
+      ({ index, validIndex }) => index - 4 === validIndex
+    );
+  return (
+    <>
+      <WrapperWith2SideBars
+        width={920}
+        header="CONFIRM YOUR 12 WORDS BACKUP"
+        key="1"
+      >
+        <SubHeader>
+          Drag each of the four words below to its matching number in your paper
+          backup word list
+        </SubHeader>
+        {renderDragAndDropArea()}
+        <BottomRow>
+          <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
+          <Button
+            onClick={isTestSuccess ? navigateToWallet : resetTest}
+            text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
+            isPrimary={isTestSuccess}
+          />
+        </BottomRow>
+      </WrapperWith2SideBars>
+      {showResults && (
+        <NotificationBoxOuter key="2">
+          <NotificationBox
+            color={isTestSuccess ? smColors.green : smColors.orange}
+          >
+            {isTestSuccess
+              ? 'All right! Your 12 word backup is confirmed.'
+              : 'That confirmation isn’t correct, please try again'}
+          </NotificationBox>
+        </NotificationBoxOuter>
+      )}
+    </>
+  );
 };
 
 export default TestMe;

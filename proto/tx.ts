@@ -24,21 +24,24 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       Layer: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
+      ParseTransactionRequest: MessageTypeDefinition
+      ParseTransactionResponse: MessageTypeDefinition
       Reward: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       SubmitTransactionRequest: MessageTypeDefinition
       SubmitTransactionResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
+      TransactionResult: MessageTypeDefinition
+      TransactionResultsRequest: MessageTypeDefinition
       TransactionService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_TransactionServiceClient> & { service: _spacemesh_v1_TransactionServiceDefinition }
       TransactionState: MessageTypeDefinition
       TransactionsIds: MessageTypeDefinition

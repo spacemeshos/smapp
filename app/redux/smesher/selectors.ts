@@ -4,16 +4,14 @@ import { RootState } from '../../types';
 export const getPostSetupState = (state: RootState) =>
   state.smesher.postSetupState;
 
-export const isSmeshing = (state: RootState) =>
-  getPostSetupState(state) === PostSetupState.STATE_COMPLETE;
 export const isCreatingPostData = (state: RootState) =>
   getPostSetupState(state) === PostSetupState.STATE_IN_PROGRESS;
 
 export const getSmeshingOpts = (state: RootState) => {
   const {
-    smesher: { coinbase, dataDir, numUnits, throttle, provider },
+    smesher: { coinbase, dataDir, numUnits, throttle, provider, maxFileSize },
   } = state;
-  return { coinbase, dataDir, numUnits, throttle, provider };
+  return { coinbase, dataDir, numUnits, throttle, provider, maxFileSize };
 };
 
 export const isValidSmeshingOpts = (
@@ -23,12 +21,24 @@ export const isValidSmeshingOpts = (
   return !!(coinbase && dataDir && numUnits && provider !== null);
 };
 
+export const isErrorState = (state: RootState) =>
+  isValidSmeshingOpts(getSmeshingOpts(state)) &&
+  getPostSetupState(state) === PostSetupState.STATE_ERROR;
+
 export const isSmeshingPaused = (state: RootState) => {
-  const isNotStarted =
-    getPostSetupState(state) === PostSetupState.STATE_NOT_STARTED;
+  const posState = getPostSetupState(state);
   const opts = getSmeshingOpts(state);
-  return isNotStarted && isValidSmeshingOpts(opts);
+  return (
+    (posState === PostSetupState.STATE_PAUSED ||
+      posState === PostSetupState.STATE_NOT_STARTED) &&
+    isValidSmeshingOpts(opts)
+  );
 };
 
-export const getPostProgressError = (state: RootState) =>
-  state.smesher.postProgressError;
+export const isSmeshing = (state: RootState) =>
+  state.smesher.isSmeshingStarted &&
+  (getPostSetupState(state) === PostSetupState.STATE_COMPLETE ||
+    // Until Node will sync enough GRPC API returns NOT STARTED state
+    // even if we already started smeshing (so PoS will be created soon)
+    (getPostSetupState(state) === PostSetupState.STATE_NOT_STARTED &&
+      isValidSmeshingOpts(getSmeshingOpts(state))));

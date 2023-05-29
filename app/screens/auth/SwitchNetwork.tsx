@@ -5,11 +5,11 @@ import { CorneredContainer } from '../../components/common';
 import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
-import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
-import { AuthPath } from '../../routerPaths';
+import { getGenesisID } from '../../redux/network/selectors';
+import { AuthPath, MainPath } from '../../routerPaths';
+import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -17,11 +17,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const DropDownLink = styled.a`
-  color: ${smColors.blue};
-  cursor: pointer;
 `;
 
 const RowColumn = styled.div`
@@ -38,142 +33,113 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
-  width: 100%;
-  padding: 5px;
-  line-height: 17px;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: ${smColors.black};
-  cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
+const RightSide = styled.div`
+  display: flex;
+  gap: 16px;
 `;
 
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
-    marginLeft: 'auto',
-  };
 
-  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const [networks, setNetworks] = useState({
-    loading: false,
-    networks: [] as { netId: number; netName: string; explorer?: string }[],
-  });
+  const networksList = useSelector((state: RootState) => state.networks);
+  const isOnline = useNavigatorOnLine();
+  const [networksLoading, setNetworksLoading] = useState(false);
+  const [networks, setNetworks] = useState(networksList);
   const [showLoader, setLoader] = useState(false);
+  const curGenesisId = useSelector(getGenesisID);
+  const curIndex = networks.findIndex((n) => n.genesisID === curGenesisId);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(
+    curIndex > -1 ? curIndex : 0
+  );
 
-  const updateNetworks = () => {
-    if (networks.loading) return;
-    setNetworks({
-      loading: true,
-      networks: [],
-    });
-    eventsService
-      .listNetworks()
-      .then((nets) =>
-        setNetworks({
-          loading: false,
-          networks: nets,
-        })
-      )
-      .catch((err) => console.error(err)); // eslint-disable-line no-console
+  const { creatingWallet, isWalletOnly, mnemonic, redirect } =
+    location?.state || {};
+
+  const updateNetworks = async () => {
+    if (networksLoading) return;
+
+    try {
+      setNetworksLoading(true);
+      setNetworks([]);
+      const { payload } = await eventsService.listNetworks();
+      setNetworks(payload || []);
+      setNetworksLoading(false);
+    } catch (err) {
+      setNetworksLoading(false);
+      console.error(err); // eslint-disable-line no-console
+    }
   };
 
-  // Auto request networks list update only on mount:
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(updateNetworks, []);
+  useEffect(() => {
+    if (!isOnline) {
+      return;
+    }
+
+    updateNetworks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
-  const openExplorer = (explorer: string) => {
-    window.open(explorer.concat(isDarkMode ? '?dark' : ''), '_blank');
+  const hasAvailableNetworks = networks.length > 0;
+  const getDropDownData = () => {
+    if (!isOnline) {
+      return [{ label: 'NO INTERNET CONNECTION', isDisabled: true }];
+    }
+
+    if (networksLoading) {
+      return [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }];
+    }
+
+    if (hasAvailableNetworks) {
+      return networks.map(({ genesisID, netName }) => ({
+        label: netName,
+        description: genesisID?.length ? `(ID ${genesisID})` : '',
+      }));
+    }
+
+    return [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
   };
 
-  const renderAccElement = ({
-    label,
-    explorer,
-    netId,
-    isMain,
-  }: {
-    label: string;
-    explorer: string;
-    netId: number;
-    isMain: boolean;
-  }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
-      {netId > 0 ? (
-        <>
-          {label}
-          (ID&nbsp;
-          <DropDownLink onClick={() => openExplorer(explorer)} target="_blank">
-            {netId}
-          </DropDownLink>
-          )
-        </>
-      ) : (
-        label
-      )}
-    </AccItem>
-  );
-
-  const hasAvailableNetworks = networks.networks.length > 0;
-  const getDropDownData = () =>
-    // eslint-disable-next-line no-nested-ternary
-    networks.loading
-      ? [{ label: 'LOADING... PLEASE WAIT', netId: -1, isDisabled: true }]
-      : hasAvailableNetworks
-      ? networks.networks.map(({ netId, netName, explorer }) => ({
-          label: netName,
-          netId,
-          explorer,
-        }))
-      : [{ label: 'NO NETWORKS AVAILABLE', netId: -1, isDisabled: true }];
-
-  const goNext = (netId: number) => {
-    const { creatingWallet, isWalletOnly } = location.state;
+  const goNext = (genesisID: string | undefined) => {
     if (creatingWallet) {
-      if (netId === -1)
-        return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
-      if (isWalletOnly)
+      if (isWalletOnly && genesisID?.length)
         return history.push(AuthPath.ConnectToAPI, {
           redirect: AuthPath.CreateWallet,
-          netId,
+          genesisID,
           isWalletOnly,
           creatingWallet,
+          mnemonic,
         });
-      return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
-    }
-    if (netId > -1 && isWalletOnly) {
-      return history.push(AuthPath.ConnectToAPI, {
-        redirect: location?.state?.redirect,
-        netId,
+      return history.push(AuthPath.CreateWallet, {
+        genesisID,
         isWalletOnly,
-        creatingWallet,
+        mnemonic,
       });
     }
-    return history.push(location?.state?.redirect || AuthPath.Unlock);
+    if (genesisID?.length && isWalletOnly) {
+      return history.push(AuthPath.ConnectToAPI, {
+        redirect,
+        genesisID,
+        isWalletOnly,
+        creatingWallet,
+        mnemonic,
+      });
+    }
+    return history.push(redirect || AuthPath.Unlock);
   };
 
   const handleNext = async () => {
-    const netId =
-      networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].netId
-        : -1;
+    const genesisID =
+      networks.length > selectedItemIndex
+        ? networks[selectedItemIndex].genesisID
+        : '';
     setLoader(true);
-    if (netId > -1) {
+    if (genesisID?.length) {
       try {
-        await eventsService.switchNetwork(netId);
-        await dispatch(getNetworkDefinitions());
+        await eventsService.switchNetwork(genesisID);
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         if (err instanceof Error) {
@@ -181,49 +147,43 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         }
       }
     }
-    return goNext(netId);
+
+    return goNext(genesisID);
   };
 
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
-      isDarkMode={isDarkMode}
       note="Please wait, connecting to Spacemesh network..."
     />
   ) : (
     <Wrapper>
-      {!!location.state.creatingWallet && (
-        <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />
-      )}
+      {creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
         height={400}
         header="SPACEMESH NETWORK"
         subHeader="Select a public Spacemesh network for your wallet."
-        tooltipMessage="test"
-        isDarkMode={isDarkMode}
+        tooltipMessage="Check explorer.spacemesh.io for the stats"
       >
         <RowColumn>
           <DropDown
             data={getDropDownData()}
             onClick={selectItem}
-            DdElement={renderAccElement}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            style={ddStyle}
-            bgColor={smColors.white}
             isDisabled={!hasAvailableNetworks}
           />
         </RowColumn>
         <RowColumn>
-          {!networks.loading && (
+          {!networksLoading && isOnline && (
             <Link onClick={updateNetworks} text="REFRESH" />
           )}
         </RowColumn>
 
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          {!hasAvailableNetworks && !networks.loading && (
+          {!hasAvailableNetworks && !networksLoading && (
             <Button
               onClick={handleNext}
               text="SKIP"
@@ -231,11 +191,20 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
               style={{ marginLeft: 'auto', marginRight: '1em' }}
             />
           )}
-          <Button
-            onClick={handleNext}
-            text="NEXT"
-            isDisabled={!hasAvailableNetworks}
-          />
+          <RightSide>
+            {location.state.showBackButton && (
+              <Button
+                onClick={() => history.push(MainPath.Settings)}
+                isPrimary={false}
+                text="CANCEL"
+              />
+            )}
+            <Button
+              onClick={handleNext}
+              text="NEXT"
+              isDisabled={!hasAvailableNetworks}
+            />
+          </RightSide>
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

@@ -1,11 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  getAbbreviatedText,
-  getAddress,
-  formatSmidge,
-} from '../../infra/utils';
-import { smColors } from '../../vars';
+import { formatSmidge, getAbbreviatedAddress } from '../../infra/utils';
+import { BoldText } from '../../basicComponents';
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,28 +9,27 @@ const Wrapper = styled.div`
   width: 175px;
   height: 100%;
   padding: 10px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 15px;
 `;
 
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 20px;
   word-break: break-all;
 `;
 
 const SubHeader = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 5px;
 `;
 
@@ -55,9 +50,9 @@ const TxSummary = ({ address, fromAddress, amount, fee, note }: Props) => {
         --
       </Header>
       <SubHeader>TO</SubHeader>
-      <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
+      <Text>{address ? getAbbreviatedAddress(address) : '...'}</Text>
       <SubHeader>FROM</SubHeader>
-      <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
+      <Text>{getAbbreviatedAddress(fromAddress)}</Text>
       <SubHeader>AMOUNT</SubHeader>
       <Text>{formatSmidge(amount) || '...'}</Text>
       <SubHeader>FEE</SubHeader>

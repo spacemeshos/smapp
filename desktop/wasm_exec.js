@@ -70,7 +70,7 @@
 		const nodeCrypto = require("crypto");
 		global.crypto = {
 			getRandomValues(b) {
-				nodeCrypto.randomFillSync(b);
+				return nodeCrypto.randomFillSync(b);
 			},
 		};
 	}

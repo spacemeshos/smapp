@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { DefaultTheme, withTheme } from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
@@ -9,28 +9,16 @@ import {
   NavTooltip,
   NetworkIndicator,
   SmallHorizontalPanel,
+  BoldText,
 } from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
-import {
-  rightDecoration,
-  rightDecorationWhite,
-  settingsIcon,
-  settingsIconBlack,
-  getCoinsIcon,
-  getCoinsIconBlack,
-  helpIcon,
-  helpIconBlack,
-  signOutIcon,
-  signOutIconBlack,
-} from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
@@ -72,22 +60,28 @@ const NavLinksWrapper = styled.div`
   margin-left: 140px;
 `;
 
-const NavBarLink = styled.div<{ isActive?: boolean }>`
+const getNavLinkColorTheme = (theme: DefaultTheme, isActive?: boolean) => {
+  let { color } = theme.navBar;
+  color = theme.isDarkMode ? smColors.navLinkGrey : color;
+  return isActive ? smColors.purple : color;
+};
+
+const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-right: 15px;
-  font-family: SourceCodeProBold;
   font-size: 12px;
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({ isActive }) =>
-    isActive ? smColors.purple : smColors.navLinkGrey};
+  color: ${({ isActive, theme }) => getNavLinkColorTheme(theme, isActive)};
   cursor: pointer;
 `;
 
-const RightDecoration = styled.img`
+const RightDecoration = styled.img.attrs((props) => ({
+  src: props.theme.icons.pageLeftSideBar,
+}))`
   display: block;
   height: 100%;
   margin-right: -1px;
@@ -100,8 +94,8 @@ const RoutesWrapper = styled.div`
   height: calc(100% - 200px);
 `;
 
-const CustomTooltip = styled(NavTooltip)`
-  bottom: -45px;
+const CustomTooltip = styled(NavTooltip)<{ closePosition?: boolean }>`
+  bottom: ${({ closePosition }) => (closePosition ? '-25px' : '-45px')};
   right: -27px;
   width: 110px;
 `;
@@ -117,7 +111,6 @@ interface Props extends RouteComponentProps {
   isWalletOnly: boolean;
   status: NodeStatus | null;
   logout: any;
-  getNetworkDefinitions: () => void;
   location: {
     hash: string;
     pathname: string;
@@ -126,7 +119,8 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
-  netId: number;
+  genesisID: string;
+  theme: DefaultTheme;
 }
 
 type State = {
@@ -154,26 +148,23 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isWalletOnly, nodeError, status, isDarkMode, netId } = this.props;
-    const img = isDarkMode ? rightDecorationWhite : rightDecoration;
-    const settings = isDarkMode ? settingsIconBlack : settingsIcon;
-    const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
-    const help = isDarkMode ? helpIconBlack : helpIcon;
-    const signOut = isDarkMode ? signOutIconBlack : signOutIcon;
+    const { nodeError, status, genesisID, theme } = this.props;
+
+    const { settings, getCoins, help, signOut } = theme.icons;
+    const bgColor = theme.color.primary;
     const bntStyle = { marginRight: 15, marginTop: 10 };
-    const bgColor = isDarkMode ? smColors.white : smColors.black;
     /* eslint-disable no-nested-ternary */
     const indicatorColor =
-      nodeError || netId === -1
+      nodeError || !genesisID.length
         ? smColors.red
-        : isWalletOnly || status?.isSynced
+        : status?.isSynced
         ? smColors.green
         : smColors.orange;
     /* eslint-enable no-nested-ternary */
 
     return (
       <Wrapper>
-        <Logo isDarkMode={isDarkMode} />
+        <Logo />
         <InnerWrapper>
           <NavBar>
             <NavBarPart>
@@ -201,7 +192,11 @@ class Main extends Component<Props, State> {
                   'MANAGE CONTACTS',
                   MainPath.Contacts
                 )}
+                {/*
+                TODO: Do not render dashboard link since it is not supports new
+                tx&accounts structure. Should be returned back when it will work.
                 {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
+                */}
               </NavLinksWrapper>
             </NavBarPart>
             <NavBarPart>
@@ -209,15 +204,15 @@ class Main extends Component<Props, State> {
                 <SecondaryButton
                   onClick={() => this.handleNavRoute(MainPath.Settings)}
                   img={settings}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={this.isActive(MainPath.Settings)}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="SETTINGS" isDarkMode={isDarkMode} />
+                <CustomTooltip text="SETTINGS" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -225,48 +220,48 @@ class Main extends Component<Props, State> {
                     this.handleOpenLink(ExternalLinks.GetCoinGuide)
                   }
                   img={getCoins}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="GET SMESH" isDarkMode={isDarkMode} />
+                <CustomTooltip text="GET SMESH" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleOpenLink(ExternalLinks.Help)}
                   img={help}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="HELP" isDarkMode={isDarkMode} />
+                <CustomTooltip text="HELP" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={this.handleLogOut}
                   img={signOut}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="LOGOUT" isDarkMode={isDarkMode} />
+                <CustomTooltip text="LOGOUT" closePosition />
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
           <RoutesWrapper>
-            <SmallHorizontalPanel isDarkMode={isDarkMode} />
+            <SmallHorizontalPanel />
             <Switch>
               {routes.main.map((route) => (
                 <Route
@@ -279,15 +274,14 @@ class Main extends Component<Props, State> {
           </RoutesWrapper>
         </InnerWrapper>
         <Version />
-        <RightDecoration src={img} />
+        <RightDecoration />
       </Wrapper>
     );
   }
 
   componentDidMount() {
-    const { isWalletOnly, getNetworkDefinitions } = this.props;
+    const { isWalletOnly } = this.props;
     !isWalletOnly && eventsService.requestVersionAndBuild();
-    getNetworkDefinitions();
   }
 
   renderNavBarLink = (
@@ -295,7 +289,6 @@ class Main extends Component<Props, State> {
     tooltip: string,
     route: string
   ) => {
-    const { isDarkMode } = this.props;
     return (
       <TooltipWrapper>
         <NavBarLink
@@ -304,7 +297,7 @@ class Main extends Component<Props, State> {
         >
           {label}
         </NavBarLink>
-        <CustomTooltip text={tooltip} isDarkMode={isDarkMode} />
+        <CustomTooltip text={tooltip} />
       </TooltipWrapper>
     );
   };
@@ -348,13 +341,13 @@ const mapStateToProps = (state: RootState) => ({
   isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
-  netId: state.network.netId,
+  genesisID: state.network.genesisID,
   isDarkMode: state.ui.isDarkMode,
 });
 
 const mapDispatchToProps = {
   logout,
-  getNetworkDefinitions,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Main);
+// @ts-ignore
+export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Main));

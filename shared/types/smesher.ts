@@ -17,19 +17,20 @@ export interface SmeshingOpts {
   numUnits: number;
   provider: number;
   throttle: boolean;
+  maxFileSize: number;
+  nonces: number;
+  threads: number;
 }
 
-export enum ComputeApiClass {
-  COMPUTE_API_CLASS_UNSPECIFIED = 0,
-  COMPUTE_API_CLASS_CPU,
-  COMPUTE_API_CLASS_CUDA,
-  COMPUTE_API_CLASS_VULKAN,
+export enum DeviceType {
+  DEVICE_CLASS_CPU = 0,
+  DEVICE_CLASS_GPU = 1,
 }
 
-export interface PostSetupComputeProvider {
+export interface PostSetupProvider {
   id: number;
   model: string;
-  computeApi: ComputeApiClass;
+  deviceType: DeviceType;
   performance: number;
 }
 
@@ -37,16 +38,20 @@ export interface PostSetupOpts {
   coinbase: string;
   dataDir: string;
   numUnits: number;
-  numFiles: number;
-  computeProviderId: number;
+  maxFileSize: number;
+  provider: number;
   throttle: boolean;
+}
+
+export interface PostProvingOpts {
+  nonces: number;
+  threads: number;
 }
 
 export interface PostSetupStatus {
   postSetupState: PostSetupState;
   numLabelsWritten: number;
   opts: PostSetupOpts | null;
-  errorMessage: string;
 }
 
 // IPC
@@ -55,7 +60,31 @@ export interface IPCSmesherStartupData {
   config: SmesherConfig | Record<string, never>;
   smesherId: string;
   postSetupState: PostSetupState;
+  isSmeshingStarted: boolean;
   numLabelsWritten: number;
   numUnits: number;
-  errorMessage: string;
+  maxFileSize: number;
 }
+
+export interface RewardsInfo {
+  total: number;
+  lastEpoch: number;
+  dailyAverage: number;
+  layers: number;
+  epochs: number;
+}
+
+export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB
+
+export type BenchmarkRequest = {
+  nonces: number;
+  threads: number;
+};
+
+export type BenchmarkResponse = {
+  nonces: number;
+  threads: number;
+  speed: number;
+  maxSize: number;
+  maxUnits: number;
+};

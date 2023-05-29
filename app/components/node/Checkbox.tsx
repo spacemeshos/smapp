@@ -9,10 +9,15 @@ const Wrapper = styled.div`
   align-items: center;
   width: 18px;
   height: 18px;
-  border: ${({ theme }) =>
-    `2px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border: ${({ theme }) => `2px solid ${theme.color.contrast}`};
   margin-right: 5px;
   cursor: pointer;
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const InnerWrapper = styled.div`
@@ -20,6 +25,12 @@ const InnerWrapper = styled.div`
   height: 10px;
   background-color: ${smColors.green};
   cursor: pointer;
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 type Props = {

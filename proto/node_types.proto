@@ -2,7 +2,6 @@ syntax = "proto3";
 package spacemesh.v1;
 option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "types.proto";
-import "google/rpc/status.proto";
 
 message EchoRequest {
     SimpleString msg = 1;
@@ -20,18 +19,6 @@ message BuildResponse {
     SimpleString build_string = 1;
 }
 
-message SyncStartRequest {}
-
-message SyncStartResponse {
-    google.rpc.Status status = 1;
-}
-
-message ShutdownRequest {}
-
-message ShutdownResponse {
-    google.rpc.Status status = 1;
-}
-
 // current node status
 message NodeStatus {
     uint64 connected_peers = 1; // number of connected neighbors
@@ -45,14 +32,6 @@ message StatusRequest {}
 
 message StatusResponse {
     NodeStatus status = 1;
-}
-
-message UpdatePoetServerRequest {
-    string url = 1;
-}
-
-message UpdatePoetServerResponse {
-    google.rpc.Status status = 1;
 }
 
 message StatusStreamRequest {}

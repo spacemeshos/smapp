@@ -1,6 +1,12 @@
 module.exports = {
   extends: ['erb', 'plugin:prettier/recommended'],
   rules: {
+    'comma-dangle': 'off', // prettier conflict
+    '@typescript-eslint/comma-dangle': 'off', // prettier conflict
+    '@typescript-eslint/indent': 'off', // prettier conflict
+    'react/jsx-wrap-multilines': 'off', // prettier conflict
+    'react/jsx-one-expression-per-line': 'off', // prettier conflict
+    'react/jsx-curly-newline': 'off', // prettier conflict
     'class-methods-use-this': 0,
     'prettier/prettier': [
       'error',
@@ -92,7 +98,6 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': 0,
     'jsx-a11y/click-events-have-key-events': 0,
     'jsx-a11y/no-static-element-interactions': 0,
-    'comma-dangle': ['error', 'only-multiline'],
     'react/require-default-props': 0,
     'no-use-before-define': 'off',
     'react/no-array-index-key': 0,

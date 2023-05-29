@@ -1,28 +1,56 @@
-import { promises as fs } from 'fs';
-import { fetchJSON, isFileExists } from '../utils';
+import { existsSync, promises as fs } from 'fs';
+import * as TOML from '@iarna/toml';
+import 'json-bigint-patch';
+import { NodeConfig } from '../../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../shared/warning';
+import StoreService from '../storeService';
+import { fetchNodeConfig } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
-import { Network } from './context';
+import { safeSmeshingOpts } from './smeshingOpts';
+import { generateGenesisIDFromConfig } from './Networks';
 
-const load = () =>
-  fs.readFile(NODE_CONFIG_FILE, { encoding: 'utf8' }).then(JSON.parse);
+export const loadNodeConfig = async (): Promise<NodeConfig> =>
+  existsSync(NODE_CONFIG_FILE)
+    ? fs
+        .readFile(NODE_CONFIG_FILE, { encoding: 'utf8' })
+        .then((res) =>
+          res.startsWith('{') ? JSON.parse(res) : TOML.parse(res)
+        )
+    : {};
 
-const loadSmeshingOpts = async () =>
-  (await isFileExists(NODE_CONFIG_FILE)) ? (await load()).smeshing : {};
+const loadSmeshingOpts = async (nodeConfig) => {
+  const id = generateGenesisIDFromConfig(nodeConfig);
+  const opts = StoreService.get(`smeshing.${id}`);
+  return safeSmeshingOpts(opts, id);
+};
 
-const download = async (network: Network) => {
-  const nodeConfig = await fetchJSON(network.conf);
-
+export const downloadNodeConfig = async (networkConfigUrl: string) => {
+  const nodeConfig = await fetchNodeConfig(networkConfigUrl);
   // Copy smeshing opts from previous node config or replace it with empty one
-  const smeshing = await loadSmeshingOpts();
-  nodeConfig.smeshing = smeshing;
+  nodeConfig.smeshing = await loadSmeshingOpts(nodeConfig);
 
-  await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
-    encoding: 'utf8',
-  });
-  return nodeConfig;
+  try {
+    await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
+      encoding: 'utf8',
+    });
+  } catch (error: any) {
+    throw Warning.fromError(
+      WarningType.WriteFilePermission,
+      {
+        kind: WriteFilePermissionWarningKind.ConfigFile,
+        filePath: NODE_CONFIG_FILE,
+      },
+      error
+    );
+  }
+
+  return nodeConfig as NodeConfig;
 };
 
 export default {
-  load,
-  download,
+  load: loadNodeConfig,
+  download: downloadNodeConfig,
 };

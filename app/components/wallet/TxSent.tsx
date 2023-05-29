@@ -1,11 +1,12 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { getAddress, formatSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks } from '../../../shared/constants';
+import { safeReactKey } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,8 +17,7 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background: url(${fireworksImg}) center center no-repeat;
   background-size: contain;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
 `;
 
 const Header = styled.div`
@@ -58,7 +58,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`
@@ -67,7 +67,7 @@ const DetailsTextLeft = styled(DetailsTextRight)`
 `;
 
 const DetailsTextLeftBold = styled(DetailsTextLeft)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
 `;
 
 const ComplexText = styled.div`
@@ -89,55 +89,55 @@ const ButtonsBlock = styled.div`
   flex-direction: row;
 `;
 
-type Props = {
-  fromAddress: string;
-  address: string;
-  amount: number;
-  txId: string;
-  doneAction: () => void;
-  navigateToTxList: () => void;
+export enum TxSentFieldType {
+  Default = 0,
+  Bold = 1,
+}
+
+export type TxSentField = {
+  label: string;
+  value: string;
+  type?: TxSentFieldType;
 };
 
-const TxSent = ({
-  fromAddress,
-  address,
-  amount,
-  txId,
-  doneAction,
-  navigateToTxList,
-}: Props) => {
-  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+type Props = {
+  fields: TxSentField[];
+  txId: string;
+  navigateToTxList: () => void;
+  doneButtonRoute: string;
+};
 
-  const { unit }: any = formatSmidge(amount, true);
+const TxSent = ({ fields, txId, navigateToTxList, doneButtonRoute }: Props) => {
+  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const history = useHistory();
+  const doneButton = () => {
+    history.replace(doneButtonRoute);
+  };
   return (
     <Wrapper>
       <Header>
-        <HeaderText>{unit} SENT!</HeaderText>
+        <HeaderText>TRANSACTION SENT!</HeaderText>
         <HeaderIcon src={doneIconGreen} />
       </Header>
       <>
         <DetailsRow>
-          <DetailsTextRight>Amount</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${getAddress(
-            fromAddress
-          )}`}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeftBold>{address}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
             <DetailsTextLeft>
-              <Address address={txId} type={AddressType.TX} />
+              <Address address={txId} isHex type={AddressType.TX} />
             </DetailsTextLeft>
           </ComplexText>
         </DetailsRow>
+        {fields.map((field, idx) => (
+          <DetailsRow key={`txSent_${idx}_${safeReactKey(field.label)}`}>
+            <DetailsTextRight>{field.label}</DetailsTextRight>
+            {field.type === TxSentFieldType.Bold ? (
+              <DetailsTextLeftBold>{field.value}</DetailsTextLeftBold>
+            ) : (
+              <DetailsTextLeft>{field.value}</DetailsTextLeft>
+            )}
+          </DetailsRow>
+        ))}
       </>
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
@@ -149,7 +149,7 @@ const TxSent = ({
             width={170}
             style={{ marginRight: 20 }}
           />
-          <Button onClick={doneAction} text="DONE" />
+          <Button onClick={doneButton} text="DONE" />
         </ButtonsBlock>
       </Footer>
     </Wrapper>

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CorneredWrapper, Tooltip } from '../../basicComponents';
-import { smColors } from '../../vars';
 
 const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   display: flex;
@@ -12,9 +11,14 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   padding: 20px;
   margin-left: 8px;
   background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+    theme.corneredContainer.wrapper.background};
+  color: ${({ theme }) => theme.corneredContainer.wrapper.color};
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const DivWrapper = styled.div<{ width: number; height: number }>`
@@ -27,9 +31,14 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
   height: ${({ height }) => height}px;
   padding: 20px;
   background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+    theme.corneredContainer.wrapper.background};
+  color: ${({ theme }) => theme.corneredContainer.wrapper.color};
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const HeaderWrapper = styled.div`
@@ -47,7 +56,11 @@ const HeaderIcon = styled.img<{ src: any }>`
 export const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${({ color }) => color};
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
   text-transform: uppercase;
 `;
 
@@ -56,8 +69,11 @@ export const SubHeader = styled.div`
   padding-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
 `;
 
 type Props = {
@@ -70,7 +86,6 @@ type Props = {
   headerIcon?: any;
   subHeader?: any;
   useEmptyWrap?: boolean;
-  isDarkMode?: boolean;
 };
 
 const CorneredContainer = ({
@@ -79,21 +94,18 @@ const CorneredContainer = ({
   height,
   header,
   tooltipMessage,
-  headerColor = '',
   headerIcon = null,
+  headerColor,
   subHeader = '',
   useEmptyWrap = false,
-  isDarkMode = false,
 }: Props) => {
   const ResolvedWrapper: any = useEmptyWrap ? DivWrapper : Wrapper;
-  const color =
-    headerColor || (isDarkMode ? smColors.white : smColors.realBlack);
   return (
-    <ResolvedWrapper width={width} height={height} isDarkMode={isDarkMode}>
+    <ResolvedWrapper width={width} height={height}>
       {header && (
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={color}>{header}</Header>
+          <Header color={headerColor}>{header}</Header>
         </HeaderWrapper>
       )}
       {subHeader && (
@@ -101,9 +113,7 @@ const CorneredContainer = ({
           --
           <br />
           {subHeader}
-          {tooltipMessage && (
-            <Tooltip text={tooltipMessage} isDarkMode width={200} />
-          )}
+          {tooltipMessage && <Tooltip text={tooltipMessage} width={200} />}
         </SubHeader>
       )}
       {children}

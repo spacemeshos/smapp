@@ -1,13 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  sidePanelRightMed,
-  sidePanelRightMedWhite,
-  sidePanelLeftMed,
-  sidePanelLeftMedWhite,
-  checkBlack,
-  checkWhite,
-} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div`
@@ -17,12 +9,29 @@ const Wrapper = styled.div`
   margin-right: 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img.attrs<{ isLeft: boolean }>(
+  ({
+    theme: {
+      icons: { sidePanelLeftMed, sidePanelRightMed },
+    },
+    isLeft,
+  }) => ({
+    src: isLeft ? sidePanelLeftMed : sidePanelRightMed,
+  })
+)<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
+
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const InnerWrapper = styled.div`
@@ -46,13 +55,12 @@ const StepText = styled.div<{ isCompleted: boolean; isCurrent: boolean }>`
   line-height: 17px;
   color: ${({ isCompleted, isCurrent, theme }) => {
     if (isCompleted || !isCurrent) {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     } else {
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCompleted }) =>
-    isCompleted ? 'SourceCodePro' : 'SourceCodeProBold'};
+  font-weight: ${({ isCompleted }) => (isCompleted ? 400 : 800)};
   text-align: right;
 `;
 
@@ -70,12 +78,15 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
     if (isCurrent) {
       return smColors.purple;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
+  ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs((props) => ({
+  src: props.theme.icons.check,
+}))`
   width: 15px;
   height: 15px;
   margin-left: 10px;
@@ -84,16 +95,12 @@ const Icon = styled.img`
 type Props = {
   steps: Array<string>;
   currentStep: number;
-  isDarkMode: boolean;
 };
 
-const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
-  const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
-  const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
-  const checkIcon = isDarkMode ? checkWhite : checkBlack;
+const StepsContainer = ({ steps, currentStep }: Props) => {
   return (
     <Wrapper style={{ height: `${steps.length * 32 + 35}px` }}>
-      <SideBar src={leftImg} />
+      <SideBar isLeft />
       <InnerWrapper>
         {steps.map((step, index) => (
           <StepContainer key={`step${index}`} isFuture={index > currentStep}>
@@ -104,7 +111,7 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
               {step}
             </StepText>
             {index < currentStep ? (
-              <Icon src={checkIcon} />
+              <Icon />
             ) : (
               <Indicator isCurrent={index === currentStep}>
                 {index + 1}
@@ -113,7 +120,7 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
           </StepContainer>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} />
+      <SideBar isLeft={false} />
     </Wrapper>
   );
 };

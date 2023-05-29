@@ -9,8 +9,8 @@ import type { EstimatedRewardsResponse as _spacemesh_v1_EstimatedRewardsResponse
 import type { IsSmeshingResponse as _spacemesh_v1_IsSmeshingResponse, IsSmeshingResponse__Output as _spacemesh_v1_IsSmeshingResponse__Output } from '../../spacemesh/v1/IsSmeshingResponse';
 import type { MinGasResponse as _spacemesh_v1_MinGasResponse, MinGasResponse__Output as _spacemesh_v1_MinGasResponse__Output } from '../../spacemesh/v1/MinGasResponse';
 import type { PostConfigResponse as _spacemesh_v1_PostConfigResponse, PostConfigResponse__Output as _spacemesh_v1_PostConfigResponse__Output } from '../../spacemesh/v1/PostConfigResponse';
-import type { PostSetupComputeProvidersRequest as _spacemesh_v1_PostSetupComputeProvidersRequest, PostSetupComputeProvidersRequest__Output as _spacemesh_v1_PostSetupComputeProvidersRequest__Output } from '../../spacemesh/v1/PostSetupComputeProvidersRequest';
-import type { PostSetupComputeProvidersResponse as _spacemesh_v1_PostSetupComputeProvidersResponse, PostSetupComputeProvidersResponse__Output as _spacemesh_v1_PostSetupComputeProvidersResponse__Output } from '../../spacemesh/v1/PostSetupComputeProvidersResponse';
+import type { PostSetupProvidersRequest as _spacemesh_v1_PostSetupProvidersRequest, PostSetupProvidersRequest__Output as _spacemesh_v1_PostSetupProvidersRequest__Output } from '../../spacemesh/v1/PostSetupProvidersRequest';
+import type { PostSetupProvidersResponse as _spacemesh_v1_PostSetupProvidersResponse, PostSetupProvidersResponse__Output as _spacemesh_v1_PostSetupProvidersResponse__Output } from '../../spacemesh/v1/PostSetupProvidersResponse';
 import type { PostSetupStatusResponse as _spacemesh_v1_PostSetupStatusResponse, PostSetupStatusResponse__Output as _spacemesh_v1_PostSetupStatusResponse__Output } from '../../spacemesh/v1/PostSetupStatusResponse';
 import type { PostSetupStatusStreamResponse as _spacemesh_v1_PostSetupStatusStreamResponse, PostSetupStatusStreamResponse__Output as _spacemesh_v1_PostSetupStatusStreamResponse__Output } from '../../spacemesh/v1/PostSetupStatusStreamResponse';
 import type { SetCoinbaseRequest as _spacemesh_v1_SetCoinbaseRequest, SetCoinbaseRequest__Output as _spacemesh_v1_SetCoinbaseRequest__Output } from '../../spacemesh/v1/SetCoinbaseRequest';
@@ -22,6 +22,8 @@ import type { StartSmeshingRequest as _spacemesh_v1_StartSmeshingRequest, StartS
 import type { StartSmeshingResponse as _spacemesh_v1_StartSmeshingResponse, StartSmeshingResponse__Output as _spacemesh_v1_StartSmeshingResponse__Output } from '../../spacemesh/v1/StartSmeshingResponse';
 import type { StopSmeshingRequest as _spacemesh_v1_StopSmeshingRequest, StopSmeshingRequest__Output as _spacemesh_v1_StopSmeshingRequest__Output } from '../../spacemesh/v1/StopSmeshingRequest';
 import type { StopSmeshingResponse as _spacemesh_v1_StopSmeshingResponse, StopSmeshingResponse__Output as _spacemesh_v1_StopSmeshingResponse__Output } from '../../spacemesh/v1/StopSmeshingResponse';
+import type { UpdatePoetServersRequest as _spacemesh_v1_UpdatePoetServersRequest, UpdatePoetServersRequest__Output as _spacemesh_v1_UpdatePoetServersRequest__Output } from '../../spacemesh/v1/UpdatePoetServersRequest';
+import type { UpdatePoetServersResponse as _spacemesh_v1_UpdatePoetServersResponse, UpdatePoetServersResponse__Output as _spacemesh_v1_UpdatePoetServersResponse__Output } from '../../spacemesh/v1/UpdatePoetServersResponse';
 
 export interface SmesherServiceClient extends grpc.Client {
   Coinbase(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_CoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
@@ -69,14 +71,14 @@ export interface SmesherServiceClient extends grpc.Client {
   postConfig(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
   postConfig(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
   
-  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupProviders(argument: _spacemesh_v1_PostSetupProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupProvidersResponse__Output) => void): grpc.ClientUnaryCall;
   
   PostSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
   PostSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
@@ -137,6 +139,15 @@ export interface SmesherServiceClient extends grpc.Client {
   stopSmeshing(argument: _spacemesh_v1_StopSmeshingRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StopSmeshingResponse__Output) => void): grpc.ClientUnaryCall;
   stopSmeshing(argument: _spacemesh_v1_StopSmeshingRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StopSmeshingResponse__Output) => void): grpc.ClientUnaryCall;
   
+  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
+  
 }
 
 export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementation {
@@ -150,7 +161,7 @@ export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementatio
   
   PostConfig: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostConfigResponse>;
   
-  PostSetupComputeProviders: grpc.handleUnaryCall<_spacemesh_v1_PostSetupComputeProvidersRequest__Output, _spacemesh_v1_PostSetupComputeProvidersResponse>;
+  PostSetupProviders: grpc.handleUnaryCall<_spacemesh_v1_PostSetupProvidersRequest__Output, _spacemesh_v1_PostSetupProvidersResponse>;
   
   PostSetupStatus: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusResponse>;
   
@@ -166,6 +177,8 @@ export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementatio
   
   StopSmeshing: grpc.handleUnaryCall<_spacemesh_v1_StopSmeshingRequest__Output, _spacemesh_v1_StopSmeshingResponse>;
   
+  UpdatePoetServers: grpc.handleUnaryCall<_spacemesh_v1_UpdatePoetServersRequest__Output, _spacemesh_v1_UpdatePoetServersResponse>;
+  
 }
 
 export interface SmesherServiceDefinition extends grpc.ServiceDefinition {
@@ -174,7 +187,7 @@ export interface SmesherServiceDefinition extends grpc.ServiceDefinition {
   IsSmeshing: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_IsSmeshingResponse, _google_protobuf_Empty__Output, _spacemesh_v1_IsSmeshingResponse__Output>
   MinGas: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_MinGasResponse, _google_protobuf_Empty__Output, _spacemesh_v1_MinGasResponse__Output>
   PostConfig: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostConfigResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostConfigResponse__Output>
-  PostSetupComputeProviders: MethodDefinition<_spacemesh_v1_PostSetupComputeProvidersRequest, _spacemesh_v1_PostSetupComputeProvidersResponse, _spacemesh_v1_PostSetupComputeProvidersRequest__Output, _spacemesh_v1_PostSetupComputeProvidersResponse__Output>
+  PostSetupProviders: MethodDefinition<_spacemesh_v1_PostSetupProvidersRequest, _spacemesh_v1_PostSetupProvidersResponse, _spacemesh_v1_PostSetupProvidersRequest__Output, _spacemesh_v1_PostSetupProvidersResponse__Output>
   PostSetupStatus: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostSetupStatusResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusResponse__Output>
   PostSetupStatusStream: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostSetupStatusStreamResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusStreamResponse__Output>
   SetCoinbase: MethodDefinition<_spacemesh_v1_SetCoinbaseRequest, _spacemesh_v1_SetCoinbaseResponse, _spacemesh_v1_SetCoinbaseRequest__Output, _spacemesh_v1_SetCoinbaseResponse__Output>
@@ -182,4 +195,5 @@ export interface SmesherServiceDefinition extends grpc.ServiceDefinition {
   SmesherID: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_SmesherIDResponse, _google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDResponse__Output>
   StartSmeshing: MethodDefinition<_spacemesh_v1_StartSmeshingRequest, _spacemesh_v1_StartSmeshingResponse, _spacemesh_v1_StartSmeshingRequest__Output, _spacemesh_v1_StartSmeshingResponse__Output>
   StopSmeshing: MethodDefinition<_spacemesh_v1_StopSmeshingRequest, _spacemesh_v1_StopSmeshingResponse, _spacemesh_v1_StopSmeshingRequest__Output, _spacemesh_v1_StopSmeshingResponse__Output>
+  UpdatePoetServers: MethodDefinition<_spacemesh_v1_UpdatePoetServersRequest, _spacemesh_v1_UpdatePoetServersResponse, _spacemesh_v1_UpdatePoetServersRequest__Output, _spacemesh_v1_UpdatePoetServersResponse__Output>
 }

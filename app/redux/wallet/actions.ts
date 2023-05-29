@@ -1,5 +1,4 @@
 import {
-  Account,
   Contact,
   HexString,
   SocketAddress,
@@ -7,16 +6,20 @@ import {
   TxSendRequest,
   WalletMeta,
   WalletType,
+  Account,
 } from '../../../shared/types';
 import {
+  delay,
   isLocalNodeApi,
   isRemoteNodeApi,
   isWalletOnlyType,
   stringifySocketAddress,
 } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
-import { addErrorPrefix, getAddress } from '../../infra/utils';
+import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
+import { logout } from '../auth/actions';
+import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
@@ -35,12 +38,12 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
-export const SET_CURRENT_WALLET_PATH = 'SET_CURRENT_WALLET_PATH';
-
-export const setCurrentWalletPath = (path: string | null) => ({
-  type: SET_CURRENT_WALLET_PATH,
-  payload: path,
-});
+const waitForWalletData = async (getState: GetState) => {
+  return (
+    getState().wallet.accounts.length > 0 ||
+    delay(100).then(() => waitForWalletData(getState))
+  );
+};
 
 export const setWalletMeta = (wallet: WalletMeta) => ({
   type: SET_WALLET_META,
@@ -103,28 +106,25 @@ export const createNewWallet = ({
   existingMnemonic = '',
   password,
   apiUrl,
-  netId,
+  genesisID,
   type,
+  name,
 }: {
   existingMnemonic?: string | undefined;
   password: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
-  netId: number;
-}) => (dispatch: AppThDispatch) =>
+  genesisID: string;
+  name?: string;
+}) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
-    .createWallet({ password, existingMnemonic, type, apiUrl, netId })
-    .then((data) => {
-      const {
-        path,
-        wallet: { meta, crypto },
-      } = data;
-      dispatch(setCurrentWalletPath(path));
-      dispatch(setWalletMeta(meta));
-      dispatch(setAccounts(crypto.accounts));
-      dispatch(setMnemonic(crypto.mnemonic));
-      dispatch(readWalletFiles());
-      return data;
+    .createWallet({ password, existingMnemonic, type, apiUrl, genesisID, name })
+    .then(async ({ error, payload }) => {
+      if (error) {
+        throw error;
+      }
+      await waitForWalletData(getState);
+      return payload;
     })
     .catch((err) => {
       console.log(err); // eslint-disable-line no-console
@@ -132,40 +132,23 @@ export const createNewWallet = ({
     });
 
 export const unlockWallet = (path: string, password: string) => async (
-  dispatch: AppThDispatch
+  dispatch: AppThDispatch,
+  getState: GetState
 ) => {
-  const {
-    error,
-    accounts,
-    mnemonic,
-    meta,
-    contacts,
-    isNetworkExist,
-    hasNetworks,
-  } = await eventsService.unlockWallet({ path, password });
+  const resp = await eventsService.unlockWallet({
+    path,
+    password,
+  });
+  const { error, payload } = resp;
   if (error) {
-    // Incorrecrt password
-    if (error.message && error.message.indexOf('Unexpected token') === 0) {
-      return { success: false };
-    }
-    // Some unhandled error
-    console.error(error); // eslint-disable-line no-console
-    dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
     return { success: false };
   }
-  // Success
-  dispatch(setCurrentWalletPath(path));
-  dispatch(setWalletMeta(meta));
-  dispatch(setAccounts(accounts));
-  dispatch(setMnemonic(mnemonic));
-  dispatch(setContacts(contacts));
   dispatch(setCurrentAccount(0));
-  const isWalletOnly = isWalletOnlyType(meta.type);
-  const requestApiSelection = isWalletOnly && !meta.remoteApi;
+  const isWalletOnly = isWalletOnlyType(payload.meta.type);
+  await waitForWalletData(getState);
   return {
     success: true,
-    forceNetworkSelection:
-      hasNetworks && (!isNetworkExist || requestApiSelection),
+    forceNetworkSelection: payload.forceNetworkSelection,
     isWalletOnly,
   };
 };
@@ -177,37 +160,29 @@ export const unlockCurrentWallet = (password: string) => async (
     wallet: { currentWalletPath },
   } = getState();
   if (!currentWalletPath) {
-    dispatch(
-      setUiError(new Error(`Can not find wallet in ${currentWalletPath}`))
-    );
     return { success: false };
   }
   return dispatch(unlockWallet(currentWalletPath, password));
 };
 
-export const closeWallet = () => (dispatch: AppThDispatch) => {
-  dispatch(setCurrentWalletPath(null));
-  dispatch(setWalletMeta({} as WalletMeta));
-  dispatch(setAccounts([]));
-  dispatch(setMnemonic(''));
-  dispatch(setContacts([]));
-  dispatch(setCurrentAccount(0));
-};
-
-export const switchApiProvider = (api: SocketAddress | null) => async (
-  dispatch: AppThDispatch
-) => {
-  await eventsService.switchApiProvider(api);
+export const switchApiProvider = (
+  api: SocketAddress | null,
+  genesisID?: string
+) => async (dispatch: AppThDispatch, getState: GetState) => {
+  const nextGenesisID = genesisID || getGenesisID(getState());
+  await eventsService.switchApiProvider(nextGenesisID, api);
   dispatch({
     type: SET_REMOTE_API,
     payload: {
       api: api && isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+      genesisID,
       type:
         api && isLocalNodeApi(api)
           ? WalletType.LocalNode
           : WalletType.RemoteApi,
     },
   });
+  dispatch(logout());
   return true;
 };
 
@@ -217,14 +192,10 @@ export const updateWalletName = ({
   displayName: string;
 }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { wallet } = getState();
-  const { meta, currentWalletPath } = wallet;
+  const { meta } = wallet;
   const updatedMeta = { ...meta, displayName };
 
-  await eventsService.updateWalletMeta(
-    currentWalletPath || '',
-    'displayName',
-    displayName
-  );
+  eventsService.updateWalletMeta('displayName', displayName);
   dispatch(setWalletMeta(updatedMeta));
 };
 
@@ -241,40 +212,17 @@ export const createNewAccount = ({ password }: { password: string }) => async (
     );
     return;
   }
-  const { error, newAccount } = await eventsService.createNewAccount({
-    fileName: currentWalletPath,
+  const { error, payload } = await eventsService.createNewAccount({
+    path: currentWalletPath,
     password,
   });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
-  } else {
-    dispatch(setAccounts([...accounts, newAccount]));
   }
-};
-
-export const updateAccountName = ({
-  accountIndex,
-  name,
-  password,
-}: {
-  accountIndex: number;
-  name: string;
-  password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedAccount = { ...accounts[accountIndex], displayName: name };
-  const updatedAccounts = [
-    ...accounts.slice(0, accountIndex),
-    updatedAccount,
-    ...accounts.slice(accountIndex + 1),
-  ];
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    mnemonic,
-    accounts: updatedAccounts,
-    contacts,
-  });
-  dispatch(setAccounts(updatedAccounts));
+  if (payload) {
+    dispatch(setAccounts([...accounts, payload] as Account[]));
+  }
 };
 
 export const addToContacts = ({
@@ -283,15 +231,17 @@ export const addToContacts = ({
 }: {
   contact: Contact;
   password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    accounts,
-    mnemonic,
-    contacts: updatedContacts,
+}) => (_: AppThDispatch, getState: GetState) => {
+  const { currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) return false;
+  // TODO: Instead make such actions simple actions (without thunk)
+  //       and call `eventsService` via middleware
+  eventsService.addContact({
+    path: currentWalletPath,
+    password,
+    contact,
   });
-  dispatch(setContacts(updatedContacts));
+  return true;
 };
 
 export const removeFromContacts = ({
@@ -300,17 +250,17 @@ export const removeFromContacts = ({
 }: {
   contact: Contact;
   password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedContacts = contacts.filter(
-    (item) => contact.address !== item.address
-  );
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    accounts,
-    mnemonic,
-    contacts: updatedContacts,
+}) => (_: AppThDispatch, getState: GetState) => {
+  const { currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) return false;
+  // TODO: Instead make such actions simple actions (without thunk)
+  //       and call `eventsService` via middleware
+  eventsService.removeContact({
+    path: currentWalletPath,
+    password,
+    contact,
   });
-  dispatch(setContacts(updatedContacts));
+  return true;
 };
 
 export const restoreFile = ({ filePath }: { filePath: string }) => async (
@@ -371,21 +321,21 @@ export const sendTransaction = ({
 }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { accounts, currentAccountIndex } = getState().wallet;
   const fullTx: TxSendRequest = {
-    sender: getAddress(accounts[currentAccountIndex].publicKey),
+    sender: accounts[currentAccountIndex].address,
     receiver,
     amount,
     fee,
     note,
   };
-  const { error, tx, state } = await eventsService.sendTx({
+  const { error, tx } = await eventsService.sendTx({
     fullTx,
     accountIndex: currentAccountIndex,
   });
   if (tx) {
-    return { id: tx.id, state };
+    return { id: tx.id };
   } else {
     const errorToLog = error
-      ? addErrorPrefix('Send transaction error\n', error)
+      ? addErrorPrefix('Send transaction error\n', error as Error)
       : new Error(
           'Send transaction error: unexpectedly got no Tx and no Error'
         );

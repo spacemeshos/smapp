@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import React from 'react';
+import styled, { keyframes, useTheme } from 'styled-components';
 
-import { HexString } from '../../../shared/types';
-import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
-import { RootState } from '../../types';
-import { smColors } from '../../vars';
+import ExplorerButton from '../../basicComponents/ExplorerButton';
+import CopyButton from '../../basicComponents/CopyButton';
+import { Bech32Address, HexString } from '../../../shared/types';
 import {
-  addContact,
-  explorer,
-  copyBlack,
-  copyWhite,
-} from '../../assets/images';
+  ensure0x,
+  getAbbreviatedAddress,
+  getAbbreviatedText,
+  getAddress,
+} from '../../infra/utils';
+import { smColors } from '../../vars';
+import { addContact } from '../../assets/images';
 
 const Wrapper = styled.div`
   position: relative;
@@ -30,19 +30,6 @@ const PublicKey = styled.div<{ isCopied: boolean }>`
   }
 `;
 
-const CopyIcon = styled.img`
-  align-self: center;
-  width: 16px;
-  height: 15px;
-  margin: 0 3px;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: translate3d(2px, 2px, 0);
-  }
-`;
 const fadeInOut = keyframes`
   0% { opacity: 0; }
   10% { opacity: 1; }
@@ -55,13 +42,6 @@ const CopiedBanner = styled.div`
   line-height: 1.466;
   color: ${smColors.darkerGreen};
   animation: 3s ${fadeInOut} ease-out;
-`;
-
-const ExplorerIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  margin-top: 2px;
 `;
 
 const AddToContactsImg = styled.img`
@@ -81,6 +61,7 @@ export enum AddressType {
 }
 
 type Props = {
+  isHex?: boolean; // If it represents HexString, instead of Bech32 Address
   address: HexString;
   suffix?: string | null; // Additional suffix to the shown address. E.G. nickname
   overlapText?: string | null; // If set — used instead of address + suffix
@@ -88,11 +69,12 @@ type Props = {
   full?: boolean; // Full length address or abbreviated. Default: false (abbreviated).
   hideCopy?: boolean; // Hide copy icon. Default: false
   hideExplorer?: boolean; // Hide explorer icon. Default: false
-  addToContacts?: ({ address }: { address: string }) => void; // If function exists — it shows up add contact icon. Default: undefined
+  addToContacts?: (address: Bech32Address) => void; // If function exists — it shows up add contact icon. Default: undefined
 };
 
 const Address = (props: Props) => {
   const {
+    isHex,
     address,
     suffix,
     overlapText,
@@ -102,36 +84,20 @@ const Address = (props: Props) => {
     hideExplorer,
     addToContacts,
   } = props;
-
+  const [isCopied, setIsCopied] = React.useState<boolean>(false);
   const isAccount = type === AddressType.ACCOUNT;
-  const addr = ensure0x(isAccount ? getAddress(address) : address);
+  const addr = isHex
+    ? ensure0x(isAccount ? getAddress(address) : address)
+    : address;
+  const abbr = isHex ? getAbbreviatedText : getAbbreviatedAddress;
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const explorerUrl = useSelector(
-    (state: RootState) => state.network.explorerUrl
-  );
-  const [isCopied, setIsCopied] = useState(false);
+  const { isDarkMode } = useTheme();
 
-  const addressToShow = full ? addr : getAbbreviatedText(addr);
-
-  let copyTimeout: NodeJS.Timeout;
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    await navigator.clipboard.writeText(addr);
-    setIsCopied(true);
-    clearTimeout(copyTimeout);
-    copyTimeout = setTimeout(() => setIsCopied(false), 3000);
-  };
-  const handleExplorer = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    window.open(
-      explorerUrl.concat(`${type}/${addr}${isDarkMode ? '?dark' : ''}`)
-    );
-  };
+  const addressToShow = full ? addr : abbr(addr);
 
   const handleAddToContacts = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToContacts && addToContacts({ address: addr });
+    addToContacts && addToContacts(addr);
   };
 
   const textToShow =
@@ -144,13 +110,13 @@ const Address = (props: Props) => {
         <span>{textToShow}</span>
       </PublicKey>
       {!hideCopy && (
-        <CopyIcon
-          src={isDarkMode ? copyWhite : copyBlack}
-          onClick={handleCopy}
+        <CopyButton
+          onClick={(val) => setIsCopied(Boolean(val))}
+          value={address}
         />
       )}
       {!hideExplorer && (
-        <ExplorerIcon src={explorer} onClick={handleExplorer} />
+        <ExplorerButton isDarkMode={isDarkMode} address={addr} type={type} />
       )}
       {addToContacts && isAccount && (
         <AddToContactsImg src={addContact} onClick={handleAddToContacts} />

@@ -1,6 +1,7 @@
 import { ProtoGrpcType } from '../proto/tx';
-import { PublicService, SocketAddress } from '../shared/types';
+import { Bech32Address, PublicService, SocketAddress } from '../shared/types';
 import { TransactionsStateStreamResponse__Output } from '../proto/spacemesh/v1/TransactionsStateStreamResponse';
+import { TransactionResult__Output } from '../proto/spacemesh/v1/TransactionResult';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
@@ -22,7 +23,7 @@ class TransactionService extends NetServiceFactory<
       .catch(this.normalizeServiceError({}));
 
   getTxsState = (txIds: Uint8Array[]) =>
-    this.callService('TransactionsState', {
+    this.callServiceWithRetries('TransactionsState', {
       transactionId: txIds.map((id) => ({ id })),
       includeTransactions: true,
     });
@@ -36,6 +37,19 @@ class TransactionService extends NetServiceFactory<
       {
         transactionId: txIds.map((id) => ({ id })),
         includeTransactions: true,
+      },
+      onData
+    );
+
+  watchTransactionsByAddress = (
+    address: Bech32Address,
+    onData: (data: TransactionResult__Output) => void
+  ) =>
+    this.runStream(
+      'StreamResults',
+      {
+        address,
+        watch: true,
       },
       onData
     );

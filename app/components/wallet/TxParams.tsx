@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   Link,
@@ -7,12 +8,13 @@ import {
   Button,
   ErrorPopup,
   AutocompleteDropdown,
+  BoldText,
 } from '../../basicComponents';
-import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
+import { CoinUnits, getAbbreviatedAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Contact } from '../../types';
 import AmountInput from '../../basicComponents/AmountInput';
 import { ExternalLinks } from '../../../shared/constants';
+import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,8 +23,8 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const Header = styled.div`
@@ -31,11 +33,10 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderText = styled.div`
-  font-family: SourceCodeProBold;
+const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const SubHeader = styled(HeaderText)`
@@ -53,8 +54,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Dots = styled.div`
@@ -64,23 +64,7 @@ const Dots = styled.div`
   margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
-`;
-
-const Fee = styled.div<{ isInDropDown: boolean }>`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Footer = styled.div`
@@ -91,22 +75,24 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-// TODO add auto update for fee ranges
+const DropDownContainer = styled.div`
+  width: 240px;
+`;
+
+// TODO add auto update for fee ranges & maxGas
+const maxGas = 500;
 const fees = [
   {
     fee: 1,
-    label: '~ 10 min',
-    text: '(FEE 1 Smidge)',
+    label: `~10 min (~${1 * maxGas} Smidge)`,
   },
   {
     fee: 2,
-    label: '~ 5 min',
-    text: '(FEE 2 Smidge)',
+    label: `~5 min (~${2 * maxGas} Smidge)`,
   },
   {
     fee: 3,
-    label: '~ 1 min',
-    text: '(FEE 3 Smidge)',
+    label: `~1 min (~${3 * maxGas} Smidge)`,
   },
 ];
 
@@ -128,9 +114,8 @@ type Props = {
   note: string;
   updateTxNote: ({ value }: { value: any }) => void;
   nextAction: () => void;
-  cancelTx: () => void;
   contacts: Contact[];
-  isDarkMode: boolean;
+  backButtonRoute: string;
 };
 
 const TxParams = ({
@@ -147,30 +132,10 @@ const TxParams = ({
   updateTxNote,
   updateFee,
   nextAction,
-  cancelTx,
   contacts,
-  isDarkMode,
+  backButtonRoute,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
-  const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
-    marginLeft: 'auto',
-    flex: '0 0 240px',
-  };
-
-  const renderFeeElement = ({
-    label,
-    text,
-    isInDropDown,
-  }: {
-    label: string;
-    text: string;
-    isInDropDown: boolean;
-  }) => (
-    <Fee key={label} isInDropDown={isInDropDown}>
-      {label} {text}
-    </Fee>
-  );
 
   const selectFee = ({ index }: { index: number }) => {
     updateFee({ fee: fees[index].fee });
@@ -183,13 +148,17 @@ const TxParams = ({
     (value) => updateTxAmount(parseFloat(value)),
     [updateTxAmount]
   );
+  const history = useHistory();
+  const cancelButton = () => {
+    history.replace(backButtonRoute);
+  };
 
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
         <Link
-          onClick={cancelTx}
+          onClick={cancelButton}
           text="CANCEL TRANSACTION"
           style={{ color: smColors.orange }}
         />
@@ -221,9 +190,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>From</DetailsText>
         <Dots>....................................</Dots>
-        <DetailsText>
-          {getAbbreviatedText(getAddress(fromAddress), true, 10)}
-        </DetailsText>
+        <DetailsText>{getAbbreviatedAddress(fromAddress)}</DetailsText>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
@@ -248,17 +215,15 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Fee</DetailsText>
         <Dots>....................................</Dots>
-        <DropDown
-          data={fees}
-          onClick={selectFee}
-          DdElement={({ label, text, isMain }) =>
-            renderFeeElement({ label, text, isInDropDown: !isMain })
-          }
-          selectedItemIndex={selectedFeeIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
+        <DropDownContainer>
+          <DropDown
+            data={fees}
+            onClick={selectFee}
+            selectedItemIndex={selectedFeeIndex}
+            rowHeight={40}
+            hideSelectedItem
+          />
+        </DropDownContainer>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Note</DetailsText>

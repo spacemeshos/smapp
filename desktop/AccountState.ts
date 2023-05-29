@@ -1,29 +1,37 @@
 import path from 'path';
 import fs from 'fs';
+import { equals } from 'ramda';
 import { app } from 'electron';
-import { AccountBalance } from '../shared/types';
-import { Tx, Reward } from '../shared/types/tx';
-import { debounce } from '../shared/utils';
+import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
+import { debounceShared, shallowEq } from '../shared/utils';
+import Logger from './logger';
 
-// Types
+const logger = Logger({ className: 'AccountState' });
 
-export interface AccountState {
-  publicKey: string;
-  account: Required<AccountBalance>;
+type GenesisID = HexString;
+interface StateType {
+  state: Required<AccountBalance>;
   txs: { [txId: Tx['id']]: Tx };
   rewards: { [layer: number]: Reward };
 }
 
-// Utils
+// Types
+export type AccountState = Record<GenesisID, StateType | HexString>;
 
-const getDefaultAccountState = (publicKey: string): AccountState => ({
-  publicKey,
-  account: {
-    currentState: { balance: 0, counter: 0 },
-    projectedState: { balance: 0, counter: 0 },
+// Utils
+const getDefaultAccountState = (
+  address: string,
+  genesisID: string
+): AccountState => ({
+  address,
+  [genesisID]: {
+    state: {
+      currentState: { balance: 0, counter: 0 },
+      projectedState: { balance: 0, counter: 0 },
+    },
+    txs: {},
+    rewards: {},
   },
-  txs: {},
-  rewards: {},
 });
 
 const getFilePath = (publicKey: string, baseDir: string) =>
@@ -32,25 +40,35 @@ const getFilePath = (publicKey: string, baseDir: string) =>
 // Side-effects
 const DEFAULT_BASE_DIR = path.resolve(app.getPath('userData'), 'accounts');
 
-const load = (publicKey: string, baseDir = DEFAULT_BASE_DIR): AccountState => {
+const load = (
+  publicKey: string,
+  genesisID: string,
+  baseDir = DEFAULT_BASE_DIR,
+  retry = 0
+): AccountState => {
+  const filePath = getFilePath(publicKey, baseDir);
   try {
-    const raw = fs.readFileSync(getFilePath(publicKey, baseDir), {
+    const raw = fs.readFileSync(filePath, {
       encoding: 'utf8',
     });
     const parsed = JSON.parse(raw);
     return {
-      ...getDefaultAccountState(publicKey),
+      ...getDefaultAccountState(publicKey, genesisID),
       ...parsed,
     };
   } catch (err) {
-    console.log('AccountState.load', publicKey, 'error:', err); // eslint-disable-line no-console
-    return getDefaultAccountState(publicKey);
+    if ((err as { code: string }).code !== 'ENOENT' && retry !== 1) {
+      logger.log('AccountState.load', err, publicKey);
+      fs.unlinkSync(filePath);
+      return load(publicKey, genesisID, baseDir, 1);
+    }
+    return getDefaultAccountState(publicKey, genesisID);
   }
 };
 
 const save = async (state: AccountState, baseDir = DEFAULT_BASE_DIR) => {
   !fs.existsSync(baseDir) && fs.mkdirSync(baseDir, { recursive: true });
-  const filePath = getFilePath(state.publicKey, baseDir);
+  const filePath = getFilePath(state.address as string, baseDir);
   const data = JSON.stringify(state);
   return fs.promises.writeFile(filePath, data, { encoding: 'utf8' });
 };
@@ -74,11 +92,14 @@ export class AccountStateManager {
 
   private baseDir: string;
 
-  constructor(publicKey, opts = DEFAULT_OPTS) {
-    this.state = load(publicKey, opts.accountStateDir);
+  private genesisID: string;
+
+  constructor(address: string, genesisID: string, opts = DEFAULT_OPTS) {
+    this.state = load(address, genesisID, opts.accountStateDir);
     this.baseDir = opts.accountStateDir;
+    this.genesisID = genesisID;
     if (opts.autosave) {
-      this.autosave = debounce(opts.debounce, this.save);
+      this.autosave = debounceShared(opts.debounce, this.save);
     }
   }
 
@@ -89,30 +110,68 @@ export class AccountStateManager {
   private autosave = () => Promise.resolve();
 
   // Getters (pure)
-  getPublicKey = () => this.state.publicKey;
+  getAddress = () => this.state.address as HexString;
 
-  getAccount = () => this.state.account;
+  getState = () => (this.state[this.genesisID] as StateType).state;
 
-  getTxs = () => this.state.txs;
+  getTxs = () => (this.state[this.genesisID] as StateType).txs;
 
-  getTxById = (id: keyof AccountState['txs']) => this.state.txs[id] || null;
+  getTxById = (id: keyof StateType['txs']) =>
+    (this.state[this.genesisID] as StateType).txs[id] || null;
 
-  getRewards = () => Object.values(this.state.rewards);
+  getRewards = () =>
+    Object.values((this.state[this.genesisID] as StateType).rewards);
 
   // Setters. Might be impure if autosave is turned on.
-  storeAccountBalance = (balance: Required<AccountBalance>) => {
-    this.state.account = balance;
+  storeState = (state: Required<AccountBalance>) => {
+    (this.state[this.genesisID] as StateType).state = state;
     return this.autosave();
   };
 
-  storeTransaction = (tx: Tx) => {
-    const prevTxData = this.state.txs[tx.id] || {};
-    this.state.txs[tx.id] = { ...prevTxData, ...tx };
-    return this.autosave();
+  storeTransaction = async <T>(tx: Tx<T>) => {
+    const prevTxData =
+      (this.state[this.genesisID] as StateType).txs[tx.id] || {};
+
+    if (equals(prevTxData, tx)) return false;
+
+    (this.state[this.genesisID] as StateType).txs[tx.id] = {
+      ...prevTxData,
+      ...tx,
+    };
+    await this.autosave();
+    return true;
   };
 
-  storeReward = (reward: Reward) => {
-    this.state.rewards[reward.layer] = reward;
-    return this.autosave();
+  // Returns `true` if it is a new reward
+  // otherwise returns `false`
+  storeReward = async (reward: Reward) => {
+    if (
+      shallowEq(
+        (this.state[this.genesisID] as StateType).rewards[reward.layer],
+        reward
+      )
+    ) {
+      return false;
+    }
+
+    (this.state[this.genesisID] as StateType).rewards[reward.layer] = reward;
+    await this.autosave();
+    return true;
   };
+
+  lastSyncedTxLayer = () =>
+    Math.max.apply(null, [
+      ...Object.values((this.state[this.genesisID] as StateType).txs)
+        .slice(-10)
+        .map((tx) => tx.layer || 0),
+      0,
+    ]);
+
+  lastSyncedRewardsLayer = () =>
+    Math.max.apply(null, [
+      ...Object.keys((this.state[this.genesisID] as StateType).rewards).map(
+        (k) => parseInt(k, 10) || 0
+      ),
+      0,
+    ]);
 }

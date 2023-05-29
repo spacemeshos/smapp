@@ -1,28 +1,27 @@
 import { ThunkDispatch } from 'redux-thunk';
 import {
-  AccountWithBalance,
   Contact,
   NodeError,
   NodeStatus,
   WalletMeta,
   PostSetupState,
-  PostSetupComputeProvider,
+  PostSetupProvider,
   SmesherConfig,
   HexString,
   Tx,
+  Network,
+  NetworkState,
   Reward,
+  Activation,
+  AccountBalance,
+  KeyPair,
+  RewardsInfo,
+  Account,
 } from '../../shared/types';
+import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
 
-export interface NetworkState {
-  netId: string;
-  netName: string;
-  genesisTime: string;
-  currentLayer: number;
-  layerDurationSec: number;
-  rootHash: string;
-  explorerUrl: string;
-}
+export { NetworkState } from '../../shared/types';
 
 export interface NodeState {
   status: NodeStatus | null;
@@ -38,7 +37,8 @@ export interface WalletState {
   currentWalletPath: string | null;
   meta: WalletMeta;
   mnemonic: string;
-  accounts: Array<AccountWithBalance>;
+  accounts: Array<Account>;
+  keychain: Array<KeyPair>;
   currentAccountIndex: number;
   transactions: { [publicKey: HexString]: { [txId: Tx['id']]: Tx } };
   rewards: { [publicKey: HexString]: Reward[] };
@@ -46,22 +46,30 @@ export interface WalletState {
   contacts: Array<Contact>;
   backupTime: string;
   vaultMode: number;
+  balances: Record<HexString, AccountBalance>;
 }
 
 export interface SmesherState {
   smesherId: string;
-  postSetupComputeProviders: PostSetupComputeProvider[];
+  isSmeshingStarted: boolean;
+  postSetupProviders: PostSetupProvider[];
   coinbase: string;
   dataDir: string;
   numUnits: number;
+  maxFileSize: number;
   throttle: boolean;
   provider: number | null;
   commitmentSize: number;
   numLabelsWritten: any;
   postSetupState: PostSetupState;
-  postProgressError: string;
-  rewards: Reward[] | [];
+  rewards: Reward[];
+  rewardsInfo?: RewardsInfo;
+  activations: Activation[];
   config: SmesherConfig;
+  metadata: {
+    smeshingStart: number | null;
+    posInitStart: number | null;
+  };
 }
 
 export interface UiState {
@@ -69,6 +77,8 @@ export interface UiState {
   isClosingApp: boolean;
   hideSmesherLeftPanel: boolean;
   error: Error | null;
+  skinId: string | null;
+  warnings: AnyWarningObject[];
 }
 
 export interface RootState {
@@ -78,6 +88,7 @@ export interface RootState {
   smesher: SmesherState;
   ui: UiState;
   updater: UpdaterState;
+  networks: Network[];
 }
 
 export type CustomAction = { type: string; payload?: any };

@@ -1,16 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import {
-  posSmesherWhite,
-  walletSecondWhite,
-  walletSecondBlack,
-  posSmesherBlack,
-} from '../../assets/images';
-import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -25,14 +16,14 @@ const Wrapper = styled.div`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
-  font-weight: bold;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  font-weight: 800;
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Row = styled.div`
@@ -61,14 +52,24 @@ const RowColumn = styled.div`
   flex-direction: column;
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs(({ theme: { icons: { posSmesher } } }) => ({
+  src: posSmesher,
+}))`
   display: block;
   width: 20px;
   height: 20px;
   margin-right: 5px;
 `;
 
-const IconWallet = styled.img`
+const IconWallet = styled.img.attrs(
+  ({
+    theme: {
+      icons: { walletSecond },
+    },
+  }) => ({
+    src: walletSecond,
+  })
+)`
   display: block;
   width: 20px;
   height: 20px;
@@ -83,36 +84,37 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const WalletConnectionType = ({ history }: AuthRouterParams) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
+const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleNextStep = (walletOnly: boolean) => () => {
-    history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+    if (location?.state?.mnemonic) {
+      history.push(AuthPath.SwitchNetwork, {
+        isWalletOnly: walletOnly,
+        mnemonic: location.state.mnemonic,
+        creatingWallet: true,
+      });
+    } else {
+      history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+    }
   };
 
   return (
     <Wrapper>
-      <Steps step={Step.NEW_WALLET_SETUP} isDarkMode={isDarkMode} />
+      <Steps step={Step.NEW_WALLET_SETUP} />
       <CorneredContainer
         width={650}
         height={400}
         header="NEW WALLET"
         subHeader="Configure your new wallet"
-        isDarkMode={isDarkMode}
       >
         <BackButton action={() => history.push(AuthPath.Leaving)} />
         <RowJust>
           <RowColumn>
             <Row>
-              <Icon src={`${isDarkMode ? posSmesherWhite : posSmesherBlack}`} />
+              <Icon />
               <RowTitle>WALLET + NODE</RowTitle>
-              <Tooltip
-                width={100}
-                text="WALLET + NODE"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={120} text="To send, receive and smesh coins" />
             </Row>
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
@@ -127,11 +129,9 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
         <RowSecond>
           <RowColumn>
             <Row>
-              <IconWallet
-                src={`${isDarkMode ? walletSecondWhite : walletSecondBlack}`}
-              />
+              <IconWallet />
               <RowTitle>WALLET ONLY</RowTitle>
-              <Tooltip width={100} text="Wallet only" isDarkMode={isDarkMode} />
+              <Tooltip width={120} text="To send and receive SMH" />
             </Row>
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
@@ -153,9 +153,8 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
               text="RESTORE EXISTING WALLET"
             />
             <Tooltip
-              width={100}
-              text="RESTORE EXISTING WALLET"
-              isDarkMode={isDarkMode}
+              width={120}
+              text="Locate a file or restore from 12 words"
             />
           </Row>
         </BottomPart>

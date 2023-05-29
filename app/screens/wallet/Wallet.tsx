@@ -6,7 +6,6 @@ import routes from '../../routes';
 import { MainPath } from '../../routerPaths';
 import { AccountsOverview } from '../../components/wallet';
 import { smColors } from '../../vars';
-import { backup, leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
 import { RootState } from '../../types';
 import { BackButton } from '../../components/common';
 import { setCurrentMode } from '../../redux/wallet/actions';
@@ -21,6 +20,7 @@ const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 10px;
+  margin-top: 2px;
 `;
 
 const BackupReminder = styled.div`
@@ -36,9 +36,12 @@ const BackupReminder = styled.div`
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black02Alpha};
   cursor: pointer;
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const BackupImage = styled.img`
+const BackupImage = styled.img.attrs((props) => ({
+  src: props.theme.icons.backup,
+}))`
   width: 20px;
   height: 20px;
   margin-right: 15px;
@@ -52,7 +55,13 @@ const BackupText = styled.div`
   cursor: inherit;
 `;
 
-const FullCrossIcon = styled.img`
+const FullCrossIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { leftSideTIcon },
+    },
+  }) => ({ src: leftSideTIcon })
+)`
   position: absolute;
   top: -11px;
   right: -13px;
@@ -69,11 +78,8 @@ const RightSection = styled.div`
 
 const Wallet = ({ history, location }: RouteComponentProps) => {
   const backupTime = useSelector((state: RootState) => state.wallet.backupTime);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
   const dispatch = useDispatch();
-
-  const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
 
   const navigateToBackup = () => {
     history.push(MainPath.BackupWallet);
@@ -92,8 +98,8 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
         <AccountsOverview />
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
-            <FullCrossIcon src={icon} />
-            <BackupImage src={backup} />
+            <FullCrossIcon />
+            <BackupImage />
             <BackupText>BACKUP YOUR WALLET</BackupText>
           </BackupReminder>
         )}

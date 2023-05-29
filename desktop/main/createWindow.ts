@@ -1,41 +1,26 @@
 import path from 'path';
-import { BrowserWindow, Event, shell } from 'electron';
+import { BrowserWindow, shell } from 'electron';
 import MenuBuilder from '../menu';
 import { isDev } from '../utils';
-import { AppContext } from './context';
 
-export default async (
-  context: AppContext,
-  onCloseHandler: (e: Event) => void | Promise<void>
-) => {
+export default async () => {
   const pagePath = `file://${path.resolve(
     __dirname,
     isDev() ? '..' : ''
   )}/index.html`;
   const mainWindow = new BrowserWindow({
     show: false,
-    width: 1280,
-    height: 700,
-    minWidth: 1100,
-    minHeight: 680,
+    width: 1330,
+    height: 770,
+    minWidth: 1330,
+    minHeight: 770,
     center: true,
     webPreferences: {
+      // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content
       nodeIntegration: true,
+      // TODO: https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation-for-remote-content
+      contextIsolation: false,
     },
-  });
-
-  mainWindow.on('close', onCloseHandler);
-
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!context.mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (context.showWindowOnLoad) {
-      mainWindow.show();
-      mainWindow.focus();
-    }
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
@@ -61,6 +46,5 @@ export default async (
     mainWindow.loadURL(pagePath)
   );
 
-  context.mainWindow = mainWindow;
   return mainWindow;
 };

@@ -25,21 +25,22 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
       CoinbaseResponse: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       EstimatedRewardsRequest: MessageTypeDefinition
       EstimatedRewardsResponse: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
       IsSmeshingResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
       MinGasResponse: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
       PostConfigResponse: MessageTypeDefinition
-      PostSetupComputeProvider: MessageTypeDefinition
-      PostSetupComputeProvidersRequest: MessageTypeDefinition
-      PostSetupComputeProvidersResponse: MessageTypeDefinition
       PostSetupOpts: MessageTypeDefinition
+      PostSetupProvider: MessageTypeDefinition
+      PostSetupProvidersRequest: MessageTypeDefinition
+      PostSetupProvidersResponse: MessageTypeDefinition
       PostSetupStatus: MessageTypeDefinition
       PostSetupStatusResponse: MessageTypeDefinition
       PostSetupStatusStreamResponse: MessageTypeDefinition
@@ -48,10 +49,8 @@ export interface ProtoGrpcType {
       SetCoinbaseResponse: MessageTypeDefinition
       SetMinGasRequest: MessageTypeDefinition
       SetMinGasResponse: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherIDResponse: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       SmesherService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_SmesherServiceClient> & { service: _spacemesh_v1_SmesherServiceDefinition }
@@ -61,6 +60,8 @@ export interface ProtoGrpcType {
       StopSmeshingResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
+      UpdatePoetServersRequest: MessageTypeDefinition
+      UpdatePoetServersResponse: MessageTypeDefinition
     }
   }
 }

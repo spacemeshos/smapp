@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { PostSetupComputeProvider, NodeStatus } from '../../../shared/types';
+import { PostSetupProvider, NodeStatus } from '../../../shared/types';
 import Carousel from './Carousel';
 import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
@@ -16,7 +16,7 @@ const PauseSelector = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const ErrorText = styled.div`
@@ -26,24 +26,23 @@ const ErrorText = styled.div`
 `;
 
 type Props = {
-  providers: PostSetupComputeProvider[];
-  provider: PostSetupComputeProvider | undefined;
-  setProvider: (provider: PostSetupComputeProvider) => void;
+  providers: PostSetupProvider[];
+  provider: PostSetupProvider | undefined;
+  setProvider: (provider: PostSetupProvider) => void;
   throttle: boolean;
   setThrottle: (throttle: boolean) => void;
   nextAction: () => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
 };
 
 const getFastestProvider = (
-  providers: PostSetupComputeProvider[]
-): PostSetupComputeProvider =>
+  providers: PostSetupProvider[]
+): PostSetupProvider =>
   providers.sort((a, b) => b.performance - a.performance)[0];
 
 const findProviderIndexEqTo = (
-  eqProps: Partial<PostSetupComputeProvider>,
-  providers: PostSetupComputeProvider[]
+  eqProps: Partial<PostSetupProvider>,
+  providers: PostSetupProvider[]
 ): number =>
   providers.findIndex(
     (provider) => provider.id === eqProps.id && provider.model === eqProps.model
@@ -57,7 +56,6 @@ const PoSProvider = ({
   setThrottle,
   nextAction,
   status,
-  isDarkMode,
 }: Props) => {
   const [selectedProviderIndex, setSelectedProviderIndex] = useState(
     provider
@@ -91,7 +89,11 @@ const PoSProvider = ({
       <PauseSelector>
         <Checkbox isChecked={throttle} check={() => setThrottle(!throttle)} />
         <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip
+          width={220}
+          text="POS data creation may take a significant amount of time to complete - depending on the choosen file sizes and your processor capacity. 
+        You might want to pause this process to use your device without restraint."
+        />
       </PauseSelector>
       <PoSFooter
         action={nextAction}

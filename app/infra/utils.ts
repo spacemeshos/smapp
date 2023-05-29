@@ -1,4 +1,7 @@
-import { HexString } from '../../shared/types';
+import { TX_STATE_LABELS } from '../../shared/constants';
+import HRP from '../../shared/hrp';
+import { HexString, TxState } from '../../shared/types';
+import { deriveHRP } from '../../shared/utils';
 
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;
@@ -21,7 +24,15 @@ export const getAbbreviatedText = (
   return addPrefix ? ensure0x(abbr) : abbr;
 };
 
-export const getFormattedTimestamp = (timestamp: number | null): string => {
+export const getAbbreviatedAddress = (address: string) => {
+  const hrp = deriveHRP(address) || '';
+  return `${hrp}1...${address.slice(-8)}`;
+};
+
+export const getFormattedTimestamp = (
+  timestamp: number | null,
+  status?: TxState | null
+): string => {
   if (timestamp) {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -29,25 +40,21 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
     };
     const dateObj = new Date(timestamp);
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
-  return 'Pending';
+  return status ? TX_STATE_LABELS[status] : 'Calculating date';
 };
 
 export const getAddress = (key: string) =>
   key.length <= 44 ? key : key.substring(24);
 
-// Address can start with `0x` or without
-// By default it checks the account address, length = 40
-// To validate tx / smesher address, set length to 64
-export const validateAddress = (
-  address: string,
-  length = 40
-): address is HexString => {
-  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`, 'i').test(address);
+export const validateAddress = (address: string): address is HexString => {
+  const addressRegex = new RegExp(
+    `^(${Object.values(HRP).join('|')})1[a-zA-Z0-9]{45}$`
+  );
+  const r = addressRegex.test(address);
   return r;
 };
 
@@ -82,13 +89,16 @@ const packValueAndUnit = (value: number, unit: string) => ({
 });
 
 export const toSMH = (smidge: number) => smidge / 10 ** 12;
-export const toSmidge = (smh: number) => Math.ceil(smh * 10 ** 12);
+export const toSmidge = (smh: number) => Math.round(smh * 10 ** 12);
 
-// Internal helper - returns the value and the unit of a smidge coin amount.
+// Parses number into { value, unit } format.
 // Used to format smidge strings
-export const getValueAndUnit = (amount: number) => {
+export const parseSmidge = (amount: number) => {
+  // If amount is "falsy" (0 | undefined | null)
+  if (!amount) return packValueAndUnit(0, CoinUnits.SMH);
   // Show `23.053 SMH` for big amount
-  if (amount >= 10 ** 9) return packValueAndUnit(toSMH(amount), CoinUnits.SMH);
+  else if (amount >= 10 ** 9)
+    return packValueAndUnit(toSMH(amount), CoinUnits.SMH);
   // Or `6739412 Smidge` (without dot) for small amount
   else if (!Number.isNaN(amount))
     return packValueAndUnit(amount, CoinUnits.Smidge);
@@ -98,15 +108,12 @@ export const getValueAndUnit = (amount: number) => {
 
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
-export const formatSmidge = (
-  amount: number,
-  separateResult?: boolean
-): string | { value: string; unit: string } => {
-  const res = getValueAndUnit(amount);
-  return separateResult
-    ? { value: res.value, unit: res.unit }
-    : `${res.value} ${res.unit}`;
+export const formatSmidge = (amount: number): string => {
+  const { value, unit } = parseSmidge(amount);
+  return `${value} ${unit}`;
 };
 
 export const constrain = (min: number, max: number, value: number) =>
   Math.min(Math.max(value, min), max);
+
+export const safeReactKey = (str: string) => str.replace(/\s|\W/g, '');

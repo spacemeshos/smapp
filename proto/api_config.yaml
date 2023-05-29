@@ -1,0 +1,106 @@
+# Spacemesh API service configuration
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    # DebugService
+    - selector: spacemesh.v1.DebugService.Accounts
+      post: "/v1/debug/accounts"
+      body: "*"
+
+    # GlobalStateService
+    - selector: spacemesh.v1.GlobalStateService.GlobalStateHash
+      post: "/v1/globalstate/globalstatehash"
+      body: "*"
+    - selector: spacemesh.v1.GlobalStateService.Account
+      post: "/v1/globalstate/account"
+      body: "*"
+    - selector: spacemesh.v1.GlobalStateService.AccountDataQuery
+      post: "/v1/globalstate/accountdataquery"
+      body: "*"
+    - selector: spacemesh.v1.GlobalStateService.SmesherDataQuery
+      post: "/v1/globalstate/smesherdataquery"
+      body: "*"
+
+    # MeshService
+    - selector: spacemesh.v1.MeshService.GenesisTime
+      post: "/v1/mesh/genesistime"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.CurrentLayer
+      post: "/v1/mesh/currentlayer"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.CurrentEpoch
+      post: "/v1/mesh/currentepoch"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.GenesisID
+      post: "/v1/mesh/genesisid"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.EpochNumLayers
+      post: "/v1/mesh/epochnumlayers"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.LayerDuration
+      post: "/v1/mesh/layerduration"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.MaxTransactionsPerSecond
+      post: "/v1/mesh/maxtransactionspersecond"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.AccountMeshDataQuery
+      post: "/v1/mesh/accountmeshdataquery"
+      body: "*"
+    - selector: spacemesh.v1.MeshService.LayersQuery
+      post: "/v1/mesh/layersquery"
+      body: "*"
+
+    # NodeService
+    - selector: spacemesh.v1.NodeService.Echo
+      post: "/v1/node/echo"
+      body: "*"
+    - selector: spacemesh.v1.NodeService.Version
+      post: "/v1/node/version"
+    - selector: spacemesh.v1.NodeService.Build
+      post: "/v1/node/build"
+    - selector: spacemesh.v1.NodeService.Status
+      post: "/v1/node/status"
+      body: "*"
+      
+    # SmesherService
+    - selector: spacemesh.v1.SmesherService.IsSmeshing
+      post: "/v1/smesher/issmeshing"
+    - selector: spacemesh.v1.SmesherService.StartSmeshing
+      post: "/v1/smesher/startsmeshing"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.StopSmeshing
+      post: "/v1/smesher/stopsmeshing"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.SmesherID
+      post: "/v1/smesher/smesherid"
+    - selector: spacemesh.v1.SmesherService.Coinbase
+      post: "/v1/smesher/coinbase"
+    - selector: spacemesh.v1.SmesherService.SetCoinbase
+      post: "/v1/smesher/setcoinbase"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.MinGas
+      post: "/v1/smesher/mingas"
+    - selector: spacemesh.v1.SmesherService.SetMinGas
+      post: "/v1/smesher/setmingas"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.EstimatedRewards
+      post: "/v1/smesher/estimatedrewards"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.PostSetupStatus
+      post: "/v1/smesher/postsetupstatus"
+    - selector: spacemesh.v1.SmesherService.PostSetupProviders
+      post: "/v1/smesher/postsetupproviders"
+      body: "*"
+    - selector: spacemesh.v1.SmesherService.PostConfig
+      post: "/v1/smesher/postconfig"
+      body: "*"
+
+    # TransactionService
+    - selector: spacemesh.v1.TransactionService.SubmitTransaction
+      post: "/v1/transaction/submittransaction"
+      body: "*"
+    - selector: spacemesh.v1.TransactionService.TransactionsState
+      post: "/v1/transaction/transactionsstate"
+      body: "*"

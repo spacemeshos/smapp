@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
-import {
-  getCurrentLayer,
-  getNetworkDefinitions,
-} from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
   WrapperWith2SideBars,
@@ -22,6 +18,12 @@ import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { AuthPath } from '../../routerPaths';
+import { delay } from '../../../shared/utils';
+import Address from '../../components/common/Address';
+import {
+  getFirstLayerInEpochFn,
+  getTimestampByLayerFn,
+} from '../../redux/network/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -61,8 +63,7 @@ const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
   margin: 10px 0;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GrayText = styled.div`
@@ -82,33 +83,33 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = ({ history }) => {
-  const dispatch = useDispatch();
-
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
-  const netId = useSelector((state: RootState) => state.network.netId || -1);
+  const genesisID = useSelector(
+    (state: RootState) => state.network.genesisID || ''
+  );
   const netName = useSelector(
-    (state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME'
+    (state: RootState) =>
+      state.network.netName ||
+      (genesisID === '' ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
 
-  useEffect(() => {
-    if (netId > -1) {
-      dispatch(getCurrentLayer());
-      dispatch(getNetworkDefinitions());
-    }
-  }, [netId, dispatch]);
+  const getFirstLayerInEpoch = useSelector(getFirstLayerInEpochFn);
+  const getTimestampByLayer = useSelector(getTimestampByLayerFn);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const remoteApi = useSelector(getRemoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
   const requestNodeRestart = useCallback(async () => {
     setRestarting(true);
     await eventsService.restartNode();
+    await delay(60 * 1000);
+    // In case if Node restarts earlier the component will be
+    // re-rendered and Restart button will disappear
     setRestarting(false);
   }, []);
 
@@ -122,7 +123,7 @@ const Network = ({ history }) => {
     return isWalletMode ? (
       <Button
         text="SWITCH API PROVIDER"
-        width={150}
+        width={200}
         isPrimary
         onClick={requestSwitchApiProvider}
         style={{ marginLeft: 'auto' }}
@@ -144,7 +145,10 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Age</DetailsText>
-          <Tooltip width={250} text="tooltip age" isDarkMode={isDarkMode} />
+          <Tooltip
+            width={250}
+            text="​​Elapsed time since the current Network genesis"
+          />
         </DetailsTextWrap>
         <GrayText>
           <CustomTimeAgo time={genesisTime} />
@@ -152,8 +156,20 @@ const Network = ({ history }) => {
       </DetailsRow>
       <DetailsRow>
         <DetailsTextWrap>
+          <DetailsText>Genesis ID</DetailsText>
+          <Tooltip
+            width={250}
+            text="Unique hash per network, generated from genesis time and a unique identifier"
+          />
+        </DetailsTextWrap>
+        <GrayText>
+          <Address isHex address={genesisID} hideExplorer />
+        </GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
           <DetailsText>Status</DetailsText>
-          <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+          <Tooltip width={250} text="Network Synchronization Status" />
         </DetailsTextWrap>
         <GrayText>
           <NetworkStatus
@@ -164,35 +180,51 @@ const Network = ({ history }) => {
           />
         </GrayText>
       </DetailsRow>
-      <DetailsRow>
-        <DetailsTextWrap>
-          <DetailsText>Current Layer</DetailsText>
-          <Tooltip
-            width={250}
-            text="tooltip Current Layer"
-            isDarkMode={isDarkMode}
-          />
-        </DetailsTextWrap>
-        <GrayText>{status?.topLayer || 0}</GrayText>
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsTextWrap>
-          <DetailsText>Verified Layer</DetailsText>
-          <Tooltip
-            width={250}
-            text="tooltip Verified Layer"
-            isDarkMode={isDarkMode}
-          />
-        </DetailsTextWrap>
-        <GrayText>{status?.verifiedLayer || 0}</GrayText>
-      </DetailsRow>
+      {status && status.topLayer < status.syncedLayer ? (
+        <DetailsRow>
+          <DetailsTextWrap>
+            <DetailsText>Genesis will end in</DetailsText>
+            <Tooltip
+              width={250}
+              text="The genesis phase lasts for the first two epochs"
+            />
+          </DetailsTextWrap>
+          <GrayText>
+            <CustomTimeAgo
+              time={getTimestampByLayer(getFirstLayerInEpoch(2))}
+            />
+          </GrayText>
+        </DetailsRow>
+      ) : (
+        <>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Current Layer</DetailsText>
+              <Tooltip
+                width={250}
+                text="Most recent Layer number in this Network"
+              />
+            </DetailsTextWrap>
+            <GrayText>{status?.topLayer || 0}</GrayText>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Verified Layer</DetailsText>
+              <Tooltip
+                width={250}
+                text="The last processed and synced Layer number. Usually lags behind Current Layer by a layer or two."
+              />
+            </DetailsTextWrap>
+            <GrayText>{status?.verifiedLayer || 0}</GrayText>
+          </DetailsRow>
+        </>
+      )}
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Connection Type</DetailsText>
           <Tooltip
             width={250}
-            text="tooltip Connection Type"
-            isDarkMode={isDarkMode}
+            text="Managed p2p if running a local node. Otherwise Remote API provider details"
           />
         </DetailsTextWrap>
         <GrayText>
@@ -207,11 +239,10 @@ const Network = ({ history }) => {
             <DetailsText>Connected neighbors</DetailsText>
             <Tooltip
               width={250}
-              text="tooltip Connected neighbors"
-              isDarkMode={isDarkMode}
+              text="Spacemesh syncs database and participates in the network by communicating with other connected peers"
             />
           </DetailsTextWrap>
-          <GrayText>8</GrayText>
+          <GrayText>{status?.connectedPeers || 0}</GrayText>
         </DetailsRow>
       )}
     </DetailsWrap>
@@ -222,7 +253,7 @@ const Network = ({ history }) => {
       <DetailsRow>
         <Button
           text="CHOOSE THE NETWORK"
-          width={150}
+          width={180}
           isPrimary
           onClick={() => goToSwitchNetwork(history, isWalletMode)}
         />
@@ -239,23 +270,27 @@ const Network = ({ history }) => {
       width={1000}
       header="NETWORK"
       headerIcon={network}
-      isDarkMode={isDarkMode}
+      style={{ minHeight: 485 }}
     >
       <SubHeader>
         {netName}
-        {nodeError && <ErrorMessage>{nodeError.msg}</ErrorMessage>}
+        {nodeError && (
+          <ErrorMessage>{nodeError.msg || nodeError.stackTrace}</ErrorMessage>
+        )}
       </SubHeader>
       <Container>
-        {netId > -1 ? renderNetworkDetails() : renderNoNetwork()}
+        {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
         <FooterWrap>
           {!isWalletMode && (
-            <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+            <>
+              <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+              <Tooltip
+                width={250}
+                text="Locate the go-spacemesh and app log files on your computer"
+              />
+            </>
           )}
-          <Tooltip
-            width={250}
-            text="tooltip BROWSE LOG FILE"
-            isDarkMode={isDarkMode}
-          />
+
           {renderActionButton()}
         </FooterWrap>
       </Container>

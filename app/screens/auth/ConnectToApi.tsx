@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { AppThDispatch, RootState } from '../../types';
-import { smColors } from '../../vars';
+import { AppThDispatch } from '../../types';
 import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
+import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -19,11 +19,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const DropDownLink = styled.span`
-  color: ${smColors.blue};
-  cursor: pointer;
 `;
 
 const RowColumn = styled.div`
@@ -40,23 +35,6 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
-  width: 100%;
-  padding: 5px;
-  line-height: 17px;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: ${smColors.black};
-  cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
-`;
-
 type PublicServicesView = {
   label: string;
   value?: SocketAddress;
@@ -66,11 +44,10 @@ type PublicServicesView = {
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
-    marginLeft: 'auto',
-  };
+  const selectedGenesisID = useSelector(getGenesisID);
+  const genesisID = selectedGenesisID.length
+    ? selectedGenesisID
+    : location?.state?.genesisID;
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
@@ -81,11 +58,12 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const updatePublicServices = () => {
     eventsService
-      .listPublicServices()
-      .then((services) =>
-        setPublicServices({
+      .listPublicServices(genesisID)
+      .then(({ error, payload }) => {
+        if (error) throw error;
+        const state = {
           loading: false,
-          services: services.map((service) => ({
+          services: payload.map((service) => ({
             label: service.name,
             text: stringifySocketAddress(service),
             value: {
@@ -94,8 +72,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
               protocol: service.protocol,
             },
           })),
-        })
-      )
+        };
+        return setPublicServices(state);
+      })
       .catch((err) => {
         setPublicServices({
           loading: false,
@@ -105,31 +84,11 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(updatePublicServices, []);
+  useEffect(updatePublicServices, [genesisID]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
-
-  const renderAccElement = ({
-    label,
-    text,
-    isMain,
-  }: {
-    label: string;
-    text: string;
-    isMain: boolean;
-  }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
-      {text ? (
-        <>
-          {label} - <DropDownLink>{text}</DropDownLink>
-        </>
-      ) : (
-        label
-      )}
-    </AccItem>
-  );
 
   const hasPublicServices = publicServices.services.length > 0;
 
@@ -138,7 +97,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
     publicServices.loading
       ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
       : hasPublicServices
-      ? publicServices.services
+      ? publicServices.services.map(({ label, text }) => ({
+          label: text ? `${label} - ${text}` : label,
+        }))
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
@@ -148,7 +109,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
         : undefined;
 
     value &&
-      dispatch(switchApiProvider(value)).catch((err) => {
+      dispatch(switchApiProvider(value, genesisID)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });
@@ -161,26 +122,20 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   return (
     <Wrapper>
-      {!!location.state?.creatingWallet && (
-        <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />
-      )}
+      {!!location.state?.creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
         height={400}
         header="CONNECT TO SPACEMESH"
-        subHeader="Select a Spacemesh API public service to connect you wallet to."
-        tooltipMessage="test"
-        isDarkMode={isDarkMode}
+        subHeader="Select a Spacemesh public API service to connect your wallet to."
+        tooltipMessage="Currently there's only one Spacemesh public API available per network. You can use your own / custom API service."
       >
         <RowColumn>
           <DropDown
             data={getPublicServicesDropdownData()}
             onClick={selectItem}
-            DdElement={renderAccElement}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            style={ddStyle}
-            bgColor={smColors.white}
             isDisabled={!hasPublicServices}
           />
         </RowColumn>

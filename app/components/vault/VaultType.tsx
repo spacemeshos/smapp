@@ -11,7 +11,7 @@ const Label = styled.div`
 const InputTitle = styled.span`
   text-transform: uppercase;
   font-size: 16px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const InputSubTitle = styled.div`
@@ -24,10 +24,9 @@ const InputSubTitle = styled.div`
 type Props = {
   type: string;
   handleChangeType: ({ value }: { value: string }) => void;
-  isDarkMode: boolean;
 };
 
-const VaultType = ({ type, handleChangeType, isDarkMode }: Props) => (
+const VaultType = ({ type, handleChangeType }: Props) => (
   <>
     <Label>
       <RadioButton
@@ -37,7 +36,7 @@ const VaultType = ({ type, handleChangeType, isDarkMode }: Props) => (
         onChange={handleChangeType}
       />
       <InputTitle>Simple Vault</InputTitle>
-      <Tooltip width={250} text="Simple Vault" isDarkMode={isDarkMode} />
+      <Tooltip width={250} text="Simple Vault" />
     </Label>
     <InputSubTitle>
       A vault controlled by a single master account.
@@ -50,7 +49,7 @@ const VaultType = ({ type, handleChangeType, isDarkMode }: Props) => (
         onChange={handleChangeType}
       />
       <InputTitle>Multi-sig Vault</InputTitle>
-      <Tooltip width={250} text="Multi-sig Vault" isDarkMode={isDarkMode} />
+      <Tooltip width={250} text="Multi-sig Vault" />
     </Label>
     <InputSubTitle>
       A 2/3 multi-sig vault which is controlled by 3 master accounts and

@@ -1,8 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { CorneredContainer } from '.';
 
 const Wrapper = styled.div`
@@ -18,13 +16,18 @@ const Wrapper = styled.div`
   z-index: 1000;
 `;
 
-const Indicator = styled.div<{ indColor: string }>`
+const Indicator = styled.div<{ indColor?: string }>`
   position: absolute;
   top: 0;
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ indColor }) => indColor};
+  background-color: ${({
+    theme: {
+      indicators: { color },
+    },
+    indColor,
+  }) => indColor || color};
 `;
 
 type Props = {
@@ -46,8 +49,6 @@ const Modal = ({
   width = 520,
   height = 310,
 }: Props) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const color = isDarkMode ? smColors.white : smColors.black;
   return (
     <Wrapper>
       <CorneredContainer
@@ -56,9 +57,8 @@ const Modal = ({
         header={header}
         subHeader={subHeader}
         headerColor={headerColor}
-        isDarkMode={isDarkMode}
       >
-        <Indicator indColor={indicatorColor || headerColor || color} />
+        <Indicator indColor={indicatorColor || headerColor} />
         {children}
       </CorneredContainer>
     </Wrapper>

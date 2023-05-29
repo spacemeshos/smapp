@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
-import { Link, Button } from '../../basicComponents';
-import { getAddress } from '../../infra/utils';
-import { copyBlack, copyWhite } from '../../assets/images';
+import CopyButton from '../../basicComponents/CopyButton';
+import { Link, Button, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
-import { Account } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
+import { Account } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -17,15 +14,14 @@ const Wrapper = styled.div`
   width: 710px;
   height: 100%;
   padding: 15px 25px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const SubHeader = styled.div`
@@ -37,14 +33,14 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   cursor: inherit;
 `;
 
 const TextElement = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   cursor: inherit;
 `;
 
@@ -60,15 +56,9 @@ const AddressText = styled(Text)`
   text-decoration: underline;
 `;
 
-const CopyIcon = styled.img`
-  width: 16px;
-  height: 15px;
-  margin: 0 10px;
-  cursor: inherit;
-`;
-
 const CopiedText = styled(Text)`
-  font-family: SourceCodeProBold;
+  margin-left: 8px;
+  font-weight: 800;
   color: ${smColors.green};
 `;
 
@@ -95,29 +85,10 @@ interface Props extends RouteComponentProps {
 }
 
 const RequestCoins = ({ history, location }: Props) => {
-  let copiedTimeout: any = null;
   const {
     state: { account, isSmesherActive },
   } = location;
-
-  const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
-    return () => {
-      clearTimeout(copiedTimeout);
-    };
-  });
-
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const copy = isDarkMode ? copyWhite : copyBlack;
-
-  const copyPublicAddress = async () => {
-    await navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
-    copiedTimeout = setTimeout(() => setIsCopied(false), 3000);
-    setIsCopied(true);
-  };
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const navigateToNodeSetup = () => {
     history.push(MainPath.SmeshingSetup);
@@ -136,11 +107,16 @@ const RequestCoins = ({ history, location }: Props) => {
       </Header>
       <SubHeader>
         <Text>Request SMH by sharing your wallet&apos;s address:</Text>
-        <AddressWrapper onClick={copyPublicAddress}>
-          <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
-          <CopyIcon src={copy} />
-          {isCopied && <CopiedText>Copied!</CopiedText>}
-        </AddressWrapper>
+        <CopyButton
+          value={account.address}
+          hideCopyIcon={isCopied}
+          onClick={(val) => setIsCopied(Boolean(val))}
+        >
+          <AddressWrapper>
+            <AddressText>{account.address}</AddressText>
+            {isCopied && <CopiedText>Copied!</CopiedText>}
+          </AddressWrapper>
+        </CopyButton>
       </SubHeader>
       <Text>* This address is public and safe to share with anyone.</Text>
       <Text>* Send this address to anyone you want to receive Smesh from.</Text>
@@ -167,7 +143,7 @@ const RequestCoins = ({ history, location }: Props) => {
       )}
       <Footer>
         <Link onClick={navigateToGuide} text="REQUEST SMH GUIDE" />
-        <Button onClick={history.goBack} text="DONE" />
+        <Button onClick={() => history.replace(MainPath.Wallet)} text="DONE" />
       </Footer>
     </Wrapper>
   );

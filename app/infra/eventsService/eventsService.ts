@@ -10,6 +10,7 @@ import {
 import { setTransactions, updateAccountData } from '../../redux/wallet/actions';
 import {
   SET_ACCOUNT_REWARDS,
+  SET_METADATA,
   SET_POST_DATA_CREATION_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   SET_SMESHER_CONFIG,
@@ -17,31 +18,40 @@ import {
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import {
+  Bech32Address,
+  BenchmarkRequest,
   HexString,
   IPCSmesherStartupData,
   NodeError,
   NodeStatus,
   NodeVersionAndBuild,
+  PostProvingOpts,
   PostSetupOpts,
-  PostSetupState,
-  PublicService,
   SocketAddress,
   TxSendRequest,
   WalletMeta,
-  WalletSecrets,
-  WalletType,
 } from '../../../shared/types';
-import { showClosingAppModal } from '../../redux/ui/actions';
+import { addWarning, showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
-import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
+import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
-  CurrentLayer,
-  GlobalStateHash,
-  NetworkDefinitions,
-} from '../../types/events';
+  AddContactRequest,
+  AppLogs,
+  ChangePasswordRequest,
+  CreateAccountResponse,
+  CreateWalletRequest,
+  CreateWalletResponse,
+  IpcResponse,
+  ListNetworksResponse,
+  ListPublicApisResponse,
+  RemoveContactRequest,
+  RenameAccountRequest,
+  UnlockWalletRequest,
+  UnlockWalletResponse,
+} from '../../../shared/ipcMessages';
 
 class EventsService {
   static createWallet = ({
@@ -49,20 +59,16 @@ class EventsService {
     existingMnemonic,
     type,
     apiUrl,
-    netId,
-  }: {
-    password: string;
-    existingMnemonic: string;
-    type: WalletType;
-    apiUrl: SocketAddress | null;
-    netId: number;
-  }) =>
+    genesisID,
+    name,
+  }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
       type,
       apiUrl,
-      netId,
+      genesisID,
+      name,
     });
 
   static readWalletFiles = () =>
@@ -79,52 +85,48 @@ class EventsService {
   static destroyBrowserView = () =>
     ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static listNetworks = (): Promise<
-    { netId: number; netName: string; explorer: string }[]
-  > => ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
+  static listNetworks = (): Promise<ListNetworksResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
-  static listPublicServices = (): Promise<PublicService[]> =>
-    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
+  static listPublicServices = (
+    genesisID: string
+  ): Promise<ListPublicApisResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, genesisID);
 
-  static unlockWallet = ({
-    path,
-    password,
-  }: {
-    path: string;
-    password: string;
-  }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
+  static unlockWallet = (
+    payload: UnlockWalletRequest
+  ): Promise<UnlockWalletResponse> =>
+    ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, payload);
+
+  static closeWallet = () => ipcRenderer.send(ipcConsts.W_M_CLOSE_WALLET);
 
   static updateWalletMeta = <T extends keyof WalletMeta>(
-    fileName: string,
     key: T,
     value: WalletMeta[T]
   ) =>
     ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, {
-      fileName,
       key,
       value,
     });
 
-  static updateWalletSecrets = (
-    fileName: string,
-    password: string,
-    data: WalletSecrets
-  ) =>
-    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, {
-      fileName,
-      password,
-      data,
-    });
+  static renameAccount = (payload: RenameAccountRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_RENAME_ACCOUNT, payload);
+
+  static addContact = (payload: AddContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_ADD_CONTACT, payload);
+
+  static removeContact = (payload: RemoveContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_REMOVE_CONTACT, payload);
+
+  static changePassword = (payload: ChangePasswordRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_CHANGE_PASSWORD, payload);
 
   static createNewAccount = ({
-    fileName,
+    path,
     password,
-  }: {
-    fileName: string;
-    password: string;
-  }) =>
+  }: UnlockWalletRequest): Promise<CreateAccountResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, {
-      fileName,
+      path,
       password,
     });
 
@@ -151,6 +153,11 @@ class EventsService {
 
   static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
 
+  /** ************************************   SENTRY   ****************************************** */
+
+  static getNodeAndAppLogs = (): Promise<IpcResponse<AppLogs>> =>
+    ipcRenderer.invoke(ipcConsts.GET_NODE_AND_APP_LOGS);
+
   /** ************************************   SMESHER   ****************************************** */
   static selectPostFolder = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
@@ -161,14 +168,15 @@ class EventsService {
   static getEstimatedRewards = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
-  static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
-    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
-    await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
+  static startSmeshing = async (opts: [PostSetupOpts, PostProvingOpts]) => {
+    ipcRenderer.send(ipcConsts.SMESHER_START_SMESHING, opts);
   };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
+
+  static runBenchmarks = (benchmarks: BenchmarkRequest[]) =>
+    ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, benchmarks);
 
   /** **********************************   TRANSACTIONS   ************************************** */
 
@@ -178,16 +186,22 @@ class EventsService {
   }: {
     fullTx: TxSendRequest;
     accountIndex: number;
-  }): Promise<ReturnType<TransactionManager['sendTx']>> =>
+  }): Promise<ReturnType<TransactionManager['publishSpendTx']>> =>
     ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
 
+  static spawnTx = (
+    fee: number,
+    accountIndex: number
+  ): Promise<ReturnType<TransactionManager['publishSelfSpawn']>> =>
+    ipcRenderer.invoke(ipcConsts.W_M_SPAWN_TX, { fee, accountIndex });
+
   static updateTransactionNote = (
-    accountIndex: number,
+    address: Bech32Address,
     txId: HexString,
     note: string
   ) =>
     ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX_NOTE, {
-      accountIndex,
+      address,
       txId,
       note,
     });
@@ -197,11 +211,10 @@ class EventsService {
   static isAutoStartEnabled = () =>
     ipcRenderer.invoke(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
 
-  static toggleAutoStart = () => ipcRenderer.send(ipcConsts.TOGGLE_AUTO_START);
+  static toggleAutoStart = (): Promise<{ status: boolean; error?: string }> =>
+    ipcRenderer.invoke(ipcConsts.TOGGLE_AUTO_START);
 
   /** **************************************   MISC   ***************************************** */
-
-  static reloadApp = () => ipcRenderer.send(ipcConsts.RELOAD_APP);
 
   static print = ({ content }: { content: string }) =>
     ipcRenderer.send(ipcConsts.PRINT, { content });
@@ -215,16 +228,16 @@ class EventsService {
   }) =>
     ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static switchNetwork = (netId: number) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_NETWORK, netId);
+  static switchNetwork = (genesisID: string) => {
+    ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
+  };
 
-  static switchApiProvider = (apiUrl: SocketAddress | null) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
+  static switchApiProvider = (
+    genesisID: string,
+    apiUrl: SocketAddress | null = null
+  ) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
   /** **************************************  WALLET MANAGER  **************************************** */
-
-  static getNetworkDefinitions = (): Promise<NetworkDefinitions> =>
-    ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
   static getCurrentLayer = (): Promise<CurrentLayer> =>
     ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
@@ -234,7 +247,7 @@ class EventsService {
 
   /** **************************************  NODE MANAGER  **************************************** */
 
-  static restartNode = () => ipcRenderer.invoke(ipcConsts.N_M_RESTART_NODE);
+  static restartNode = () => ipcRenderer.send(ipcConsts.N_M_RESTART_NODE);
 
   static requestVersionAndBuild = () =>
     ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);
@@ -246,6 +259,8 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.PROMPT_CHANGE_DATADIR);
 
   /** **************************************  AUTO UPDATER  **************************************** */
+  static checkUpdates = () => ipcRenderer.send(ipcConsts.AU_CHECK_UPDATES);
+
   static downloadUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_DOWNLOAD);
 
   static installUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_INSTALL);
@@ -258,6 +273,9 @@ ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, error: NodeError) => {
   store.dispatch(setNodeError(error));
 });
 
+ipcRenderer.on(ipcConsts.NEW_WARNING, (_event, error: any) => {
+  store.dispatch(addWarning(error));
+});
 ipcRenderer.on(
   ipcConsts.N_M_GET_VERSION_AND_BUILD,
   (_event, payload: NodeVersionAndBuild) => {
@@ -318,18 +336,12 @@ ipcRenderer.on(
   ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS,
   (_event, request) => {
     const {
-      error,
-      status: { postSetupState, numLabelsWritten, errorMessage },
+      status: { postSetupState, numLabelsWritten },
     } = request;
-    if (postSetupState === PostSetupState.STATE_COMPLETE) {
-      localStorage.setItem(
-        'smesherSmeshingTimestamp',
-        `${new Date().getTime()}`
-      );
-    }
+
     store.dispatch({
       type: SET_POST_DATA_CREATION_STATUS,
-      payload: { error, postSetupState, numLabelsWritten, errorMessage },
+      payload: { postSetupState, numLabelsWritten },
     });
   }
 );
@@ -357,6 +369,10 @@ ipcRenderer.on(ipcConsts.AU_DOWNLOAD_PROGRESS, (_, info: ProgressInfo) => {
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
   store.dispatch(showClosingAppModal());
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_METADATA_INFO, (_, data) => {
+  store.dispatch({ type: SET_METADATA, payload: data });
 });
 
 export default EventsService;

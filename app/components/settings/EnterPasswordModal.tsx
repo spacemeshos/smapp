@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { unlockCurrentWallet } from '../../redux/wallet/actions';
 import { Modal } from '../common';
 import { Button, Input, ErrorPopup } from '../../basicComponents';
-import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { RootState } from '../../types';
 
 const InputSection = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({
+    src: chevronPrimaryRight,
+  })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -47,12 +55,8 @@ const EnterPasswordModal = ({
 }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
-  const [isActive, setIsActive] = useState(true);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
-
-  const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -65,13 +69,13 @@ const EnterPasswordModal = ({
   };
 
   const submitActionWrapper = async () => {
-    try {
-      setIsActive(false);
-      await dispatch(unlockCurrentWallet(password));
+    // @ts-ignore
+    const { success } = await dispatch(unlockCurrentWallet(password));
+
+    if (success) {
       submitAction({ password });
-    } catch {
+    } else {
       setHasError(true);
-      setIsActive(true);
     }
   };
 
@@ -83,21 +87,21 @@ const EnterPasswordModal = ({
       } password to complete this action.`}
     >
       <InputSection>
-        <Chevron src={chevronIcon} />
+        <Chevron />
         <Input
           type="password"
           placeholder="ENTER PASSWORD"
           value={password}
           onEnterPress={submitActionWrapper}
           onChange={handlePasswordTyping}
+          style={{ flex: 1 }}
           autofocus
-          isDisabled={!isActive}
         />
         <ErrorSection>
           {hasError && (
             <ErrorPopup
               onClick={reset}
-              text="sorry, this password doesn't ring a bell, please try again"
+              text="Sorry, this password doesn't ring a bell, please try again"
             />
           )}
         </ErrorSection>
@@ -105,7 +109,7 @@ const EnterPasswordModal = ({
       <ButtonsWrapper>
         <Button
           text="UNLOCK"
-          isDisabled={!password.trim() || !!hasError || !isActive}
+          isDisabled={!password.trim() || hasError}
           onClick={submitActionWrapper}
         />
         <Button text="CANCEL" isPrimary={false} onClick={closeModal} />

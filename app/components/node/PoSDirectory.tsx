@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from '../../basicComponents';
-import { posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { eventsService } from '../../infra/eventsService';
 import { formatBytes } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -9,11 +8,11 @@ import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Wrapper = styled.div`
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: ${({ theme }) =>
-    `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border-top: ${({ theme }) => `1px solid ${theme.color.contrast}`};
   clip-path: polygon(
     0% 0%,
     0% 0%,
@@ -32,7 +31,13 @@ const HeaderWrapper = styled.div`
   align-items: end;
 `;
 
-const HeaderIcon = styled.img`
+const HeaderIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { posDirectory },
+    },
+  }) => ({ src: posDirectory })
+)`
   width: 19px;
   height: 20px;
   margin-right: 5px;
@@ -42,7 +47,7 @@ const Header = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const ErrorText = styled.div`
@@ -57,20 +62,20 @@ const FreeSpaceHeader = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const FreeSpace = styled.div<{ error: boolean; selected: boolean }>`
   font-size: 17px;
   line-height: 19px;
-  ${({ error, selected, theme }) => {
+  ${({ error, selected }) => {
     if (error) {
       return `color: ${smColors.orange}`;
     }
     if (selected) {
       return `color: ${smColors.green}`;
     }
-    return `color: ${theme.isDarkMode ? smColors.white : smColors.black}`;
+    return `color: ${({ theme: { color } }) => color.primary}`;
   }}
 `;
 
@@ -84,7 +89,6 @@ type Props = {
   setFreeSpace: (freeSpace: string) => void;
   minCommitmentSize: string;
   status: NodeStatus | null;
-  isDarkMode: boolean;
   skipAction: () => void;
 };
 
@@ -97,11 +101,8 @@ const PoSDirectory = ({
   setFreeSpace,
   minCommitmentSize,
   status,
-  isDarkMode,
 }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
-
-  const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   const openFolderSelectionDialog = async () => {
     const {
@@ -122,7 +123,7 @@ const PoSDirectory = ({
     <>
       <Wrapper>
         <HeaderWrapper>
-          <HeaderIcon src={icon} />
+          <HeaderIcon />
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
         <Link
