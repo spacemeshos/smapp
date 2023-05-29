@@ -1,0 +1,37 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "google/protobuf/empty.proto";
+import "node_types.proto";
+
+// Readonly basic node data
+service NodeService {
+    // A simple test endpoint
+    rpc Echo(EchoRequest) returns (EchoResponse);
+
+    // Returns the version of the node software as a semver string
+    rpc Version(google.protobuf.Empty) returns (VersionResponse);
+
+    // Returns the github commit hash used to build the node
+    rpc Build(google.protobuf.Empty) returns (BuildResponse);
+
+    // Current node status (net and sync)
+    rpc Status(StatusRequest) returns (StatusResponse);
+
+    // Request that the node start syncing the mesh
+    rpc SyncStart(SyncStartRequest) returns (SyncStartResponse);
+
+    // Request that the node initiate graceful shutdown
+    rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
+
+    // UpdatePoetServer updates poet server
+    rpc UpdatePoetServer(UpdatePoetServerRequest) returns (UpdatePoetServerResponse);
+
+    ////////// Node streaming data
+
+    // Node status events (sync and net)
+    rpc StatusStream(StatusStreamRequest) returns (stream StatusStreamResponse);
+
+    // Node error events
+    rpc ErrorStream(ErrorStreamRequest) returns (stream ErrorStreamResponse);
+}

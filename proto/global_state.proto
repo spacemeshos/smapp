@@ -1,0 +1,47 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "global_state_types.proto";
+
+// Readonly global state data - current and historical.
+// Global state data is data which is not explicitly stored in the mesh.
+// Global state is modified only by the state transition function.
+service GlobalStateService {
+    // Latest computed global state - layer and its root hash
+    rpc GlobalStateHash(GlobalStateHashRequest) returns (GlobalStateHashResponse);
+
+    // Account info in the current global state.
+    rpc Account(AccountRequest) returns (AccountResponse);
+
+    // Query for account related data such as rewards, tx receipts and account info
+    //
+    // Note: it might be too expensive to add a param for layer to get these results from
+    // as it may require indexing all global state changes per account by layer.
+    // If it is possible to index by layer then we should add param start_layer to
+    // AccountDataParams. Currently it will return data from genesis.
+    rpc AccountDataQuery(AccountDataQueryRequest) returns (AccountDataQueryResponse);
+
+    // Query for smesher data. Currently returns smesher rewards.
+    // Note: Not supporting start_layer yet as it may require to index all rewards by
+    // smesher and by layer id or allow for queries from a layer and later....
+    rpc SmesherDataQuery(SmesherDataQueryRequest) returns (SmesherDataQueryResponse);
+
+    ////////// Streams
+
+    // Get a stream of account related changes such as account balance change,
+    // tx receipts and rewards
+    rpc AccountDataStream(AccountDataStreamRequest) returns (stream AccountDataStreamResponse);
+
+    // Rewards awarded to a smesher id
+    rpc SmesherRewardStream(SmesherRewardStreamRequest) returns (stream SmesherRewardStreamResponse);
+
+    // App Events - emitted by app methods impl code trigged by an
+    // app transaction
+    rpc AppEventStream(AppEventStreamRequest) returns (stream AppEventStreamResponse);
+
+    // TODO: we need to add an important method here to return events emitted by
+    // a specific app instance...
+
+    // New global state computed for a layer by the STF
+    rpc GlobalStateStream(GlobalStateStreamRequest) returns (stream GlobalStateStreamResponse);
+}

@@ -8,16 +8,21 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
-import merge from 'webpack-merge';
+import { merge } from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
 
-checkNodeEnv('development');
+// When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
+// at the dev webpack config is not accidentally run in a production environment
+if (process.env.NODE_ENV === 'production') {
+  checkNodeEnv('development');
+}
 
 const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
-const dll = path.join(__dirname, '..', 'dll');
+const dll = path.join(__dirname, '../dll');
 const manifest = path.resolve(dll, 'renderer.json');
 const requiredByDLLConfig = module.parent.filename.includes('webpack.config.renderer.dev.dll');
 
@@ -25,18 +30,22 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.config.rend
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"');
-  execSync('npm run build-dll');
+  console.log('The DLL files are missing. Sit back while we build them for you with "yarn postinstall"');
+  execSync('yarn postinstall');
 }
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   devtool: 'inline-source-map',
 
   mode: 'development',
 
   target: 'electron-renderer',
 
-  entry: ['react-hot-loader/patch', `webpack-dev-server/client?http://localhost:${port}/`, 'webpack/hot/only-dev-server', require.resolve('../app/index')],
+  entry: [
+    'core-js',
+    'regenerator-runtime/runtime',
+    require.resolve('../app/index.tsx'),
+  ],
 
   output: {
     publicPath: `http://localhost:${port}/dist/`,
@@ -45,6 +54,20 @@ export default merge.smart(baseConfig, {
 
   module: {
     rules: [
+      {
+        test: /\.[jt]sx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: require.resolve('babel-loader'),
+            options: {
+              plugins: [
+                require.resolve('react-refresh/babel')
+              ].filter(Boolean)
+            }
+          }
+        ]
+      },
       // TTF Font
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
@@ -62,7 +85,6 @@ export default merge.smart(baseConfig, {
         use: {
           loader: 'url-loader',
           options: {
-            limit: 10000,
             mimetype: 'image/svg+xml'
           }
         }
@@ -79,24 +101,14 @@ export default merge.smart(baseConfig, {
     ]
   },
 
-  resolve: {
-    alias: {
-      'react-dom': '@hot-loader/react-dom'
-    }
-  },
-
   plugins: [
     requiredByDLLConfig
       ? null
       : new webpack.DllReferencePlugin({
-          context: path.join(__dirname, '..', 'dll'),
+          context: path.join(__dirname, '../dll'),
           manifest: require(manifest),
           sourceType: 'var'
         }),
-
-    new webpack.HotModuleReplacementPlugin({
-      multiStep: true
-    }),
 
     new webpack.NoEmitOnErrorsPlugin(),
 
@@ -110,7 +122,7 @@ export default merge.smart(baseConfig, {
      * development checks
      *
      * By default, use 'development' as NODE_ENV. This can be overriden with
-     * 'staging', for example, by changing the ENV variables in the npm scripts
+     * 'staging', for example, by changing the ENV variables in the yarn scripts
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
@@ -118,7 +130,9 @@ export default merge.smart(baseConfig, {
 
     new webpack.LoaderOptionsPlugin({
       debug: true
-    })
+    }),
+
+    new ReactRefreshWebpackPlugin()
   ],
 
   node: {
@@ -130,7 +144,7 @@ export default merge.smart(baseConfig, {
     port,
     publicPath,
     compress: true,
-    noInfo: true,
+    noInfo: false,
     stats: 'errors-only',
     inline: true,
     lazy: false,
@@ -138,25 +152,23 @@ export default merge.smart(baseConfig, {
     headers: { 'Access-Control-Allow-Origin': '*' },
     contentBase: path.join(__dirname, 'dist'),
     watchOptions: {
-      aggregateTimeout: 1500,
-      ignored: ['node_modules', 'proto', 'release', 'resources', 'dll'],
-      poll: 1000
+      aggregateTimeout: 300,
+      ignored: /node_modules/,
+      poll: 2000
     },
     historyApiFallback: {
       verbose: true,
       disableDotRule: false
     },
     before() {
-      if (process.env.START_HOT) {
-        console.log('Starting Main Process...');
-        spawn('npm', ['run', 'start-main-dev'], {
-          shell: true,
-          env: process.env,
-          stdio: 'inherit'
-        })
-          .on('close', (code) => process.exit(code))
-          .on('error', (spawnError) => console.error(spawnError));
-      }
+      console.log('Starting Main Process...');
+      spawn('yarn', ['start:main'], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit',
+      })
+        .on('close', (code) => process.exit(code))
+        .on('error', (spawnError) => console.error(spawnError));
     }
   }
 });

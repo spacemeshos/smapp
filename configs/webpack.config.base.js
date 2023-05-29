@@ -4,15 +4,15 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import { dependencies } from '../package.json';
+import SentryWebpackPlugin from '@sentry/webpack-plugin';
 
 export default {
-  externals: [...Object.keys(dependencies || {})],
+  externals: [],
 
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -24,26 +24,34 @@ export default {
     ]
   },
 
-  output: {
-    path: path.join(__dirname, '..', 'app'),
-    // https://github.com/webpack/webpack/issues/1114
-    libraryTarget: 'commonjs2'
-  },
-
   /**
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
-    extensions: ['.js', '.jsx', '.json']
+    alias: {
+      client: path.resolve(__dirname, 'app/')
+    },
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
+    modules: [path.join(__dirname, '../app'), path.join(__dirname, '../desktop'), 'node_modules']
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
     }),
-
-    new webpack.NamedModulesPlugin(),
-
-    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/)
-  ]
+    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+  ].concat(
+    process.env.SENTRY_AUTH_TOKEN ? (
+      new SentryWebpackPlugin({
+        include: '.',
+        ignoreFile: '.sentrycliignore',
+        ignore: ['node_modules', 'webpack.config.js'],
+        release: 'smashapp@' + process.env.npm_package_version,
+        org: 'spacemesh',
+        project: 'smapp',
+        authToken: process.env.SENTRY_AUTH_TOKEN
+      })
+    ) : false
+  ).filter(Boolean)
 };
+

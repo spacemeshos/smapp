@@ -11,35 +11,34 @@ import baseConfig from './webpack.config.base';
 
 checkNodeEnv('production');
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   devtool: 'source-map',
 
   mode: 'production',
 
   target: 'electron-main',
 
-  entry: './desktop/main.dev',
+  entry: './desktop/main.dev.ts',
 
   output: {
-    path: path.join(__dirname, '..'),
-    filename: './desktop/main.prod.js'
+    path: path.join(__dirname, '../desktop'),
+    filename: 'main.prod.js',
+    sourceMapFilename: 'main.prod.js.map',
   },
 
   optimization: {
-    minimizer: process.env.E2E_BUILD
-      ? []
-      : [
-          new TerserPlugin({
-            parallel: true,
-            sourceMap: true,
-            cache: true
-          })
-        ]
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        extractComments: false
+      })
+    ]
   },
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      analyzerMode:
+        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
 
@@ -55,8 +54,11 @@ export default merge.smart(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
-      START_MINIMIZED: false
-    })
+      START_MINIMIZED: false,
+      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+      SENTRY_DSN: process.env.SENTRY_DSN,
+      SENTRY_ENV: process.env.SENTRY_ENV || process.env.NODE_ENV,
+    }),
   ],
 
   /**

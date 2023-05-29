@@ -1,0 +1,138 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+
+message SimpleInt {
+    uint64 value = 1;
+}
+
+message SimpleString {
+    string value = 1;
+}
+
+// A non-negative coin amount, in smidge
+message Amount {
+    uint64 value = 1;
+}
+
+message AccountId {
+    bytes address = 1;
+}
+
+message TransactionId {
+    bytes id = 1;
+}
+
+message ActivationId {
+    bytes id = 1;
+}
+
+message SmesherId {
+    bytes id = 1;
+}
+
+message GasOffered {
+    uint64 gas_provided = 1;
+    uint64 gas_price = 2;
+}
+
+// Data specific to a simple coin transaction.
+message CoinTransferTransaction {
+    AccountId receiver = 1;
+}
+
+// Data specific to a smart contract transaction.
+message SmartContractTransaction {
+    enum TransactionType {
+        TRANSACTION_TYPE_UNSPECIFIED = 0;
+        TRANSACTION_TYPE_APP = 1; // smart contract method
+        TRANSACTION_TYPE_APP_SPAWN_APP = 2; // deploy app from template using svm terminology
+        TRANSACTION_TYPE_DEPLOY_TEMPLATE = 3; // deploy app template code to mesh
+    }
+    TransactionType type = 1;
+    bytes data = 2; // packed binary arguments, including ABI selector
+    AccountId account_id = 3; // address of smart contract or template
+}
+
+// A simple signature data
+message Signature {
+    enum Scheme {
+        SCHEME_UNSPECIFIED = 0;
+        SCHEME_ED25519 = 1; // standard Ed25519 scheme
+        SCHEME_ED25519_PLUS_PLUS = 2; // sm-modified ED25519 , a.k.a. ED25519++
+    }
+    Scheme scheme = 1; // the signature's scheme
+    bytes signature = 2; // the signature itself
+    bytes public_key = 3; // included in schemes which require signer to provide a public key
+}
+
+// An Activation "transaction" (ATX)
+message Activation {
+    ActivationId id = 1;
+    LayerNumber layer = 2; // the layer that this activation is part of
+    SmesherId smesher_id = 3; // id of smesher who created the ATX
+    AccountId coinbase = 4; // coinbase account id
+    ActivationId prev_atx = 5; // previous ATX pointed to
+    uint32 num_units = 6; // number of PoST data commitment units
+}
+
+// An immutable Spacemesh transaction.
+// do not include mutable data such as tx state or result.
+message Transaction {
+    TransactionId id = 1;
+    oneof datum {
+        CoinTransferTransaction coin_transfer = 2;
+        SmartContractTransaction smart_contract = 3;
+    }
+    AccountId sender = 4; // tx originator, should match signer inside Signature
+    GasOffered gas_offered = 5; // gas price and max gas offered
+    Amount amount = 6; // amount of coin transfered in this tx by sender
+    uint64 counter = 7; // tx counter aka nonce
+    Signature signature = 8; // sender signature on transaction
+}
+
+// Transaction that was added to the mesh.
+message MeshTransaction {
+    Transaction transaction = 1;
+    LayerNumber layer_id     = 2;
+}
+
+message Reward {
+    LayerNumber layer = 1; // layer award was paid in
+    Amount total = 2; // total reward paid (sum of tx fee and layer reward)
+    Amount layer_reward = 3; // tx_fee = total - layer_reward
+    LayerNumber layer_computed = 4; // layer number of the layer when reward was computed
+    AccountId coinbase = 5; // account awarded this reward
+    SmesherId smesher = 6;  // id of smesher who earned this reward
+}
+
+message Block {
+    bytes id = 1; // block hash
+    repeated Transaction transactions = 2; // block transactions
+    ActivationId activation_id = 3; // the smesher's activation that this block refers to
+    SmesherId smesher_id = 4; // the id of the smesher who submitted this block
+}
+
+message Layer {
+    LayerNumber number = 1; // layer number - not hash - layer content may change
+    enum LayerStatus {
+        LAYER_STATUS_UNSPECIFIED = 0; // not yet approved or confirmed
+        LAYER_STATUS_APPROVED = 1; // approved by hare
+        LAYER_STATUS_CONFIRMED = 2; // confirmed by tortoise
+    }
+    LayerStatus status = 2;
+    bytes hash = 3; // computer layer hash - do we need this?
+    repeated Block blocks = 4; // layer's blocks
+    repeated Activation activations = 5; // list of layer's activations
+    bytes root_state_hash = 6; // when available - the root state hash of global state in this layer
+}
+
+message LayerNumber {
+    uint32 number = 1;
+}
+
+message AppEvent { // an event emitted from an app instance
+    TransactionId transaction_id = 1; // the transaction that called the code
+    string message = 2; // the event's string emitted from code
+}
+

@@ -1,0 +1,316 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    outputs:
+      tagName: ${{ steps.tagName.outputs.tag }}
+      version: ${{ steps.package-version.outputs.version }}
+    steps:
+      # Prepare workspace
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+
+      - name: Get Smapp version
+        id: package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
+
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+
+      - name: Tag and version are equals
+        if: ${{ steps.tagName.outputs.tag != format('v{0}', steps.package-version.outputs.version) }}
+        run: |
+          echo "Tag does not match Version."
+          echo "Tag: ${{ steps.tagName.outputs.tag }}"
+          echo "Version: v${{ steps.package-version.outputs.version }}"
+          exit 1
+
+      # Cache yarn cahe to fasten install process
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      # Install & Build
+      - name: yarn install
+        run: |
+          yarn config set network-timeout 300000
+          yarn install --prefer-offline
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        if: matrix.os != 'ubuntu-latest'
+        run: yarn test --forceExit
+
+      - name: Build
+        run: yarn build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      # Download go-spacemesh
+      - name: Get specified Go-spacemesh version
+        id: latestNode
+        run: echo "::set-output name=version::$(cat ./node/use-version)"
+
+      - id: cache-gospacemesh
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./node/*
+            !./node/use-version
+          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+
+      - name: Prepare link to go-spacemesh release archive
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        id: node-link
+        run: |
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
+
+      - name: Check for go-spacemesh release archive existence
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
+          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
+        shell: bash
+
+      - id: platform
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
+          echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
+          echo "::set-output name=rm_flag::${{ matrix.os == 'windows-latest' && '-Recurse -Force' || '-rf' }}"
+
+      - name: Download go-spacemesh release archive
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          curl -L --output ./node/release.zip --create-dirs ${{steps.node-link.outputs.link}}
+
+      - name: Unzip archive & get rid of redundant files
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r
+
+      - name: Set CHMOD on Go-Spacemesh and libs
+        if: matrix.os != 'windows-latest'
+        run: chmod -R +x ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: Disable quarantine for Go-Spacemesh and libs
+        if: matrix.os == 'macos-latest'
+        run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: ls archive and ./node
+        run: |
+          7z l ./node/release.zip
+          ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
+        
+
+      # Create binaries
+      - if: matrix.os == 'ubuntu-latest'
+        name: Build linux app
+        run: yarn package-linux
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - if: matrix.os == 'windows-latest'
+        name: Build windows app
+        run: yarn package-win
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - if: matrix.os == 'macos-latest'
+        name: Build mac app
+        run: yarn package-mac
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          CSC_LINK: ${{ secrets.SIGNING_CERTIFICATE_P12_DATA }}
+          CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+          # TODO: Move notarizing MacOS application to another job, like `sign-win-app`
+
+      # Store artifacts for further jobs
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            ./release/*
+            !./release/*-unpacked
+            !./release/mac*
+          if-no-files-found: error
+
+  sign-win-app:
+    # CodeSignTool works perfectly on any platform even it signs a windows file
+    # So we use ubuntu to make job faster and more stable
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download windows artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-latest
+          path: ./release/
+
+      - name: Cache CodeSignTool
+        id: cache-codesigntool
+        uses: actions/cache@v2
+        with:
+          path: ./codesigntool
+          key: codesign-cache-2
+          restore-keys: codesign-cache-2
+
+      - name: Download CodeSignTool archive
+        if: steps.cache-codesigntool.outputs.cache-hit != 'true'
+        run: |
+          curl -L -k --output ./codesigntool.zip --create-dirs https://storage.googleapis.com/smapp/tools/codesigntool.zip
+
+      - name: Unzip archive
+        if: steps.cache-codesigntool.outputs.cache-hit != 'true'
+        run: |
+          unzip -d ./codesigntool/ ./codesigntool.zip
+          chmod 755 ./codesigntool/*
+
+      # CodeSignTool requires Java 11 and ubuntu-latest uses it by default
+      # but to make it robust add extra step to ensure a Java version
+      - name: Switch to Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Create directory for signed artifact
+        run: mkdir -p ./signed/
+
+      - name: Sign App
+        # Rename file and then vice versa, because CodeSignTool can't accept path with spaces
+        run: |
+          mv "./release/Spacemesh Setup ${{ needs.build.outputs.version }}.exe" ./release/spacemesh.exe
+          (cd ./codesigntool; ./CodeSignTool.sh sign -username=$USERNAME -password=$PASSWORD -totp_secret=$TOTP -input_file_path="../release/spacemesh.exe" -output_dir_path=../signed)
+          mv ./signed/spacemesh.exe "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"
+        env:
+          USERNAME: ${{ secrets.EVCS_USERNAME }}
+          PASSWORD: ${{ secrets.EVCS_PASSWORD }}
+          TOTP: ${{ secrets.EVCS_TOTP_SECRET }}
+
+      - name: Copy latest.yml
+        run: cp "./release/latest.yml" "./signed/latest.yml"
+
+      - name: Install hex64
+        run: yarn global add hex64
+
+      - name: Get new sha512
+        id: sha512
+        run: |
+          sha=($(shasum -a512 "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"))
+          echo "::set-output name=value::$($(yarn global bin)/hex64 $sha | cut -c6-)"
+
+      - name: Update latest.yml (sha512)
+        uses: endaft/action-yamler@v1.0.9
+        with:
+          file: ./signed/latest.yml
+          path: sha512
+          set: ${{steps.sha512.outputs.value}}
+
+      - name: Update latest.yml (files.0.sha512)
+        uses: endaft/action-yamler@v1.0.9
+        with:
+          file: ./signed/latest.yml
+          path: files.0.sha512
+          set: ${{steps.sha512.outputs.value}}
+
+      - name: Store signed artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-signed
+          path: ./signed/*
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build, sign-win-app]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: ./release/
+
+      # Upload artifacts to GCS
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Upload macos artifact
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: ./release/macos-latest/
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
+
+      - name: Upload windows build
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: ./release/windows-signed/
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
+
+      - name: Upload linux build
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: ./release/ubuntu-latest/
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
+
+      - name: Create Release
+        id: create-release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Release ${{ needs.build.outputs.tagName }}
+          body: |
+            ## Compiled Binaries
+            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
+            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg
+            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
+          draft: true
+          prerelease: true
+
+      - name: Delete all artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            windows-signed
+            windows-latest
+            ubuntu-latest
+            macos-latest

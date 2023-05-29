@@ -1,0 +1,130 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "types.proto";
+import "google/rpc/status.proto";
+
+message IsSmeshingResponse {
+    bool is_smeshing = 1;
+}
+
+message StartSmeshingRequest {
+    // Coinbase account for rewards accumulation.
+    AccountId coinbase = 1;
+
+    // The Post setup options.
+    PostSetupOpts opts = 2;
+}
+
+message StartSmeshingResponse {
+    google.rpc.Status status = 1;
+}
+
+// Param passed to methods to indicate a request to delete data files
+message StopSmeshingRequest {
+    bool delete_files = 1;
+}
+
+message StopSmeshingResponse {
+    google.rpc.Status status = 1;
+}
+
+message SetCoinbaseRequest {
+    AccountId id = 1;
+}
+
+message SetCoinbaseResponse {
+    google.rpc.Status status = 1;
+}
+
+message MinGasResponse {
+    SimpleInt mingas = 1;
+}
+
+message SetMinGasRequest {
+    SimpleInt mingas = 1;
+}
+
+message SetMinGasResponse {
+    google.rpc.Status status = 1;
+}
+
+message SmesherIDResponse {
+    AccountId account_id = 1;
+}
+
+message CoinbaseResponse {
+    AccountId account_id = 1;
+}
+
+message EstimatedRewardsRequest {}
+
+// Estimated rewards for the next epoch. Note that this is a global value that will be the
+// same for all smeshers, and is based on the default minimum commitment size and fixed
+// epoch length, both of which are network params.
+message EstimatedRewardsResponse {
+    // The amount of the total estimated reward in the next upcoming epoch
+    Amount amount = 1;
+    // The number of Post data commitment units that this estimated reward corresponds to (part of global config)
+    uint32 num_units = 2;
+}
+
+message PostSetupComputeProvidersRequest {
+    // Whether to run a short benchmarking session for each provider to evaluate its performance
+    bool benchmark = 1;
+}
+
+message PostSetupComputeProvidersResponse {
+    repeated PostSetupComputeProvider providers = 1;
+}
+
+message PostSetupStatusResponse {
+    PostSetupStatus status = 1;
+}
+
+message PostSetupStatusStreamResponse {
+    PostSetupStatus status = 1;
+}
+
+message PostConfigResponse {
+    uint32 bits_per_label = 1;
+    uint64 labels_per_unit = 2;
+    uint32 min_num_units = 3;
+    uint32 max_num_units = 4;
+}
+
+message PostSetupComputeProvider {
+    uint32 id = 1; // 0, 1, 2...
+    string model = 2; // e.g. Nvidia GTX 2700
+    enum ComputeApiClass {
+        COMPUTE_API_CLASS_UNSPECIFIED = 0;
+        COMPUTE_API_CLASS_CPU = 1; // useful for testing on systems without a cuda or vulkan GPU
+        COMPUTE_API_CLASS_CUDA = 2;
+        COMPUTE_API_CLASS_VULKAN = 3;
+    }
+    ComputeApiClass compute_api = 3; // A provided compute api
+    uint64 performance = 4; // Estimated performance in hashes per second
+}
+
+// Post setup options, used to define the setup requirements.
+message PostSetupOpts {
+    string data_dir = 1; // User provided path to create the setup data files at
+    uint32 num_units = 2; // Number of Post data units to generate
+    uint32 num_files = 3; // Number of files to equally distribute the data among
+    uint32 compute_provider_id = 4; // A `PostSetupComputeProvider` id
+    bool throttle = 5; // Throttle down setup phase computations while user is interactive on system
+}
+
+message PostSetupStatus {
+    enum State {
+        STATE_UNSPECIFIED = 0; // Lane's favorite impossible value
+        STATE_NOT_STARTED = 1; // Setup not started
+        STATE_IN_PROGRESS = 2; // Setup in progress
+        STATE_COMPLETE = 3; // Setup is complete
+        STATE_ERROR = 4; // Setup last session ended with an error
+    }
+    State state = 1;
+    uint64 num_labels_written = 2; // Number of labels (hashes) written to the data files
+    PostSetupOpts opts = 3; // setup options previously set by the user
+    string error_message = 4; // The error message, if the state is STATE_ERROR
+}

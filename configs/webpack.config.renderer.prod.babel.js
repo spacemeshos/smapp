@@ -12,19 +12,24 @@ import checkNodeEnv from './checkNodeEnv';
 
 checkNodeEnv('production');
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   devtool: 'source-map',
 
   mode: 'production',
 
   target: 'electron-renderer',
 
-  entry: path.join(__dirname, '..', 'app/index'),
+  entry: [
+    'core-js',
+    'regenerator-runtime/runtime',
+    path.join(__dirname, '../app/index.tsx'),
+  ],
 
   output: {
-    path: path.join(__dirname, '..', 'desktop/dist'),
+    path: path.join(__dirname, '../desktop/dist'),
     publicPath: './dist/',
-    filename: 'renderer.prod.js'
+    filename: 'renderer.prod.js',
+    sourceMapFilename: "renderer.prod.js.map",
   },
 
   module: {
@@ -46,7 +51,6 @@ export default merge.smart(baseConfig, {
         use: {
           loader: 'url-loader',
           options: {
-            limit: 10000,
             mimetype: 'image/svg+xml'
           }
         }
@@ -64,15 +68,12 @@ export default merge.smart(baseConfig, {
   },
 
   optimization: {
-    minimizer: process.env.E2E_BUILD
-      ? []
-      : [
-          new TerserPlugin({
-            parallel: true,
-            sourceMap: true,
-            cache: true
-          })
-        ]
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        parallel: true
+      })
+    ]
   },
 
   plugins: [
@@ -86,13 +87,17 @@ export default merge.smart(baseConfig, {
      * development checks
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      DEBUG_PROD: false,
+      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+      SENTRY_DSN: process.env.SENTRY_DSN,
+      SENTRY_ENV: process.env.SENTRY_ENV || process.env.NODE_ENV,
     }),
 
     new BundleAnalyzerPlugin({
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
-    })
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
+    }),
   ]
 });

@@ -24,8 +24,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea/
-dll/
-flow-typed/
 
 ct-libc/
 /dll/
@@ -35,8 +33,10 @@ ct-libc/
 /desktop/dist/
 /desktop/main.prod.js
 /desktop/main.prod.js.map
-/node/
+/desktop/config.json
+/node/*/
 /release
 .env
 .vscode
-/node/
+/desktop/dist
+key.bin
