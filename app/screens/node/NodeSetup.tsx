@@ -281,7 +281,7 @@ const NodeSetup = ({ history, location }: Props) => {
             status={status}
           />
         );
-      case SetupMode.Summary:
+      case SetupMode.RewardsAddress:
         return (
           <PoSRewards
             coinbase={rewardAddress}
@@ -293,7 +293,7 @@ const NodeSetup = ({ history, location }: Props) => {
             nextAction={handleNextAction}
           />
         );
-      case 5:
+      case SetupMode.Summary:
         return (
           <PoSSummary
             dataDir={dataDir}
