@@ -146,11 +146,12 @@ const Input = ({
   min,
   max,
 }: Props) => {
-  let debounce: any = null;
   const [isFocused, setIsFocused] = useState(false);
+  const [debounce, setDebounce] = useState<number | null>(null);
+
   useEffect(() => {
     return () => {
-      clearTimeout(debounce);
+      debounce && clearTimeout(debounce);
     };
   });
 
@@ -165,22 +166,23 @@ const Input = ({
     setIsFocused(false);
     const { value } = target;
 
-    onBlur && onBlur({ value });
+    onBlur?.({ value });
   };
 
   const handleChange = ({ target }: { target: any }) => {
     const { value } = target;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    onChange && onChange({ value });
+    onChange?.({ value });
+
     if (onChangeDebounced) {
-      clearTimeout(debounce);
+      debounce && clearTimeout(debounce);
+
       if (!value) {
         onChangeDebounced({ value });
       } else {
-        debounce = setTimeout(
-          () => onChangeDebounced({ value }),
-          debounceTime || DEFAULT_DEBOUNCE_TIME
-        );
+        const newDebounce = setTimeout(() => {
+          onChangeDebounced({ value });
+        }, debounceTime || DEFAULT_DEBOUNCE_TIME);
+        setDebounce(Number(newDebounce));
       }
     }
   };

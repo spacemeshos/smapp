@@ -255,6 +255,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
   const [tmpSearchTerm, setTmpSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
   const [showCreateNewContactModal, setShowCreateNewContactModal] = useState(
     false
   );
@@ -280,9 +281,12 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const contactFilter = (contact: Contact) => {
     const nicknameMatch =
-      contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
+      contact.nickname &&
+      contact.nickname.toLowerCase().includes(searchTerm.toLowerCase());
     const addressMatch =
-      contact.address && contact.address.toLowerCase().includes(searchTerm);
+      contact.address &&
+      contact.address.toLowerCase().includes(searchTerm.toLowerCase());
+
     return nicknameMatch || addressMatch;
   };
 
@@ -509,7 +513,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
           onChangeDebounced={({ value }) => {
             setSearchTerm(value.toString());
           }}
-          // style={{ border: '1px solid transparent' }}
           autofocus
         />
       </SearchWrapper>
