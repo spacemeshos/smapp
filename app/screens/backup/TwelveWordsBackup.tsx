@@ -123,7 +123,13 @@ const TwelveWordsBackup = ({
   };
 
   const copy12Words = async () => {
-    await navigator.clipboard.writeText(mnemonic);
+    const words = mnemonic.split(' ');
+    const wordsWithNumbers = words.map(
+      (word: string, index: number) => `${index + 1}. ${word}`
+    );
+    const mnemonicWithNumbers = wordsWithNumbers.join('\n');
+
+    await navigator.clipboard.writeText(mnemonicWithNumbers);
     setIsCopied(true);
   };
 

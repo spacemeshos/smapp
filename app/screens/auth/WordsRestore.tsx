@@ -70,7 +70,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     index: number;
   }) => {
     const input = value
-      .split(' ')
+      .split(/[\d.\s]+/)
       .filter(Boolean)
       .slice(0, WORDS_AMOUNT - index);
     const newWords = (input.length ? input : ['']).reduce(
