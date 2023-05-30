@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NodeStatus } from '../../../shared/types';
-import { NetworkIndicator, ProgressBar } from '../../basicComponents';
+import { ProgressBar, ColorStatusIndicator } from '../../basicComponents';
 import { constrain } from '../../infra/utils';
 import { smColors } from '../../vars';
 
@@ -81,12 +81,12 @@ const NetworkStatus = ({
       <>
         {status?.isSynced && status.topLayer === status.syncedLayer ? (
           <>
-            <NetworkIndicator color={smColors.green} />
+            <ColorStatusIndicator color={smColors.green} />
             <ProgressLabel>synced</ProgressLabel>
           </>
         ) : (
           <>
-            <NetworkIndicator
+            <ColorStatusIndicator
               color={status?.isSynced ? smColors.green : smColors.orange}
             />
             {getSyncProgress()}
@@ -98,7 +98,7 @@ const NetworkStatus = ({
 
   const renderError = () => (
     <>
-      <NetworkIndicator color={smColors.red} />
+      <ColorStatusIndicator color={smColors.red} />
       {isWalletMode ? (
         <ProgressLabel>Connection error</ProgressLabel>
       ) : (
