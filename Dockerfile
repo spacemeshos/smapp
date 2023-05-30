@@ -1,22 +1,39 @@
-ARG NODE_VERSION
+FROM ubuntu:22.04 AS builder
 
-FROM go-spacemesh:${NODE_VERSION} AS spacemesh_node
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libnss3 libgtk-3-0 libxss1 libasound2 ocl-icd-libopencl1 unzip curl binutils build-essential 
 
-FROM node:stretch AS builder
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh && bash nodesource_setup.sh && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs && npm install --global yarn
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y libnss3 libgtk-3-0 libxss1 libasound2 
 
 RUN adduser --disabled-password --gecos '' spacemesh 
 COPY --chown=spacemesh . /home/spacemesh 
 USER spacemesh
 WORKDIR /home/spacemesh
 
-COPY --from=spacemesh_node /bin/go-spacemesh node/linux/
+RUN [ "/bin/bash", "-c",  "curl -L -o /tmp/Linux.zip \"https://storage.googleapis.com/go-spacemesh-release-builds/$(<node/use-version)/Linux.zip\" && unzip /tmp/Linux.zip && mkdir -p node/linux && mv Linux/* node/linux && rmdir Linux" ]
 
-RUN npm install && npm run package-linux
+RUN chmod +x node/linux/profiler # Installer doesn't do this for some reason
 
-FROM ubuntu:20.04 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y xpra libnss3 libgtk-3-0 libxss1 libasound2 musl desktop-file-utils x11-apps epiphany-browser
+ENV SENTRY_AUTH_TOKEN=
+ENV SENTRY_DSN=
+
+RUN yarn && yarn build && yarn package-linux
+
+FROM ubuntu:22.04 
+ARG XPRA_REPO=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra.sources
+ARG XPRA_KEY_ID=18ADB31CF18AD6BB
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
+
+RUN gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys ${XPRA_KEY_ID} && gpg --export --armor ${XPRA_KEY_ID} > "/usr/share/keyrings/xpra.asc"
+RUN cd /etc/apt/sources.list.d && curl -O ${XPRA_REPO}
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y xpra libnss3 libgtk-3-0 libxss1 libasound2 musl desktop-file-utils x11-apps epiphany-browser ocl-icd-libopencl1 
+
+RUN mkdir -p /etc/OpenCL/vendors && \
+    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 
 RUN adduser --disabled-password --gecos '' spacemesh 
 RUN chown -R spacemesh /home/spacemesh

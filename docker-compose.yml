@@ -3,10 +3,14 @@ services:
   smapp:
      build: 
         context: .
-        args:
-           NODE_VERSION: ${NODE_VERSION}
-     #     image: smapp:latest
      container_name: smapp
+     deploy:
+       resources:
+         reservations:
+            devices:
+              - driver: nvidia
+                count: all
+                capabilities: [gpu]
      command: [ 'start',
                 '--daemon=no',
                 '--start-child=no-sandbox-smapp',
