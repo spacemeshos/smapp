@@ -103,7 +103,7 @@ type Props = {
   numUnits: number;
   numUnitSize: number;
   setNumUnit: (numUnit: number) => void;
-  freeSpace: string;
+  freeSpace: number;
   nextAction: () => void;
   status: NodeStatus | null;
   setMaxFileSize: (maxFileSize: number) => void;
@@ -216,7 +216,7 @@ const PoSSize = ({
         <Link>{dataDir}</Link>
       </BottomRow>
       <BottomRow>
-        <Text>Free space: {freeSpace}</Text>
+        <Text>Free space: {formatBytes(freeSpace)}</Text>
       </BottomRow>
       <PoSFooter action={nextAction} isDisabled={numUnits === 0 || !status} />
     </>
