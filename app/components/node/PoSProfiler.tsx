@@ -75,8 +75,21 @@ const COL_WIDTH = {
   REST: '64%', // SPEED + SIZE + STATUS
 };
 
+const MaxLabel = styled.span`
+  &:before {
+    display: inline;
+    content: 'MAX';
+  }
+  display: inline-block;
+  font-weight: 800;
+  color: ${smColors.purple};
+  padding: 0 0.5em;
+`;
+
 type Props = {
   nextAction: (nonces: number, threads: number, numUnits?: number) => void;
+  numUnitSize: number;
+  maxUnits: number;
 };
 
 enum BenchmarkStatus {
@@ -162,7 +175,7 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction }: Props) => {
+const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
   const [noncesValue, setNoncesValue] = useState<number | null>(null);
   const [threadsValue, setThreadsValue] = useState<number | null>(null);
   const [benchmarks, setBenchmarks] = useState(
@@ -178,6 +191,8 @@ const PoSProfiler = ({ nextAction }: Props) => {
     (b) =>
       b.status !== BenchmarkStatus.Idle && b.status !== BenchmarkStatus.Complete
   );
+
+  const maxSize = numUnitSize * maxUnits;
 
   const setAndScrollBenchmarks = (next: Benchmark[]) => {
     setBenchmarks(next);
@@ -298,6 +313,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                 </TCol>
                 <TCol width={COL_WIDTH.SIZE}>
                   {r.maxSize ? formatBytes(r.maxSize) : '...'}
+                  {r.maxSize === maxSize && <MaxLabel />}
                 </TCol>
                 <TCol width={COL_WIDTH.STATUS}>
                   <ColorStatusIndicator color={getStatusColor(r.status)} />

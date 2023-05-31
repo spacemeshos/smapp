@@ -238,6 +238,8 @@ const NodeSetup = ({ history, location }: Props) => {
       case SetupMode.Profiler: {
         return (
           <PoSProfiler
+            numUnitSize={singleCommitmentSize}
+            maxUnits={smesherConfig.maxNumUnits}
             nextAction={(nonces, threads, numUnits) => {
               setNonces(nonces);
               setThreads(threads);
