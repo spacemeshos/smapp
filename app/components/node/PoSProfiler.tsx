@@ -239,26 +239,45 @@ const PoSProfiler = ({ nextAction }: Props) => {
       </Row>
       <Row>
         <Text>Benchmarks:</Text>
-        <Tooltip width={250} text="TODO" />
+        <Tooltip
+          width={250}
+          text="The Node need to find a valid Nonce to prove PoST. Since it uses disk reads and CPU we recommend to run benchmarks and choose the best option"
+        />
       </Row>
       <Row>
         <Table>
           <TRow>
             <TCol width={COL_WIDTH.NONCES}>
               Nonces
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Amount of nonces generated per one read. Generating 16 nonces has about 7% chance to find out the nonce, while 192 nonces gives about 90% of probability. If valid nonce was not found — it runs again."
+              />
             </TCol>
             <TCol width={COL_WIDTH.THREADS}>
               CPU&nbsp;Threads
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="How many CPU cores can be used at the same time. More CPU — less time is needed to generate nonces."
+              />
             </TCol>
             <TCol width={COL_WIDTH.SPEED}>
               Speed,&nbsp;gb/s
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Speed of reading PoS and finding nonces in gigabits per second"
+              />
             </TCol>
             <TCol width={COL_WIDTH.SIZE}>
               Recommended PoS size
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Allocate not more than this amount to be sure that your machine is able to produce the proof in time."
+              />
             </TCol>
             <TCol width={COL_WIDTH.STATUS}>Status</TCol>
           </TRow>
