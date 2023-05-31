@@ -162,9 +162,6 @@ class EventsService {
   static selectPostFolder = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
 
-  static checkFreeSpace = ({ dataDir }: { dataDir: string }) =>
-    ipcRenderer.invoke(ipcConsts.SMESHER_CHECK_FREE_SPACE, { dataDir });
-
   static getEstimatedRewards = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
@@ -317,8 +314,14 @@ ipcRenderer.on(
 );
 
 ipcRenderer.on(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, (_event, request) => {
-  const { smeshingConfig } = request;
-  store.dispatch({ type: SET_SMESHER_CONFIG, payload: { smeshingConfig } });
+  const { smeshingConfig, freeSpace } = request;
+  store.dispatch({
+    type: SET_SMESHER_CONFIG,
+    payload: {
+      smeshingConfig,
+      freeSpace,
+    },
+  });
 });
 
 ipcRenderer.on(
