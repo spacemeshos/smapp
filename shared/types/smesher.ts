@@ -23,8 +23,9 @@ export interface SmeshingOpts {
 }
 
 export enum DeviceType {
-  DEVICE_CLASS_CPU = 0,
-  DEVICE_CLASS_GPU = 1,
+  DEVICE_CLASS_UNKNOWN = 0,
+  DEVICE_CLASS_CPU = 1,
+  DEVICE_CLASS_GPU = 2,
 }
 
 export interface PostSetupProvider {
