@@ -232,7 +232,7 @@ const NodeSetup = ({ history, location }: Props) => {
             freeSpace={freeSpace}
             setFreeSpace={setFreeSpace}
             status={status}
-            skipAction={() => history.push(MainPath.Wallet)}
+            skipAction={() => history.push(MainPath.Smeshing)}
           />
         );
       case SetupMode.Profiler: {
