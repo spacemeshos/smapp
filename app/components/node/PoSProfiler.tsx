@@ -112,7 +112,8 @@ const createBenchmarks = (input: [number, number][]) =>
 const roundToMultipleOf = (base: number) => (n: number) =>
   Math.round(Math.abs(n) / base) * base;
 
-const maxCpuThreads = Math.floor(navigator.hardwareConcurrency / 2);
+const maxCpuThreads = navigator.hardwareConcurrency;
+const maxCpuAvailable = maxCpuThreads - 1;
 
 const callOnChangeWithInt = (fn: (newValue: number | null) => void) => ({
   value,
@@ -169,7 +170,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
       [16, 1],
       [64, 1],
       [128, Math.floor(maxCpuThreads / 2)],
-      [192, maxCpuThreads],
+      [256, maxCpuAvailable],
     ])
   );
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -323,7 +324,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                 onBlur={({ value }) =>
                   value !== '' &&
                   setThreadsValue(
-                    constrain(1, maxCpuThreads, parseInt(value, 10))
+                    constrain(1, maxCpuAvailable, parseInt(value, 10))
                   )
                 }
                 value={threadsValue ?? ''}
