@@ -94,6 +94,17 @@ class WalletManager extends AbstractManager {
       this.getRootHash()
     );
 
+    ipcMain.handle(ipcConsts.W_M_GET_TX_MAX_GAS, (_event, request) =>
+      this.txManager
+        .getMaxGas(
+          request.templateAddress,
+          request.method,
+          request.payload,
+          request.accountIndex
+        )
+        .catch(() => 0)
+    );
+
     ipcMain.handle(ipcConsts.W_M_SPAWN_TX, async (_event, request) => {
       return this.txManager.publishSelfSpawn(request.fee, request.accountIndex);
     });

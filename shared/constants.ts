@@ -41,8 +41,4 @@ export enum ExternalLinks {
   DiscordTapAccount = 'https://discord.gg/ASpy52C',
 }
 
-// TODO: When the API will be available to retrieve max gas
-// for the tx method before publishing it
-export const MAX_GAS = 500;
-
 export const BITS_PER_LABEL = 128;

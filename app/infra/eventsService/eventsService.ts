@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { ProgressInfo, UpdateInfo } from 'electron-updater';
+import { TemplateRegistry } from '@spacemesh/sm-codec';
 
 import { ipcConsts } from '../../vars';
 import {
@@ -176,6 +177,13 @@ class EventsService {
     ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, benchmarks);
 
   /** **********************************   TRANSACTIONS   ************************************** */
+
+  static getTxMaxGas = (req: {
+    templateAddress: Parameters<typeof TemplateRegistry.get>[0];
+    method: Parameters<typeof TemplateRegistry.get>[1];
+    payload: any;
+    accountIndex: number;
+  }) => ipcRenderer.invoke(ipcConsts.W_M_GET_TX_MAX_GAS, req);
 
   static sendTx = ({
     fullTx,
