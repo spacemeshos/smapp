@@ -334,7 +334,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                   ) !== undefined
                 }
                 width={180}
-                text="TEST CHOOSEN OPTIONS"
+                text="TEST CHOSEN OPTIONS"
                 style={{ marginRight: 5 }}
               />
               <Button
