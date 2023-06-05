@@ -28,8 +28,8 @@ import {
   longToNumber,
   toHexString,
 } from '../shared/utils';
-import { MAX_GAS } from '../shared/constants';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
+import { SingleSigMethods } from '../shared/templateConsts';
 import { toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -461,6 +461,63 @@ class TransactionManager extends AbstractManager {
     return Object.values(uniq);
   };
 
+  getMaxGasFromEncodedTx = async (transaction: Uint8Array) => {
+    const parsed = await this.txService.parseTransaction({
+      transaction,
+    });
+    if (parsed.error || !parsed.tx) return 0;
+    return longToNumber(parsed.tx.maxGas);
+  };
+
+  getMaxGas = async (
+    tplAddress: Parameters<typeof TemplateRegistry.get>[0],
+    tplMethod: Parameters<typeof TemplateRegistry.get>[1],
+    tplPayload: any,
+    accountIndex: number
+  ) => {
+    const { publicKey } = this.keychain[accountIndex];
+    const tpl = TemplateRegistry.get(tplAddress, tplMethod);
+
+    const spawnArgs = { PublicKey: fromHexString(publicKey) };
+    const principal = tpl.principal(spawnArgs);
+    const address = Bech32.generateAddress(principal);
+
+    const { projectedState } = this.accountStates[address].getState();
+
+    // TODO: Do not stick to SingleSig template
+    const getSingleSigPayload = () => {
+      switch (tplMethod) {
+        case SingleSigMethods.Spawn: {
+          const { fee } = tplPayload;
+          // SelfSpawn
+          return {
+            Nonce: BigInt(projectedState?.counter || 0),
+            GasPrice: BigInt(fee),
+            Arguments: spawnArgs,
+          };
+        }
+        case SingleSigMethods.Spend: {
+          const { receiver, amount, fee } = tplPayload;
+          // Spend
+          return {
+            Arguments: {
+              Destination: Bech32.parse(receiver),
+              Amount: BigInt(amount),
+            },
+            Nonce: BigInt(projectedState?.counter || 1),
+            GasPrice: BigInt(fee),
+          };
+        }
+        default:
+          throw new Error('Cannot encode Transaction for unknown method');
+      }
+    };
+
+    const txEncoded = tpl.encode(principal, getSingleSigPayload());
+
+    return this.getMaxGasFromEncodedTx(txEncoded);
+  };
+
   // TODO: Replace with generic `publishTx`
   publishSelfSpawn = async (fee: number, accountIndex: number) => {
     try {
@@ -476,6 +533,7 @@ class TransactionManager extends AbstractManager {
         Arguments: spawnArgs,
       };
       const txEncoded = tpl.encode(principal, payload);
+      const maxGas = await this.getMaxGasFromEncodedTx(txEncoded);
       const genesisID = await this.meshService.getGenesisID();
       const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
@@ -502,8 +560,8 @@ class TransactionManager extends AbstractManager {
               principal: address,
               gas: {
                 gasPrice: fee,
-                maxGas: MAX_GAS,
-                fee: fee * MAX_GAS,
+                maxGas,
+                fee: fee * maxGas,
               },
               status: toTxState(response.txstate.state),
               payload,
@@ -563,6 +621,7 @@ class TransactionManager extends AbstractManager {
         GasPrice: BigInt(fee),
       };
       const txEncoded = tpl.encode(principal, payload);
+      const maxGas = await this.getMaxGasFromEncodedTx(txEncoded);
       const genesisID = await this.meshService.getGenesisID();
       const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
@@ -588,8 +647,8 @@ class TransactionManager extends AbstractManager {
               principal: address,
               gas: {
                 gasPrice: fee,
-                maxGas: MAX_GAS,
-                fee: fee * MAX_GAS,
+                maxGas,
+                fee: fee * maxGas,
               },
               status: toTxState(response.txstate.state),
               payload: {
