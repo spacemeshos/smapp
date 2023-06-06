@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { formatBytes } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
+import { formatBytes } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Wrapper = styled.div`
@@ -85,8 +85,8 @@ type Props = {
   nextAction: () => void;
   dataDir: string;
   setDataDir: (dataDir: string) => void;
-  freeSpace: string;
-  setFreeSpace: (freeSpace: string) => void;
+  freeSpace: number;
+  setFreeSpace: (freeSpace: number) => void;
   minCommitmentSize: string;
   status: NodeStatus | null;
   skipAction: () => void;
@@ -114,7 +114,7 @@ const PoSDirectory = ({
       setHasPermissionError(true);
     } else {
       setDataDir(dataDir);
-      setFreeSpace(formatBytes(calculatedFreeSpace));
+      setFreeSpace(calculatedFreeSpace);
       setHasPermissionError(false);
     }
   };
@@ -138,7 +138,7 @@ const PoSDirectory = ({
         )}
         {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
-          {freeSpace || ''}
+          {formatBytes(freeSpace) || ''}
         </FreeSpace>
       </Wrapper>
       <PoSFooter

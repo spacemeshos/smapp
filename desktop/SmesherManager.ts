@@ -172,6 +172,9 @@ class SmesherManager extends AbstractManager {
     const nodeConfig = await this.loadConfig();
     if (nodeConfig.smeshing && nodeConfig.smeshing['smeshing-opts']) {
       const opts = nodeConfig.smeshing['smeshing-opts'];
+      const freeSpace = await this.checkDiskSpace({
+        dataDir: nodeConfig.smeshing['smeshing-opts']['smeshing-opts-datadir'],
+      });
       const smeshingConfig = {
         coinbase: nodeConfig.smeshing['smeshing-coinbase'],
         dataDir: opts['smeshing-opts-datadir'],
@@ -182,6 +185,7 @@ class SmesherManager extends AbstractManager {
       };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, {
         smeshingConfig,
+        freeSpace,
       });
       return {
         ...smeshingConfig,
@@ -218,9 +222,6 @@ class SmesherManager extends AbstractManager {
     const selectPostFolder = async () => {
       return this.selectPostFolder({ mainWindow: this.mainWindow });
     };
-    const smesherCheckFreeSpace = async (_event, request) => {
-      return this.selectPostFolder({ ...request });
-    };
     const getCoinbase = () => this.smesherService.getCoinbase();
     const setCoinbase = async (_event, { coinbase }) => {
       // TODO: Unused handler
@@ -235,7 +236,6 @@ class SmesherManager extends AbstractManager {
     const getEstimatedRewards = () => this.smesherService.getEstimatedRewards();
 
     ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, selectPostFolder);
-    ipcMain.handle(ipcConsts.SMESHER_CHECK_FREE_SPACE, smesherCheckFreeSpace);
     ipcMain.handle(
       ipcConsts.SMESHER_STOP_SMESHING,
       async (_event, { deleteFiles }: { deleteFiles?: boolean }) => {
@@ -270,7 +270,6 @@ class SmesherManager extends AbstractManager {
 
     return () => {
       ipcMain.removeHandler(ipcConsts.SMESHER_SELECT_POST_FOLDER);
-      ipcMain.removeHandler(ipcConsts.SMESHER_CHECK_FREE_SPACE);
       ipcMain.removeHandler(ipcConsts.SMESHER_STOP_SMESHING);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_COINBASE);
       ipcMain.removeHandler(ipcConsts.SMESHER_SET_COINBASE);
@@ -351,10 +350,7 @@ class SmesherManager extends AbstractManager {
       });
     }
 
-    return {
-      dataDir: filePaths[0],
-      calculatedFreeSpace: res.calculatedFreeSpace,
-    };
+    return res;
   };
 
   checkDiskSpace = async ({ dataDir }: { dataDir: string }) => {
@@ -362,7 +358,7 @@ class SmesherManager extends AbstractManager {
       await fs.access(dataDir, fsConstants.W_OK);
       const diskSpace = await checkDiskSpace(dataDir);
       logger.log('checkDiskSpace', diskSpace.free, { dataDir });
-      return { calculatedFreeSpace: diskSpace.free };
+      return { dataDir, calculatedFreeSpace: diskSpace.free };
     } catch (error) {
       logger.error('checkDiskSpace', error, { dataDir });
       return { error };

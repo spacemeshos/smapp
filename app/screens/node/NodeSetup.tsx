@@ -90,12 +90,15 @@ const NodeSetup = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.dataDir
   );
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
+  const dataDirFreeSpace = useSelector(
+    (state: RootState) => state.smesher.freeSpace
+  );
   const hideSmesherLeftPanel = useSelector(
     (state: RootState) => state.ui.hideSmesherLeftPanel
   );
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [dataDir, setDataDir] = useState(existingDataDir || '');
-  const [freeSpace, setFreeSpace] = useState('');
+  const [freeSpace, setFreeSpace] = useState(dataDirFreeSpace);
   const [numUnits, setNumUnits] = useState(0);
   const [posSize, setPoSSize] = useState(0);
   const [provider, setProvider] = useState<PostSetupProvider>();
@@ -238,6 +241,8 @@ const NodeSetup = ({ history, location }: Props) => {
       case SetupMode.Profiler: {
         return (
           <PoSProfiler
+            numUnitSize={singleCommitmentSize}
+            maxUnits={smesherConfig.maxNumUnits}
             nextAction={(nonces, threads, numUnits) => {
               setNonces(nonces);
               setThreads(threads);

@@ -75,8 +75,21 @@ const COL_WIDTH = {
   REST: '64%', // SPEED + SIZE + STATUS
 };
 
+const MaxLabel = styled.span`
+  &:before {
+    display: inline;
+    content: 'MAX';
+  }
+  display: inline-block;
+  font-weight: 800;
+  color: ${smColors.purple};
+  padding: 0 0.5em;
+`;
+
 type Props = {
   nextAction: (nonces: number, threads: number, numUnits?: number) => void;
+  numUnitSize: number;
+  maxUnits: number;
 };
 
 enum BenchmarkStatus {
@@ -112,7 +125,8 @@ const createBenchmarks = (input: [number, number][]) =>
 const roundToMultipleOf = (base: number) => (n: number) =>
   Math.round(Math.abs(n) / base) * base;
 
-const maxCpuThreads = Math.floor(navigator.hardwareConcurrency / 2);
+const maxCpuThreads = navigator.hardwareConcurrency;
+const maxCpuAvailable = maxCpuThreads - 1;
 
 const callOnChangeWithInt = (fn: (newValue: number | null) => void) => ({
   value,
@@ -127,7 +141,11 @@ const callOnChangeWithInt = (fn: (newValue: number | null) => void) => ({
   }
 };
 
-const updateBenchmarks = (old: Benchmark[], next: Benchmark): Benchmark[] => {
+const updateBenchmarks = (
+  old: Benchmark[],
+  next: Benchmark,
+  isRunningBatch: boolean
+): Benchmark[] => {
   const existingIndex = old.findIndex(
     (b) => b.nonces === next.nonces && b.threads === next.threads
   );
@@ -139,11 +157,14 @@ const updateBenchmarks = (old: Benchmark[], next: Benchmark): Benchmark[] => {
     next,
     ...old.slice(existingIndex + 1).map((b, i) => ({
       ...b,
-      // In case we run a bunch of benchmarks — thgey
-      status:
-        i === 0 && next.status === BenchmarkStatus.Complete
-          ? BenchmarkStatus.Running
-          : BenchmarkStatus.Queued,
+      // In case we run a bunch of benchmarks —
+      // change the status of next one
+      // eslint-disable-next-line no-nested-ternary
+      status: !isRunningBatch
+        ? b.status
+        : i === 0 && next.status === BenchmarkStatus.Complete
+        ? BenchmarkStatus.Running
+        : BenchmarkStatus.Queued,
     })),
   ];
 };
@@ -161,15 +182,16 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction }: Props) => {
+const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
   const [noncesValue, setNoncesValue] = useState<number | null>(null);
   const [threadsValue, setThreadsValue] = useState<number | null>(null);
+  const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
     createBenchmarks([
       [16, 1],
       [64, 1],
       [128, Math.floor(maxCpuThreads / 2)],
-      [192, maxCpuThreads],
+      [288, maxCpuAvailable],
     ])
   );
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -177,6 +199,8 @@ const PoSProfiler = ({ nextAction }: Props) => {
     (b) =>
       b.status !== BenchmarkStatus.Idle && b.status !== BenchmarkStatus.Complete
   );
+
+  const maxSize = numUnitSize * maxUnits;
 
   const setAndScrollBenchmarks = (next: Benchmark[]) => {
     setBenchmarks(next);
@@ -189,34 +213,48 @@ const PoSProfiler = ({ nextAction }: Props) => {
   useEffect(() => {
     const handler = (_event, result: BenchmarkResponse) =>
       setAndScrollBenchmarks(
-        updateBenchmarks(benchmarks, {
-          ...result,
-          status: BenchmarkStatus.Complete,
-        })
+        updateBenchmarks(
+          benchmarks,
+          {
+            ...result,
+            status: BenchmarkStatus.Complete,
+          },
+          isRunningBatch
+        )
       );
 
     ipcRenderer.on(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
     return () => {
       ipcRenderer.off(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
     };
-  }, [benchmarks]);
+  }, [benchmarks, isRunningBatch]);
 
   const runSingleBenchmark = (req: BenchmarkRequest) => {
+    setRunningBatch(false);
     setAndScrollBenchmarks(
-      updateBenchmarks(benchmarks, {
-        ...defaultizeBenchmark(req.nonces, req.threads),
-        status: BenchmarkStatus.Running,
-      })
+      updateBenchmarks(
+        benchmarks,
+        {
+          ...defaultizeBenchmark(req.nonces, req.threads),
+          status: BenchmarkStatus.Running,
+        },
+        isRunningBatch
+      )
     );
     eventsService.runBenchmarks([req]);
   };
 
   const runBenchmarks = () => {
+    setRunningBatch(true);
     setAndScrollBenchmarks(
-      updateBenchmarks(benchmarks, {
-        ...benchmarks[0],
-        status: BenchmarkStatus.Running,
-      })
+      updateBenchmarks(
+        benchmarks,
+        {
+          ...benchmarks[0],
+          status: BenchmarkStatus.Running,
+        },
+        isRunningBatch
+      )
     );
     eventsService.runBenchmarks(benchmarks);
   };
@@ -239,26 +277,45 @@ const PoSProfiler = ({ nextAction }: Props) => {
       </Row>
       <Row>
         <Text>Benchmarks:</Text>
-        <Tooltip width={250} text="TODO" />
+        <Tooltip
+          width={250}
+          text="The Node need to find a valid Nonce to prove PoST. Since it uses disk reads and CPU we recommend to run benchmarks and choose the best option"
+        />
       </Row>
       <Row>
         <Table>
           <TRow>
             <TCol width={COL_WIDTH.NONCES}>
               Nonces
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Amount of nonces generated per one read. Generating 16 nonces has about 7% chance to find out the nonce, while 192 nonces gives about 90% of probability. If valid nonce was not found — it runs again."
+              />
             </TCol>
             <TCol width={COL_WIDTH.THREADS}>
               CPU&nbsp;Threads
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="How many CPU cores can be used at the same time. More CPU — less time is needed to generate nonces."
+              />
             </TCol>
             <TCol width={COL_WIDTH.SPEED}>
-              Speed,&nbsp;gb/s
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              Speed,&nbsp;GiB/s
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Speed of reading PoS and finding nonces in gigibits per second"
+              />
             </TCol>
             <TCol width={COL_WIDTH.SIZE}>
               Recommended PoS size
-              <Tooltip width={250} marginTop={0} text="TODO" />
+              <Tooltip
+                width={250}
+                marginTop={0}
+                text="Allocate not more than this amount to be sure that your machine is able to produce the proof in time."
+              />
             </TCol>
             <TCol width={COL_WIDTH.STATUS}>Status</TCol>
           </TRow>
@@ -278,6 +335,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                 </TCol>
                 <TCol width={COL_WIDTH.SIZE}>
                   {r.maxSize ? formatBytes(r.maxSize) : '...'}
+                  {r.maxSize === maxSize && <MaxLabel />}
                 </TCol>
                 <TCol width={COL_WIDTH.STATUS}>
                   <ColorStatusIndicator color={getStatusColor(r.status)} />
@@ -304,7 +362,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                 onBlur={({ value }) =>
                   value !== '' &&
                   setThreadsValue(
-                    constrain(1, maxCpuThreads, parseInt(value, 10))
+                    constrain(1, maxCpuAvailable, parseInt(value, 10))
                   )
                 }
                 value={threadsValue ?? ''}

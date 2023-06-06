@@ -55,6 +55,7 @@ export interface SmesherState {
   postSetupProviders: PostSetupProvider[];
   coinbase: string;
   dataDir: string;
+  freeSpace: number;
   numUnits: number;
   maxFileSize: number;
   throttle: boolean;

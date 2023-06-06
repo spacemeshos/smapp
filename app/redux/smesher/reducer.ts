@@ -26,6 +26,7 @@ const initialState = {
   postSetupProviders: [] as PostSetupProviders[],
   coinbase: '',
   dataDir: '',
+  freeSpace: 0,
   numUnits: 0,
   throttle: false,
   provider: null,
@@ -92,6 +93,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       return {
         ...state,
         ...action.payload.smeshingConfig,
+        freeSpace: action.payload.freeSpace.calculatedFreeSpace,
       };
     }
     case STARTED_SMESHING: {

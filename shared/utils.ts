@@ -237,12 +237,12 @@ export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 export const longToNumber = (val: Long | number) =>
   typeof val === 'number' ? val : val.toNumber();
 
-export const convertBytesToMb = (maxFileSize: number) =>
+export const convertBytesToMiB = (maxFileSize: number) =>
   maxFileSize / 1024 / 1024;
 
-export const convertBytesToGB = (maxFileSize: number) =>
+export const convertBytesToGiB = (maxFileSize: number) =>
   maxFileSize / 1024 / 1024 / 1024;
-export const convertMbToBytes = (maxFileSize: number) =>
+export const convertMiBToBytes = (maxFileSize: number) =>
   maxFileSize * 1024 * 1024;
 
 export const distribute = (min: number, max: number, steps: number) => {
