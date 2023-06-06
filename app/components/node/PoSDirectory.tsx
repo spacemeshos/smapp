@@ -142,6 +142,7 @@ const PoSDirectory = ({
         </FreeSpace>
       </Wrapper>
       <PoSFooter
+        skipLabel="CANCEL"
         action={nextAction}
         skipAction={skipAction}
         isDisabled={!dataDir || hasPermissionError || !status}
