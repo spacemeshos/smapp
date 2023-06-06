@@ -5,7 +5,7 @@ import { posSpace } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
 import { constrain, formatBytes } from '../../infra/utils';
-import { convertBytesToMb, convertMbToBytes } from '../../../shared/utils';
+import { convertBytesToMiB, convertMiBToBytes } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -132,15 +132,15 @@ const PoSSize = ({
     const parsedValue = parseInt(value, 10);
     const mb = Number.isNaN(parsedValue) ? 0 : parsedValue;
     setShowMaxFileSizeWarning(mb > POS_MAX_FILE_SIZE_WARNING_VALUE_MB);
-    setMaxFileSize(convertMbToBytes(mb));
+    setMaxFileSize(convertMiBToBytes(mb));
   };
 
   const handleOnBlur = ({ value }) => {
     const mb = parseInt(value, 10);
     if (DEFAULT_POS_MAX_FILE_SIZE_MB >= mb) {
-      setMaxFileSize(convertMbToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
+      setMaxFileSize(convertMiBToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
     } else {
-      setMaxFileSize(convertMbToBytes(parseInt(value, 10)));
+      setMaxFileSize(convertMiBToBytes(parseInt(value, 10)));
     }
   };
 
@@ -186,7 +186,7 @@ const PoSSize = ({
       </Row>
       <Row>
         <Icon1 src={posSpace} />
-        <Text>Max file size (MB): </Text>
+        <Text>Max file size (MiB): </Text>
         <Tooltip
           width={200}
           text={
@@ -196,7 +196,7 @@ const PoSSize = ({
         <Dots>.....................................................</Dots>
         <InputWrapper>
           <Input
-            value={convertBytesToMb(maxFileSize)}
+            value={convertBytesToMiB(maxFileSize)}
             debounceTime={100}
             min={DEFAULT_POS_MAX_FILE_SIZE_MB}
             onChange={handleOnChange}

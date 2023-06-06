@@ -302,11 +302,11 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
               />
             </TCol>
             <TCol width={COL_WIDTH.SPEED}>
-              Speed,&nbsp;gb/s
+              Speed,&nbsp;GiB/s
               <Tooltip
                 width={250}
                 marginTop={0}
-                text="Speed of reading PoS and finding nonces in gigabits per second"
+                text="Speed of reading PoS and finding nonces in gigibits per second"
               />
             </TCol>
             <TCol width={COL_WIDTH.SIZE}>
