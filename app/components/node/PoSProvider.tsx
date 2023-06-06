@@ -91,7 +91,7 @@ const PoSProvider = ({
         <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
         <Tooltip
           width={220}
-          text="POS data creation may take a significant amount of time to complete - depending on the choosen file sizes and your processor capacity. 
+          text="POS data creation may take a significant amount of time to complete depending on the chosen file sizes and your processor capacity. 
         You might want to pause this process to use your device without restraint."
         />
       </PauseSelector>
