@@ -176,7 +176,7 @@ const AutocompleteList = styled.div<{
   overflow: auto;
   height: ${({ isOpened }) => (isOpened ? 'unset' : '0')};
   max-height: 214px;
-  z-index: 9;
+  z-index: 15;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
   box-shadow: 0 2px 3px ${smColors.black30Alpha};
   > div {
@@ -313,8 +313,10 @@ const AutocompleteDropdown = (props: Props) => {
 
   const filterList = () => {
     const { data, getItemValue } = props;
+
     // @ts-ignore
     const { value } = inputField.current || {};
+
     let list: any = [];
 
     if (value && value.trim() && autocomplete) {
@@ -323,7 +325,7 @@ const AutocompleteDropdown = (props: Props) => {
           getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1
       );
     } else {
-      list = data.slice(0, 5);
+      list = data;
     }
     return list;
   };

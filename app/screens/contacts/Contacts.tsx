@@ -286,16 +286,16 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   const sortContacts = (c1: Contact, c2: Contact) => {
-    if (c1.address > c2.address) {
+    if (c1.address.toLowerCase() > c2.address.toLowerCase()) {
       return selectedSorting === 0 ? 1 : -1;
     }
-    if (c1.address < c2.address) {
+    if (c1.address.toLowerCase() < c2.address.toLowerCase()) {
       return selectedSorting === 0 ? -1 : 1;
     }
-    if (c1.nickname > c2.nickname) {
+    if (c1.nickname.toLowerCase() > c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? 1 : -1;
     }
-    if (c1.nickname < c2.nickname) {
+    if (c1.nickname.toLowerCase() < c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? -1 : 1;
     }
     return 0;
