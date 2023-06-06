@@ -141,7 +141,11 @@ const callOnChangeWithInt = (fn: (newValue: number | null) => void) => ({
   }
 };
 
-const updateBenchmarks = (old: Benchmark[], next: Benchmark): Benchmark[] => {
+const updateBenchmarks = (
+  old: Benchmark[],
+  next: Benchmark,
+  isRunningBatch: boolean
+): Benchmark[] => {
   const existingIndex = old.findIndex(
     (b) => b.nonces === next.nonces && b.threads === next.threads
   );
@@ -153,11 +157,14 @@ const updateBenchmarks = (old: Benchmark[], next: Benchmark): Benchmark[] => {
     next,
     ...old.slice(existingIndex + 1).map((b, i) => ({
       ...b,
-      // In case we run a bunch of benchmarks — thgey
-      status:
-        i === 0 && next.status === BenchmarkStatus.Complete
-          ? BenchmarkStatus.Running
-          : BenchmarkStatus.Queued,
+      // In case we run a bunch of benchmarks —
+      // change the status of next one
+      // eslint-disable-next-line no-nested-ternary
+      status: !isRunningBatch
+        ? b.status
+        : i === 0 && next.status === BenchmarkStatus.Complete
+        ? BenchmarkStatus.Running
+        : BenchmarkStatus.Queued,
     })),
   ];
 };
@@ -178,12 +185,13 @@ const getStatusColor = (status: BenchmarkStatus) => {
 const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
   const [noncesValue, setNoncesValue] = useState<number | null>(null);
   const [threadsValue, setThreadsValue] = useState<number | null>(null);
+  const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
     createBenchmarks([
       [16, 1],
       [64, 1],
       [128, Math.floor(maxCpuThreads / 2)],
-      [256, maxCpuAvailable],
+      [288, maxCpuAvailable],
     ])
   );
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -205,34 +213,48 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
   useEffect(() => {
     const handler = (_event, result: BenchmarkResponse) =>
       setAndScrollBenchmarks(
-        updateBenchmarks(benchmarks, {
-          ...result,
-          status: BenchmarkStatus.Complete,
-        })
+        updateBenchmarks(
+          benchmarks,
+          {
+            ...result,
+            status: BenchmarkStatus.Complete,
+          },
+          isRunningBatch
+        )
       );
 
     ipcRenderer.on(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
     return () => {
       ipcRenderer.off(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
     };
-  }, [benchmarks]);
+  }, [benchmarks, isRunningBatch]);
 
   const runSingleBenchmark = (req: BenchmarkRequest) => {
+    setRunningBatch(false);
     setAndScrollBenchmarks(
-      updateBenchmarks(benchmarks, {
-        ...defaultizeBenchmark(req.nonces, req.threads),
-        status: BenchmarkStatus.Running,
-      })
+      updateBenchmarks(
+        benchmarks,
+        {
+          ...defaultizeBenchmark(req.nonces, req.threads),
+          status: BenchmarkStatus.Running,
+        },
+        isRunningBatch
+      )
     );
     eventsService.runBenchmarks([req]);
   };
 
   const runBenchmarks = () => {
+    setRunningBatch(true);
     setAndScrollBenchmarks(
-      updateBenchmarks(benchmarks, {
-        ...benchmarks[0],
-        status: BenchmarkStatus.Running,
-      })
+      updateBenchmarks(
+        benchmarks,
+        {
+          ...benchmarks[0],
+          status: BenchmarkStatus.Running,
+        },
+        isRunningBatch
+      )
     );
     eventsService.runBenchmarks(benchmarks);
   };
