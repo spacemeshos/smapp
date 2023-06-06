@@ -39,7 +39,7 @@ import {
   epochByLayer,
   nextEpochTime,
 } from '../../../shared/layerUtils';
-import { convertBytesToMb } from '../../../shared/utils';
+import { convertBytesToMiB } from '../../../shared/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -453,7 +453,7 @@ const Node = ({ history, location }: Props) => {
         </PosDirLink>,
       ],
       ['Data Size', formatBytes(commitmentSize)],
-      ['Max File Size', `${convertBytesToMb(maxFileSize)} MB`],
+      ['Max File Size', `${convertBytesToMiB(maxFileSize)} MiB`],
       [
         'Rewards Address',
         <Address

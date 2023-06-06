@@ -62,13 +62,13 @@ export const formatBytes = (bytes: number) => {
   if (bytes === 0) {
     return '0';
   } else if (bytes > 0 && bytes < 1048576) {
-    return `${parseFloat((bytes / 1024).toFixed(2))} KB`;
+    return `${parseFloat((bytes / 1024).toFixed(2))} KiB`;
   } else if (bytes >= 1048576 && bytes < 1073741824) {
-    return `${parseFloat((bytes / 1048576).toFixed(2))} MB`;
+    return `${parseFloat((bytes / 1048576).toFixed(2))} MiB`;
   } else if (bytes >= 1099511627776) {
-    return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
+    return `${parseFloat((bytes / 1099511627776).toFixed(2))} TiB`;
   }
-  return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;
+  return `${parseFloat((bytes / 1073741824).toFixed(2))} GiB`;
 };
 
 export const formatWithCommas = (x: number) =>
