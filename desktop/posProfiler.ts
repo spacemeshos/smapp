@@ -74,7 +74,7 @@ export const runProfiler = (
     cp.stdout?.on('data', appendTo('stdout'));
   });
 
-const gibsTobytes = (gib: number) => gib * 1024 ** 2;
+const gibsTobytes = (gib: number) => gib * 1024 ** 3;
 
 export const calculateMaxDatasize = (cycleGap: number, speed: number) =>
   gibsTobytes(cycleGap * K_SAFE_PERIOD * speed);
