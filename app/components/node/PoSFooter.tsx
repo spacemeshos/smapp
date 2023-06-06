@@ -24,17 +24,28 @@ type Props = {
   isDisabled: boolean;
   isLastMode?: boolean;
   skipAction?: () => void;
+  skipLabel?: string;
 };
 
 class PoSFooter extends PureComponent<Props> {
   render() {
-    const { action, isDisabled, isLastMode, skipAction } = this.props;
+    const {
+      action,
+      isDisabled,
+      isLastMode,
+      skipAction,
+      skipLabel,
+    } = this.props;
     return (
       <Footer>
         <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
         <ButtonWrap>
           {skipAction && (
-            <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />
+            <Button
+              isPrimary={false}
+              onClick={skipAction}
+              text={skipLabel || 'SKIP'}
+            />
           )}
           <Button
             style={{ marginLeft: '20px' }}

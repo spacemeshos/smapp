@@ -7,7 +7,7 @@ import {
   NodeStatus,
   PostSetupProvider,
 } from '../../../shared/types';
-import { convertBytesToMb } from '../../../shared/utils';
+import { convertBytesToMiB } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -121,7 +121,7 @@ const PoSSummary = ({
       <Row>
         <Text>max file size</Text>
         <Link onClick={() => switchMode({ mode: 2 })} isDisabled={isProcessing}>
-          {convertBytesToMb(maxFileSize)} MB
+          {convertBytesToMiB(maxFileSize)} MiB
         </Link>
       </Row>
       <Row>

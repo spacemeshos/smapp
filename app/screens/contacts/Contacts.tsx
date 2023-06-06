@@ -254,6 +254,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
   const [tmpSearchTerm, setTmpSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
   const [showCreateNewContactModal, setShowCreateNewContactModal] = useState(
     false
   );
@@ -279,23 +280,26 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const contactFilter = (contact: Contact) => {
     const nicknameMatch =
-      contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
+      contact.nickname &&
+      contact.nickname.toLowerCase().includes(searchTerm.toLowerCase());
     const addressMatch =
-      contact.address && contact.address.toLowerCase().includes(searchTerm);
+      contact.address &&
+      contact.address.toLowerCase().includes(searchTerm.toLowerCase());
+
     return nicknameMatch || addressMatch;
   };
 
   const sortContacts = (c1: Contact, c2: Contact) => {
-    if (c1.address > c2.address) {
+    if (c1.address.toLowerCase() > c2.address.toLowerCase()) {
       return selectedSorting === 0 ? 1 : -1;
     }
-    if (c1.address < c2.address) {
+    if (c1.address.toLowerCase() < c2.address.toLowerCase()) {
       return selectedSorting === 0 ? -1 : 1;
     }
-    if (c1.nickname > c2.nickname) {
+    if (c1.nickname.toLowerCase() > c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? 1 : -1;
     }
-    if (c1.nickname < c2.nickname) {
+    if (c1.nickname.toLowerCase() < c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? -1 : 1;
     }
     return 0;
@@ -502,7 +506,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
           onChangeDebounced={({ value }) => {
             setSearchTerm(value.toString());
           }}
-          // style={{ border: '1px solid transparent' }}
           autofocus
         />
       </SearchWrapper>

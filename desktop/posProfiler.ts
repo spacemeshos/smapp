@@ -74,7 +74,7 @@ export const runProfiler = (
     cp.stdout?.on('data', appendTo('stdout'));
   });
 
-const gibsTobytes = (gib: number) => gib * 1024 ** 2;
+const gibsTobytes = (gib: number) => gib * 1024 ** 3;
 
 export const calculateMaxDatasize = (cycleGap: number, speed: number) =>
   gibsTobytes(cycleGap * K_SAFE_PERIOD * speed);
@@ -86,13 +86,13 @@ export const runSingleBenchmark = async (
   profilerOpts: PosProfilerOptions
 ): Promise<BenchmarkRunResult> => {
   const profiler = await runProfiler(profilerOpts);
-  // Let's assume that the nonce 192 has about 100% chance to generate the proof
+  // Let's assume that 288 nonces has about 100% chance to generate the proof
   // so everything is less — we'd like to have a chance to try generate it
   // a couple of times. Therefore, we calculate how many times and divide max size
   // with the recommended amount of retries
   const recommendedRetries = Math.max(
     1,
-    profilerOpts.nonces < 192 ? Math.ceil(192 / profilerOpts.nonces) : 1
+    profilerOpts.nonces < 288 ? Math.ceil(288 / profilerOpts.nonces) : 1
   );
   const maxRecommendedSize = constrain(
     0,
