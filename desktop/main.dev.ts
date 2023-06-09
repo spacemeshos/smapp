@@ -24,6 +24,7 @@ import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
 import { init, captureMainException } from './sentry';
+import { cleanupTmpDir } from './testMode';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -63,6 +64,7 @@ app
   .then(() => subscribeIPC(context))
   .then(() => Wallet.subscribe())
   .then(() => {
+    cleanupTmpDir();
     context.state = startApp();
     return context.state;
   })
