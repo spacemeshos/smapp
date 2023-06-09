@@ -53,6 +53,10 @@ Smapp can be started with additional arguments:
   _e.g._ `./Spacemesh --pprof-server`
   It makes Smapp runs go-spacemesh with the `--pprof-server` flag.
   Env variable alias: `PPROF_SERVER`
+- `--test-mode` (boolean)
+  _e.g._ `./Spacemesh --test-mode`
+  It runs Smapp and the Node under the hood in standalone mode, making it much easier to test and debug application.
+  Env variable alias: `TEST_MODE`
 
 To run application in dev mode with same behavior set env variables instead:
 ```

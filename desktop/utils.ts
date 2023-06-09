@@ -5,6 +5,11 @@ import cs from 'checksum';
 import fetch from 'electron-fetch';
 import { configCodecByFirstChar } from '../shared/utils';
 import { NodeConfig } from '../shared/types';
+import {
+  STANDALONE_GENESIS_EXTRA,
+  getTestModeNodeConfig,
+  isTestMode,
+} from './testMode';
 
 // --------------------------------------------------------
 // ENV modes
@@ -27,9 +32,11 @@ export const fetchJSON = async (url?: string) =>
   url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
 
 export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
-  fetch(`${url}?no-cache=${Date.now()}`)
-    .then((res) => res.text())
-    .then((res) => configCodecByFirstChar(res).parse(res));
+  isTestMode() && url === STANDALONE_GENESIS_EXTRA
+    ? getTestModeNodeConfig()
+    : fetch(`${url}?no-cache=${Date.now()}`)
+        .then((res) => res.text())
+        .then((res) => configCodecByFirstChar(res).parse(res));
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 
