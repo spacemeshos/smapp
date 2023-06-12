@@ -113,13 +113,13 @@ class SmesherService extends NetServiceFactory<
         throttle,
       },
     }).then((response) => {
-      this.postDataCreationProgressStream(handler);
+      this.postSetupStatusStream(handler);
       return response.status;
     });
 
   activateProgressStream = (
     handler: (error: Error, status: Partial<PostSetupStatus>) => void
-  ) => this.postDataCreationProgressStream(handler);
+  ) => this.postSetupStatusStream(handler);
 
   deactivateProgressStream = () => {
     if (this.stream) {
@@ -205,17 +205,13 @@ class SmesherService extends NetServiceFactory<
         })
       );
 
-  private postDataCreationProgressStream = (
+  private postSetupStatusStream = (
     handler: (error: any, status: Partial<PostSetupStatus>) => void
-  ) => {
-    if (!this.service) {
-      throw new Error('SmesherService is not running');
-    }
-    if (!this.stream) {
-      let streamError = null;
-      this.stream = this.service.PostSetupStatusStream({});
-
-      const onDataHandler = memoDebounce(
+  ) =>
+    this.runStream(
+      'PostSetupStatusStream',
+      {},
+      memoDebounce(
         0.5 * MINUTE,
         (response: PostSetupStatusStreamResponse__Output) => {
           const { status } = response;
@@ -232,30 +228,9 @@ class SmesherService extends NetServiceFactory<
               : 0,
             opts: opts as PostSetupOpts | null,
           });
-          streamError = null;
         }
-      );
-      this.stream.on('data', onDataHandler);
-      this.stream.on('error', (error: any) => {
-        this.logger.error('grpc PostDataCreationProgressStream', error);
-        // @ts-ignore
-        handler(error, {}); // TODO
-        streamError = error;
-      });
-      this.stream.on('end', async () => {
-        if (!streamError) {
-          // In case if Smeshing is done it just closes the stream
-          // so we have to notify client on Smesher Post Setup Status
-          // Expected: STATE_COMPLETE and numLabelsWritten > 0
-          const status = await this.getPostSetupStatus();
-          handler(null, status);
-          this.stream = null;
-        }
-        console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
-        this.stream = null;
-      });
-    }
-  };
+      )
+    );
 }
 
 export default SmesherService;
