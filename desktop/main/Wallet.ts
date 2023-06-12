@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import path from 'path';
 import * as R from 'ramda';
 import { ipcMain } from 'electron';
@@ -132,9 +133,11 @@ export const createWallet = async ({
       : '';
   wallet.meta.type = type;
 
+  const WALLET_NAME = wallet.meta.displayName.toLowerCase().replace(' ', '_');
+
   const walletPath = path.resolve(
     DEFAULT_WALLETS_DIRECTORY,
-    `my_wallet_${wallet.meta.created}.json`
+    `wallet_${WALLET_NAME}_${wallet.meta.created}.json`
   );
   return { path: walletPath, wallet, password };
 };

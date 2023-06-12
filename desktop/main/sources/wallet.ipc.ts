@@ -91,17 +91,17 @@ const logger = Logger({ className: 'sources/wallet.ipc' });
 // Utils
 const updateWalletFile = async (next: WalletData) => {
   if (next.password) {
-    await saveWallet(next.path, next.password, next.wallet).catch((err) => {
+    return saveWallet(next.path, next.password, next.wallet).catch((err) => {
       if (err?.message === WRONG_PASSWORD_MESSAGE) return;
       logger.error('updateWalletFile/saveWallet', err, next.path);
       throw err;
     });
-  } else {
-    await updateWalletMeta(next.path, next.wallet.meta).catch((err) => {
-      logger.error('updateWalletFile', err, next.path);
-      throw err;
-    });
   }
+
+  return updateWalletMeta(next.path, next.wallet.meta).catch((err) => {
+    logger.error('updateWalletFile', err, next.path);
+    throw err;
+  });
 };
 
 const loadWallet$ = (path: string, password: string) => {
@@ -388,19 +388,25 @@ const handleWalletIpcRequests = (
           $wallet.next(next.wallet);
           $walletPath.next(next.path);
         }
+
         if (isWalletData(next) && next.save) {
-          updateWalletFile(next).catch((err: any) => {
-            $warnings.next(
-              Warning.fromError(
-                WarningType.WriteFilePermission,
-                {
-                  kind: WriteFilePermissionWarningKind.WalletFile,
-                  filePath: next.path,
-                },
-                err
-              )
-            );
-          });
+          updateWalletFile(next)
+            .then((walletPath) => {
+              // eslint-disable-next-line promise/always-return
+              walletPath && $walletPath.next(walletPath.filepath);
+            })
+            .catch((err: any) => {
+              $warnings.next(
+                Warning.fromError(
+                  WarningType.WriteFilePermission,
+                  {
+                    kind: WriteFilePermissionWarningKind.WalletFile,
+                    filePath: next.path,
+                  },
+                  err
+                )
+              );
+            });
         }
       },
       error: (error: Error) => {

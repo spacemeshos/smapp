@@ -151,10 +151,12 @@ describe('Save/update wallet file', () => {
   it('updates wallet meta', async () => {
     const walletPath = path.resolve(outDir, path.basename(LEGACY_WALLET_PATH));
     await fs.copyFile(LEGACY_WALLET_PATH, walletPath);
-    const result = await updateWalletMeta(walletPath, {
+    const { filepath } = await updateWalletMeta(walletPath, {
       displayName: 'It works!',
       genesisID: '0x91d338938929ec38e320ba558b6bd8538eae9753',
     });
+
+    const result = await loadWallet(filepath, '1');
     // Meta updated
     expect(result).toMatchObject({
       meta: {

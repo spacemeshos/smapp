@@ -188,6 +188,7 @@ const AccountsOverview = () => {
       width={290}
       height={'calc(100% - 65px)'}
       header={meta.displayName}
+      headerTooltipName={meta.displayName.length > 10}
     >
       <AccountDetails>
         {isSwitching && (
