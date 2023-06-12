@@ -137,6 +137,7 @@ For Ubuntu plarform the Electron has an issue with set up , if u have a smapp ve
 ### The first things to check if you encounter any issues with Smapp
 
 - Check the Release Notes on GitHub - you might find there the information about the known issues and workarounds to them. 
+- We recommend visiting https://status.spacemesh.io/, to see if Spacemesh Team is already working on this issue.
 - Check the Smapp version -it should always come from the official source and be the latest released package, update it if needed. 
 - If you have the latest version, restart Smapp and check if the issue remains.
 - The GPU drivers should be up to date; please check if you have the latest release. For NVIDIA, it should be version 525 (currently). 
