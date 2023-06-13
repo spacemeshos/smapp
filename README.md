@@ -129,3 +129,52 @@ For Ubuntu plarform the Electron has an issue with set up , if u have a smapp ve
 
 **command:** 
 ```/opt/Spacemesh/spacemesh_app --no-sandbox```
+
+---
+
+## Troubleshooting
+
+### The first things to check if you encounter any issues with Smapp
+
+- Check the Release Notes on GitHub - you might find there the information about the known issues and workarounds to them. 
+- We recommend visiting https://status.spacemesh.io/, to see if Spacemesh Team is already working on this issue.
+- Check the Smapp version -it should always come from the official source and be the latest released package, update it if needed. 
+- If you have the latest version, restart Smapp and check if the issue remains.
+- The GPU drivers should be up to date; please check if you have the latest release. For NVIDIA, it should be version 525 (currently). 
+- Check our [Discord] (https://discord.com/channels/623195163510046732/691261757921951756) chats, the issue might have been discussed there.
+
+Additionally: 
+
+### Windows: 
+
+- The following directories should be removed in case of reinstallation:
+
+  ```C:\Users\your_username\AppData\Local\Spacemesh```
+
+  ```C:\Users\your_username\AppData\Roaming\Spacemesh```
+
+  ```C:\Users\your_username\post```
+
+- The latest Visual C++ Redist should be installed
+- Check the Firewall settings, and amend them if needed
+
+### Linux: 
+
+- The following directories should be removed in case of reinstallation:
+
+  ```/opt/Spacemesh```
+
+  ```~/.config/Spacemesh```
+
+- We recommend using AppImage as some features cannot be embedded into a .deb package.
+- If you are using Ubuntu, check the OS version. We recommend at least 22.04
+- Glibc and other libraries should be up to date
+
+### macOS: 
+- The following directories should be removed in case of reinstallation:
+
+  ```/Users/your_username/Library/Application\ Support/Spacemesh```
+
+  ```/Users/your_username/post```
+
+- Check if the incoming connections aren’t blocked for go-spacemesh
