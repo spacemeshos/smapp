@@ -12,7 +12,7 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { of } from 'ramda';
+import { equals, of } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network, NodeConfig, Wallet } from '../../../shared/types';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
+import { Managers } from '../app.types';
 
 export const fromNetworkConfig = (net: Network) =>
   from(fetchNodeConfig(net.conf)).pipe(
@@ -78,6 +79,28 @@ export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
       (nets) => nets
     ),
     (networks) => $networks.next(networks)
+  );
+
+let cacheNodeConfig: NodeConfig | null = null;
+export const listenNodeConfigAndRestartNode = (
+  $nodeConfig: Observable<NodeConfig>,
+  $managers: Subject<Managers>
+) =>
+  makeSubscription(
+    $nodeConfig.pipe(withLatestFrom($managers)),
+    ([nodeConfig, managers]) => {
+      (async () => {
+        if (equals(nodeConfig, cacheNodeConfig)) {
+          return;
+        }
+
+        cacheNodeConfig = nodeConfig;
+
+        if (managers.node.isNodeRunning()) {
+          await managers.node.restartNode();
+        }
+      })();
+    }
   );
 
 export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
