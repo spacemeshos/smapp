@@ -36,6 +36,7 @@ import {
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
 import { getISODate } from '../../shared/datetime';
+import { getWalletFileName } from './utils';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
@@ -168,9 +169,11 @@ export const loadWallet = async (
 };
 
 const saveRaw = async (walletPath: string, wallet: WalletFile) => {
-  const filename = `wallet_${wallet.meta.displayName}_${wallet.meta.created}.json`;
+  const walletName = getWalletFileName(wallet.meta.displayName);
+  const filename = `wallet_${walletName}_${wallet.meta.created}.json`;
   const isFileNameUpdate = path.basename(walletPath) !== filename;
   const filepath = path.resolve(path.dirname(walletPath), filename);
+
   try {
     await fs.writeFile(filepath, JSON.stringify(wallet), {
       encoding: 'utf8',
