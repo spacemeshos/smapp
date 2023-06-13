@@ -15,6 +15,7 @@ import { smColors } from '../../vars';
 import AmountInput from '../../basicComponents/AmountInput';
 import { ExternalLinks } from '../../../shared/constants';
 import { Contact } from '../../../shared/types';
+import getFees from './getFees';
 
 const Wrapper = styled.div`
   display: flex;
@@ -57,6 +58,15 @@ const DetailsText = styled.div`
   color: ${({ theme }) => theme.color.contrast};
 `;
 
+const HintRow = styled(DetailsRow)`
+  margin-top: -15px;
+`;
+
+const HintText = styled(DetailsText)`
+  font-size: 14px;
+  line-height: 18px;
+`;
+
 const Dots = styled.div`
   flex: 1;
   flex-shrink: 1;
@@ -79,23 +89,6 @@ const DropDownContainer = styled.div`
   width: 240px;
 `;
 
-// TODO add auto update for fee ranges & maxGas
-const maxGas = 500;
-const fees = [
-  {
-    fee: 1,
-    label: `~10 min (~${1 * maxGas} Smidge)`,
-  },
-  {
-    fee: 2,
-    label: `~5 min (~${2 * maxGas} Smidge)`,
-  },
-  {
-    fee: 3,
-    label: `~1 min (~${3 * maxGas} Smidge)`,
-  },
-];
-
 const inputStyle = { flex: '0 0 240px' };
 const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
 const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
@@ -107,6 +100,7 @@ type Props = {
   updateTxAddress: ({ value }: { value: string }) => void;
   resetAddressError: () => void;
   amount: number;
+  maxGas: number;
   updateTxAmount: (value: number) => void;
   hasAmountError: boolean;
   resetAmountError: () => void;
@@ -127,6 +121,7 @@ const TxParams = ({
   amount,
   hasAmountError,
   updateTxAmount,
+  maxGas,
   resetAmountError,
   note,
   updateTxNote,
@@ -136,7 +131,7 @@ const TxParams = ({
   backButtonRoute,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
-
+  const fees = getFees(maxGas);
   const selectFee = ({ index }: { index: number }) => {
     updateFee({ fee: fees[index].fee });
     setSelectedFeeIndex(index);
@@ -217,6 +212,7 @@ const TxParams = ({
         <Dots>....................................</Dots>
         <DropDownContainer>
           <DropDown
+            isDisabled={maxGas === 0}
             data={fees}
             onClick={selectFee}
             selectedItemIndex={selectedFeeIndex}
@@ -225,6 +221,13 @@ const TxParams = ({
           />
         </DropDownContainer>
       </DetailsRow>
+      {maxGas === 0 && (
+        <HintRow>
+          <HintText>
+            Please, fill other fields to calculate the transaction fee
+          </HintText>
+        </HintRow>
+      )}
       <DetailsRow>
         <DetailsText>Note</DetailsText>
         <Dots>....................................</Dots>

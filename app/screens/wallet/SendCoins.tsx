@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { SingleSigTemplate } from '@spacemesh/sm-codec';
 import { sendTransaction } from '../../redux/wallet/actions';
 import {
   TxParams,
@@ -15,7 +16,8 @@ import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { TxConfirmationFieldType } from '../../components/wallet/TxConfirmation';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
-import { MAX_GAS } from '../../../shared/constants';
+import { eventsService } from '../../infra/eventsService';
+import { SingleSigMethods } from '../../../shared/templateConsts';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -37,12 +39,15 @@ const SendCoins = ({ history, location }: Props) => {
   const [note, setNote] = useState('');
   const [fee, setFee] = useState(1);
   const [txId, setTxId] = useState('');
+  const [maxGas, setMaxGas] = useState(0);
   const [isCreateNewContactOn, setIsCreateNewContactOn] = useState(false);
 
   const status = useSelector((state: RootState) => state.node.status);
+  const currentAccountIndex = useSelector(
+    (state: RootState) => state.wallet.currentAccountIndex
+  );
   const currentAccount = useSelector(
-    (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]
+    (state: RootState) => state.wallet.accounts[currentAccountIndex]
   );
   const currentBalance = useSelector(
     (state: RootState) => state.wallet.balances[currentAccount.address]
@@ -60,6 +65,22 @@ const SendCoins = ({ history, location }: Props) => {
     setHasAmountError(false);
   };
 
+  useEffect(() => {
+    (async () => {
+      const parsedMaxGas = await eventsService.getTxMaxGas({
+        templateAddress: SingleSigTemplate.key,
+        method: SingleSigMethods.Spend,
+        payload: {
+          fee: 1,
+          receiver: address || currentAccount.address,
+          amount,
+        },
+        accountIndex: currentAccountIndex,
+      });
+      parsedMaxGas > 0 && setMaxGas(parsedMaxGas);
+    })();
+  }, [currentAccountIndex, address, amount, currentAccount]);
+
   const updateTxNote = ({ value }: { value: any }) => {
     setNote(value);
   };
@@ -70,7 +91,7 @@ const SendCoins = ({ history, location }: Props) => {
 
   const validateAmount = () => {
     return (
-      amount + fee * MAX_GAS < (currentBalance?.projectedState?.balance || 0)
+      amount + fee * maxGas < (currentBalance?.projectedState?.balance || 0)
     );
   };
 
@@ -111,6 +132,7 @@ const SendCoins = ({ history, location }: Props) => {
           hasAmountError={hasAmountError}
           resetAmountError={() => setHasAmountError(false)}
           updateFee={updateFee}
+          maxGas={maxGas}
           note={note}
           updateTxNote={updateTxNote}
           backButtonRoute={MainPath.Wallet}
@@ -167,11 +189,11 @@ const SendCoins = ({ history, location }: Props) => {
             },
             {
               label: 'Fee',
-              value: `~${formatSmidge(fee * MAX_GAS)}`,
+              value: `~${formatSmidge(fee * maxGas)}`,
             },
             {
               label: 'Total',
-              value: `~${formatSmidge(amount + fee * MAX_GAS)}`,
+              value: `~${formatSmidge(amount + fee * maxGas)}`,
               type: TxConfirmationFieldType.Total,
             },
           ]}

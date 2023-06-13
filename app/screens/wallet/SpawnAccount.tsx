@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { SingleSigTemplate } from '@spacemesh/sm-codec';
 import { TxConfirmation, TxSent } from '../../components/wallet';
 import { formatSmidge } from '../../infra/utils';
 import { RootState } from '../../types';
@@ -17,8 +18,9 @@ import {
 } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
-import { MAX_GAS } from '../../../shared/constants';
 import Address from '../../components/common/Address';
+import { SingleSigMethods } from '../../../shared/templateConsts';
+import getFees from '../../components/wallet/getFees';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -96,26 +98,14 @@ const DropDownContainer = styled.div`
   width: 240px;
 `;
 
-const fees = [
-  {
-    fee: 1,
-    label: `~10 min (~${1 * MAX_GAS} Smidge)`,
-  },
-  {
-    fee: 2,
-    label: `~5 min (~${2 * MAX_GAS} Smidge)`,
-  },
-  {
-    fee: 3,
-    label: `~1 min (~${3 * MAX_GAS} Smidge)`,
-  },
-];
-
 const SpawnAccount = ({ history }: Props) => {
   const [mode, setMode] = useState<1 | 2 | 3>(1);
   const [txId, setTxId] = useState('');
   const [fee, setFee] = useState(1);
+  const [maxGas, setMaxGas] = useState(0);
   const [realFee, setRealFee] = useState(0);
+  const [hasAmountError, setHasAmountError] = useState(false);
+  const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
 
   const status = useSelector((state: RootState) => state.node.status);
   const currentAccountIndex = useSelector(
@@ -128,8 +118,19 @@ const SpawnAccount = ({ history }: Props) => {
     (state: RootState) => state.wallet.balances[currentAccount.address]
   );
 
-  const [hasAmountError, setHasAmountError] = useState(false);
-  const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
+  const fees = getFees(maxGas);
+
+  useEffect(() => {
+    (async () => {
+      const parsedMaxGas = await eventsService.getTxMaxGas({
+        templateAddress: SingleSigTemplate.key,
+        method: SingleSigMethods.Spawn,
+        payload: { fee: 1 },
+        accountIndex: currentAccountIndex,
+      });
+      parsedMaxGas > 0 && setMaxGas(parsedMaxGas);
+    })();
+  }, [currentAccountIndex]);
 
   const updateFee = (fee: number) => setFee(fee);
   const selectFee = ({ index }: { index: number }) => {
@@ -139,8 +140,7 @@ const SpawnAccount = ({ history }: Props) => {
   const resetAmountError = () => setHasAmountError(false);
 
   const validateAmount = () => {
-    const MAX_GAS = 500; // TODO
-    return fee * MAX_GAS < (currentBalance?.projectedState?.balance || 0);
+    return fee * maxGas < (currentBalance?.projectedState?.balance || 0);
   };
 
   const proceedToConfirmation = () => {
@@ -221,7 +221,7 @@ const SpawnAccount = ({ history }: Props) => {
             },
             {
               label: 'Fee',
-              value: formatSmidge(fee * MAX_GAS),
+              value: formatSmidge(fee * maxGas),
             },
           ]}
           isDisabled={!status?.isSynced}
