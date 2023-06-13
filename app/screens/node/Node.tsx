@@ -460,7 +460,7 @@ const Node = ({ history, location }: Props) => {
         <Address
           key="smesherCoinbase"
           type={AddressType.ACCOUNT}
-          address={coinbase}
+          address={coinbase || ''}
         />,
       ],
     ];

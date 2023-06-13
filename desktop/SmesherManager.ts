@@ -6,26 +6,28 @@ import { ipcConsts } from '../app/vars';
 import {
   HexString,
   IPCSmesherStartupData,
-  NodeConfig,
   PostProvingOpts,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
-import { configCodecByPath, delay } from '../shared/utils';
+import { delay } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
-import { readFileAsync, writeFileAsync } from './utils';
 import AbstractManager from './AbstractManager';
-import StoreService from './storeService';
-import { generateGenesisIDFromConfig } from './main/Networks';
 import { safeSmeshingOpts } from './main/smeshingOpts';
-import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
+import {
+  loadCustomNodeConfig,
+  loadNodeConfig,
+  updateSmeshingOpts,
+} from './main/NodeConfig';
 import {
   deleteSmeshingMetadata,
   getSmeshingMetadata,
   updateSmeshingMetadata,
 } from './SmesherMetadataUtils';
+
+import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -34,36 +36,17 @@ const logger = Logger({ className: 'SmesherService' });
 class SmesherManager extends AbstractManager {
   private smesherService: SmesherService;
 
-  private readonly configFilePath: string;
-
   private genesisID: string;
 
-  constructor(
-    mainWindow: BrowserWindow,
-    configFilePath: string,
-    genesisID: string
-  ) {
+  private netName: string;
+
+  constructor(mainWindow: BrowserWindow, genesisID: string, netName: string) {
     super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
-    this.configFilePath = configFilePath;
     this.genesisID = genesisID;
+    this.netName = netName;
   }
-
-  private loadConfig = async () => {
-    const fileContent = await readFileAsync(this.configFilePath, {
-      encoding: 'utf-8',
-    });
-    return configCodecByPath(this.configFilePath).parse(
-      fileContent
-    ) as NodeConfig;
-  };
-
-  private writeConfig = async (config) => {
-    const data = configCodecByPath(this.configFilePath).stringify(config);
-    await writeFileAsync(this.configFilePath, data);
-    return true;
-  };
 
   unsubscribe = () => {
     this.smesherService.deactivateProgressStream();
@@ -72,7 +55,7 @@ class SmesherManager extends AbstractManager {
   };
 
   getSmeshingConfig = async () => {
-    const config = await this.loadConfig();
+    const config = await loadNodeConfig();
     return config.smeshing || {};
   };
 
@@ -96,6 +79,14 @@ class SmesherManager extends AbstractManager {
       ['smeshing-opts', 'smeshing-opts-datadir'],
       smeshingConfig
     );
+  };
+
+  setGenesisID = (id: HexString) => {
+    this.genesisID = id;
+  };
+
+  setNetName = (netName: string) => {
+    this.netName = netName;
   };
 
   updateSmesherState = async () => {
@@ -136,7 +127,7 @@ class SmesherManager extends AbstractManager {
       postSetupState,
       numLabelsWritten,
     } = await this.smesherService.getPostSetupStatus();
-    const nodeConfig = await this.loadConfig();
+    const nodeConfig = await loadNodeConfig();
     const numUnits =
       nodeConfig.smeshing?.['smeshing-opts']?.['smeshing-opts-numunits'] || 0;
     const maxFileSize =
@@ -169,7 +160,7 @@ class SmesherManager extends AbstractManager {
 
   sendSmesherConfig = async () => {
     // TODO: Merge with `sendSmesherSettingsAndStartupState`
-    const nodeConfig = await this.loadConfig();
+    const nodeConfig = await loadNodeConfig();
     if (nodeConfig.smeshing && nodeConfig.smeshing['smeshing-opts']) {
       const opts = nodeConfig.smeshing['smeshing-opts'];
       const freeSpace = await this.checkDiskSpace({
@@ -223,15 +214,6 @@ class SmesherManager extends AbstractManager {
       return this.selectPostFolder({ mainWindow: this.mainWindow });
     };
     const getCoinbase = () => this.smesherService.getCoinbase();
-    const setCoinbase = async (_event, { coinbase }) => {
-      // TODO: Unused handler
-      const res = await this.smesherService.setCoinbase({ coinbase });
-      const config = await this.loadConfig();
-      config.smeshing = config.smeshing || {};
-      config.smeshing['smeshing-coinbase'] = coinbase;
-      await this.writeConfig(config);
-      return res;
-    };
     const getMinGas = () => this.smesherService.getMinGas();
     const getEstimatedRewards = () => this.smesherService.getEstimatedRewards();
 
@@ -243,25 +225,16 @@ class SmesherManager extends AbstractManager {
           deleteFiles: deleteFiles || false,
         });
         await this.clearSmesherMetadata();
-        const config = await this.loadConfig();
-        const genesisId = generateGenesisIDFromConfig(config);
-        if (deleteFiles) {
-          config.smeshing = {};
-        } else {
-          config.smeshing = {
-            ...config.smeshing,
-            'smeshing-start': false,
-          };
-        }
-        const smeshingOpts = safeSmeshingOpts(config.smeshing, genesisId);
-        config.smeshing = smeshingOpts;
-        await this.writeConfig(config);
-        StoreService.set(`smeshing.${genesisId}`, smeshingOpts);
+
+        await updateSmeshingOpts(
+          this.netName,
+          deleteFiles ? {} : { 'smeshing-start': false }
+        );
+
         return res?.error;
       }
     );
     ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, getCoinbase);
-    ipcMain.handle(ipcConsts.SMESHER_SET_COINBASE, setCoinbase);
     ipcMain.handle(ipcConsts.SMESHER_GET_MIN_GAS, getMinGas);
     ipcMain.handle(
       ipcConsts.SMESHER_GET_ESTIMATED_REWARDS,
@@ -272,7 +245,6 @@ class SmesherManager extends AbstractManager {
       ipcMain.removeHandler(ipcConsts.SMESHER_SELECT_POST_FOLDER);
       ipcMain.removeHandler(ipcConsts.SMESHER_STOP_SMESHING);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_COINBASE);
-      ipcMain.removeHandler(ipcConsts.SMESHER_SET_COINBASE);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_MIN_GAS);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
     };
@@ -298,7 +270,7 @@ class SmesherManager extends AbstractManager {
       maxFileSize,
     } = postSetupOpts;
     const { nonces, threads } = provingOpts;
-    const prevOpts = StoreService.get(`smeshing.${genesisID}`);
+    const customNodeConfig = await loadCustomNodeConfig(this.netName);
     const opts = safeSmeshingOpts(
       {
         'smeshing-coinbase': coinbase,
@@ -308,25 +280,24 @@ class SmesherManager extends AbstractManager {
           'smeshing-opts-numunits': numUnits,
           'smeshing-opts-provider': provider,
           'smeshing-opts-throttle': throttle,
-          'smeshing-opts-compute-batch-size': R.pathOr(
-            DEFAULT_SMESHING_BATCH_SIZE,
-            ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
-            prevOpts
-          ),
         },
         'smeshing-proving-opts': {
           'smeshing-opts-proving-nonces': nonces,
           'smeshing-opts-proving-threads': threads,
+          'smeshing-opts-compute-batch-size': R.pathOr(
+            DEFAULT_SMESHING_BATCH_SIZE,
+            ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
+            customNodeConfig?.smeshing || {}
+          ),
         },
         'smeshing-start': true,
       },
       genesisID
     );
-    StoreService.set(`smeshing.${genesisID}`, opts);
 
-    const config = await this.loadConfig();
-    config.smeshing = opts;
-    return this.writeConfig(config);
+    await updateSmeshingOpts(this.netName, opts);
+
+    return true;
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {
