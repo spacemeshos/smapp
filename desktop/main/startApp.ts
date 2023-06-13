@@ -18,6 +18,7 @@ import {
   fetchDiscoveryEach,
   listPublicApisByRequest,
   listNetworksByRequest,
+  listenNodeConfigAndRestartNode,
 } from './sources/fetchDiscovery';
 import spawnManagers from './reactions/spawnManagers';
 import syncNodeConfig from './reactions/syncNodeConfig';
@@ -163,7 +164,7 @@ const startApp = (): AppStore => {
   // List of unsubscribe functions
   const unsubs = [
     // Spawn managers (and handle unsubscribing)
-    spawnManagers($nodeConfig, $managers, $mainWindow),
+    spawnManagers($nodeConfig, $managers, $mainWindow, $currentNetwork),
     // On changing network -> update node config
     syncNodeConfig(
       $currentNetwork,
@@ -251,6 +252,7 @@ const startApp = (): AppStore => {
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),
+    listenNodeConfigAndRestartNode($nodeConfig, $managers),
     handleBenchmarksIpc($mainWindow, $nodeConfig),
   ];
 
