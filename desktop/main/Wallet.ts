@@ -17,7 +17,7 @@ import { CreateWalletRequest } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { copyWalletFile, listWallets } from './walletFile';
-import { getLocalNodeConnectionConfig } from './utils';
+import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
 
 const list = async () => {
   try {
@@ -132,12 +132,11 @@ export const createWallet = async ({
       ? stringifySocketAddress(apiUrl)
       : '';
   wallet.meta.type = type;
-
-  const WALLET_NAME = wallet.meta.displayName.toLowerCase().replace(' ', '_');
+  const walletName = getWalletFileName(wallet.meta.displayName);
 
   const walletPath = path.resolve(
     DEFAULT_WALLETS_DIRECTORY,
-    `wallet_${WALLET_NAME}_${wallet.meta.created}.json`
+    `wallet_${walletName}_${wallet.meta.created}.json`
   );
   return { path: walletPath, wallet, password };
 };
