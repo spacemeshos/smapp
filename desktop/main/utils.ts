@@ -114,3 +114,7 @@ export const toPublicService = (
   name: netName,
   ...toSocketAddress(url),
 });
+
+// to lower case and replace spaces with underscores
+export const getWalletFileName = (walletName: string) =>
+  walletName.toLowerCase().replaceAll(/\s/g, '_');
