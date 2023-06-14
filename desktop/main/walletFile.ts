@@ -36,6 +36,7 @@ import {
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
 import { getISODate } from '../../shared/datetime';
+import { getWalletFileName } from './utils';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
@@ -167,14 +168,20 @@ export const loadWallet = async (
   };
 };
 
-export const saveRaw = async (walletPath: string, wallet: WalletFile) => {
-  const isFilePath = walletPath.endsWith('.json');
-  const filename = isFilePath
-    ? path.basename(walletPath)
-    : `my_wallet_${wallet.meta.created}.json`;
-  const filepath = isFilePath ? walletPath : path.resolve(walletPath, filename);
+const saveRaw = async (walletPath: string, wallet: WalletFile) => {
+  const walletName = getWalletFileName(wallet.meta.displayName);
+  const filename = `wallet_${walletName}_${wallet.meta.created}.json`;
+  const isFileNameUpdate = path.basename(walletPath) !== filename;
+  const filepath = path.resolve(path.dirname(walletPath), filename);
+
   try {
-    await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
+    await fs.writeFile(filepath, JSON.stringify(wallet), {
+      encoding: 'utf8',
+    });
+
+    if (isFileNameUpdate && walletPath) {
+      await fs.unlink(path.resolve(walletPath));
+    }
   } catch (err: any) {
     throw Warning.fromError(
       WarningType.WriteFilePermission,
@@ -221,8 +228,7 @@ export const updateWalletMeta = async (
 ) => {
   const wallet = await loadRawWallet(path);
   const newWallet = { ...wallet, meta: { ...wallet.meta, ...meta } };
-  await saveRaw(path, newWallet);
-  return newWallet;
+  return saveRaw(path, newWallet);
 };
 
 export const updateWalletSecrets = async (
@@ -278,7 +284,7 @@ export const listWalletsByPaths = (files: string[]) => {
 
 export const listWalletsInDirectory = async (walletsDir: string) => {
   const files = await fs.readdir(walletsDir);
-  const regex = new RegExp('(my_wallet_).*.(json)', 'i');
+  const regex = new RegExp('(wallet_).*.(json)', 'i');
   const walletFiles = files
     .filter((filename) => filename.match(regex))
     .map((filename) => path.join(walletsDir, filename));

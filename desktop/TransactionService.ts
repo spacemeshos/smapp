@@ -22,6 +22,11 @@ class TransactionService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
+  parseTransaction = ({ transaction }) =>
+    this.callService('ParseTransaction', { transaction })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
+
   getTxsState = (txIds: Uint8Array[]) =>
     this.callServiceWithRetries('TransactionsState', {
       transactionId: txIds.map((id) => ({ id })),

@@ -17,7 +17,13 @@ import {
   EnterPasswordModal,
   SignMessage,
 } from '../../components/settings';
-import { Input, Link, Button, DropDown } from '../../basicComponents';
+import {
+  Input,
+  Link,
+  Button,
+  DropDown,
+  ErrorPopup,
+} from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -30,6 +36,7 @@ import { goToSwitchNetwork } from '../../routeUtils';
 import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 import { setClientSettingsTheme } from '../../theme';
+import { validationWalletName } from '../auth/Validation';
 
 const Wrapper = styled.div`
   display: flex;
@@ -90,6 +97,13 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
+const ErrorSection = styled.div`
+  position: relative;
+  display: flex;
+  flex: 1;
+  margin-left: 10px;
+`;
+
 interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
@@ -129,6 +143,7 @@ type State = {
   passwordModalSubmitAction: ({ password }: { password: string }) => void;
   signMessageModalAccountIndex: number;
   showModal: boolean;
+  nameWalletError: string;
 };
 
 const categories = ['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED'];
@@ -148,6 +163,7 @@ class Settings extends Component<Props, State> {
       passwordModalSubmitAction: () => {},
       signMessageModalAccountIndex: -1,
       showModal: false,
+      nameWalletError: '',
     };
   }
 
@@ -177,6 +193,7 @@ class Settings extends Component<Props, State> {
       passwordModalSubmitAction,
       signMessageModalAccountIndex,
       showModal,
+      nameWalletError,
     } = this.state;
 
     return (
@@ -285,11 +302,28 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={
                   canEditDisplayName ? (
-                    <Input
-                      value={walletDisplayName}
-                      onChange={this.editWalletDisplayName}
-                      maxLength="100"
-                    />
+                    [
+                      <Input
+                        value={walletDisplayName}
+                        onChange={this.editWalletDisplayName}
+                        maxLength="31"
+                        style={{ width: '90%' }}
+                        key="wallet-display-name-input"
+                      />,
+                      <ErrorSection key="wallet-display-name-error">
+                        {nameWalletError && (
+                          <ErrorPopup
+                            onClick={() => this.validateErrorDisplayName()}
+                            text={nameWalletError}
+                            style={{
+                              top: -30,
+                              left: 0,
+                              width: 180,
+                            }}
+                          />
+                        )}
+                      </ErrorSection>,
+                    ]
                   ) : (
                     <Name>{walletDisplayName}</Name>
                   )
@@ -704,10 +738,23 @@ class Settings extends Component<Props, State> {
     });
   };
 
+  validateErrorDisplayName = () => {
+    const { displayName } = this.props;
+    this.setState({
+      nameWalletError: '',
+      walletDisplayName: displayName,
+    });
+  };
+
   saveEditedWalletDisplayName = () => {
     const { displayName, updateWalletName } = this.props;
     const { walletDisplayName } = this.state;
     this.setState({ canEditDisplayName: false });
+    const nameWalletError = validationWalletName(walletDisplayName);
+    if (nameWalletError) {
+      this.setState({ nameWalletError, canEditDisplayName: true });
+      return;
+    }
     if (
       !!walletDisplayName &&
       !!walletDisplayName.trim() &&

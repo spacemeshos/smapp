@@ -2,6 +2,7 @@ import { hash } from '@spacemesh/sm-codec';
 import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString } from '../../shared/utils';
+import { getStandaloneNetwork, isTestMode } from '../testMode';
 import { fetchJSON, isDevNet } from '../utils';
 import { toPublicService } from './utils';
 
@@ -44,9 +45,11 @@ const getDiscoveryUrl = () =>
 
 export const fetchNetworksFromDiscovery = async () => {
   const networks: Network[] = await fetchJSON(getDiscoveryUrl());
-  const result: Network[] = isDevNet()
-    ? [(await getDevNet()) as Network, ...networks]
-    : networks || [];
+  const result: Network[] = [
+    ...(isTestMode() ? ([await getStandaloneNetwork()] as Network[]) : []),
+    ...(isDevNet() ? ([await getDevNet()] as Network[]) : []),
+    ...(networks || []),
+  ];
   return result;
 };
 
