@@ -39,7 +39,7 @@ export default {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
     }),
-    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+    new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
   ].concat(
     process.env.SENTRY_AUTH_TOKEN ? [
       new SentryWebpackPlugin({
