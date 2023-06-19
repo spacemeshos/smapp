@@ -126,7 +126,7 @@
     "@typescript-eslint/parser": "4.18.0",
     "aes-js": "3.1.2",
     "babel-eslint": "10.1.0",
-    "babel-loader": "8.2.2",
+    "babel-loader": "9.1.2",
     "babel-plugin-dev-expression": "0.2.2",
     "babel-plugin-styled-components": "1.12.0",
     "babel-plugin-transform-react-remove-prop-types": "0.4.24",
