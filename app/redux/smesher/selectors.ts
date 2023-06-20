@@ -35,10 +35,15 @@ export const isSmeshingPaused = (state: RootState) => {
   );
 };
 
-export const isSmeshing = (state: RootState) =>
-  state.smesher.isSmeshingStarted &&
-  (getPostSetupState(state) === PostSetupState.STATE_COMPLETE ||
-    // Until Node will sync enough GRPC API returns NOT STARTED state
-    // even if we already started smeshing (so PoS will be created soon)
-    (getPostSetupState(state) === PostSetupState.STATE_NOT_STARTED &&
-      isValidSmeshingOpts(getSmeshingOpts(state))));
+export const isSmeshing = (state: RootState) => {
+  const postSetupState = getPostSetupState(state);
+  return (
+    state.smesher.isSmeshingStarted &&
+    (postSetupState === PostSetupState.STATE_COMPLETE ||
+      postSetupState === PostSetupState.STATE_PREPARED ||
+      // Until Node will sync enough GRPC API returns NOT STARTED state
+      // even if we already started smeshing (so PoS will be created soon)
+      (postSetupState === PostSetupState.STATE_NOT_STARTED &&
+        isValidSmeshingOpts(getSmeshingOpts(state))))
+  );
+};
