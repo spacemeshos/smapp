@@ -1,11 +1,11 @@
 import os from 'os';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import pkg from '../package.json';
 import { getNodePath } from './main/binaries';
 
 export const getNodeVersion = () =>
   new Promise<string>((resolve, reject) =>
-    exec(`${getNodePath()} version`, (err, stdout) => {
+    execFile(getNodePath(), ['version'], (err, stdout) => {
       if (err) return reject(err);
       if (stdout.length === 0)
         return reject(
