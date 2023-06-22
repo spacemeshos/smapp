@@ -32,6 +32,7 @@ type Props = {
   throttle: boolean;
   setThrottle: (throttle: boolean) => void;
   nextAction: () => void;
+  skipAction: () => void;
   status: NodeStatus | null;
 };
 
@@ -55,6 +56,7 @@ const PoSProvider = ({
   throttle,
   setThrottle,
   nextAction,
+  skipAction,
   status,
 }: Props) => {
   const [selectedProviderIndex, setSelectedProviderIndex] = useState(
@@ -97,6 +99,7 @@ const PoSProvider = ({
       </PauseSelector>
       <PoSFooter
         action={nextAction}
+        skipAction={providers.length === 0 ? skipAction : undefined}
         isDisabled={selectedProviderIndex === -1 || !status}
       />
     </>
