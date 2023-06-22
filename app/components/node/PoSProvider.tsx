@@ -65,11 +65,17 @@ const PoSProvider = ({
       : findProviderIndexEqTo(getFastestProvider(providers), providers)
   );
 
-  useEffect(() => setProvider(providers[selectedProviderIndex]), [
-    providers,
-    selectedProviderIndex,
-    setProvider,
-  ]);
+  useEffect(() => {
+    const fastestProvider = getFastestProvider(providers);
+    if (!provider) {
+      setSelectedProviderIndex(
+        findProviderIndexEqTo(fastestProvider, providers)
+      );
+      setProvider(fastestProvider);
+    } else {
+      setProvider(providers[selectedProviderIndex]);
+    }
+  }, [provider, providers, selectedProviderIndex, setProvider]);
 
   const handleSetProcessor = ({ index }: { index: number }) =>
     setSelectedProviderIndex(index);
