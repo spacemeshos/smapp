@@ -170,9 +170,13 @@ export const loadWallet = async (
 
 const saveRaw = async (walletPath: string, wallet: WalletFile) => {
   const walletName = getWalletFileName(wallet.meta.displayName);
-  const filename = `wallet_${walletName}_${wallet.meta.created}.json`;
-  const isFileNameUpdate = path.basename(walletPath) !== filename;
-  const filepath = path.resolve(path.dirname(walletPath), filename);
+  const filename = path.basename(walletPath);
+  const stdFilename = `wallet_${walletName}_${wallet.meta.created}.json`;
+  const nextFilename = /^(my_wallet_|wallet_.*_)[\d-TZ.]+\.json$/.test(filename)
+    ? stdFilename
+    : filename;
+  const isFileNameUpdate = nextFilename !== filename;
+  const filepath = path.resolve(path.dirname(walletPath), nextFilename);
 
   try {
     await fs.writeFile(filepath, JSON.stringify(wallet), {
