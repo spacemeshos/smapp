@@ -183,8 +183,10 @@ const getStatusColor = (status: BenchmarkStatus) => {
 };
 
 const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
-  const [noncesValue, setNoncesValue] = useState<number | null>(null);
-  const [threadsValue, setThreadsValue] = useState<number | null>(null);
+  const [noncesValue, setNoncesValue] = useState<number | null>(288);
+  const [threadsValue, setThreadsValue] = useState<number | null>(
+    maxCpuAvailable
+  );
   const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
     createBenchmarks([
