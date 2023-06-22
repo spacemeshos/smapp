@@ -20,7 +20,7 @@ export const getNodeVersion = () =>
 
 export const getEnvInfo = async () => ({
   smapp: `v${pkg.version}`,
-  node: await getNodeVersion(),
+  node: await getNodeVersion().catch(() => 'unknown'),
   platform: os.platform(),
   arch: os.arch(),
 });
