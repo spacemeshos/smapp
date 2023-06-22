@@ -375,7 +375,7 @@ class NodeManager extends AbstractManager {
     this.nodeLogStream = rotator({
       file: logFilePath,
       size: '100m',
-      keep: 5,
+      keep: 100,
       compress: true,
     });
 
