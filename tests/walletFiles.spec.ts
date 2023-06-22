@@ -143,7 +143,8 @@ describe('Save/update wallet file', () => {
   });
   it('saves wallet file', async () => {
     const wallet = await loadWallet(LEGACY_WALLET_PATH, '1');
-    const { filepath } = await saveWallet(outDir, 'password', wallet);
+    const output = path.resolve(outDir, path.basename(LEGACY_WALLET_PATH));
+    const { filepath } = await saveWallet(output, 'password', wallet);
     const result = await loadWallet(filepath, 'password');
 
     expect(result).toStrictEqual(wallet);
