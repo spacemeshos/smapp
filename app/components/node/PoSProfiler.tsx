@@ -292,7 +292,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
               <Tooltip
                 width={250}
                 marginTop={0}
-                text="Amount of nonces generated per one read. Generating 16 nonces has about 7% chance to find out the nonce, while 192 nonces gives about 90% of probability. If valid nonce was not found — it runs again."
+                text="Amount of nonces generated per one read. On a slow CPU you may consider reducing amount of nonces or size of your PoS data."
               />
             </TCol>
             <TCol width={COL_WIDTH.THREADS}>
