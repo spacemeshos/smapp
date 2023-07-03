@@ -41,7 +41,7 @@ const getDevNet = async () =>
 const getDiscoveryUrl = () =>
   app.commandLine.getSwitchValue('discovery') ||
   process.env.DISCOVERY_URL ||
-  'https://discover.spacemesh.io/networks.json';
+  'https://smapp.spacemesh.network/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
   const networks: Network[] = await fetchJSON(getDiscoveryUrl());
