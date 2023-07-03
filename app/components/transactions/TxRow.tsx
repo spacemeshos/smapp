@@ -225,15 +225,11 @@ const renderPayloadRow = (k: string, v: any, opts: Record<string, any>) => {
     case 'Destination':
     case 'PublicKey': {
       if (typeof v === 'string') {
-        const isHex = v.startsWith('0x');
         return (
           <Address
             address={v}
             suffix={opts.contacts[v] && `(${opts.contacts[v]})`}
-            isHex={isHex}
-            addToContacts={
-              (!isHex && !opts.contacts[v] && opts.addToContacts) || undefined
-            }
+            isHex
           />
         );
       }
