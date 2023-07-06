@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
 import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
-import { createBrowserHistory } from 'history';
+import { createMemoryHistory } from 'history';
 import routes from './routes';
 import GlobalStyle, { fontsCss } from './globalStyle';
 import { RootState } from './types';
@@ -17,7 +17,7 @@ import { init } from './sentry';
 import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
 import NoInternetConnection from './screens/modal/NoInternetConnection';
 
-const history = createBrowserHistory();
+const history = createMemoryHistory();
 
 init(history);
 
