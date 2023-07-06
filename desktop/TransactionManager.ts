@@ -572,7 +572,17 @@ class TransactionManager extends AbstractManager {
               layer: currentLayer,
             })
           : null;
-      tx && this.upsertTransaction(address)(tx);
+      tx &&
+        this.upsertTransaction(address)({
+          ...tx,
+          payload: {
+            ...tx.payload,
+            Arguments: {
+              ...tx.payload.Arguments,
+              PublicKey: publicKey,
+            },
+          },
+        });
 
       // TODO: Get rid of this call when we migrate to go-spacemesh
       //       with this fix of the issue https://github.com/spacemeshos/go-spacemesh/issues/3687
