@@ -21,7 +21,7 @@ RUN yarn && yarn build && yarn package-linux
 
 FROM ubuntu:22.04 
 ARG XPRA_REPO=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra.sources
-ARG XPRA_KEY_ID=18ADB31CF18AD6BB
+ARG XPRA_KEY_ID=73254CAD17978FAF
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
 
