@@ -1,6 +1,7 @@
 version: '3.7'
 services:
   smapp:
+     image: talm0/spacemesh-smapp-xpra
      build: 
         context: .
      container_name: smapp
