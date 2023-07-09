@@ -3,9 +3,13 @@ package spacemesh.v1;
 option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 
 import "activation_types.proto";
+import "google/protobuf/empty.proto";
 
 // Exposes services to query activation transactions
 service ActivationService {
     // Get a single activation transaction
     rpc Get(GetRequest) returns (GetResponse);
+
+    // Highest returns the atx id with the highest tick count.
+    rpc Highest(google.protobuf.Empty) returns (HighestResponse);
 }

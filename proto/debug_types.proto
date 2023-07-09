@@ -5,6 +5,10 @@ option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "global_state_types.proto";
 import "types.proto";
 
+message AccountsRequest {
+    uint32 layer = 1;
+}
+
 message AccountsResponse {
     repeated Account account_wrapper = 1;
 }

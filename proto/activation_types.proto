@@ -11,3 +11,7 @@ message GetRequest {
 message GetResponse {
     Activation atx = 1;
 }
+
+message HighestResponse {
+    Activation atx = 1;
+}
