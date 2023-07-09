@@ -27,6 +27,7 @@ export interface ProtoGrpcType {
       LogLevel: EnumTypeDefinition
       MeshTransaction: MessageTypeDefinition
       NodeError: MessageTypeDefinition
+      NodeInfoResponse: MessageTypeDefinition
       NodeStatus: MessageTypeDefinition
       Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
