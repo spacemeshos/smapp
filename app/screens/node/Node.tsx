@@ -307,7 +307,7 @@ const SmesherStatus = ({
   <SubHeader>
     Smesher
     <SmesherId>
-      <Address type={AddressType.SMESHER} address={smesherId} />
+      <Address type={AddressType.SMESHER} address={smesherId} isHex />
     </SmesherId>
     is&nbsp;
     <StatusSpan status={status}> {status ? 'ONLINE' : ' OFFLINE'} </StatusSpan>
@@ -420,6 +420,7 @@ const Node = ({ history, location }: Props) => {
           key="smesherId"
           type={AddressType.SMESHER}
           address={smesherId}
+          isHex
         />,
       ],
       [
