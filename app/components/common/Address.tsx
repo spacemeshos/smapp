@@ -110,10 +110,7 @@ const Address = (props: Props) => {
         <span>{textToShow}</span>
       </PublicKey>
       {!hideCopy && (
-        <CopyButton
-          onClick={(val) => setIsCopied(Boolean(val))}
-          value={address}
-        />
+        <CopyButton onClick={(val) => setIsCopied(Boolean(val))} value={addr} />
       )}
       {!hideExplorer && (
         <ExplorerButton isDarkMode={isDarkMode} address={addr} type={type} />
