@@ -48,6 +48,7 @@ const initialState = {
     layers: 0,
   },
   activations: [],
+  events: [],
   config: {} as SmesherConfig,
 };
 

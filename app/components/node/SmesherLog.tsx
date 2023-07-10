@@ -28,6 +28,7 @@ const LogEntry = styled.div`
   opacity: 0.6;
   transition: opacity 0.2s linear;
   padding: 0.25em 0 0.3em 0;
+  font-size: 12px;
 
   &:hover,
   &:active,
@@ -37,28 +38,32 @@ const LogEntry = styled.div`
 `;
 
 const LogText = styled.div`
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
   color: ${({ theme: { color } }) => color.primary};
 `;
 
 const LayerNumber = styled(LogText)`
-  width: 70px;
+  font-size: 12px;
+  line-height: 16px;
+  width: 4em;
 `;
 
 const AwardText = styled(LogText)`
+  font-size: 12px;
   color: ${smColors.green};
   margin-left: auto;
+  flex-grow: 1;
+  text-align: right;
 `;
 
 const LayerReward = styled.div`
+  font-size: 12px;
   display: flex;
   flex-direction: row;
 `;
 
 const DateText = styled.div`
-  font-size: 12px;
-  line-height: 16px;
   color: ${smColors.mediumGray};
 `;
 const EpochText = styled.div`
@@ -173,7 +178,12 @@ const SmesherLog = ({
     (state: RootState) => state.smesher.metadata
   );
   return (
-    <CorneredContainer useEmptyWrap width={310} height={450} header="REWARDS">
+    <CorneredContainer
+      useEmptyWrap
+      width={310}
+      height={'100%'}
+      header="REWARDS"
+    >
       <FullCrossIcon className="top" />
       <FullCrossIcon className="bottom" />
       <TopRightCorner />

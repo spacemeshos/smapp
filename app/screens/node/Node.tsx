@@ -2,8 +2,15 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+
 import { SmesherIntro, SmesherLog } from '../../components/node';
-import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
+import {
+  WrapperWith2SideBars,
+  Button,
+  Link,
+  CustomTimeAgo,
+  ColorStatusIndicator,
+} from '../../basicComponents';
 import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
@@ -23,6 +30,7 @@ import {
   PostSetupState,
   RewardsInfo,
   Reward,
+  NodeEvent,
 } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
@@ -39,7 +47,7 @@ import {
   epochByLayer,
   nextEpochTime,
 } from '../../../shared/layerUtils';
-import { convertBytesToMiB } from '../../../shared/utils';
+import { convertBytesToMiB, getEventType } from '../../../shared/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -47,12 +55,21 @@ const Wrapper = styled.div`
 `;
 
 const Text = styled.div`
-  font-size: 15px;
+  font-size: 14px;
   display: flex;
   line-height: 20px;
   color: ${({ theme }) => theme.color.contrast};
   &.progress {
     min-width: 170px;
+  }
+`;
+
+const EventText = styled(Text)`
+  display: block;
+  text-align: right;
+
+  & > * {
+    display: inline-block;
   }
 `;
 
@@ -101,6 +118,10 @@ const TextWrapper = styled.div`
   margin-bottom: 15px;
   justify-content: space-between;
   width: 100%;
+
+  & > ${ColorStatusIndicator} {
+    margin-right: 1em;
+  }
 `;
 
 const TextWrapperFirst = styled.div`
@@ -125,6 +146,10 @@ const LineWrap = styled.div`
     background: ${({ theme }) =>
       theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black};
   }
+`;
+
+const EventsWrap = styled(LineWrap)`
+  margin-bottom: 2em;
 `;
 
 const PosSmesherIcon = styled.img`
@@ -295,6 +320,97 @@ const getStatus = (
   }
 };
 
+const withTime = (str: string, time: number) => (
+  <>
+    {str}{' '}
+    <CustomTimeAgo
+      time={time}
+      dict={{
+        prefixAgo: 'in',
+        prefixFromNow: 'in',
+        suffixAgo: 'ago',
+        suffixFromNow: null,
+        seconds: '%d seconds',
+      }}
+    />
+  </>
+);
+
+const getStageName = (event: NodeEvent) => {
+  switch (getEventType(event)) {
+    case 'initStart':
+      return 'PoST data initialization';
+    case 'initComplete':
+      return 'PoST data initialization complete';
+    case 'poetWaitRound':
+      return 'Waiting for PoET registration';
+    case 'poetWaitProof':
+      return 'Waiting for PoET proof';
+    case 'postStart':
+      return 'PoST proof generation';
+    case 'postComplete':
+      return 'Generating PoST proof complete';
+    case 'atxPublished':
+      return 'Publishing activation';
+    case 'eligibilities':
+      return 'Calculating eleigibilities';
+    case 'proposal':
+      return 'Publishing proposal';
+    case 'beacon':
+      return 'Generating beacon';
+    default:
+      return `Unknown "${getEventType(event)}"`;
+  }
+};
+
+const renderNodeActivity = (event: NodeEvent) => {
+  if (event && event?.failure) {
+    return (
+      <ErrorMessage>
+        Stage &quot;{getStageName(event)}&quot; failed. Check the logs for more
+        details.
+      </ErrorMessage>
+    );
+  }
+  switch (getEventType(event)) {
+    case 'initStart':
+      return 'Node started PoST data initialization';
+    case 'initComplete':
+      return 'Node completed PoST data initialization';
+    case 'poetWaitRound':
+      return withTime(
+        'Node waits for opening of PoET registration window',
+        event.timestamp + (event.poetWaitRound?.wait || 0)
+      );
+    case 'poetWaitProof': {
+      return withTime(
+        'Node waits for PoET to complete',
+        event.timestamp + (event.poetWaitProof?.wait || 0)
+      );
+    }
+    case 'postStart':
+      return 'Node started PoST execution for the challenge from PoET';
+    case 'postComplete':
+      return 'Node finished post execution for challenge';
+    case 'atxPublished':
+      return 'Published activation. Waiting for the next epoch';
+    case 'eligibilities':
+      return event?.eligibilities?.eligibilities
+        ? `Going to publish proposals at specified layers to get rewards: ${event.eligibilities.eligibilities
+            .map((el) => el.layer)
+            .join(', ')}`
+        : `Computed eligibilities for the epoch ${
+            event.eligibilities?.epoch || ''
+          }`;
+    case 'proposal':
+      return `Published proposal on layer ${event.proposal?.layer}`;
+    case 'beacon':
+      return `Node computed randomness beacon for epoch ${event.beacon?.epoch}`;
+    default:
+      return event?.help || 'Node is preparing...';
+  }
+};
+
 const SmesherStatus = ({
   smesherId,
   status,
@@ -374,6 +490,8 @@ const Node = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.numLabelsWritten
   );
   const isWalletMode = useSelector(isWalletOnly);
+  const events = useSelector((state: RootState) => state.smesher.events);
+  const lastEvent = events[events.length - 1];
 
   const dispatch = useDispatch();
 
@@ -390,7 +508,30 @@ const Node = ({ history, location }: Props) => {
       );
     });
 
-  const getTableData = (): RowData[] => {
+  const getTableDataA = (): RowData[] => {
+    return [
+      [
+        'Smesher ID',
+        <Address
+          key="smesherId"
+          type={AddressType.SMESHER}
+          address={smesherId}
+          isHex
+        />,
+      ],
+      [
+        'Status',
+        getStatus(
+          postSetupState,
+          isPausedSmeshing,
+          rewards,
+          getEpochByLayer(status?.topLayer || 0),
+          status?.isSynced || false
+        ),
+      ],
+    ];
+  };
+  const getTableDataB = (): RowData[] => {
     const progress =
       ((numLabelsWritten * smesherConfig.bitsPerLabel) /
         (BITS * commitmentSize)) *
@@ -414,25 +555,6 @@ const Node = ({ history, location }: Props) => {
       : [];
 
     return [
-      [
-        'Smesher ID',
-        <Address
-          key="smesherId"
-          type={AddressType.SMESHER}
-          address={smesherId}
-          isHex
-        />,
-      ],
-      [
-        'Status',
-        getStatus(
-          postSetupState,
-          isPausedSmeshing,
-          rewards,
-          getEpochByLayer(status?.topLayer || 0),
-          status?.isSynced || false
-        ),
-      ],
       ['Current epoch', <>{currentEpoch}</>],
       [
         'Next epoch in',
@@ -484,7 +606,16 @@ const Node = ({ history, location }: Props) => {
             {ERR_MESSAGE_NODE_ERROR}
           </ErrorMessage>
         )}
-        {renderTable(getTableData())}
+        {renderTable(getTableDataA())}
+        <EventsWrap>
+          <TextWrapper>
+            <ColorStatusIndicator
+              color={lastEvent?.failure ? smColors.red : smColors.green}
+            />
+            <EventText>{renderNodeActivity(lastEvent)}</EventText>
+          </TextWrapper>
+        </EventsWrap>
+        {renderTable(getTableDataB())}
         <Footer>
           <FooterSection>
             <ButtonWrapper>
@@ -621,12 +752,7 @@ const Node = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      <WrapperWith2SideBars
-        width={650}
-        height={450}
-        header="SMESHER"
-        headerIcon={posIcon}
-      >
+      <WrapperWith2SideBars width={682} header="SMESHER" headerIcon={posIcon}>
         {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog
