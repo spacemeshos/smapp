@@ -133,8 +133,8 @@ const startApp = (): AppStore => {
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $hrp = $nodeConfig.pipe(
-    $.map((c) => c.main['network-hrp'] ?? HRP.TestNet),
-    $.startWith(HRP.TestNet),
+    $.map((c) => c.main['network-hrp'] ?? HRP.MainNet),
+    $.startWith(HRP.MainNet),
     $.distinctUntilChanged(),
     $.tap((hrp) => Bech32.setHRPNetwork(hrp)),
     $.share()
