@@ -17,6 +17,7 @@ import {
   KeyPair,
   RewardsInfo,
   Account,
+  NodeEvent,
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
@@ -66,6 +67,7 @@ export interface SmesherState {
   rewards: Reward[];
   rewardsInfo?: RewardsInfo;
   activations: Activation[];
+  events: NodeEvent[];
   config: SmesherConfig;
   metadata: {
     smeshingStart: number | null;

@@ -1,5 +1,8 @@
 import TOML from '@iarna/toml';
-import { HexString, SocketAddress, WalletType } from './types';
+import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
+import { Event } from '../proto/spacemesh/v1/Event';
+import { Duration } from '../proto/google/protobuf/Duration';
+import { HexString, NodeEvent, SocketAddress, WalletType } from './types';
 
 export const delay = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -264,3 +267,27 @@ export function enumFromStringValue<T>(
     ? ((value as unknown) as T)
     : undefined;
 }
+
+export const parseTimestamp = (t: Timestamp | Duration) => {
+  const sec =
+    typeof t.seconds === 'string'
+      ? parseInt(t.seconds)
+      : longToNumber(t.seconds || 0);
+  const nanos =
+    typeof t.nanos === 'string'
+      ? parseInt(t.nanos)
+      : longToNumber(t.nanos || 0);
+  return sec * 1000 + nanos / 1e6;
+};
+
+export const getEventType = (event: NodeEvent): Event['details'] => {
+  if (!event) return event;
+  if (event.details) return event.details;
+  const eventType = (Object.keys(event).filter(
+    (e) => !['timestamp', 'failure', 'help'].includes(e)
+  )[0] as unknown) as typeof event.details;
+  if (!eventType) {
+    throw new Error(`Unknown Node Event: ${JSON.stringify(event)}`);
+  }
+  return eventType;
+};

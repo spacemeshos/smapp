@@ -11,6 +11,7 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
+import { Event } from '../proto/spacemesh/v1/Event';
 import { delay } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
@@ -26,6 +27,7 @@ import {
   getSmeshingMetadata,
   updateSmeshingMetadata,
 } from './SmesherMetadataUtils';
+import AdminService from './AdminService';
 
 import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
 
@@ -34,12 +36,15 @@ const checkDiskSpace = require('check-disk-space');
 const logger = Logger({ className: 'SmesherService' });
 
 class SmesherManager extends AbstractManager {
+  private adminService: AdminService;
+
   private smesherService: SmesherService;
 
   private genesisID: string;
 
   constructor(mainWindow: BrowserWindow, genesisID: string) {
     super(mainWindow);
+    this.adminService = new AdminService();
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.genesisID = genesisID;
@@ -93,6 +98,7 @@ class SmesherManager extends AbstractManager {
     if (cfg?.start) {
       // Ensure that we started service
       this.smesherService.createService();
+      this.adminService.createService();
       const { postSetupState } = await this.smesherService.getPostSetupStatus();
       // Unsubscribe first
       this.smesherService.deactivateProgressStream();
@@ -389,6 +395,9 @@ class SmesherManager extends AbstractManager {
       status === PostSetupState.STATE_COMPLETE
     );
   };
+
+  subscribeNodeEvents = (handler: (err: Error | null, event?: Event) => void) =>
+    this.adminService.activateEventsStream(handler);
 }
 
 export default SmesherManager;

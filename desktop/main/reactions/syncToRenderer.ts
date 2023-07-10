@@ -15,6 +15,8 @@ import {
   Subject,
   withLatestFrom,
 } from 'rxjs';
+import parse from 'parse-duration';
+
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Activation,
@@ -24,6 +26,7 @@ import {
   RewardsInfo,
   Reward,
   Wallet,
+  NodeEvent,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
 import { HOUR, MINUTE } from '../constants';
@@ -111,7 +114,7 @@ const getRewardsInfo = (
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
     cfg.genesis['genesis-time'],
-    cfg.main['layer-duration']
+    parse(cfg.main['layer-duration'])
   );
   const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
   const curEpoch = getEpoch(curLayer);
@@ -165,6 +168,7 @@ export default (
   $smesherId: Observable<string>,
   $activations: Observable<Activation[]>,
   $rewards: Observable<Reward[]>,
+  $nodeEvents: Observable<NodeEvent>,
   $hrp: Observable<string>
 ) =>
   sync(
@@ -179,6 +183,10 @@ export default (
     $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
     $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
     $activations.pipe(map((activations) => ({ smesher: { activations } }))),
+    $nodeEvents.pipe(
+      scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),
+      map((events) => ({ smesher: { events } }))
+    ),
     combineLatest([
       $rewards.pipe(startWith([])),
       $nodeConfig,
