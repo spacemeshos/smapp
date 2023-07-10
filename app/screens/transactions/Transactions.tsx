@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -32,6 +32,7 @@ import { TxState, Bech32Address } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
 import { ExternalLinks } from '../../../shared/constants';
 import { SingleSigMethods } from '../../../shared/templateConsts';
+import { setRef } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -139,11 +140,6 @@ const TransactionList = ({
     itemCount: transactions.length,
     itemSize: 60,
   });
-  const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
-    el: HTMLElement | null
-  ) => {
-    ref.current = el;
-  };
 
   return (
     <TransactionsListWrapper ref={setRef(outerRef)}>

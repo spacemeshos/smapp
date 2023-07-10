@@ -29,7 +29,6 @@ import {
   NodeStatus,
   PostSetupState,
   RewardsInfo,
-  Reward,
   NodeEvent,
 } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
@@ -66,7 +65,12 @@ const Text = styled.div`
 
 const EventText = styled(Text)`
   display: block;
-  text-align: right;
+  text-align: left;
+  flex-grow: 1;
+  overflow: hidden;
+  height: 1.4em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   & > * {
     display: inline-block;
@@ -293,32 +297,6 @@ const ERR_MESSAGE_ERR_STATE =
   'PoS initialization failed. Try to delete it and re-initialize.';
 const ERR_MESSAGE_NODE_ERROR =
   'The Node is not syncing. Please check the Network tab';
-const getStatus = (
-  state: PostSetupState,
-  isPaused: boolean,
-  rewards: Reward[],
-  epoch: number,
-  isNodeSynced: boolean
-) => {
-  switch (state) {
-    case PostSetupState.STATE_IN_PROGRESS:
-      return 'Creating PoS data';
-    case PostSetupState.STATE_COMPLETE:
-      // eslint-disable-next-line no-nested-ternary
-      return rewards.length > 0 && epoch && isNodeSynced
-        ? `Smeshing: epoch ${epoch}`
-        : isNodeSynced
-        ? 'Waiting for next epoch'
-        : 'Syncing the Node';
-    case PostSetupState.STATE_ERROR:
-      return 'Error';
-    case PostSetupState.STATE_PAUSED:
-      return isPaused ? 'Paused creation PoS Data' : 'Not started';
-    default:
-    case PostSetupState.STATE_NOT_STARTED:
-      return 'Waiting Node to sync';
-  }
-};
 
 const withTime = (str: string, time: number) => (
   <>
@@ -374,29 +352,29 @@ const renderNodeActivity = (event: NodeEvent) => {
   }
   switch (getEventType(event)) {
     case 'initStart':
-      return 'Node started PoST data initialization';
+      return 'Started PoST data initialization';
     case 'initComplete':
-      return 'Node completed PoST data initialization';
+      return 'Completed PoST data initialization';
     case 'poetWaitRound':
       return withTime(
-        'Node waits for opening of PoET registration window',
+        'Waiting for PoET registration window',
         event.timestamp + (event.poetWaitRound?.wait || 0)
       );
     case 'poetWaitProof': {
       return withTime(
-        'Node waits for PoET to complete',
+        'Waiting for PoET challenge',
         event.timestamp + (event.poetWaitProof?.wait || 0)
       );
     }
     case 'postStart':
-      return 'Node started PoST execution for the challenge from PoET';
+      return "Generating PoST proof for the PoET's challenge";
     case 'postComplete':
-      return 'Node finished post execution for challenge';
+      return 'Finished generating PoST proof';
     case 'atxPublished':
       return 'Published activation. Waiting for the next epoch';
     case 'eligibilities':
       return event?.eligibilities?.eligibilities
-        ? `Going to publish proposals at specified layers to get rewards: ${event.eligibilities.eligibilities
+        ? `Eligible for rewards in layers ${event.eligibilities.eligibilities
             .map((el) => el.layer)
             .join(', ')}`
         : `Computed eligibilities for the epoch ${
@@ -507,30 +485,6 @@ const Node = ({ history, location }: Props) => {
         </LineWrap>
       );
     });
-
-  const getTableDataA = (): RowData[] => {
-    return [
-      [
-        'Smesher ID',
-        <Address
-          key="smesherId"
-          type={AddressType.SMESHER}
-          address={smesherId}
-          isHex
-        />,
-      ],
-      [
-        'Status',
-        getStatus(
-          postSetupState,
-          isPausedSmeshing,
-          rewards,
-          getEpochByLayer(status?.topLayer || 0),
-          status?.isSynced || false
-        ),
-      ],
-    ];
-  };
   const getTableDataB = (): RowData[] => {
     const progress =
       ((numLabelsWritten * smesherConfig.bitsPerLabel) /
@@ -555,6 +509,7 @@ const Node = ({ history, location }: Props) => {
       : [];
 
     return [
+      ...progressRow,
       ['Current epoch', <>{currentEpoch}</>],
       [
         'Next epoch in',
@@ -563,7 +518,14 @@ const Node = ({ history, location }: Props) => {
           {getFormattedTimestamp(getNextEpochTime(status?.topLayer || 0))}
         </>,
       ],
-      ...progressRow,
+      [
+        'Rewards Address',
+        <Address
+          key="smesherCoinbase"
+          type={AddressType.ACCOUNT}
+          address={coinbase || ''}
+        />,
+      ],
       [
         'Data Directory',
         <PosDirLink
@@ -578,11 +540,12 @@ const Node = ({ history, location }: Props) => {
       ['Data Size', formatBytes(commitmentSize)],
       ['Max File Size', `${convertBytesToMiB(maxFileSize)} MiB`],
       [
-        'Rewards Address',
+        'Smesher ID',
         <Address
-          key="smesherCoinbase"
-          type={AddressType.ACCOUNT}
-          address={coinbase || ''}
+          key="smesherId"
+          type={AddressType.SMESHER}
+          address={smesherId}
+          isHex
         />,
       ],
     ];
@@ -606,13 +569,17 @@ const Node = ({ history, location }: Props) => {
             {ERR_MESSAGE_NODE_ERROR}
           </ErrorMessage>
         )}
-        {renderTable(getTableDataA())}
         <EventsWrap>
           <TextWrapper>
             <ColorStatusIndicator
               color={lastEvent?.failure ? smColors.red : smColors.green}
             />
             <EventText>{renderNodeActivity(lastEvent)}</EventText>
+            <Link
+              text="Open logs"
+              onClick={() => history.push(MainPath.NodeEvents)}
+              style={{ marginLeft: '1em', whiteSpace: 'nowrap' }}
+            />
           </TextWrapper>
         </EventsWrap>
         {renderTable(getTableDataB())}

@@ -34,6 +34,7 @@ export enum MainPath {
   Network = '/main/network',
   Dashboard = '/main/dash',
   Smeshing = '/main/node',
+  NodeEvents = '/main/node-events',
   SmeshingSetup = '/main/node-setup',
   BackupWallet = '/main/backup',
   Transactions = '/main/transactions',
