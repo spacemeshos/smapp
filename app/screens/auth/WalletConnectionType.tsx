@@ -136,11 +136,14 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button
-            text="WALLET ONLY"
-            width={150}
-            onClick={handleNextStep(true)}
-          />
+          <div title="Temporarily unavailable">
+            <Button
+              text="WALLET ONLY"
+              width={150}
+              onClick={handleNextStep(true)}
+              isDisabled
+            />
+          </div>
         </RowSecond>
         <BottomPart>
           <Link
