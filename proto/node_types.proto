@@ -63,3 +63,10 @@ message ErrorStreamRequest {}
 message ErrorStreamResponse {
     NodeError error = 1;
 }
+
+message NodeInfoResponse {
+    string hrp = 1;
+    uint32 first_genesis = 2;
+    uint32 effective_genesis = 3;
+    uint32 epoch_size = 4;
+}

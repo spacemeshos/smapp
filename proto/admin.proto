@@ -1,0 +1,18 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "admin_types.proto";
+import "google/protobuf/empty.proto";
+
+// AdminService offers the set of administrative RPCs.
+service AdminService {
+
+  // Returns the checkpoint data.
+  rpc CheckpointStream(CheckpointStreamRequest) returns (stream CheckpointStreamResponse);
+
+  // Recovers from the provided checkpoint data.
+  rpc Recover(RecoverRequest) returns (google.protobuf.Empty);
+
+  // Events that are relevant for node operator
+  rpc EventsStream(EventStreamRequest) returns (stream Event);
+}
