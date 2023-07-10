@@ -1,3 +1,4 @@
+import { MutableRefObject } from 'react';
 import { TX_STATE_LABELS } from '../../shared/constants';
 import HRP from '../../shared/hrp';
 import { HexString, TxState } from '../../shared/types';
@@ -117,3 +118,9 @@ export const constrain = (min: number, max: number, value: number) =>
   Math.min(Math.max(value, min), max);
 
 export const safeReactKey = (str: string) => str.replace(/\s|\W/g, '');
+
+export const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
+  el: HTMLElement | null
+) => {
+  ref.current = el;
+};
