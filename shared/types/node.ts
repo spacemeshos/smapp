@@ -74,6 +74,7 @@ export interface NodeConfig {
     'poet-server': Array<string>;
     'genesis-active-size': number;
     'optimistic-filtering-threshold': number;
+    'network-hrp'?: string;
   };
   genesis: {
     'genesis-time': string;
