@@ -46,11 +46,13 @@ export const isNodeError = (e: any): e is NodeError =>
   typeof e.stackTrace === 'string';
 
 export interface NodeConfig {
-  api: {
-    grpc: string;
+  api?: {
+    'grpc-public-listener': string;
+    'grpc-private-listener': string;
+    [k: string]: any;
   };
-  preset: string;
-  p2p: {
+  preset?: string;
+  p2p?: {
     bootnodes: Array<string>;
   };
   smeshing?: {
@@ -71,10 +73,9 @@ export interface NodeConfig {
   main: {
     'layer-duration': string; // "120s"
     'layers-per-epoch': number;
-    'poet-server': Array<string>;
-    'genesis-active-size': number;
-    'optimistic-filtering-threshold': number;
+    'poet-server'?: Array<string>;
     'network-hrp'?: string;
+    [k: string]: any;
   };
   genesis: {
     'genesis-time': string;
@@ -89,9 +90,9 @@ export interface NodeConfig {
     'post-labels-per-unit': number;
     'post-max-numunits': number;
     'post-min-numunits': number;
-    'post-k1': number;
-    'post-k2': number;
-    'post-k3': number;
-    'post-k2pow-difficulty': bigint | number;
+    'post-k1'?: number;
+    'post-k2'?: number;
+    'post-k3'?: number;
+    'post-k2pow-difficulty'?: bigint | number;
   };
 }
