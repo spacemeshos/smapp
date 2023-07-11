@@ -41,15 +41,15 @@ export const writeNodeConfig = async (config: NodeConfig): Promise<void> => {
   }
 };
 
-const getCustomNodeConfigName = (name: string) =>
-  `node-config.${name.toLowerCase().replace(' ', '_')}.json`;
+const getCustomNodeConfigName = (genesisID: string) =>
+  `node-config.${genesisID.substring(0, 8)}.json`;
 
 export const loadCustomNodeConfig = async (
-  netName: string
+  genesisID: string
 ): Promise<Partial<NodeConfig>> => {
   const customConfigPath = path.join(
     USERDATA_DIR,
-    getCustomNodeConfigName(netName)
+    getCustomNodeConfigName(genesisID)
   );
 
   return existsSync(customConfigPath)
@@ -62,10 +62,10 @@ export const loadCustomNodeConfig = async (
 };
 
 export const writeCustomNodeConfig = async (
-  netName: string,
+  genesisID: string,
   config: Partial<NodeConfig>
 ): Promise<void> => {
-  const filePath = path.join(USERDATA_DIR, getCustomNodeConfigName(netName));
+  const filePath = path.join(USERDATA_DIR, getCustomNodeConfigName(genesisID));
   try {
     await fs.writeFile(filePath, JSON.stringify(config, null, 2), {
       encoding: 'utf8',
@@ -83,20 +83,19 @@ export const writeCustomNodeConfig = async (
 };
 
 export const saveSmeshingOptsInCustomConfig = async (
-  netName: string,
+  genesisID: string,
   opts: Partial<NodeConfig['smeshing']>
 ): Promise<Partial<NodeConfig>> => {
-  const customConfig = await loadCustomNodeConfig(netName);
+  const customConfig = await loadCustomNodeConfig(genesisID);
 
   customConfig.smeshing = opts;
 
-  await writeCustomNodeConfig(netName, customConfig);
+  await writeCustomNodeConfig(genesisID, customConfig);
 
   return customConfig;
 };
 
 const createCustomNodeConfig = async (
-  netName: string,
   genesisID: string
 ): Promise<Partial<NodeConfig>> => {
   const opts: Partial<NodeConfig['smeshing']> | undefined = StoreService.get(
@@ -106,19 +105,18 @@ const createCustomNodeConfig = async (
   // migrate options from StoreService or place only default opts
   const smeshingOpts = opts || safeSmeshingOpts(undefined, genesisID); // set default dir path
 
-  const config = await saveSmeshingOptsInCustomConfig(netName, smeshingOpts);
+  const config = await saveSmeshingOptsInCustomConfig(genesisID, smeshingOpts);
 
   StoreService.remove(`smeshing.${genesisID}`);
 
   return config;
 };
 export const loadOrCreateCustomConfig = async (
-  netName: string,
   genesisID: string
 ): Promise<Partial<NodeConfig>> =>
-  existsSync(path.join(USERDATA_DIR, getCustomNodeConfigName(netName)))
-    ? loadCustomNodeConfig(netName)
-    : createCustomNodeConfig(netName, genesisID);
+  existsSync(path.join(USERDATA_DIR, getCustomNodeConfigName(genesisID)))
+    ? loadCustomNodeConfig(genesisID)
+    : createCustomNodeConfig(genesisID);
 
 export const updateSmeshingOpts = async (
   netName: string,
@@ -145,13 +143,9 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const downloadNodeConfig = async (
-  netName: string,
-  networkConfigUrl: string
-) => {
+export const downloadNodeConfig = async (networkConfigUrl: string) => {
   const discoveryConfig = await fetchNodeConfig(networkConfigUrl);
   const customNodeConfig = await loadOrCreateCustomConfig(
-    netName,
     generateGenesisIDFromConfig(discoveryConfig)
   );
   const mergedConfig = R.mergeLeft(customNodeConfig, discoveryConfig);

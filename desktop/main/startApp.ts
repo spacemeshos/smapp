@@ -164,7 +164,7 @@ const startApp = (): AppStore => {
   // List of unsubscribe functions
   const unsubs = [
     // Spawn managers (and handle unsubscribing)
-    spawnManagers($nodeConfig, $managers, $mainWindow, $currentNetwork),
+    spawnManagers($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
     syncNodeConfig(
       $currentNetwork,
