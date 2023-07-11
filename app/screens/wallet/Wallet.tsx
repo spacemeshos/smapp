@@ -77,7 +77,6 @@ const RightSection = styled.div`
 `;
 
 const Wallet = ({ history, location }: RouteComponentProps) => {
-  const backupTime = useSelector((state: RootState) => state.wallet.backupTime);
   const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
   const dispatch = useDispatch();
 
@@ -96,13 +95,11 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
       <LeftSection>
         {hasBackButton && <BackButton action={handleModeBack} />}
         <AccountsOverview />
-        {!backupTime && (
-          <BackupReminder onClick={navigateToBackup}>
-            <FullCrossIcon />
-            <BackupImage />
-            <BackupText>BACKUP YOUR WALLET</BackupText>
-          </BackupReminder>
-        )}
+        <BackupReminder onClick={navigateToBackup}>
+          <FullCrossIcon />
+          <BackupImage />
+          <BackupText>BACKUP YOUR WALLET</BackupText>
+        </BackupReminder>
       </LeftSection>
       <Wrapper>
         <RightSection>
