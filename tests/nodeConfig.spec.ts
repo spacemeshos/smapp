@@ -1,5 +1,7 @@
 /* eslint-disable global-require */
 
+import { generateGenesisIDFromConfig } from '../desktop/main/Networks';
+import { NodeConfig } from '../shared/types';
 import {
   customConfigWithNoSpecifiedLogging,
   defaultDiscoveryConfig,
@@ -8,21 +10,25 @@ import {
   smeshingOptsFromStoreService,
 } from './fixtures/config';
 
-beforeEach(() => {
-  jest.mock('fs/promises');
-  jest.mock('fs');
-  jest.mock('electron-store');
-});
-
-afterEach(() => {
-  jest.resetModules();
-  jest.restoreAllMocks();
-});
-
+jest.mock('electron-fetch', () =>
+  jest.fn().mockResolvedValue({
+    text: () => JSON.stringify(defaultDiscoveryConfig),
+  })
+);
 describe('NodeConfig.ts', () => {
+  beforeEach(() => {
+    jest.mock('fs/promises');
+    jest.mock('fs');
+    jest.mock('electron-store');
+  });
+
+  afterEach(() => {
+    jest.resetModules();
+    jest.restoreAllMocks();
+  });
+
   describe('download node config', () => {
     it('download fresh node config and create custom config', async () => {
-      // mock discovery config
       jest.mock('electron-fetch', () =>
         jest.fn().mockResolvedValue({
           text: () => JSON.stringify(defaultDiscoveryConfig),
@@ -41,9 +47,7 @@ describe('NodeConfig.ts', () => {
       const fsPromise = require('fs/promises');
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
-      const netName = 'testnet-5';
       const resultConfig = await downloadNodeConfig(
-        netName,
         'https://testnet-5.spacemesh.io'
       );
 
@@ -64,7 +68,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsResult, null, 2),
         { encoding: 'utf8' }
       );
@@ -81,13 +85,11 @@ describe('NodeConfig.ts', () => {
     });
 
     it('download fresh node config and migrate Store service', async () => {
-      // mock discovery config
       jest.mock('electron-fetch', () =>
         jest.fn().mockResolvedValue({
           text: () => JSON.stringify(defaultDiscoveryConfig),
         })
       );
-
       // mock StoreService , to check migration
       jest.mock(
         '../desktop/storeService',
@@ -102,9 +104,7 @@ describe('NodeConfig.ts', () => {
       const fsPromise = require('fs/promises');
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
-      const netName = 'testnet-5';
       const resultConfig = await downloadNodeConfig(
-        netName,
         'https://testnet-5.spacemesh.io'
       );
 
@@ -116,7 +116,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsFromStoreService, null, 2),
         { encoding: 'utf8' }
       );
@@ -158,7 +158,6 @@ describe('NodeConfig.ts', () => {
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
       const resultConfigTestNet = await downloadNodeConfig(
-        'testnet-5',
         'https://testnet-5.spacemesh.io'
       );
 
@@ -180,7 +179,6 @@ describe('NodeConfig.ts', () => {
       });
 
       const resultConfigDevnet = await downloadNodeConfig(
-        'Standalone Network',
         'https://devent-000.spacemesh.io'
       );
 
@@ -210,7 +208,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsResultTestNet, null, 2),
         { encoding: 'utf8' }
       );
@@ -226,7 +224,7 @@ describe('NodeConfig.ts', () => {
       );
 
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.standalone_network.json'),
+        expect.stringContaining('Electron/node-config.1ee20fed.json'),
         JSON.stringify(smeshingOptsResultDevnet, null, 2),
         { encoding: 'utf8' }
       );
@@ -259,7 +257,9 @@ describe('NodeConfig.ts', () => {
 
       // eslint-disable-next-line import/no-named-as-default-member
       const resultConfigTestNet = await nodeConfigHelpers.updateSmeshingOpts(
-        'testnet-5',
+        generateGenesisIDFromConfig(
+          (defaultNodeConfigWithInitSmeshing as unknown) as NodeConfig
+        ),
         {}
       );
 
@@ -281,7 +281,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingAfterReset, null, 2),
         { encoding: 'utf8' }
       );
@@ -312,7 +312,9 @@ describe('NodeConfig.ts', () => {
 
       // eslint-disable-next-line import/no-named-as-default-member
       const resultConfigTestNet = await nodeConfigHelpers.updateSmeshingOpts(
-        'testnet-5',
+        generateGenesisIDFromConfig(
+          (defaultNodeConfigWithInitSmeshing as unknown) as NodeConfig
+        ),
         { 'smeshing-start': false }
       );
 
@@ -330,7 +332,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsAfterReset, null, 2),
         { encoding: 'utf8' }
       );
@@ -368,7 +370,9 @@ describe('NodeConfig.ts', () => {
 
       // eslint-disable-next-line import/no-named-as-default-member
       const resultConfigTestNet = await nodeConfigHelpers.updateSmeshingOpts(
-        'testnet-5',
+        generateGenesisIDFromConfig(
+          (defaultNodeConfigWithInitSmeshing as unknown) as NodeConfig
+        ),
         { 'smeshing-start': false }
       );
 
@@ -387,7 +391,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.testnet-5.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsAfterReset, null, 2),
         { encoding: 'utf8' }
       );
@@ -422,10 +426,8 @@ describe('NodeConfig.ts', () => {
         .fn()
         .mockImplementation(() => customConfigWithNoSpecifiedLogging);
 
-      const netName = 'testnet-5';
       // eslint-disable-next-line import/no-named-as-default-member
       const resultConfig = await nodeConfigHelpers.downloadNodeConfig(
-        netName,
         'https://testnet-5.spacemesh.io'
       );
 

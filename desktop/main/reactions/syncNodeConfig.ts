@@ -32,7 +32,7 @@ export default (
         filter(Boolean)
       )
     ).pipe(
-      switchMap((net) => from(downloadNodeConfig(net.netName, net.conf))),
+      switchMap((net) => from(downloadNodeConfig(net.conf))),
       retry(5),
       delay(500),
       catchError((err: any) => {

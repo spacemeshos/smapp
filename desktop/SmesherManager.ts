@@ -38,14 +38,11 @@ class SmesherManager extends AbstractManager {
 
   private genesisID: string;
 
-  private netName: string;
-
-  constructor(mainWindow: BrowserWindow, genesisID: string, netName: string) {
+  constructor(mainWindow: BrowserWindow, genesisID: string) {
     super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.genesisID = genesisID;
-    this.netName = netName;
   }
 
   unsubscribe = () => {
@@ -83,10 +80,6 @@ class SmesherManager extends AbstractManager {
 
   setGenesisID = (id: HexString) => {
     this.genesisID = id;
-  };
-
-  setNetName = (netName: string) => {
-    this.netName = netName;
   };
 
   updateSmesherState = async () => {
@@ -227,7 +220,7 @@ class SmesherManager extends AbstractManager {
         await this.clearSmesherMetadata();
 
         await updateSmeshingOpts(
-          this.netName,
+          this.genesisID,
           deleteFiles ? {} : { 'smeshing-start': false }
         );
 
@@ -270,7 +263,7 @@ class SmesherManager extends AbstractManager {
       maxFileSize,
     } = postSetupOpts;
     const { nonces, threads } = provingOpts;
-    const customNodeConfig = await loadCustomNodeConfig(this.netName);
+    const customNodeConfig = await loadCustomNodeConfig(this.genesisID);
     const opts = safeSmeshingOpts(
       {
         'smeshing-coinbase': coinbase,
@@ -295,7 +288,7 @@ class SmesherManager extends AbstractManager {
       genesisID
     );
 
-    await updateSmeshingOpts(this.netName, opts);
+    await updateSmeshingOpts(this.genesisID, opts);
 
     return true;
   };
