@@ -161,14 +161,31 @@ const getStageName = (event: NodeEvent) => {
   }
 };
 
+const getStatusColor = (event: NodeEvent) => {
+  if (event && event.failure) {
+    return smColors.red;
+  }
+  switch (getEventType(event)) {
+    case 'initComplete':
+    case 'postComplete':
+    case 'proposal':
+      return smColors.green;
+    default:
+      return smColors.mediumGray;
+  }
+};
+
 const renderNodeActivity = (event: NodeEvent) => {
-  if (event && event?.failure) {
+  if (event && event.failure) {
     return (
       <ErrorMessage>
         Stage &quot;{getStageName(event)}&quot; failed. Check the logs for more
         details.
       </ErrorMessage>
     );
+  }
+  if (!event) {
+    return 'Node is preparing...';
   }
   switch (getEventType(event)) {
     case 'initStart':
@@ -205,7 +222,7 @@ const renderNodeActivity = (event: NodeEvent) => {
     case 'beacon':
       return `Node computed randomness beacon for epoch ${event.beacon?.epoch}`;
     default:
-      return event?.help || 'Node is preparing...';
+      return event.help ?? 'Node is preparing...';
   }
 };
 
@@ -263,7 +280,7 @@ const NodeEventsLog = ({ history }: RouteComponentProps) => {
       >
         <TextWrapper>
           <ColorStatusIndicator
-            color={e?.failure ? smColors.red : smColors.mediumGraySecond}
+            color={getStatusColor(e)}
             style={{ marginRight: '1em' }}
           />
           <NoWrap>
