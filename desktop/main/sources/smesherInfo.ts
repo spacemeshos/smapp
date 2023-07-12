@@ -22,16 +22,23 @@ import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
   Activation,
   HexString,
+  NodeEvent,
   Reward,
   Wallet,
   WalletType,
 } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
-import { longToNumber, shallowEq } from '../../../shared/utils';
+import {
+  isObject,
+  longToNumber,
+  parseTimestamp,
+  shallowEq,
+} from '../../../shared/utils';
 import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
 import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
+import { Event } from '../../../proto/spacemesh/v1/Event';
 
 const logger = Logger({ className: 'smesherInfo' });
 
@@ -47,6 +54,24 @@ const toReward = (input: Reward__Output): Reward => {
     amount: longToNumber(input.total.value),
     coinbase: input.coinbase.address,
   };
+};
+
+const transformEvent = (e: Event): NodeEvent => {
+  const transformProp = (key, prop) => {
+    if (key === 'timestamp' || key === 'wait') {
+      return parseTimestamp(prop);
+    }
+    return prop;
+  };
+  const transform = (e) =>
+    Object.entries(e).reduce((prev, [key, val]) => {
+      const nextVal = transformProp(key, val);
+      return {
+        ...prev,
+        [key]: isObject(nextVal) ? transform(nextVal) : nextVal,
+      };
+    }, {});
+  return transform(e);
 };
 
 const getRewardsStream$ = (
@@ -137,6 +162,17 @@ const syncSmesherInfo = (
     share()
   );
 
+  const $nodeEvents = new Subject<NodeEvent>();
+  $isSmeshing
+    .pipe(filter(Boolean), withLatestFrom($managers, $isLocalNode))
+    .subscribe(([_, managers, isLocalNode]) => {
+      if (!isLocalNode) return;
+      managers.smesher.subscribeNodeEvents((err, event) => {
+        if (err || !event) return;
+        $nodeEvents.next(transformEvent(event));
+      });
+    });
+
   const $genesisId = $wallet.pipe(
     filter(Boolean),
     map((wallet) => wallet.meta.genesisID),
@@ -194,6 +230,7 @@ const syncSmesherInfo = (
     $coinbase,
     $smeshingStarted,
     $smeshingSetupState,
+    $nodeEvents: $nodeEvents.asObservable(),
   };
 };
 

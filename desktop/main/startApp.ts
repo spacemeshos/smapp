@@ -159,6 +159,7 @@ const startApp = (): AppStore => {
     $rewards,
     $smeshingStarted,
     $smeshingSetupState,
+    $nodeEvents,
   } = getSmesherInfo($managers, $isWalletActivated, $wallet);
 
   const { $nodeRestartRequest } = nodeIPCStreams();
@@ -249,6 +250,7 @@ const startApp = (): AppStore => {
       $smesherId,
       $activations,
       $rewards,
+      $nodeEvents,
       $hrp
     ),
     // Subscribe on AutoUpdater events

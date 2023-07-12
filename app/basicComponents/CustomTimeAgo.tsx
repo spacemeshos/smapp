@@ -29,7 +29,7 @@ const enString: FormatterDict = {
   suffixFromNow: 'from now',
   seconds: 'few secs',
   minute: 'a min',
-  minutes: '%d min',
+  minutes: '%d mins',
   hour: '1 hr',
   hours: '%d hrs',
   day: '1 day',
