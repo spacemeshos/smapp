@@ -109,7 +109,7 @@ const GrayText = styled.div`
 const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [isWrongPassword, setWrongPassword] = useState(false);
-  const [showLoader, setShowLoader] = useState(false);
+  const [showLoader, setShowLoader] = useState(!!location?.state?.withLoader);
 
   const walletFiles = useSelector(listWalletFiles);
 
@@ -134,11 +134,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
     };
   }, [history, location]);
-
-  const nextPage =
-    (location.state?.redirect !== AuthPath.Unlock &&
-      location.state?.redirect) ||
-    MainPath.Wallet;
 
   const getDropDownData = () =>
     walletFiles.length === 0
@@ -171,15 +166,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         unlockWallet(walletFiles[selectedWalletIndex].path, password)
       );
 
-      if (status.success) {
-        if (status.forceNetworkSelection) {
-          setShowLoader(false);
-          history.push(AuthPath.SwitchNetwork, {
-            redirect: nextPage,
-            isWalletOnly: status.isWalletOnly,
-          });
-        }
-      } else {
+      if (!status.success) {
         setShowLoader(false);
         setWrongPassword(true);
       }
