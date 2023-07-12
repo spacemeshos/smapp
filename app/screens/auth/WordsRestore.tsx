@@ -2,6 +2,8 @@ import * as R from 'ramda';
 import * as bip39 from 'bip39';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux';
+import { RootState } from 'app/types';
 import { BackButton } from '../../components/common';
 import {
   WrapperWith2SideBars,
@@ -59,6 +61,10 @@ const getInputStyle = (hasError: boolean) => ({
 const WordsRestore = ({ history }: AuthRouterParams) => {
   const [words, setWords] = useState(Array(WORDS_AMOUNT).fill(''));
   const [hasError, setHasError] = useState(false);
+  const [isSameWalletMnemonic, setIsSameWalletMnemonic] = useState(false);
+  const walletMnemonic = useSelector(
+    (state: RootState) => state.wallet.mnemonic
+  );
 
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
@@ -79,6 +85,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     );
     setWords(newWords);
     setHasError(false);
+    setIsSameWalletMnemonic(false);
   };
 
   const isDoneEnabled = () => {
@@ -97,12 +104,18 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
 
   const restoreWith12Words = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
-    if (validateMnemonic({ mnemonic })) {
+    const isValid = validateMnemonic({ mnemonic });
+
+    if (isValid) {
+      if (mnemonic === walletMnemonic) {
+        setIsSameWalletMnemonic(true);
+        return;
+      }
       history.push(AuthPath.ConnectionType, { mnemonic });
     } else {
       setHasError(true);
     }
-  }, [words, history, setHasError]);
+  }, [words, history, setHasError, walletMnemonic]);
 
   const handleKeyUp = useCallback(
     (e) => {
@@ -178,6 +191,15 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
             setHasError(false);
           }}
           text="this 12 words phrase in incorrect, please try again"
+          style={{ bottom: 15, left: 185 }}
+        />
+      )}
+      {isSameWalletMnemonic && (
+        <ErrorPopup
+          onClick={() => {
+            setIsSameWalletMnemonic(false);
+          }}
+          text="The same wallet is selected as was opened earlier."
           style={{ bottom: 15, left: 185 }}
         />
       )}
