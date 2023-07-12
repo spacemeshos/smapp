@@ -128,6 +128,10 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         mnemonic,
       });
     }
+    if (redirect === AuthPath.Unlock) {
+      return history.push(redirect, { withLoader: true });
+    }
+
     return history.push(redirect || AuthPath.Unlock);
   };
 
