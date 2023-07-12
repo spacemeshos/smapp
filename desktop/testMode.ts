@@ -5,6 +5,7 @@ import { remove } from 'fs-extra';
 
 import pkg from '../package.json';
 import { Network, NodeConfig } from '../shared/types';
+import HRP from '../shared/hrp';
 import { MINUTE } from './main/constants';
 
 export const STANDALONE_GENESIS_EXTRA = 'standalone';
@@ -40,7 +41,7 @@ export const getTestModeNodeConfig = (): NodeConfig => ({
     'layers-per-epoch': 10,
     'eligibility-confidence-param': 18,
     'tick-size': 67000,
-    'network-hrp': 'stest',
+    'network-hrp': HRP.Standalone,
   },
   genesis: {
     'genesis-time': TEST_MODE_GENESIS_TIME,

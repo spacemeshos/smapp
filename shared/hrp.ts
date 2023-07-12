@@ -1,6 +1,7 @@
 enum HRP {
   MainNet = 'sm',
   TestNet = 'stest',
+  Standalone = 'standalone',
 }
 
 export const isHRP = (a: any): a is HRP =>

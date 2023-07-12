@@ -1,6 +1,5 @@
 import { MutableRefObject } from 'react';
 import { TX_STATE_LABELS } from '../../shared/constants';
-import HRP from '../../shared/hrp';
 import { HexString, TxState } from '../../shared/types';
 import { deriveHRP } from '../../shared/utils';
 
@@ -52,9 +51,7 @@ export const getAddress = (key: string) =>
   key.length <= 44 ? key : key.substring(24);
 
 export const validateAddress = (address: string): address is HexString => {
-  const addressRegex = new RegExp(
-    `^(${Object.values(HRP).join('|')})1[a-zA-Z0-9]{45}$`
-  );
+  const addressRegex = new RegExp(/^(\w+)1[a-zA-Z0-9]{45}$/);
   const r = addressRegex.test(address);
   return r;
 };
