@@ -1,13 +1,14 @@
 import Bech32 from '@spacemesh/address-wasm';
 import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import { objOf } from 'ramda';
-import { combineLatest, filter, map, Subject } from 'rxjs';
+import { combineLatest, filter, map, Observable, Subject } from 'rxjs';
 import { Wallet } from '../../../../shared/types';
 import { fromHexString } from '../../../../shared/utils';
 
 const walletRendererState = (
   wallet: Wallet | null,
-  currentWalletPath: string
+  currentWalletPath: string,
+  hrp: string
 ) => {
   if (!wallet)
     return {
@@ -32,7 +33,7 @@ const walletRendererState = (
       const principal = tpl.principal({
         PublicKey: fromHexString(publicKey),
       });
-      const address = Bech32.generateAddress(principal);
+      const address = Bech32.generateAddress(principal, hrp);
       return {
         displayName,
         address,
@@ -44,10 +45,13 @@ const walletRendererState = (
 
 export default (
   $wallet: Subject<Wallet | null>,
-  $walletPath: Subject<string>
+  $walletPath: Subject<string>,
+  $hrp: Observable<string>
 ) =>
-  combineLatest([$wallet, $walletPath] as const).pipe(
-    map(([wallet, walletPath]) => walletRendererState(wallet, walletPath)),
+  combineLatest([$wallet, $walletPath, $hrp] as const).pipe(
+    map(([wallet, walletPath, hrp]) =>
+      walletRendererState(wallet, walletPath, hrp)
+    ),
     filter((state) => state.accounts.length > 0),
     map(objOf('wallet'))
   );

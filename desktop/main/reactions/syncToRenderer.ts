@@ -164,13 +164,14 @@ export default (
   $nodeVersion: Observable<NodeVersionAndBuild>,
   $smesherId: Observable<string>,
   $activations: Observable<Activation[]>,
-  $rewards: Observable<Reward[]>
+  $rewards: Observable<Reward[]>,
+  $hrp: Observable<string>
 ) =>
   sync(
     // Sync to
     $mainWindow,
     // Views
-    walletView($wallet, $walletPath),
+    walletView($wallet, $walletPath, $hrp),
     storeView($storeService),
     networkView($currentNetwork, $nodeConfig),
     $networks.pipe(map(R.objOf('networks'))),

@@ -41,7 +41,7 @@ StoreService.init();
 const context = getDefaultAppContext();
 
 // TODO: Set HRP Network by retrieving it from some config?
-Bech32.setHRPNetwork(HRP.TestNet);
+Bech32.setHRPNetwork(HRP.MainNet);
 
 init();
 
