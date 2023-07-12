@@ -2,13 +2,12 @@ import { BrowserWindow } from 'electron';
 import {
   distinctUntilChanged,
   from,
-  Observable,
   ReplaySubject,
   Subject,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { Network, NodeConfig } from '../../../shared/types';
+import { NodeConfig } from '../../../shared/types';
 import { Managers } from '../app.types';
 import { generateGenesisIDFromConfig } from '../Networks';
 import SmesherManager from '../../SmesherManager';
@@ -19,22 +18,20 @@ let managers: Managers | null = null;
 
 const spawnManagers = async (
   mainWindow: BrowserWindow,
-  genesisID: string,
-  netName: string
+  genesisID: string
 ): Promise<Managers> => {
   if (!mainWindow)
     throw new Error('Cannot spawn managers: MainWindow not found');
 
   // init managers
   if (!managers) {
-    const smesher = new SmesherManager(mainWindow, genesisID, netName);
+    const smesher = new SmesherManager(mainWindow, genesisID);
     const node = new NodeManager(mainWindow, genesisID, smesher);
     const wallet = new WalletManager(mainWindow, node);
 
     managers = { smesher, node, wallet };
   } else {
     // update GenesisID and netName for instance
-    managers.smesher.setNetName(netName);
     managers.smesher.setGenesisID(genesisID);
     managers.node.setGenesisID(genesisID);
 
@@ -50,21 +47,14 @@ const spawnManagers = async (
 const spawnManagers$ = (
   $nodeConfig: Subject<NodeConfig>,
   $managers: Subject<Managers>,
-  $mainWindow: ReplaySubject<BrowserWindow>,
-  $currentNetwork: Observable<Network | null>
+  $mainWindow: ReplaySubject<BrowserWindow>
 ) => {
   const sub = $nodeConfig
     .pipe(
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-      withLatestFrom($mainWindow, $currentNetwork),
-      switchMap(([nodeConfig, mainWindow, currentNetwork]) =>
-        from(
-          spawnManagers(
-            mainWindow,
-            generateGenesisIDFromConfig(nodeConfig),
-            currentNetwork?.netName || ''
-          )
-        )
+      withLatestFrom($mainWindow),
+      switchMap(([nodeConfig, mainWindow]) =>
+        from(spawnManagers(mainWindow, generateGenesisIDFromConfig(nodeConfig)))
       )
     )
     .subscribe((newManagers) => {
