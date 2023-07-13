@@ -196,7 +196,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
             />
           )}
           <RightSide>
-            {location.state.showBackButton && (
+            {location?.state?.showBackButton && (
               <Button
                 onClick={() => history.push(MainPath.Settings)}
                 isPrimary={false}
