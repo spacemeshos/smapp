@@ -278,11 +278,14 @@ class Settings extends Component<Props, State> {
                   rowName="Application mode"
                   upperPartLeft="Local node"
                   upperPartRight={
-                    <Button
-                      onClick={this.switchToRemoteApi}
-                      text="SWITCH TO WALLET ONLY"
-                      width={190}
-                    />
+                    <div title="Temporarily unavailable">
+                      <Button
+                        onClick={this.switchToRemoteApi}
+                        text="SWITCH TO WALLET ONLY"
+                        width={190}
+                        isDisabled
+                      />
+                    </div>
                   }
                 />
               )}

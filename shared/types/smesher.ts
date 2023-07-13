@@ -1,3 +1,7 @@
+import { Event } from '../../proto/spacemesh/v1/Event';
+import { EventAtxPubished } from '../../proto/spacemesh/v1/EventAtxPubished';
+import { EventPoetWaitProof } from '../../proto/spacemesh/v1/EventPoetWaitProof';
+import { EventPoetWaitRound } from '../../proto/spacemesh/v1/EventPoetWaitRound';
 import { _spacemesh_v1_PostSetupStatus_State as PostSetupState } from '../../proto/spacemesh/v1/PostSetupStatus';
 
 // Core
@@ -88,4 +92,17 @@ export type BenchmarkResponse = {
   speed: number;
   maxSize: number;
   maxUnits: number;
+};
+
+type PatchWait<T> = Omit<T, 'wait'> & { wait: number };
+type PatchWaitDeep<T> = T extends Event
+  ? Omit<Omit<Omit<T, 'atxPublished'>, 'poetWaitProof'>, 'poetWaitRound'> & {
+      poetWaitRound?: PatchWait<EventPoetWaitRound> | null;
+    } & { poetWaitProof?: PatchWait<EventPoetWaitProof> | null } & {
+      atxPublished?: PatchWait<EventAtxPubished> | null;
+    }
+  : T;
+
+export type NodeEvent = Omit<PatchWaitDeep<Event>, 'timestamp'> & {
+  timestamp: number;
 };

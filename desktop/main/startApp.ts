@@ -1,6 +1,8 @@
 import * as $ from 'rxjs';
 import { app } from 'electron';
+import Bech32 from '@spacemesh/address-wasm';
 
+import HRP from '../../shared/hrp';
 import {
   Network,
   NodeConfig,
@@ -18,6 +20,7 @@ import {
   fetchDiscoveryEach,
   listPublicApisByRequest,
   listNetworksByRequest,
+  listenNodeConfigAndRestartNode,
 } from './sources/fetchDiscovery';
 import spawnManagers from './reactions/spawnManagers';
 import syncNodeConfig from './reactions/syncNodeConfig';
@@ -129,6 +132,13 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
+  const $hrp = $nodeConfig.pipe(
+    $.map((c) => c.main['network-hrp'] ?? HRP.MainNet),
+    $.startWith(HRP.MainNet),
+    $.distinctUntilChanged(),
+    $.tap((hrp) => Bech32.setHRPNetwork(hrp)),
+    $.share()
+  );
   const $warnings = new $.Subject<Warning>();
   const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
@@ -149,6 +159,7 @@ const startApp = (): AppStore => {
     $rewards,
     $smeshingStarted,
     $smeshingSetupState,
+    $nodeEvents,
   } = getSmesherInfo($managers, $isWalletActivated, $wallet);
 
   const { $nodeRestartRequest } = nodeIPCStreams();
@@ -238,7 +249,9 @@ const startApp = (): AppStore => {
       $nodeVersion,
       $smesherId,
       $activations,
-      $rewards
+      $rewards,
+      $nodeEvents,
+      $hrp
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
@@ -251,6 +264,7 @@ const startApp = (): AppStore => {
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),
+    listenNodeConfigAndRestartNode($nodeConfig, $managers),
     handleBenchmarksIpc($mainWindow, $nodeConfig),
   ];
 

@@ -166,7 +166,7 @@ export const unlockCurrentWallet = (password: string) => async (
 };
 
 export const switchApiProvider = (
-  api: SocketAddress | null,
+  api: SocketAddress,
   genesisID?: string
 ) => async (dispatch: AppThDispatch, getState: GetState) => {
   const nextGenesisID = genesisID || getGenesisID(getState());

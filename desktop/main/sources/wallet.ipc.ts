@@ -43,7 +43,6 @@ import Warning, {
 } from '../../../shared/warning';
 import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
-import { hasNetwork } from '../Networks';
 import {
   explodeResult,
   fromIPC,
@@ -54,7 +53,7 @@ import {
   mapResult,
   wrapResult,
 } from '../rx.utils';
-import { createNewAccount, createWallet, isGenesisIDMissing } from '../Wallet';
+import { createNewAccount, createWallet } from '../Wallet';
 import {
   loadAndMigrateWallet,
   loadWallet,
@@ -168,26 +167,10 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
       ({ path, password }: UnlockWalletRequest) =>
-        loadAndMigrateWallet$(path, password).pipe(
-          withLatestFrom($networks),
-          map(([hr, nets]) =>
-            mapResult(
-              (pair) =>
-                <WalletData>{
-                  ...pair,
-                  meta: {
-                    forceNetworkSelection:
-                      isGenesisIDMissing(pair.wallet) ||
-                      !hasNetwork(pair.wallet.meta.genesisID, nets),
-                  },
-                },
-              hr
-            )
-          )
-        ),
-      ({ wallet, meta }): UnlockWalletResponse['payload'] => ({
+        loadAndMigrateWallet$(path, password),
+      ({ wallet }): UnlockWalletResponse['payload'] => ({
         meta: wallet.meta,
-        forceNetworkSelection: meta?.forceNetworkSelection,
+        forceNetworkSelection: false,
       })
     ),
     //

@@ -1,5 +1,12 @@
 import { BrowserWindow } from 'electron';
-import { combineLatest, filter, Observable, throttleTime } from 'rxjs';
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  Observable,
+  throttleTime,
+} from 'rxjs';
+import { equals } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network, Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
@@ -26,6 +33,9 @@ export default (
           nets.length > 0
         );
       }),
+      distinctUntilChanged(
+        (prev, next) => prev[0] === next[0] && equals(prev[1], next[1])
+      ),
       throttleTime(1000)
     ),
     ([wallet, nets, mw]) => {

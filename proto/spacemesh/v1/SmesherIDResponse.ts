@@ -1,11 +1,10 @@
 // Original file: proto/smesher_types.proto
 
-import type { AccountId as _spacemesh_v1_AccountId, AccountId__Output as _spacemesh_v1_AccountId__Output } from '../../spacemesh/v1/AccountId';
 
 export interface SmesherIDResponse {
-  'accountId'?: (_spacemesh_v1_AccountId | null);
+  'publicKey'?: (Buffer | Uint8Array | string);
 }
 
 export interface SmesherIDResponse__Output {
-  'accountId': (_spacemesh_v1_AccountId__Output | null);
+  'publicKey': (Buffer);
 }

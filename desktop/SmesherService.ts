@@ -10,6 +10,7 @@ import {
 } from '../shared/types';
 import memoDebounce from '../shared/memoDebounce';
 import { BITS_PER_LABEL } from '../shared/constants';
+import { toHexString } from '../shared/utils';
 
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
@@ -139,7 +140,7 @@ class SmesherService extends NetServiceFactory<
     this.callServiceWithRetries('SmesherID', {})
       .then((response: SmesherIDResponse__Output) => {
         return {
-          smesherId: response.accountId?.address,
+          smesherId: toHexString(response.publicKey),
         };
       })
       .then(this.normalizeServiceResponse)

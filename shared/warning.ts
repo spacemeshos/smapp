@@ -9,6 +9,7 @@ export enum WriteFilePermissionWarningKind {
   Logger = 'Logger',
   ConfigFile = 'ConfigFile',
   WalletFile = 'WalletFile',
+  CustomConfigFile = 'CustomConfigFile',
 }
 
 interface WarningTypeOptions {

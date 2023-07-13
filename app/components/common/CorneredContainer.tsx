@@ -79,7 +79,7 @@ export const SubHeader = styled.div`
 type Props = {
   children: any;
   width: number;
-  height: number;
+  height: number | string;
   header: string;
   tooltipMessage?: string;
   headerColor?: string;

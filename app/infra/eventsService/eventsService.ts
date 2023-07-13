@@ -237,10 +237,8 @@ class EventsService {
     ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
   };
 
-  static switchApiProvider = (
-    genesisID: string,
-    apiUrl: SocketAddress | null = null
-  ) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
+  static switchApiProvider = (genesisID: string, apiUrl?: SocketAddress) =>
+    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
   /** **************************************  WALLET MANAGER  **************************************** */
 

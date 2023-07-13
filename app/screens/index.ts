@@ -13,7 +13,7 @@ export {
   SwitchNetwork,
 } from './auth';
 export { Main } from './main';
-export { Node, NodeSetup } from './node';
+export { Node, NodeSetup, NodeEventsLog } from './node';
 export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';
 export {
   Backup,
