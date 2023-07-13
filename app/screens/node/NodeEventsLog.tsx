@@ -298,6 +298,13 @@ const NodeEventsLog = ({ history }: RouteComponentProps) => {
         <BackButton action={() => history.push(MainPath.Smeshing)} />
         <EventsWrapper ref={setRef(outerRef)}>
           <div ref={setRef(innerRef)}>
+            {items.length === 0 && (
+              <TextWrapper>
+                <EventText style={{ marginLeft: 0 }}>
+                  Node is preparing, please wait...
+                </EventText>
+              </TextWrapper>
+            )}
             {items.map(({ index, measureRef }) => (
               // Use the `measureRef` to measure the item size
               <div key={index} ref={measureRef}>
