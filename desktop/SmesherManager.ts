@@ -47,6 +47,7 @@ class SmesherManager extends AbstractManager {
     this.adminService = new AdminService();
     this.smesherService = new SmesherService();
     this.smesherService.createService();
+    this.adminService.createService();
     this.genesisID = genesisID;
   }
 
@@ -385,7 +386,7 @@ class SmesherManager extends AbstractManager {
     );
   };
 
-  isSmeshing = async () => {
+  isSmeshing = async (): Promise<boolean> => {
     const smeshing = (await this.smesherService.isSmeshing()).isSmeshing;
     const status = (await this.smesherService.getPostSetupStatus())
       .postSetupState;
