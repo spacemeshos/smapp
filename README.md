@@ -62,6 +62,12 @@ Smapp can be started with additional arguments:
   _e.g._ `./Spacemesh --test-mode`
   It runs Smapp and the Node under the hood in standalone mode, making it much easier to test and debug the application.
   Env variable alias: `TEST_MODE`
+- `--check-interval` (number)
+  _e.g._ `./Spacemesh --check-interval=60` to check for updates every 60 seconds
+  Smapp checks every N seconds for the updates the software updates and new config.
+  If new config arrived — it automatically merges it with the custom User settings and
+  restarts the Node.
+  Default: `3600` seconds, or every hour
 
 To run the application in dev mode with the same behavior set env variables instead:
 ```

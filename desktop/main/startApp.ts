@@ -48,7 +48,12 @@ const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 const CHECK_UPDATES_INTERVAL =
   positiveNum(
     3600, // hour
-    parseInt(app.commandLine.getSwitchValue('checkInterval'), 10)
+    parseInt(
+      process.env.CHECK_INTERVAL ||
+        app.commandLine.getSwitchValue('check-interval') ||
+        '0',
+      10
+    )
   ) * 1000;
 
 const loadNetworkData = () => {
