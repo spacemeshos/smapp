@@ -116,7 +116,7 @@ export const runBenchmarks = async (
   progressCb: (result: BenchmarkRunResult) => void,
   benchmarks: BenchmarkRequest[]
 ): Promise<void> => {
-  const cycleGap = parse(nodeConfig.poet['cycle-gap']);
+  const cycleGap = parse(nodeConfig.poet['cycle-gap']) / 1000; // in seconds
   const unitSize =
     (nodeConfig.post['post-labels-per-unit'] * BITS_PER_LABEL) / 8;
   const maxPossibleSize = nodeConfig.post['post-max-numunits'] * unitSize;
