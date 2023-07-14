@@ -280,15 +280,15 @@ class SmesherManager extends AbstractManager {
           'smeshing-opts-numunits': numUnits,
           'smeshing-opts-provider': provider,
           'smeshing-opts-throttle': throttle,
-        },
-        'smeshing-proving-opts': {
-          'smeshing-opts-proving-nonces': nonces,
-          'smeshing-opts-proving-threads': threads,
           'smeshing-opts-compute-batch-size': R.pathOr(
             DEFAULT_SMESHING_BATCH_SIZE,
             ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
             customNodeConfig?.smeshing || {}
           ),
+        },
+        'smeshing-proving-opts': {
+          'smeshing-opts-proving-nonces': nonces,
+          'smeshing-opts-proving-threads': threads,
         },
         'smeshing-start': true,
       },
