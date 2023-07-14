@@ -254,6 +254,7 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSProfiler
             numUnitSize={singleCommitmentSize}
             maxUnits={smesherConfig.maxNumUnits}
+            dataDir={dataDir}
             nextAction={(nonces, threads, numUnits) => {
               setNonces(nonces);
               setThreads(threads);

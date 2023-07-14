@@ -21,19 +21,24 @@ const handleBenchmarksIpc = (
   $mainWindow: Observable<BrowserWindow>,
   $nodeConfig: Observable<NodeConfig>
 ) => {
-  const $req = fromIPC<BenchmarkRequest[]>(ipcConsts.RUN_BENCHMARKS);
+  const $req = fromIPC<{ benchmarks: BenchmarkRequest[]; dataDir: string }>(
+    ipcConsts.RUN_BENCHMARKS
+  );
   const $s = $req.pipe(withLatestFrom($nodeConfig, $mainWindow));
-  const sub = $s.subscribe(async ([benchmarks, nodeConfig, mainWindow]) => {
-    runBenchmarks(
-      nodeConfig,
-      (result) =>
-        mainWindow.webContents.send(
-          ipcConsts.SEND_BENCHMARK_RESULTS,
-          convert(result)
-        ),
-      benchmarks
-    );
-  });
+  const sub = $s.subscribe(
+    async ([{ benchmarks, dataDir }, nodeConfig, mainWindow]) => {
+      runBenchmarks(
+        nodeConfig,
+        (result) =>
+          mainWindow.webContents.send(
+            ipcConsts.SEND_BENCHMARK_RESULTS,
+            convert(result)
+          ),
+        benchmarks,
+        dataDir
+      );
+    }
+  );
   return sub;
 };
 
