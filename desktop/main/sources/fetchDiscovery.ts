@@ -25,6 +25,9 @@ import {
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
+import Logger from '../../logger';
+
+const logger = Logger({ className: 'fetchDiscovery' });
 
 export const fromNetworkConfig = (net: Network) =>
   from(fetchNodeConfig(net.conf)).pipe(
@@ -96,6 +99,10 @@ export const listenNodeConfigAndRestartNode = (
           !equals(prevNodeConfig, nextNodeConfig) &&
           managers.node.isNodeRunning()
         ) {
+          logger.log(
+            'listenNodeConfigAndRestartNode',
+            'Node config changed. Restart the Node'
+          );
           await managers.node.restartNode();
         }
       })();
