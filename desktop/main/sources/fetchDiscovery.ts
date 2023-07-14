@@ -7,7 +7,9 @@ import {
   interval,
   map,
   Observable,
+  pairwise,
   retry,
+  startWith,
   Subject,
   switchMap,
   withLatestFrom,
@@ -81,22 +83,19 @@ export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
     (networks) => $networks.next(networks)
   );
 
-let cacheNodeConfig: NodeConfig | null = null;
 export const listenNodeConfigAndRestartNode = (
   $nodeConfig: Observable<NodeConfig>,
   $managers: Subject<Managers>
 ) =>
   makeSubscription(
-    $nodeConfig.pipe(withLatestFrom($managers)),
-    ([nodeConfig, managers]) => {
+    $nodeConfig.pipe(startWith(null), pairwise(), withLatestFrom($managers)),
+    ([[prevNodeConfig, nextNodeConfig], managers]) => {
       (async () => {
-        if (equals(nodeConfig, cacheNodeConfig)) {
-          return;
-        }
-
-        cacheNodeConfig = nodeConfig;
-
-        if (managers.node.isNodeRunning()) {
+        if (
+          prevNodeConfig !== null &&
+          !equals(prevNodeConfig, nextNodeConfig) &&
+          managers.node.isNodeRunning()
+        ) {
           await managers.node.restartNode();
         }
       })();
