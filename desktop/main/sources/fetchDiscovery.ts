@@ -7,7 +7,9 @@ import {
   interval,
   map,
   Observable,
+  pairwise,
   retry,
+  startWith,
   Subject,
   switchMap,
   withLatestFrom,
@@ -23,6 +25,9 @@ import {
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
+import Logger from '../../logger';
+
+const logger = Logger({ className: 'fetchDiscovery' });
 
 export const fromNetworkConfig = (net: Network) =>
   from(fetchNodeConfig(net.conf)).pipe(
@@ -81,22 +86,23 @@ export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
     (networks) => $networks.next(networks)
   );
 
-let cacheNodeConfig: NodeConfig | null = null;
 export const listenNodeConfigAndRestartNode = (
   $nodeConfig: Observable<NodeConfig>,
   $managers: Subject<Managers>
 ) =>
   makeSubscription(
-    $nodeConfig.pipe(withLatestFrom($managers)),
-    ([nodeConfig, managers]) => {
+    $nodeConfig.pipe(startWith(null), pairwise(), withLatestFrom($managers)),
+    ([[prevNodeConfig, nextNodeConfig], managers]) => {
       (async () => {
-        if (equals(nodeConfig, cacheNodeConfig)) {
-          return;
-        }
-
-        cacheNodeConfig = nodeConfig;
-
-        if (managers.node.isNodeRunning()) {
+        if (
+          prevNodeConfig !== null &&
+          !equals(prevNodeConfig, nextNodeConfig) &&
+          managers.node.isNodeRunning()
+        ) {
+          logger.log(
+            'listenNodeConfigAndRestartNode',
+            'Node config changed. Restart the Node'
+          );
           await managers.node.restartNode();
         }
       })();

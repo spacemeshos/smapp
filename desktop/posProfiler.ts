@@ -114,15 +114,16 @@ export const runSingleBenchmark = async (
 export const runBenchmarks = async (
   nodeConfig: NodeConfig,
   progressCb: (result: BenchmarkRunResult) => void,
-  benchmarks: BenchmarkRequest[]
+  benchmarks: BenchmarkRequest[],
+  dataDir: string
 ): Promise<void> => {
-  const cycleGap = parse(nodeConfig.poet['cycle-gap']);
+  const cycleGap = parse(nodeConfig.poet['cycle-gap']) / 1000; // in seconds
   const unitSize =
     (nodeConfig.post['post-labels-per-unit'] * BITS_PER_LABEL) / 8;
   const maxPossibleSize = nodeConfig.post['post-max-numunits'] * unitSize;
 
   const defaultProfilerOpts: PosProfilerOptions = {
-    datafile: resolve(app.getPath('temp'), 'profiler.bin'),
+    datafile: resolve(dataDir || app.getPath('temp'), 'profiler.bin'),
     datasize: 1,
     nonces: 16,
     threads: 1,

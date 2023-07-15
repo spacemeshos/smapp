@@ -90,6 +90,7 @@ type Props = {
   nextAction: (nonces: number, threads: number, numUnits?: number) => void;
   numUnitSize: number;
   maxUnits: number;
+  dataDir: string;
 };
 
 enum BenchmarkStatus {
@@ -182,7 +183,7 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
+const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
   const [noncesValue, setNoncesValue] = useState<number | null>(288);
   const [threadsValue, setThreadsValue] = useState<number | null>(
     maxCpuAvailable
@@ -243,7 +244,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
         isRunningBatch
       )
     );
-    eventsService.runBenchmarks([req]);
+    eventsService.runBenchmarks([req], dataDir);
   };
 
   const runBenchmarks = () => {
@@ -258,7 +259,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
         isRunningBatch
       )
     );
-    eventsService.runBenchmarks(benchmarks);
+    eventsService.runBenchmarks(benchmarks, dataDir);
   };
 
   const roundTo16 = roundToMultipleOf(16);
