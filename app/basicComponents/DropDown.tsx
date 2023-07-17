@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { smColors } from '../vars';
+import { useClickAway } from '../hooks/useClickAway';
 
 const Wrapper = styled.div<{
   isDisabled: boolean;
@@ -385,15 +386,14 @@ const DropDown = <T extends ADataItem>({
 }: Props<T>) => {
   const theme = useTheme();
   const [isOpened, setIsOpened] = useState(_isOpened);
+  const awayContainerRef = useRef(null);
+
   const closeDropdown = useCallback(() => {
     setIsOpened(false);
     onClose();
   }, [onClose]);
 
-  useEffect(() => {
-    window.addEventListener('click', closeDropdown);
-    return () => window.removeEventListener('click', closeDropdown);
-  }, [closeDropdown]);
+  useClickAway(awayContainerRef, closeDropdown);
 
   const isDisabledComputed = isDisabled || !data || !data.length;
   const isLightTheme = dark === undefined ? !theme.isDarkMode : dark;
@@ -455,6 +455,7 @@ const DropDown = <T extends ADataItem>({
         e.preventDefault();
         e.stopPropagation();
       }}
+      ref={awayContainerRef}
     >
       {!hideHeader && (
         <HeaderWrapper
