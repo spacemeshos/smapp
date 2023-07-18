@@ -11,6 +11,7 @@ import Warning, {
 } from '../../shared/warning';
 import { fetchNodeConfig } from '../utils';
 import StoreService from '../storeService';
+import { getShortGenesisId } from '../../shared/utils';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
 import { safeSmeshingOpts } from './smeshingOpts';
@@ -42,16 +43,15 @@ export const writeNodeConfig = async (config: NodeConfig): Promise<void> => {
 };
 
 const getCustomNodeConfigName = (genesisID: string) =>
-  `node-config.${genesisID.substring(0, 8)}.json`;
+  `node-config.${getShortGenesisId(genesisID)}.json`;
+
+export const getCustomNodeConfigPath = (genesisID: string) =>
+  path.join(USERDATA_DIR, getCustomNodeConfigName(genesisID));
 
 export const loadCustomNodeConfig = async (
   genesisID: string
 ): Promise<Partial<NodeConfig>> => {
-  const customConfigPath = path.join(
-    USERDATA_DIR,
-    getCustomNodeConfigName(genesisID)
-  );
-
+  const customConfigPath = getCustomNodeConfigPath(genesisID);
   return existsSync(customConfigPath)
     ? fs
         .readFile(customConfigPath, {

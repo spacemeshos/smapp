@@ -12,7 +12,7 @@ import {
   PostSetupStatus,
 } from '../shared/types';
 import { Event } from '../proto/spacemesh/v1/Event';
-import { delay } from '../shared/utils';
+import { delay, getShortGenesisId } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import AbstractManager from './AbstractManager';
@@ -75,7 +75,7 @@ class SmesherManager extends AbstractManager {
     const DEFAULT_KEYBIN_PATH = path.resolve(
       app.getPath('home'),
       './post/',
-      genesisID.substring(0, 8)
+      getShortGenesisId(genesisID)
     );
     return R.pathOr(
       DEFAULT_KEYBIN_PATH,
