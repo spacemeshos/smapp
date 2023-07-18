@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Button, Link } from '../../basicComponents';
+import { Button, Link, Tooltip } from '../../basicComponents';
 import { captureReactException, captureReactMessage } from '../../sentry';
 import Loader from '../../basicComponents/Loader';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
+import CopyButton from '../../basicComponents/CopyButton';
 import Modal from './Modal';
 import BackButton from './BackButton';
 
@@ -153,13 +154,63 @@ const StyledTextArea = styled((props) => <textarea {...props} rows={10} />)`
   border-radius: ${form.input.boxRadius}px;`};
 `;
 
+const fadeInOut = keyframes`
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+`;
+
+const CopiedBanner = styled.div`
+  position: absolute;
+  z-index: 10;
+  line-height: 1.466;
+  color: ${smColors.darkerGreen};
+  animation: 3s ${fadeInOut} ease-out;
+`;
+
+const ErrorIdentifier = styled.div<{ isCopied: boolean }>`
+  align-self: center;
+  line-height: 1.466;
+  cursor: inherit;
+  white-space: nowrap;
+
+  span {
+    visibility: ${(props) => props.isCopied && 'hidden'};
+  }
+`;
+
+const IdentifierSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  align-items: center;
+`;
+
+const CopySection = styled.div`
+  display: flex;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: ${smColors.black80Alpha2};
+`;
+
+const IssueDescriptionSection = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 interface FormFields {
   name: string;
   email: string;
   description: string;
 }
 
-const sendReport = (name: string, email: string, comments: string) =>
+const sendReport = (
+  name: string,
+  email: string,
+  comments: string,
+  uniqID: string
+) =>
   fetch(
     `https://sentry.io/api/0/projects/${process.env.SENTRY_SLUG}/${process.env.SENTRY_PROJECT_SLUG}/user-feedback/`,
     {
@@ -170,7 +221,7 @@ const sendReport = (name: string, email: string, comments: string) =>
       },
       body: JSON.stringify({
         event_id: captureReactMessage(`
-           User has submitted an issue and asked to check it. id: ${uuidv4()}
+           User has submitted an issue and asked to check it. id: ${uniqID}
            ------------------------------------------------------------------
            ${name}
            ------------------------------------------------------------------
@@ -214,9 +265,10 @@ const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]
 const FeedbackButton = () => {
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [
-    showReportDialogSuccessMessage,
-    setShowReportDialogSuccessMessage,
-  ] = useState(false);
+    uniqIdentifierForSuccessDialog,
+    setUniqIdentifierForSuccessDialog,
+  ] = useState('');
+  const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<FormFields>({
     name: '',
@@ -256,19 +308,20 @@ const FeedbackButton = () => {
   const handleReport = () => {
     if (validate()) {
       setIsLoading(true);
-      sendReport(userData.name, userData.email, userData.description)
+      const uniqId = uuidv4();
+      sendReport(userData.name, userData.email, userData.description, uniqId)
         .then(() => {
           resetForm();
           setIsLoading(false);
           setShowReportDialog(false);
-          return setShowReportDialogSuccessMessage(true);
+          return setUniqIdentifierForSuccessDialog(uniqId);
         })
         .catch(captureReactException);
     }
   };
 
   const handleCloseSuccessMessageModal = () => {
-    setShowReportDialogSuccessMessage(false);
+    setUniqIdentifierForSuccessDialog('');
   };
 
   const openDiscord = () => window.open(ExternalLinks.DiscordTapAccount);
@@ -284,17 +337,38 @@ const FeedbackButton = () => {
 
   return (
     <Container>
-      {showReportDialogSuccessMessage && (
+      {uniqIdentifierForSuccessDialog && (
         <Modal header="The report was sent" indicatorColor={smColors.green}>
           <SuccemssMessage>
-            Thanks for the report! Spacemesh team will investigate it and open
-            an issue on Github. They may ask you to provide some details via
-            email you have specified. You can join our community.
+            Thank you for the report! The Spacemesh team will investigate it.
+            They may ask you to provide more details via email you have
+            specified.
             <br />
+            <br />
+            <IdentifierSection>
+              <IssueDescriptionSection>
+                Issue ID
+                <Tooltip
+                  width={140}
+                  text="You can copy and share it with the Spacemesh team."
+                />
+                :
+              </IssueDescriptionSection>
+              <CopySection>
+                <ErrorIdentifier isCopied={isCopied}>
+                  {isCopied && <CopiedBanner>Copied</CopiedBanner>}
+                  <span>{uniqIdentifierForSuccessDialog}</span>
+                </ErrorIdentifier>
+                <CopyButton
+                  onClick={(val) => setIsCopied(Boolean(val))}
+                  value={uniqIdentifierForSuccessDialog}
+                />
+              </CopySection>
+            </IdentifierSection>
             <br />
             <Link
               onClick={openDiscord}
-              text="join discord channel"
+              text="Join Our Discord Community"
               style={{ fontSize: 16, lineHeight: '22px' }}
             />
           </SuccemssMessage>
