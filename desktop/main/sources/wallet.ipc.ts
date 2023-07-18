@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import * as R from 'ramda';
 import {
   combineLatest,
@@ -33,6 +34,7 @@ import {
 } from '../../../shared/ipcMessages';
 import { Network, Wallet, WalletType } from '../../../shared/types';
 import {
+  getShortGenesisId,
   isLocalNodeApi,
   isRemoteNodeApi,
   stringifySocketAddress,
@@ -62,6 +64,9 @@ import {
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
 import { getLocalNodeConnectionConfig } from '../utils';
+import migrateWrongGenesisId from '../../migrations/migrateWrongGenesisId';
+import { getCustomNodeConfigPath } from '../NodeConfig';
+import StoreService from '../../storeService';
 
 type WalletData = {
   // path to wallet file
@@ -167,11 +172,65 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
       ({ path, password }: UnlockWalletRequest) =>
-        loadAndMigrateWallet$(path, password),
-      ({ wallet }): UnlockWalletResponse['payload'] => ({
-        meta: wallet.meta,
-        forceNetworkSelection: false,
-      })
+        loadAndMigrateWallet$(path, password).pipe(
+          withLatestFrom($networks),
+          map(([res, networks]) => {
+            if (res[0]) return res;
+            const { wallet } = res[1];
+            const gId = wallet.meta.genesisID;
+            const netByOldId = networks.find((n) => n._wrongGenesisID === gId);
+            if (!netByOldId) return res;
+            // Switch to the new id of the same network automatically
+            // and update the wallet file
+            // https://github.com/spacemeshos/smapp/issues/1377
+            migrateWrongGenesisId(
+              netByOldId._wrongGenesisID,
+              netByOldId.genesisID
+            ).catch((error) => {
+              logger.error('Cannot migrate Genesis ID:', error, netByOldId);
+              const nodeDataDir = StoreService.get('node.dataPath');
+              $warnings.next(
+                Warning.fromError(
+                  WarningType.GenesisIDMigrationFailed,
+                  {
+                    nodeConfig: {
+                      prev: getCustomNodeConfigPath(netByOldId._wrongGenesisID),
+                      next: getCustomNodeConfigPath(netByOldId.genesisID),
+                    },
+                    nodeData: {
+                      prev: resolve(
+                        nodeDataDir,
+                        getShortGenesisId(netByOldId._wrongGenesisID)
+                      ),
+                      next: resolve(
+                        nodeDataDir,
+                        getShortGenesisId(netByOldId.genesisID)
+                      ),
+                    },
+                  },
+                  error
+                )
+              );
+            });
+            return handlerResult(<WalletData>{
+              ...res[1],
+              wallet: {
+                ...wallet,
+                meta: {
+                  ...wallet.meta,
+                  genesisID: netByOldId.genesisID,
+                },
+              },
+              save: true,
+            });
+          })
+        ),
+      ({ wallet }): UnlockWalletResponse['payload'] => {
+        return {
+          meta: wallet.meta,
+          forceNetworkSelection: false,
+        };
+      }
     ),
     //
     handleIPC(
