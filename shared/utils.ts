@@ -291,3 +291,6 @@ export const getEventType = (event: NodeEvent): Event['details'] => {
   }
   return eventType;
 };
+
+export const getShortGenesisId = (genesisID: HexString) =>
+  genesisID.substring(0, 8);
