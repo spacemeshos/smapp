@@ -18,6 +18,7 @@ import {
   RewardsInfo,
   Account,
   NodeEvent,
+  PostProvingOpts,
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
@@ -64,6 +65,7 @@ export interface SmesherState {
   commitmentSize: number;
   numLabelsWritten: any;
   postSetupState: PostSetupState;
+  postProvingOpts: PostProvingOpts;
   rewards: Reward[];
   rewardsInfo?: RewardsInfo;
   activations: Activation[];

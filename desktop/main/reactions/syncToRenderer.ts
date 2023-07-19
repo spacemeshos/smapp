@@ -228,6 +228,25 @@ export default (
       ),
       map((rewardsInfo) => ({ smesher: { rewardsInfo } }))
     ),
+    $walletOpened.pipe(
+      switchMap(() => $currentNodeConfig),
+      map((nodeConfig) => ({
+        smesher: {
+          postProvingOpts: {
+            nonces: R.pathOr(
+              0,
+              ['smeshing-proving-opts', 'smeshing-opts-proving-nonces'],
+              nodeConfig.smeshing
+            ),
+            threads: R.pathOr(
+              0,
+              ['smeshing-proving-opts', 'smeshing-opts-proving-threads'],
+              nodeConfig.smeshing
+            ),
+          },
+        },
+      }))
+    ),
     $rootHash.pipe(map((rootHash) => ({ network: { rootHash } }))),
     $currentLayer.pipe(map((currentLayer) => ({ network: { currentLayer } })))
   );
