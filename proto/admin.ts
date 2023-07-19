@@ -25,6 +25,7 @@ export interface ProtoGrpcType {
       EventBeacon: MessageTypeDefinition
       EventEligibilities: MessageTypeDefinition
       EventInitComplete: MessageTypeDefinition
+      EventInitFailed: MessageTypeDefinition
       EventInitStart: MessageTypeDefinition
       EventPoetWaitProof: MessageTypeDefinition
       EventPoetWaitRound: MessageTypeDefinition
