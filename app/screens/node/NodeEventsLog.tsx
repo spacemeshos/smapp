@@ -13,12 +13,12 @@ import {
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { NodeEvent } from '../../../shared/types';
-import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { epochByLayer, nextEpochTime } from '../../../shared/layerUtils';
-import { getEventType } from '../../../shared/utils';
 import { BackButton, CorneredContainer } from '../../components/common';
 import { safeReactKey, setRef } from '../../infra/utils';
 import { MainPath } from '../../routerPaths';
+import { getNodeEventStatusColor } from './nodeEventUtils';
+import NodeEventActivityRow from './NodeEventActivityRow';
 
 const Wrapper = styled.div`
   display: flex;
@@ -118,114 +118,6 @@ const NoWrap = styled.span`
   white-space: nowrap;
 `;
 
-const withTime = (str: string, time: number) => (
-  <>
-    {str}{' '}
-    <CustomTimeAgo
-      time={time}
-      dict={{
-        prefixAgo: 'in',
-        prefixFromNow: 'in',
-        suffixAgo: 'ago',
-        suffixFromNow: null,
-        seconds: '%d seconds',
-      }}
-    />
-  </>
-);
-
-const getStageName = (event: NodeEvent) => {
-  switch (getEventType(event)) {
-    case 'initStart':
-      return 'PoST data initialization';
-    case 'initComplete':
-      return 'PoST data initialization complete';
-    case 'poetWaitRound':
-      return 'Waiting for PoET registration';
-    case 'poetWaitProof':
-      return 'Waiting for PoET proof';
-    case 'postStart':
-      return 'PoST proof generation';
-    case 'postComplete':
-      return 'Generating PoST proof complete';
-    case 'atxPublished':
-      return 'Publishing activation';
-    case 'eligibilities':
-      return 'Calculating eleigibilities';
-    case 'proposal':
-      return 'Publishing proposal';
-    case 'beacon':
-      return 'Generating beacon';
-    default:
-      return `Unknown "${getEventType(event)}"`;
-  }
-};
-
-const getStatusColor = (event: NodeEvent) => {
-  if (event && event.failure) {
-    return smColors.red;
-  }
-  switch (getEventType(event)) {
-    case 'initComplete':
-    case 'postComplete':
-    case 'proposal':
-      return smColors.green;
-    default:
-      return smColors.mediumGray;
-  }
-};
-
-const renderNodeActivity = (event: NodeEvent) => {
-  if (event && event.failure) {
-    return (
-      <ErrorMessage>
-        Stage &quot;{getStageName(event)}&quot; failed. Check the logs for more
-        details.
-      </ErrorMessage>
-    );
-  }
-  if (!event) {
-    return 'Node is preparing...';
-  }
-  switch (getEventType(event)) {
-    case 'initStart':
-      return 'Started PoST data initialization';
-    case 'initComplete':
-      return 'Completed PoST data initialization';
-    case 'poetWaitRound':
-      return withTime(
-        'Waiting for PoET registration window',
-        event.timestamp + (event.poetWaitRound?.wait || 0)
-      );
-    case 'poetWaitProof': {
-      return withTime(
-        'Waiting for PoET challenge',
-        event.timestamp + (event.poetWaitProof?.wait || 0)
-      );
-    }
-    case 'postStart':
-      return "Generating PoST proof for the PoET's challenge";
-    case 'postComplete':
-      return 'Finished generating PoST proof';
-    case 'atxPublished':
-      return 'Published activation. Waiting for the next epoch';
-    case 'eligibilities':
-      return event?.eligibilities?.eligibilities
-        ? `Eligible for rewards in layers ${event.eligibilities.eligibilities
-            .map((el) => el.layer)
-            .join(', ')}`
-        : `Computed eligibilities for the epoch ${
-            event.eligibilities?.epoch || ''
-          }`;
-    case 'proposal':
-      return `Published proposal on layer ${event.proposal?.layer}`;
-    case 'beacon':
-      return `Node computed randomness beacon for epoch ${event.beacon?.epoch}`;
-    default:
-      return event.help ?? 'Node is preparing...';
-  }
-};
-
 const NodeEventsLog = ({ history }: RouteComponentProps) => {
   const status = useSelector((state: RootState) => state.node.status);
   const genesisTime = useSelector(
@@ -280,13 +172,13 @@ const NodeEventsLog = ({ history }: RouteComponentProps) => {
       >
         <TextWrapper>
           <ColorStatusIndicator
-            color={getStatusColor(e)}
+            color={getNodeEventStatusColor(e)}
             style={{ marginRight: '1em' }}
           />
           <NoWrap>
             <CustomTimeAgo time={e.timestamp} />
           </NoWrap>
-          <EventText>{renderNodeActivity(e)}</EventText>
+          <EventText>{NodeEventActivityRow(e)}</EventText>
         </TextWrapper>
       </EventRow>
     );
