@@ -10,7 +10,7 @@ import { getProfilerPath } from './main/binaries';
 
 // Percentage of cycle-gap that are used in max data size calculation
 // to ensure that User will have enough time to create a proof
-const K_SAFE_PERIOD = 0.8;
+const K_SAFE_PERIOD = 0.7;
 
 export interface PosProfilerOptions {
   datafile: string;

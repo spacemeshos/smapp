@@ -36,6 +36,7 @@ message Event {
     EventAtxPubished atx_published = 11;
     EventEligibilities eligibilities = 12;
     EventProposal proposal = 13;
+    EventInitFailed init_failed = 14;
   }
 }
 
@@ -47,6 +48,12 @@ message EventBeacon {
 message EventInitStart {
   bytes smesher = 1;
   bytes commitment = 2;
+}
+
+message EventInitFailed {
+  bytes smesher = 1;
+  bytes commitment = 2;
+  string error = 3;
 }
 
 message EventInitComplete {}
