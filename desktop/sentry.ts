@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/electron/main';
-import { Event, EventHint } from '@sentry/types/types/event';
 import logger from 'electron-log';
 import { generateGenesisIDFromConfig } from './main/Networks';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
@@ -44,26 +43,6 @@ export const init = () =>
     enabled: true,
     maxValueLength: 25000,
     attachStacktrace: true,
-    attachScreenshot: true,
-    async beforeSend(event: Event, hint: EventHint) {
-      const attachmentNodeLog = await addNodeLogFile();
-      const attachmentAppLog = await addAppLogFile();
-      hint.attachments = [
-        {
-          filename: `log-genesisID-${attachmentNodeLog.genesisID}-eventId-${
-            event?.event_id || 0
-          }.txt`,
-          data: attachmentNodeLog.content,
-        },
-        {
-          filename: `appVersion-${attachmentAppLog.fileName}-eventId-${
-            event?.event_id || 0
-          }.txt`,
-          data: attachmentAppLog.content,
-        },
-      ];
-      return event;
-    },
   });
 
 export const captureMainException = (e: Error) => {
