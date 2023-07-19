@@ -9,7 +9,7 @@ import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
-import { debounceShared, delay } from '../shared/utils';
+import { debounceShared, delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
@@ -368,7 +368,7 @@ class NodeManager extends AbstractManager {
     const nodePath = getNodePath();
     const nodeDataFilesPath = path.join(
       StoreService.get('node.dataPath'),
-      this.genesisID.substring(0, 8)
+      getShortGenesisId(this.genesisID)
     );
     const logFilePath = getNodeLogsPath(this.genesisID);
 
