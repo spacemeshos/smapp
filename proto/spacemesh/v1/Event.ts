@@ -11,6 +11,7 @@ import type { EventPoetWaitProof as _spacemesh_v1_EventPoetWaitProof, EventPoetW
 import type { EventAtxPubished as _spacemesh_v1_EventAtxPubished, EventAtxPubished__Output as _spacemesh_v1_EventAtxPubished__Output } from '../../spacemesh/v1/EventAtxPubished';
 import type { EventEligibilities as _spacemesh_v1_EventEligibilities, EventEligibilities__Output as _spacemesh_v1_EventEligibilities__Output } from '../../spacemesh/v1/EventEligibilities';
 import type { EventProposal as _spacemesh_v1_EventProposal, EventProposal__Output as _spacemesh_v1_EventProposal__Output } from '../../spacemesh/v1/EventProposal';
+import type { EventInitFailed as _spacemesh_v1_EventInitFailed, EventInitFailed__Output as _spacemesh_v1_EventInitFailed__Output } from '../../spacemesh/v1/EventInitFailed';
 
 export interface Event {
   'timestamp'?: (_google_protobuf_Timestamp | null);
@@ -26,7 +27,8 @@ export interface Event {
   'atxPublished'?: (_spacemesh_v1_EventAtxPubished | null);
   'eligibilities'?: (_spacemesh_v1_EventEligibilities | null);
   'proposal'?: (_spacemesh_v1_EventProposal | null);
-  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal";
+  'initFailed'?: (_spacemesh_v1_EventInitFailed | null);
+  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed";
 }
 
 export interface Event__Output {
@@ -43,5 +45,6 @@ export interface Event__Output {
   'atxPublished'?: (_spacemesh_v1_EventAtxPubished__Output | null);
   'eligibilities'?: (_spacemesh_v1_EventEligibilities__Output | null);
   'proposal'?: (_spacemesh_v1_EventProposal__Output | null);
-  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal";
+  'initFailed'?: (_spacemesh_v1_EventInitFailed__Output | null);
+  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed";
 }

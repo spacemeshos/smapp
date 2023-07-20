@@ -15,7 +15,7 @@ import {
   CorneredWrapper,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { AuthPath } from '../../routerPaths';
+import { WalletPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
 const SubHeader = styled.div`
@@ -206,17 +206,23 @@ const getTestWords = (mnemonic: string): TestWords => {
 const getIndexFromId = (droppableId: string): number =>
   parseInt(droppableId.match(/^slot_(\d{1,2})$/)?.[1] || '0', 10);
 
-const TestMe = (props: { mnemonic?: string }) => {
+interface Props {
+  mnemonic?: string;
+  nextButtonHandler?: () => void;
+}
+
+const TestMe = (props: Props) => {
   const location = useLocation<{ mnemonic: string }>();
   const history = useHistory();
   const { mnemonic } = location.state || props;
+  const { nextButtonHandler } = props;
   const [testWords, setTestWords] = useState<TestWords>(getTestWords(mnemonic));
 
   const resetTest = () => setTestWords(getTestWords(mnemonic));
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
-  const navigateToWallet = () => history.push(AuthPath.WalletCreated);
+  const navigateToWallet = () => history.push(WalletPath.Overview);
 
   const getWordByIndex = (i: number) =>
     Object.entries(testWords).find(([_, { index }]) => index === i)?.[0];
@@ -335,7 +341,9 @@ const TestMe = (props: { mnemonic?: string }) => {
         <BottomRow>
           <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
           <Button
-            onClick={isTestSuccess ? navigateToWallet : resetTest}
+            onClick={
+              isTestSuccess ? nextButtonHandler || navigateToWallet : resetTest
+            }
             text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
             isPrimary={isTestSuccess}
           />

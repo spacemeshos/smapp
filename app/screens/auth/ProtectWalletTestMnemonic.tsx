@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import { BackButton } from '../../components/common';
 import TestMe from '../backup/TestMe';
+import { AuthPath } from '../../routerPaths';
 import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
@@ -29,7 +30,10 @@ const ProtectWalletTestMnemonic = () => {
       <Steps step={Step.PROTECT_WALLET} />
       <ContentSection>
         <BackButton action={history.goBack} />
-        <TestMe mnemonic={location.state.mnemonic} />
+        <TestMe
+          mnemonic={location.state.mnemonic}
+          nextButtonHandler={() => history.push(AuthPath.WalletCreated)}
+        />
       </ContentSection>
     </Wrapper>
   );

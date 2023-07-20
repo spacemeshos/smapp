@@ -18,9 +18,9 @@ export default (
     ([_, currentNetwork, mainWindow]) => {
       const browserView = new BrowserView({});
       mainWindow.setBrowserView(browserView);
-      browserView.webContents.on('new-window', (event, url) => {
-        event.preventDefault();
+      browserView.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
+        return { action: 'deny' };
       });
       const contentBounds = mainWindow.getContentBounds();
       browserView.setBounds({

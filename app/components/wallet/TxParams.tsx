@@ -132,6 +132,8 @@ const TxParams = ({
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
   const fees = getFees(maxGas);
+  const [sameAddressError, setSameAddressError] = useState(false);
+
   const selectFee = ({ index }: { index: number }) => {
     updateFee({ fee: fees[index].fee });
     setSelectedFeeIndex(index);
@@ -170,7 +172,10 @@ const TxParams = ({
           placeholder="Address"
           data={contacts || []}
           value={address}
-          onChange={(value: string) => updateTxAddress({ value })}
+          onChange={(value: string) => {
+            setSameAddressError(fromAddress === value);
+            updateTxAddress({ value });
+          }}
           onEnter={(value: string) => updateTxAddress({ value })}
           autofocus
         />
@@ -179,6 +184,14 @@ const TxParams = ({
             onClick={resetAddressError}
             text="This address is invalid."
             style={errorPopupStyle}
+          />
+        )}
+        {sameAddressError && (
+          <ErrorPopup
+            onClick={() => setSameAddressError(false)}
+            text="The address of the sender and recipient is the same."
+            style={errorPopupStyle1}
+            messageType="warning"
           />
         )}
       </DetailsRow>

@@ -5,6 +5,7 @@ export default {
   secondary90: '#93449A',
   error: '#EC5C3D',
   info: '#1876E3',
+  warning: '#F79F53',
   success: '#65B041',
   light150: '#C9C9C9',
   light140: '#BCBCBD',
