@@ -3,7 +3,6 @@ import { enumFromStringValue } from './utils';
 export enum WarningType {
   Unknown = 'Unknown',
   WriteFilePermission = 'WriteFilePermission',
-  GenesisIDMigrationFailed = 'GenesisIDMigrationFailed',
 }
 
 export enum WriteFilePermissionWarningKind {
@@ -18,16 +17,6 @@ interface WarningTypeOptions {
   [WarningType.WriteFilePermission]: WarningOptions<{
     kind: WriteFilePermissionWarningKind;
     filePath: string;
-  }>;
-  [WarningType.GenesisIDMigrationFailed]: WarningOptions<{
-    nodeConfig: {
-      prev: string;
-      next: string;
-    };
-    nodeData: {
-      prev: string;
-      next: string;
-    };
   }>;
 }
 
