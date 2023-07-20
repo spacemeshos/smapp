@@ -24,6 +24,5 @@ export type Network = {
   smappBaseDownloadUrl: string;
   nodeBaseDownloadUrl: string;
   genesisID: string;
-  _wrongGenesisID: string; // For migration: https://github.com/spacemeshos/smapp/issues/1377
   [key: string]: any;
 };

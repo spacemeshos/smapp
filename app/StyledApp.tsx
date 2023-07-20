@@ -16,7 +16,6 @@ import { getThemeById } from './theme';
 import { init } from './sentry';
 import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
 import NoInternetConnection from './screens/modal/NoInternetConnection';
-import GenesisIDMigrationFailed from './screens/modal/GenesisIDMigrationFailed';
 
 const history = createMemoryHistory();
 
@@ -69,7 +68,6 @@ const StyledApp = () => {
             ))}
             <Redirect to="/auth" />
           </Switch>
-          <GenesisIDMigrationFailed />
           <WriteFilePermissionError />
           <NoInternetConnection />
           <CloseAppModal />
