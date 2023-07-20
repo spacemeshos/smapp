@@ -68,7 +68,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsResult, null, 2),
         { encoding: 'utf8' }
       );
@@ -116,7 +116,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsFromStoreService, null, 2),
         { encoding: 'utf8' }
       );
@@ -208,7 +208,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsResultTestNet, null, 2),
         { encoding: 'utf8' }
       );
@@ -224,7 +224,7 @@ describe('NodeConfig.ts', () => {
       );
 
       expect(fsPromise.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.ee5e11bb.json'),
+        expect.stringContaining('Electron/node-config.1ee20fed.json'),
         JSON.stringify(smeshingOptsResultDevnet, null, 2),
         { encoding: 'utf8' }
       );
@@ -281,7 +281,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingAfterReset, null, 2),
         { encoding: 'utf8' }
       );
@@ -332,7 +332,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsAfterReset, null, 2),
         { encoding: 'utf8' }
       );
@@ -391,7 +391,7 @@ describe('NodeConfig.ts', () => {
 
       // write opts for custom config
       expect(fsPromises.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('Electron/node-config.1125e373.json'),
+        expect.stringContaining('Electron/node-config.7f8f332c.json'),
         JSON.stringify(smeshingOptsAfterReset, null, 2),
         { encoding: 'utf8' }
       );
