@@ -26,7 +26,6 @@ import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
 import Logger from '../../logger';
-import { getWrongGenesisID } from '../../migrations/migrateWrongGenesisId';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
@@ -51,10 +50,6 @@ export const withGenesisID = () =>
           (net, i): Network => ({
             ...net,
             genesisID: generateGenesisIDFromConfig(configs[i]),
-            _wrongGenesisID: getWrongGenesisID(
-              configs[i].genesis['genesis-time'],
-              configs[i].genesis['genesis-extra-data']
-            ),
           })
         );
       })

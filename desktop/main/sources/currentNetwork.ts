@@ -6,7 +6,6 @@ import {
   iif,
   map,
   Observable,
-  share,
   Subject,
   switchMap,
 } from 'rxjs';
@@ -21,6 +20,7 @@ export default (
 ) =>
   $networks.pipe(
     combineLatestWith($runNodeBeforeLogin, $wallet),
+    distinctUntilChanged(),
     switchMap(([_, runNodeOnStart, wallet]) => {
       return iif(
         () => runNodeOnStart && !wallet,
@@ -34,12 +34,8 @@ export default (
         )
       );
     }),
-    distinctUntilChanged(
-      (prev, next) => prev[0] === next[0] && prev[1] === next[1]
-    ),
     map(
       ([networks, genesisID]) =>
         find((net) => net.genesisID === genesisID, networks) || null
-    ),
-    share()
+    )
   );
