@@ -1,7 +1,6 @@
 import { hash } from '@spacemesh/sm-codec';
 import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
-import { parseISODate } from '../../shared/datetime';
 import { toHexString } from '../../shared/utils';
 import { getStandaloneNetwork, isTestMode } from '../testMode';
 import { fetchJSON, isDevNet } from '../utils';
@@ -12,8 +11,7 @@ import { toPublicService } from './utils';
 //
 
 export const generateGenesisID = (genesisTime: string, extraData: string) => {
-  const time = parseISODate(genesisTime).getTime() / 1000;
-  return toHexString(hash(`${time}${extraData}`)).substring(0, 40);
+  return `${toHexString(hash(genesisTime + extraData)).substring(0, 40)}`;
 };
 
 export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
@@ -22,8 +20,8 @@ export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
     nodeConfig?.genesis?.['genesis-extra-data']
   ) {
     return generateGenesisID(
-      nodeConfig.genesis['genesis-time'],
-      nodeConfig.genesis['genesis-extra-data']
+      nodeConfig.genesis['genesis-time'] || '',
+      nodeConfig.genesis['genesis-extra-data'] || ''
     );
   }
 
