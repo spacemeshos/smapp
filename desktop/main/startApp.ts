@@ -255,7 +255,8 @@ const startApp = (): AppStore => {
       $activations,
       $rewards,
       $nodeEvents,
-      $hrp
+      $hrp,
+      $warnings
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it

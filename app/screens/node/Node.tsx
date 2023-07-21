@@ -375,6 +375,9 @@ const Node = ({ history, location }: Props) => {
   const numLabelsWritten = useSelector(
     (state: RootState) => state.smesher.numLabelsWritten
   );
+  const postProvingOpts = useSelector(
+    (state: RootState) => state.smesher.postProvingOpts
+  );
   const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
@@ -448,6 +451,10 @@ const Node = ({ history, location }: Props) => {
       ['Data Size', formatBytes(commitmentSize)],
       ['Max File Size', `${convertBytesToMiB(maxFileSize)} MiB`],
       [
+        'Proof Generation',
+        `${postProvingOpts.nonces} nonces | ${postProvingOpts.threads} CPU threads`,
+      ],
+      [
         'Smesher ID',
         <Address
           key="smesherId"
@@ -496,9 +503,12 @@ const Node = ({ history, location }: Props) => {
             <ButtonWrapper>
               <Button
                 isDisabled={!!nodeError}
-                onClick={() =>
-                  history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-                }
+                onClick={() => {
+                  dispatch(hideSmesherLeftPanel());
+                  history.push(MainPath.SmeshingSetup, {
+                    modifyPostData: true,
+                  });
+                }}
                 img={posDirectoryWhite}
                 text="EDIT"
                 isPrimary={false}

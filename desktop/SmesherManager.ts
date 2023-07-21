@@ -224,7 +224,7 @@ class SmesherManager extends AbstractManager {
         const res = await this.smesherService.stopSmeshing({
           deleteFiles: deleteFiles || false,
         });
-        await this.clearSmesherMetadata();
+        deleteFiles && (await this.clearSmesherMetadata());
 
         await updateSmeshingOpts(
           this.genesisID,

@@ -1,7 +1,7 @@
 import { AppThDispatch } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import { getSkinId, isDarkBackground } from '../../theme';
-import { AnyWarningObject } from '../../../shared/warning';
+import { AnyWarningObject, WarningType } from '../../../shared/warning';
 
 export const SET_OS_THEME = 'SET_OS_THEME';
 export const SKIN_SWITCHER = 'SKIN_SWITCHER';
@@ -9,6 +9,7 @@ export const HIDE_LEFT_PANEL = 'HIDE_LEFT_PANEL';
 export const SET_UI_ERROR = 'SET_UI_ERROR';
 export const ADD_WARNING = 'ADD_WARNING';
 export const OMIT_WARNING = 'OMIT_WARNING';
+export const OMIT_ALL_WARNINGS_BY_TYPE = 'OMIT_ALL_WARNINGS_BY_TYPE';
 
 export const SHOW_CLOSING_APP_MODAL = 'SHOW_CLOSING_APP_MODAL';
 
@@ -32,6 +33,11 @@ export const addWarning = (warning: AnyWarningObject) => ({
 export const omitWarning = (warning: AnyWarningObject) => ({
   type: OMIT_WARNING,
   payload: warning,
+});
+
+export const omitAllWarningsByType = (type: keyof typeof WarningType) => ({
+  type: OMIT_ALL_WARNINGS_BY_TYPE,
+  payload: type,
 });
 
 export const showClosingAppModal = () => ({

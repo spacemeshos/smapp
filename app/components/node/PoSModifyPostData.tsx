@@ -1,9 +1,17 @@
 import { RootState } from 'app/types';
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { useHistory } from 'react-router';
 import { Tooltip, Button } from '../../basicComponents';
 import { Modal } from '../common';
+import {
+  pauseSmeshing,
+  resumeSmeshing,
+  updateProfSettings,
+} from '../../redux/smesher/actions';
+import { MainPath } from '../../routerPaths';
+import PoSProvingOptsUpdateModal from '../../screens/modal/PoSProvingOptsUpdateModal';
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,14 +57,36 @@ const StyledRow = styled(Row)`
 
 type Props = {
   deleteData: () => void;
+  isDeleting: boolean;
 };
 
-const PoSModifyPostData = ({ deleteData }: Props) => {
+const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+
   const nodeError = useSelector((state: RootState) => state.node.error);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const onDeleteClick = () => {
-    setShowModal(true);
+  const [showPoSProfiler, setShowPoSProfiler] = useState<boolean>(false);
+  const [ladingPoSProfiler, setLadingPoSProfiler] = useState<boolean>(false);
+  const isSmeshing = useSelector(
+    (state: RootState) => state.smesher.isSmeshingStarted
+  );
+  const updatePoSProfilerConfig = async (nonces: number, threads: number) => {
+    setLadingPoSProfiler(true);
+
+    dispatch(updateProfSettings(nonces, threads));
+
+    if (isSmeshing) {
+      await dispatch(pauseSmeshing());
+      await dispatch(resumeSmeshing());
+    }
+
+    setLadingPoSProfiler(false);
+
+    setShowPoSProfiler(false);
+    history.push(MainPath.Smeshing);
   };
+
   return (
     <>
       <Wrapper>
@@ -69,7 +99,7 @@ const PoSModifyPostData = ({ deleteData }: Props) => {
           <Dots>.....................................................</Dots>
           <Button
             isDisabled={!!nodeError}
-            onClick={onDeleteClick}
+            onClick={() => setShowModal(true)}
             text="DELETE DATA"
             isPrimary={false}
           />
@@ -81,9 +111,35 @@ const PoSModifyPostData = ({ deleteData }: Props) => {
                   text="CANCEL"
                   onClick={() => setShowModal(false)}
                 />
-                <Button text="CONFIRM" onClick={() => deleteData()} />
+                <Button
+                  text={isDeleting ? 'Deleting...' : 'CONFIRM'}
+                  onClick={() => deleteData()}
+                  isDisabled={isDeleting}
+                />
               </StyledRow>
             </Modal>
+          )}
+        </Row>
+
+        <Row>
+          <Text>Update PoS proving opts</Text>
+          <Tooltip
+            width={200}
+            text="Allow to update PoS proving opts which include nonce's and threads"
+          />
+          <Dots>.....................................................</Dots>
+          <Button
+            isDisabled={!!nodeError}
+            onClick={() => setShowPoSProfiler(true)}
+            text="UPDATE"
+            isPrimary={false}
+          />
+          {showPoSProfiler && (
+            <PoSProvingOptsUpdateModal
+              isLoading={ladingPoSProfiler}
+              onUpdate={updatePoSProfilerConfig}
+              onCancel={() => setShowPoSProfiler(false)}
+            />
           )}
         </Row>
       </Wrapper>
