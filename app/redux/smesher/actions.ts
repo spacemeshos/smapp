@@ -88,7 +88,7 @@ export const resumeSmeshing = () => async (
     : false;
 };
 
-export const updateProfSettings = (nonces: number, threads: number) => ({
+export const updatePostProvingOpts = (nonces: number, threads: number) => ({
   type: UPDATE_POST_PROVING_OPTS,
   payload: { nonces, threads },
 });

@@ -1,18 +1,12 @@
 import { RootState } from 'app/types';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
 import { Tooltip, Button } from '../../basicComponents';
 import { Modal } from '../common';
-import {
-  pauseSmeshing,
-  resumeSmeshing,
-  updateProfSettings,
-} from '../../redux/smesher/actions';
-import { MainPath } from '../../routerPaths';
 import PoSProvingOptsUpdateModal from '../../screens/modal/PoSProvingOptsUpdateModal';
-import { eventsService } from '../../infra/eventsService';
+import { MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -64,27 +58,10 @@ type Props = {
 };
 
 const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
-  const dispatch = useDispatch();
   const history = useHistory();
-
   const nodeError = useSelector((state: RootState) => state.node.error);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showPoSProfiler, setShowPoSProfiler] = useState<boolean>(false);
-  const [ladingPoSProfiler, setLadingPoSProfiler] = useState<boolean>(false);
-
-  const updatePoSProfilerConfig = async (nonces: number, threads: number) => {
-    setLadingPoSProfiler(true);
-    dispatch(updateProfSettings(nonces, threads));
-
-    await eventsService.updatePostProvingOpts({ nonces, threads });
-    await dispatch(pauseSmeshing());
-    await dispatch(resumeSmeshing());
-
-    setLadingPoSProfiler(false);
-    setShowPoSProfiler(false);
-
-    history.push(MainPath.Smeshing);
-  };
 
   return (
     <>
@@ -136,9 +113,10 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
           />
           {showPoSProfiler && (
             <PoSProvingOptsUpdateModal
-              isLoading={ladingPoSProfiler}
-              onUpdate={updatePoSProfilerConfig}
-              onCancel={() => setShowPoSProfiler(false)}
+              closeHandler={() => {
+                setShowPoSProfiler(false);
+                history.push(MainPath.Smeshing);
+              }}
             />
           )}
         </Row>

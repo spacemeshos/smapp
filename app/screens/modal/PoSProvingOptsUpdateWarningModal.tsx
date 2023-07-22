@@ -1,50 +1,42 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router';
 import PoSProfiler from '../../components/node/PoSProfiler';
-import { BITS, RootState } from '../../types';
 import { Modal } from '../../components/common';
-import {
-  pauseSmeshing,
-  resumeSmeshing,
-  updateProfSettings,
-} from '../../redux/smesher/actions';
 import { getWarningByType } from '../../redux/ui/selectors';
-import { WarningType } from '../../../shared/warning';
+import { WarningObject, WarningType } from '../../../shared/warning';
 import { omitWarning } from '../../redux/ui/actions';
 import { smColors } from '../../vars';
-import { eventsService } from '../../infra/eventsService';
+import useUpdatePostProvingOpts from '../../hooks/useUpdatePostProvingOpts';
+import { MainPath } from '../../routerPaths';
 import ReactPortal from './ReactPortal';
 
 const PoSProvingOptsUpdateWarningModal = () => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-  const postProvingOpts = useSelector(
-    (state: RootState) => state.smesher.postProvingOpts
-  );
   const provingOptsWarning = useSelector(
     getWarningByType(WarningType.UpdateSmeshingProvingOpts)
   );
-  const numUnits = useSelector((state: RootState) => state.smesher.numUnits);
-  const dataDir = useSelector((state: RootState) => state.smesher.dataDir);
-  const smesherConfig = useSelector((state: RootState) => state.smesher.config);
-  const singleCommitmentSize =
-    (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
+  const history = useHistory();
+  const {
+    updateConfigHandler,
+    numUnits,
+    dataDir,
+    singleCommitmentSize,
+    loading,
+    nonces,
+    threads,
+  } = useUpdatePostProvingOpts(() => {
+    dispatch(
+      omitWarning(
+        provingOptsWarning as WarningObject<WarningType.UpdateSmeshingProvingOpts>
+      )
+    );
+    history.push(MainPath.Smeshing);
+  });
 
   if (!provingOptsWarning) {
     return null;
   }
-
-  const updateConfig = async (nonces: number, threads: number) => {
-    setLoading(true);
-    dispatch(updateProfSettings(nonces, threads));
-    await eventsService.updatePostProvingOpts({ nonces, threads });
-
-    await dispatch(pauseSmeshing());
-    await dispatch(resumeSmeshing());
-
-    setLoading(false);
-    dispatch(omitWarning(provingOptsWarning));
-  };
 
   return (
     <ReactPortal modalId="pos-profiler-modal">
@@ -58,12 +50,12 @@ const PoSProvingOptsUpdateWarningModal = () => {
         height={530}
       >
         <PoSProfiler
-          nextAction={updateConfig}
+          nextAction={updateConfigHandler}
           numUnitSize={singleCommitmentSize}
           maxUnits={numUnits}
           dataDir={dataDir}
-          threads={postProvingOpts.threads}
-          nonces={postProvingOpts.nonces}
+          threads={threads}
+          nonces={nonces}
           footerNextDisabled={loading}
           footerNextLabel={loading ? 'Setting...' : 'Set'}
         />

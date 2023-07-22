@@ -1,29 +1,23 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import PoSProfiler from '../../components/node/PoSProfiler';
-import { BITS, RootState } from '../../types';
 import { Modal } from '../../components/common';
 
+import useUpdatePostProvingOpts from '../../hooks/useUpdatePostProvingOpts';
 import ReactPortal from './ReactPortal';
 
 interface Props {
-  onUpdate: (nonces: number, threads: number, numUnits?: number) => void;
-  onCancel: () => void;
-  isLoading: boolean;
+  closeHandler: () => void;
 }
-const PoSProvingOptsUpdateModal = ({
-  onUpdate,
-  onCancel,
-  isLoading,
-}: Props) => {
-  const postProvingOpts = useSelector(
-    (state: RootState) => state.smesher.postProvingOpts
-  );
-  const numUnits = useSelector((state: RootState) => state.smesher.numUnits);
-  const dataDir = useSelector((state: RootState) => state.smesher.dataDir);
-  const smesherConfig = useSelector((state: RootState) => state.smesher.config);
-  const singleCommitmentSize =
-    (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
+const PoSProvingOptsUpdateModal = ({ closeHandler }: Props) => {
+  const {
+    updateConfigHandler,
+    numUnits,
+    dataDir,
+    singleCommitmentSize,
+    loading,
+    nonces,
+    threads,
+  } = useUpdatePostProvingOpts(closeHandler);
 
   return (
     <ReactPortal modalId="pos-profiler-modal">
@@ -35,16 +29,16 @@ const PoSProvingOptsUpdateModal = ({
         height={530}
       >
         <PoSProfiler
-          nextAction={onUpdate}
+          nextAction={updateConfigHandler}
           numUnitSize={singleCommitmentSize}
           maxUnits={numUnits}
           dataDir={dataDir}
-          threads={postProvingOpts.threads}
-          nonces={postProvingOpts.nonces}
-          footerNextDisabled={isLoading}
-          footerNextLabel={isLoading ? ' Updating...' : 'Update'}
+          threads={threads}
+          nonces={nonces}
+          footerNextDisabled={loading}
+          footerNextLabel={loading ? ' Updating...' : 'Update'}
           footerSkipLabel={'Close'}
-          footerSkipAction={isLoading ? undefined : onCancel}
+          footerSkipAction={loading ? undefined : closeHandler}
         />
       </Modal>
     </ReactPortal>

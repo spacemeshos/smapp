@@ -9,7 +9,6 @@ import {
   SKIN_SWITCHER,
   ADD_WARNING,
   OMIT_WARNING,
-  OMIT_ALL_WARNINGS_BY_TYPE,
 } from './actions';
 
 const initialState: UiState = {
@@ -50,11 +49,6 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
       return {
         ...state,
         warnings: state.warnings.filter((w) => w !== action.payload),
-      };
-    case OMIT_ALL_WARNINGS_BY_TYPE:
-      return {
-        ...state,
-        warnings: state.warnings.filter((w) => w.type !== action.payload),
       };
     case SHOW_CLOSING_APP_MODAL:
       return { ...state, isClosingApp: true };
