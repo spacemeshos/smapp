@@ -12,6 +12,7 @@ import {
 } from '../../redux/smesher/actions';
 import { MainPath } from '../../routerPaths';
 import PoSProvingOptsUpdateModal from '../../screens/modal/PoSProvingOptsUpdateModal';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -25,9 +26,11 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
+
   &:first-child {
     margin-bottom: 10px;
   }
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -68,22 +71,18 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showPoSProfiler, setShowPoSProfiler] = useState<boolean>(false);
   const [ladingPoSProfiler, setLadingPoSProfiler] = useState<boolean>(false);
-  const isSmeshing = useSelector(
-    (state: RootState) => state.smesher.isSmeshingStarted
-  );
+
   const updatePoSProfilerConfig = async (nonces: number, threads: number) => {
     setLadingPoSProfiler(true);
-
     dispatch(updateProfSettings(nonces, threads));
 
-    if (isSmeshing) {
-      await dispatch(pauseSmeshing());
-      await dispatch(resumeSmeshing());
-    }
+    await eventsService.updatePostProvingOpts({ nonces, threads });
+    await dispatch(pauseSmeshing());
+    await dispatch(resumeSmeshing());
 
     setLadingPoSProfiler(false);
-
     setShowPoSProfiler(false);
+
     history.push(MainPath.Smeshing);
   };
 
@@ -125,7 +124,8 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
           <Text>Update PoS proving opts</Text>
           <Tooltip
             width={200}
-            text="Allow to update PoS proving opts which include nonce's and threads"
+            text={`Allows updating the number of Nonces and CPU threads. 
+          These values will be used in the proving process.`}
           />
           <Dots>.....................................................</Dots>
           <Button

@@ -10,8 +10,9 @@ import {
 } from '../../redux/smesher/actions';
 import { getWarningByType } from '../../redux/ui/selectors';
 import { WarningType } from '../../../shared/warning';
-import { omitAllWarningsByType } from '../../redux/ui/actions';
+import { omitWarning } from '../../redux/ui/actions';
 import { smColors } from '../../vars';
+import { eventsService } from '../../infra/eventsService';
 import ReactPortal from './ReactPortal';
 
 const PoSProvingOptsUpdateWarningModal = () => {
@@ -22,9 +23,6 @@ const PoSProvingOptsUpdateWarningModal = () => {
   );
   const provingOptsWarning = useSelector(
     getWarningByType(WarningType.UpdateSmeshingProvingOpts)
-  );
-  const isSmeshing = useSelector(
-    (state: RootState) => state.smesher.isSmeshingStarted
   );
   const numUnits = useSelector((state: RootState) => state.smesher.numUnits);
   const dataDir = useSelector((state: RootState) => state.smesher.dataDir);
@@ -38,16 +36,14 @@ const PoSProvingOptsUpdateWarningModal = () => {
 
   const updateConfig = async (nonces: number, threads: number) => {
     setLoading(true);
-
     dispatch(updateProfSettings(nonces, threads));
+    await eventsService.updatePostProvingOpts({ nonces, threads });
 
-    if (isSmeshing) {
-      await dispatch(pauseSmeshing());
-      await dispatch(resumeSmeshing());
-    }
+    await dispatch(pauseSmeshing());
+    await dispatch(resumeSmeshing());
+
     setLoading(false);
-
-    dispatch(omitAllWarningsByType(WarningType.UpdateSmeshingProvingOpts));
+    dispatch(omitWarning(provingOptsWarning));
   };
 
   return (
@@ -55,7 +51,7 @@ const PoSProvingOptsUpdateWarningModal = () => {
       <Modal
         header={'Set PoS proving opts'}
         subHeader={
-          'Need to update PoS proving opts settings. They are missing in your config'
+          'Please update the PoS proving opts. They are missing in your config.'
         }
         headerColor={smColors.red}
         width={750}

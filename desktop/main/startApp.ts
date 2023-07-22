@@ -43,6 +43,8 @@ import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
+import handleSmesherPostProvingOptsIpc from './reactions/handleSmesherPostProvingOptsIpc';
+import handleSmeshingUpdateProvingOpts from './reactions/handleSmeshingUpdateProvingOpts';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -234,6 +236,10 @@ const startApp = (): AppStore => {
     ),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingSetupState),
+    // Handle update Smeshing opts from client
+    handleSmesherPostProvingOptsIpc($managers),
+    // Handle check for post proving opts
+    handleSmeshingUpdateProvingOpts($wallet, $nodeConfig, $warnings),
     // Handle show file
     handleShowFile($currentNetwork),
     // IPC Reactions
@@ -255,8 +261,7 @@ const startApp = (): AppStore => {
       $activations,
       $rewards,
       $nodeEvents,
-      $hrp,
-      $warnings
+      $hrp
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it

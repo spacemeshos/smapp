@@ -176,6 +176,10 @@ class EventsService {
   static runBenchmarks = (benchmarks: BenchmarkRequest[], dataDir: string) =>
     ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, { benchmarks, dataDir });
 
+  static updatePostProvingOpts = async (opts: PostProvingOpts) => {
+    ipcRenderer.send(ipcConsts.SMESHER_UPDATE_POST_PROVING_OPTS, opts);
+  };
+
   /** **********************************   TRANSACTIONS   ************************************** */
 
   static getTxMaxGas = (req: {

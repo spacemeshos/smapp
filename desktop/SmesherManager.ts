@@ -258,8 +258,7 @@ class SmesherManager extends AbstractManager {
 
   updateSmeshingConfig = async (
     postSetupOpts: PostSetupOpts,
-    provingOpts: PostProvingOpts,
-    genesisID: HexString
+    provingOpts: PostProvingOpts
   ) => {
     const {
       coinbase,
@@ -292,12 +291,21 @@ class SmesherManager extends AbstractManager {
         },
         'smeshing-start': true,
       },
-      genesisID
+      this.genesisID
     );
 
     await updateSmeshingOpts(this.genesisID, opts);
+  };
 
-    return true;
+  updatePostProvingOpts = async (provingOpts: PostProvingOpts) => {
+    const { nonces, threads } = provingOpts;
+
+    return updateSmeshingOpts(this.genesisID, {
+      'smeshing-proving-opts': {
+        'smeshing-opts-proving-nonces': nonces,
+        'smeshing-opts-proving-threads': threads,
+      },
+    });
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {

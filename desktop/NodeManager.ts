@@ -16,6 +16,7 @@ import {
   NodeError,
   NodeErrorLevel,
   NodeStatus,
+  PostProvingOpts,
   PostSetupOpts,
   PublicService,
   SocketAddress,
@@ -353,11 +354,7 @@ class NodeManager extends AbstractManager {
 
     // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config
-    await this.smesherManager.updateSmeshingConfig(
-      postSetupOpts,
-      provingOpts,
-      this.genesisID
-    );
+    await this.smesherManager.updateSmeshingConfig(postSetupOpts, provingOpts);
     await this.restartNode();
     return SmeshingSetupState.ViaRestart;
   };

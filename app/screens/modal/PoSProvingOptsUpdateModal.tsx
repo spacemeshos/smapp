@@ -29,9 +29,8 @@ const PoSProvingOptsUpdateModal = ({
     <ReactPortal modalId="pos-profiler-modal">
       <Modal
         header={'Update PoS proving opts'}
-        subHeader={
-          "Allow to update PoS proving opts which include nonce's and threads"
-        }
+        subHeader={`This screen allows updating the number of Nonces and CPU threads. 
+          These values will be used in the proving process.`}
         width={750}
         height={530}
       >

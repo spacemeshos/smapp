@@ -34,7 +34,6 @@ import {
 import { ConfigStore } from '../../storeService';
 import { HOUR, MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
-import Warning, { WarningType } from '../../../shared/warning';
 import networkView from './views/networkView';
 import storeView from './views/storeView';
 import walletView from './views/walletView';
@@ -175,8 +174,7 @@ export default (
   $activations: Observable<Activation[]>,
   $rewards: Observable<Reward[]>,
   $nodeEvents: Observable<NodeEvent>,
-  $hrp: Observable<string>,
-  $warnings: Subject<Warning>
+  $hrp: Observable<string>
 ) => {
   const $walletOpened = $wallet.pipe(
     distinctUntilChanged(
@@ -233,36 +231,6 @@ export default (
     $walletOpened.pipe(
       switchMap(() => $currentNodeConfig),
       map((nodeConfig) => {
-        const input = {
-          smeshingStart: R.pathOr(
-            null,
-            ['smeshing-start'],
-            nodeConfig.smeshing
-          ),
-          nonces: R.pathOr(
-            null,
-            ['smeshing-proving-opts', 'smeshing-opts-proving-nonces'],
-            nodeConfig.smeshing
-          ),
-          threads: R.pathOr(
-            null,
-            ['smeshing-proving-opts', 'smeshing-opts-proving-threads'],
-            nodeConfig.smeshing
-          ),
-        };
-
-        const isSmeshingInit = input.smeshingStart !== null;
-        const isSmeshingProvingOptsNotInit = !input.nonces || !input.threads;
-
-        if (isSmeshingInit && isSmeshingProvingOptsNotInit) {
-          $warnings.next(
-            new Warning(WarningType.UpdateSmeshingProvingOpts, {
-              payload: {},
-              message: 'Dont find smeshing proving opts',
-            })
-          );
-        }
-
         return {
           smesher: {
             postProvingOpts: {

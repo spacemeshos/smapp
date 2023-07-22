@@ -121,7 +121,7 @@ export const loadOrCreateCustomConfig = async (
 export const updateSmeshingOpts = async (
   netName: string,
   updateSmeshingOpts: Partial<NodeConfig['smeshing']>
-): Promise<Partial<NodeConfig>> => {
+): Promise<NodeConfig> => {
   const customNodeConfig = await loadCustomNodeConfig(netName);
   const clientConfig = await loadNodeConfig();
   const smeshingOpts = {
@@ -143,7 +143,9 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const downloadNodeConfig = async (networkConfigUrl: string) => {
+export const downloadNodeConfig = async (
+  networkConfigUrl: string
+): Promise<NodeConfig> => {
   const discoveryConfig = await fetchNodeConfig(networkConfigUrl);
   const customNodeConfig = await loadOrCreateCustomConfig(
     generateGenesisIDFromConfig(discoveryConfig)
