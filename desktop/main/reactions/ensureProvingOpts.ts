@@ -46,7 +46,7 @@ export default (
         nodeConfig.smeshing
       );
 
-      if (isSmeshingSetUp !== null && !nonces && !threads) {
+      if (isSmeshingSetUp !== null && !(nonces || threads)) {
         $warnings.next(
           new Warning(WarningType.UpdateSmeshingProvingOpts, {
             payload: {},
