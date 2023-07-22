@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import PoSProfiler from '../../components/node/PoSProfiler';
 import { Modal } from '../../components/common';
 import { getWarningByType } from '../../redux/ui/selectors';
@@ -8,7 +7,6 @@ import { WarningObject, WarningType } from '../../../shared/warning';
 import { omitWarning } from '../../redux/ui/actions';
 import { smColors } from '../../vars';
 import useUpdatePostProvingOpts from '../../hooks/useUpdatePostProvingOpts';
-import { MainPath } from '../../routerPaths';
 import ReactPortal from './ReactPortal';
 
 const PoSProvingOptsUpdateWarningModal = () => {
@@ -16,7 +14,6 @@ const PoSProvingOptsUpdateWarningModal = () => {
   const provingOptsWarning = useSelector(
     getWarningByType(WarningType.UpdateSmeshingProvingOpts)
   );
-  const history = useHistory();
   const {
     updateConfigHandler,
     numUnits,
@@ -31,7 +28,6 @@ const PoSProvingOptsUpdateWarningModal = () => {
         provingOptsWarning as WarningObject<WarningType.UpdateSmeshingProvingOpts>
       )
     );
-    history.push(MainPath.Smeshing);
   });
 
   if (!provingOptsWarning) {
