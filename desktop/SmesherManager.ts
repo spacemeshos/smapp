@@ -258,7 +258,8 @@ class SmesherManager extends AbstractManager {
 
   updateSmeshingConfig = async (
     postSetupOpts: PostSetupOpts,
-    provingOpts: PostProvingOpts
+    provingOpts: PostProvingOpts,
+    genesisID: HexString
   ) => {
     const {
       coinbase,
@@ -291,7 +292,7 @@ class SmesherManager extends AbstractManager {
         },
         'smeshing-start': true,
       },
-      this.genesisID
+      genesisID
     );
 
     await updateSmeshingOpts(this.genesisID, opts);
