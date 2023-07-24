@@ -36,6 +36,10 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
+  postProvingOpts: {
+    threads: 0,
+    nonces: 0,
+  },
   metadata: {
     smeshingStart: null,
     posInitStart: null,
