@@ -12,8 +12,6 @@ import 'json-bigint-patch';
 
 import { app } from 'electron';
 import 'regenerator-runtime/runtime';
-import Bech32 from '@spacemesh/address-wasm';
-import HRP from '../shared/hrp';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
@@ -39,9 +37,6 @@ StoreService.init();
 
 // State
 const context = getDefaultAppContext();
-
-// TODO: Set HRP Network by retrieving it from some config?
-Bech32.setHRPNetwork(HRP.MainNet);
 
 init();
 

@@ -82,6 +82,10 @@ export default {
         backgroundColor: colors.light110,
         color: colors.dark100,
       },
+      warning: {
+        backgroundColor: colors.warning,
+        color: colors.light100,
+      },
     },
   },
   box: {

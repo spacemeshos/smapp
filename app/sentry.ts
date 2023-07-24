@@ -27,11 +27,19 @@ export const init = (history) =>
       }),
     ],
     async beforeSend(event, hint) {
+      const isFeedbackFormMessage = (event?.message || '').includes(
+        'User has submitted an issue and asked to check it.'
+      );
+      if (!isFeedbackFormMessage) {
+        return event;
+      }
+
       const { payload, error } = await eventsService.getNodeAndAppLogs();
 
       if (error) {
         return event;
       }
+
       hint.attachments = [
         {
           filename: `log-genesisID-${payload?.genesisID}-eventId-${

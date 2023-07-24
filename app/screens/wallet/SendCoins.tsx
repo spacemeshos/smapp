@@ -98,6 +98,7 @@ const SendCoins = ({ history, location }: Props) => {
   const proceedToMode2 = () => {
     const addrValid = validateAddress(address);
     const amountValid = validateAmount();
+
     setHasAddressError(!addrValid);
     setHasAmountError(!amountValid);
 

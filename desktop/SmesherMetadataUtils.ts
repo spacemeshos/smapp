@@ -47,7 +47,7 @@ export const getSmeshingMetadata = async (
   const isExists = await isFileExists(metadataPath);
 
   if (!isExists) {
-    return null;
+    return {};
   }
 
   const metadata = await readFileAsync(metadataPath, 'utf8');

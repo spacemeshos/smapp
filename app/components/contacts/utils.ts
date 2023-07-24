@@ -17,35 +17,41 @@ export const validate = (
   oldAddress?: string
 ): ValidateError | null => {
   let filteredContacts = contacts;
+  const trimmedAddress = address.trim();
 
   if (oldAddress) {
     filteredContacts = contacts.filter(
       (contact) => contact.address !== oldAddress
     );
   }
+  const trimmedNickname = nickname.trim();
 
   const nicknameRegex = /^[a-zA-Z0-9_-]*$/;
-  if (!nicknameRegex.test(nickname) || !nickname) {
+  if (!nicknameRegex.test(trimmedNickname) || !trimmedNickname) {
     return {
       type: 'name',
-      message: `Nickname: ${nickname} is missing or invalid`,
+      message: `Nickname: ${trimmedNickname} is missing or invalid`,
     };
   }
   if (
     filteredContacts.some(
-      (contact) => contact.nickname.toLowerCase() === nickname.toLowerCase()
+      (contact) =>
+        contact.nickname.toLowerCase() === trimmedNickname.toLowerCase()
     )
   ) {
     return {
       type: 'name',
-      message: `Nickname should be unique, ${nickname} already in contacts`,
+      message: `Nickname should be unique, ${trimmedNickname} already in contacts`,
     };
   }
-  if (!validateAddress(address)) {
-    return { type: 'address', message: `Address: ${address} is invalid` };
+  if (!validateAddress(trimmedAddress)) {
+    return {
+      type: 'address',
+      message: `Address: ${trimmedAddress} is invalid`,
+    };
   }
   const repeatedAddress = filteredContacts.find(
-    (contact) => contact.address === address
+    (contact) => contact.address === trimmedAddress
   );
   if (repeatedAddress) {
     return {
