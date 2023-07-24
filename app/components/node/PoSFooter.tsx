@@ -25,6 +25,7 @@ type Props = {
   isLastMode?: boolean;
   skipAction?: () => void;
   skipLabel?: string;
+  nextLabel?: string;
 };
 
 class PoSFooter extends PureComponent<Props> {
@@ -35,6 +36,7 @@ class PoSFooter extends PureComponent<Props> {
       isLastMode,
       skipAction,
       skipLabel,
+      nextLabel,
     } = this.props;
     return (
       <Footer>
@@ -50,7 +52,7 @@ class PoSFooter extends PureComponent<Props> {
           <Button
             style={{ marginLeft: '20px' }}
             onClick={action}
-            text={isLastMode ? 'CREATE DATA' : 'NEXT'}
+            text={nextLabel || (isLastMode ? 'CREATE DATA' : 'NEXT')}
             isDisabled={isDisabled}
           />
         </ButtonWrap>

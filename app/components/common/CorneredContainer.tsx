@@ -53,14 +53,15 @@ const HeaderIcon = styled.img<{ src: any }>`
   margin-right: 5px;
 `;
 
-export const Header = styled.div`
+export const Header = styled.div<{ color?: string }>`
   font-size: 32px;
   line-height: 40px;
   color: ${({
+    color: headerColor,
     theme: {
       header: { color },
     },
-  }) => color};
+  }) => headerColor || color};
   text-transform: uppercase;
 `;
 

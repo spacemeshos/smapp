@@ -91,6 +91,12 @@ type Props = {
   numUnitSize: number;
   maxUnits: number;
   dataDir: string;
+  nonces?: number | undefined;
+  threads?: number | undefined;
+  footerSkipAction?: () => void | undefined;
+  footerSkipLabel?: string | undefined;
+  footerNextLabel?: string | undefined;
+  footerNextDisabled?: boolean | undefined;
 };
 
 enum BenchmarkStatus {
@@ -183,10 +189,21 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
-  const [noncesValue, setNoncesValue] = useState<number | null>(288);
+const PoSProfiler = ({
+  nextAction,
+  numUnitSize,
+  maxUnits,
+  dataDir,
+  threads,
+  nonces,
+  footerSkipLabel,
+  footerSkipAction,
+  footerNextLabel,
+  footerNextDisabled,
+}: Props) => {
+  const [noncesValue, setNoncesValue] = useState<number | null>(nonces || 288);
   const [threadsValue, setThreadsValue] = useState<number | null>(
-    maxCpuAvailable
+    threads || maxCpuAvailable
   );
   const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
@@ -416,7 +433,15 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
           </TRow>
         </Table>
       </Row>
-      <PoSFooter action={goNext} isDisabled={!noncesValue || !threadsValue} />
+      <PoSFooter
+        action={goNext}
+        isDisabled={
+          !noncesValue || !threadsValue || Boolean(footerNextDisabled)
+        }
+        skipAction={footerSkipAction}
+        nextLabel={footerNextLabel}
+        skipLabel={footerSkipLabel}
+      />
     </>
   );
 };
