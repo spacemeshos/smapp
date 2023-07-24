@@ -173,6 +173,10 @@ class EventsService {
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 
+  static updatePostProvingOpts = async (opts: PostProvingOpts) => {
+    ipcRenderer.send(ipcConsts.SMESHER_UPDATE_POST_PROVING_OPTS, opts);
+  };
+
   static runBenchmarks = (benchmarks: BenchmarkRequest[], dataDir: string) =>
     ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, { benchmarks, dataDir });
 
