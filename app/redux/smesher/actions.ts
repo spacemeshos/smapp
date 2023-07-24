@@ -20,6 +20,7 @@ export const RESUMED_SMESHING = 'RESUMED_SMESHING';
 export const SET_POST_DATA_CREATION_STATUS = 'SET_POST_DATA_CREATION_STATUS';
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
 export const SET_METADATA = 'SET_METADATA';
+export const UPDATE_POST_PROVING_OPTS = 'UPDATE_POST_PROVING_OPTS';
 
 export const startSmeshing = ({
   coinbase,
@@ -86,3 +87,8 @@ export const resumeSmeshing = () => async (
     ? dispatch(startSmeshing(smeshingOpts))
     : false;
 };
+
+export const updatePostProvingOpts = (nonces: number, threads: number) => ({
+  type: UPDATE_POST_PROVING_OPTS,
+  payload: { nonces, threads },
+});
