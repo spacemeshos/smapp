@@ -19,6 +19,7 @@ import {
   PostSetupOpts,
   PublicService,
   SocketAddress,
+  PostProvingOpts,
 } from '../shared/types';
 import Warning, {
   WarningType,

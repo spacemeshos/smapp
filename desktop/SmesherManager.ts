@@ -303,8 +303,17 @@ class SmesherManager extends AbstractManager {
     );
 
     await updateSmeshingOpts(this.genesisID, opts);
+  };
 
-    return true;
+  updatePostProvingOpts = async (provingOpts: PostProvingOpts) => {
+    const { nonces, threads } = provingOpts;
+
+    return updateSmeshingOpts(this.genesisID, {
+      'smeshing-proving-opts': {
+        'smeshing-opts-proving-nonces': nonces,
+        'smeshing-opts-proving-threads': threads,
+      },
+    });
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {
