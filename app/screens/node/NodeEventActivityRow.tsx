@@ -5,21 +5,24 @@ import { getEventType } from '../../../shared/utils';
 import { CustomTimeAgo } from '../../basicComponents';
 import { getNodeEventStage } from './nodeEventUtils';
 
-const withTime = (str: string, time: number) => (
-  <>
-    {str}{' '}
-    <CustomTimeAgo
-      time={time}
-      dict={{
-        prefixAgo: 'in',
-        prefixFromNow: 'in',
-        suffixAgo: 'ago',
-        suffixFromNow: null,
-        seconds: '%d seconds',
-      }}
-    />
-  </>
-);
+const withTime = (str: string, now: number, wait?: number) =>
+  !wait ? (
+    str
+  ) : (
+    <>
+      {str}{' '}
+      <CustomTimeAgo
+        time={now + wait}
+        dict={{
+          prefixAgo: 'in',
+          prefixFromNow: 'in',
+          suffixAgo: 'ago',
+          suffixFromNow: null,
+          seconds: '%d seconds',
+        }}
+      />
+    </>
+  );
 
 export default (event: NodeEvent) => {
   if (event && event.failure) {
@@ -43,12 +46,18 @@ export default (event: NodeEvent) => {
     case 'poetWaitRound':
       return withTime(
         'Waiting for PoET registration window',
-        event.timestamp + (event.poetWaitRound?.wait || 0)
+        event.timestamp,
+        event.poetWaitRound?.wait
       );
     case 'poetWaitProof': {
       return withTime(
-        'Waiting for PoET challenge',
-        event.timestamp + (event.poetWaitProof?.wait || 0)
+        `Waiting for the finish of PoET round${
+          event?.poetWaitProof?.publish
+            ? ` for epoch ${event.poetWaitProof.publish}`
+            : ''
+        }`,
+        event.timestamp,
+        event.poetWaitRound?.wait
       );
     }
     case 'postStart':
