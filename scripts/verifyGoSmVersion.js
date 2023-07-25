@@ -18,7 +18,7 @@ if (process.env.DONT_CHECK_VERSION) {
 const { resolve } = require('path');
 const { promises } = require('fs');
 const os = require('os');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const NODE_DIR = resolve('.', 'node');
 const USE_VERSION_PATH = resolve(NODE_DIR, 'use-version');
@@ -39,12 +39,12 @@ const getBinaryPath = () => {
 };
 
 const parseVersion = (str) => {
-  const [_, version, build] = str.match(/^(v\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)?)(?:\.\d+)?(\+.+)?/);
+  const [_, version, build] = str.match(/^(v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?)(\+.+)?/);
   return { version, build };
 };
 
 const getNodeVersion = (execPath) => new Promise((resolve, reject) => {
-  exec(`${execPath} version`, (err, stdout, _) => {
+  execFile(execPath, ['version'], (err, stdout, _) => {
     if (err) return reject(err);
     return resolve(parseVersion(stdout));
   })

@@ -234,9 +234,10 @@ const CheckForUpdates = () => {
 
   useEffect(() => {
     const handler = () => setCurState(CheckState.NoUpdates);
+    const timer = setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
     ipcRenderer.on(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
-    setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
     return () => {
+      clearTimeout(timer);
       ipcRenderer.off(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
     };
   });

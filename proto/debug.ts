@@ -27,6 +27,7 @@ export interface ProtoGrpcType {
       AccountRequest: MessageTypeDefinition
       AccountResponse: MessageTypeDefinition
       AccountState: MessageTypeDefinition
+      AccountsRequest: MessageTypeDefinition
       AccountsResponse: MessageTypeDefinition
       Activation: MessageTypeDefinition
       ActivationId: MessageTypeDefinition

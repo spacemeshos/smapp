@@ -140,7 +140,7 @@ jobs:
 
       # Run tests
       - name: yarn test
-        if: matrix.os == 'macos-latest'
+        if: matrix.id == 'macos'
         run: yarn test --forceExit
 
       # Build

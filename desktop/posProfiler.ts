@@ -10,7 +10,7 @@ import { getProfilerPath } from './main/binaries';
 
 // Percentage of cycle-gap that are used in max data size calculation
 // to ensure that User will have enough time to create a proof
-const K_SAFE_PERIOD = 0.8;
+const K_SAFE_PERIOD = 0.7;
 
 export interface PosProfilerOptions {
   datafile: string;
@@ -114,15 +114,16 @@ export const runSingleBenchmark = async (
 export const runBenchmarks = async (
   nodeConfig: NodeConfig,
   progressCb: (result: BenchmarkRunResult) => void,
-  benchmarks: BenchmarkRequest[]
+  benchmarks: BenchmarkRequest[],
+  dataDir: string
 ): Promise<void> => {
-  const cycleGap = parse(nodeConfig.poet['cycle-gap']);
+  const cycleGap = parse(nodeConfig.poet['cycle-gap']) / 1000; // in seconds
   const unitSize =
     (nodeConfig.post['post-labels-per-unit'] * BITS_PER_LABEL) / 8;
   const maxPossibleSize = nodeConfig.post['post-max-numunits'] * unitSize;
 
   const defaultProfilerOpts: PosProfilerOptions = {
-    datafile: resolve(app.getPath('temp'), 'profiler.bin'),
+    datafile: resolve(dataDir || app.getPath('temp'), 'profiler.bin'),
     datasize: 1,
     nonces: 16,
     threads: 1,

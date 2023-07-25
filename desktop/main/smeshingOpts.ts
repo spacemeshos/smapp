@@ -2,7 +2,7 @@ import { homedir } from 'os';
 import { resolve } from 'path';
 import Bech32 from '@spacemesh/address-wasm';
 import { HexString } from '../../shared/types';
-import { fromHexString } from '../../shared/utils';
+import { fromHexString, getShortGenesisId } from '../../shared/utils';
 import { DEFAULT_SMESHING_BATCH_SIZE } from './constants';
 
 export type NoSmeshingDefaults = {
@@ -44,14 +44,14 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
   a['smeshing-opts']['smeshing-opts-numunits'] >= 1 &&
   a['smeshing-opts']['smeshing-opts-provider'] >= 0;
 
+export const getDefaultPosDir = (genesisId: HexString) =>
+  resolve(homedir(), `./post/${getShortGenesisId(genesisId)}`);
+
 export const safeSmeshingOpts = (
   opts: any,
   genesisId: HexString
 ): ValidSmeshingOpts => {
-  const defaultPosDir = resolve(
-    homedir(),
-    `./post/${genesisId.substring(0, 8)}`
-  );
+  const defaultPosDir = getDefaultPosDir(genesisId);
   const defaultSmeshingOpts = {
     'smeshing-opts': {
       'smeshing-opts-datadir': defaultPosDir,

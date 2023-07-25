@@ -128,6 +128,10 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         mnemonic,
       });
     }
+    if (redirect === AuthPath.Unlock) {
+      return history.push(redirect, { withLoader: true });
+    }
+
     return history.push(redirect || AuthPath.Unlock);
   };
 
@@ -192,7 +196,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
             />
           )}
           <RightSide>
-            {location.state.showBackButton && (
+            {location?.state?.showBackButton && (
               <Button
                 onClick={() => history.push(MainPath.Settings)}
                 isPrimary={false}

@@ -4,17 +4,22 @@ import {
   buffer,
   combineLatest,
   debounceTime,
+  distinct,
   distinctUntilChanged,
   filter,
   map,
   merge,
   Observable,
   scan,
+  shareReplay,
   skipUntil,
-  startWith,
   Subject,
+  switchMap,
   withLatestFrom,
 } from 'rxjs';
+import parse from 'parse-duration';
+
+import { getEventType } from '../../../shared/utils';
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Activation,
@@ -24,6 +29,7 @@ import {
   RewardsInfo,
   Reward,
   Wallet,
+  NodeEvent,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
 import { HOUR, MINUTE } from '../constants';
@@ -111,7 +117,7 @@ const getRewardsInfo = (
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
     cfg.genesis['genesis-time'],
-    cfg.main['layer-duration']
+    parse(cfg.main['layer-duration'])
   );
   const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
   const curEpoch = getEpoch(curLayer);
@@ -151,6 +157,8 @@ const getRewardsInfo = (
   };
 };
 
+const getNodeEventKey = (e: NodeEvent) => `${e.timestamp}_${getEventType(e)}`;
+
 export default (
   $mainWindow: Subject<BrowserWindow>,
   $wallet: Subject<Wallet | null>,
@@ -164,31 +172,63 @@ export default (
   $nodeVersion: Observable<NodeVersionAndBuild>,
   $smesherId: Observable<string>,
   $activations: Observable<Activation[]>,
-  $rewards: Observable<Reward[]>
-) =>
-  sync(
+  $rewards: Observable<Reward[]>,
+  $nodeEvents: Observable<NodeEvent>,
+  $hrp: Observable<string>
+) => {
+  const $walletOpened = $wallet.pipe(
+    distinctUntilChanged(
+      (a, b) =>
+        !!a?.meta?.genesisID &&
+        !!b?.meta?.genesisID &&
+        a.meta.genesisID === b.meta.genesisID
+    ),
+    filter(Boolean),
+    map(() => {})
+  );
+
+  const $currentNodeConfig = $nodeConfig.pipe(shareReplay(1));
+
+  return sync(
     // Sync to
     $mainWindow,
     // Views
-    walletView($wallet, $walletPath),
+    walletView($wallet, $walletPath, $hrp),
     storeView($storeService),
-    networkView($currentNetwork, $nodeConfig),
+    networkView($currentNetwork, $currentNodeConfig),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
-    $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
-    $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
-    $activations.pipe(map((activations) => ({ smesher: { activations } }))),
-    combineLatest([
-      $rewards.pipe(startWith([])),
-      $nodeConfig,
-      $currentLayer,
-    ]).pipe(
-      map(([rewards, cfg, curLayer]) => ({
-        smesher: {
-          rewardsInfo: getRewardsInfo(cfg, curLayer, rewards),
-        },
-      }))
+    $walletOpened.pipe(
+      switchMap(() => $smesherId),
+      map((smesherId) => ({ smesher: { smesherId } }))
+    ),
+    $walletOpened.pipe(
+      switchMap(() => $rewards),
+      map((rewards) => ({ smesher: { rewards } }))
+    ),
+    $walletOpened.pipe(
+      switchMap(() => $activations),
+      map((activations) => ({ smesher: { activations } }))
+    ),
+    $walletOpened.pipe(
+      switchMap(() =>
+        $nodeEvents.pipe(
+          distinct(getNodeEventKey),
+          scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),
+          distinctUntilChanged()
+        )
+      ),
+      map((events) => ({ smesher: { events } }))
+    ),
+    $walletOpened.pipe(
+      switchMap(() =>
+        combineLatest([$rewards, $currentNodeConfig, $currentLayer]).pipe(
+          map(([rewards, cfg, layer]) => getRewardsInfo(cfg, layer, rewards))
+        )
+      ),
+      map((rewardsInfo) => ({ smesher: { rewardsInfo } }))
     ),
     $rootHash.pipe(map((rootHash) => ({ network: { rootHash } }))),
     $currentLayer.pipe(map((currentLayer) => ({ network: { currentLayer } })))
   );
+};

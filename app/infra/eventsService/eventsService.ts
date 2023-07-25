@@ -173,8 +173,8 @@ class EventsService {
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 
-  static runBenchmarks = (benchmarks: BenchmarkRequest[]) =>
-    ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, benchmarks);
+  static runBenchmarks = (benchmarks: BenchmarkRequest[], dataDir: string) =>
+    ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, { benchmarks, dataDir });
 
   /** **********************************   TRANSACTIONS   ************************************** */
 
@@ -237,10 +237,8 @@ class EventsService {
     ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
   };
 
-  static switchApiProvider = (
-    genesisID: string,
-    apiUrl: SocketAddress | null = null
-  ) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
+  static switchApiProvider = (genesisID: string, apiUrl?: SocketAddress) =>
+    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
   /** **************************************  WALLET MANAGER  **************************************** */
 

@@ -18,6 +18,7 @@ export interface ProtoGrpcType {
       EpochNumber: MessageTypeDefinition
       GetRequest: MessageTypeDefinition
       GetResponse: MessageTypeDefinition
+      HighestResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition

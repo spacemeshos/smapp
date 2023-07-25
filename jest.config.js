@@ -3,6 +3,6 @@ module.exports = {
   preset: 'ts-jest',
   runner: '@jest-runner/electron/main',
   testEnvironment: 'node',
-  testRegex: '(/tests/.*|(\\.|/)(test|spec))\\.ts$',
+  testMatch: ['**/?(*.)+(spec|test).ts'],
   verbose: true,
 };

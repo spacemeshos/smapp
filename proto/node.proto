@@ -18,6 +18,9 @@ service NodeService {
     // Current node status (net and sync)
     rpc Status(StatusRequest) returns (StatusResponse);
 
+    // NodeInfo is a node configuration info.
+    rpc NodeInfo(google.protobuf.Empty) returns (NodeInfoResponse);
+
     ////////// Node streaming data
 
     // Node status events (sync and net)

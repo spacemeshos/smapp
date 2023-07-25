@@ -4,7 +4,8 @@ import { app } from 'electron';
 import { remove } from 'fs-extra';
 
 import pkg from '../package.json';
-import { Network } from '../shared/types';
+import { Network, NodeConfig } from '../shared/types';
+import HRP from '../shared/hrp';
 import { MINUTE } from './main/constants';
 
 export const STANDALONE_GENESIS_EXTRA = 'standalone';
@@ -28,7 +29,7 @@ export const getStandaloneNetwork = () =>
     latestSmappRelease: `v${pkg.version}`,
   } as Partial<Network>);
 
-export const getTestModeNodeConfig = () => ({
+export const getTestModeNodeConfig = (): NodeConfig => ({
   api: {
     'grpc-public-listener': '0.0.0.0:9092',
     'grpc-private-listener': '0.0.0.0:9093',
@@ -40,6 +41,7 @@ export const getTestModeNodeConfig = () => ({
     'layers-per-epoch': 10,
     'eligibility-confidence-param': 18,
     'tick-size': 67000,
+    'network-hrp': HRP.Standalone,
   },
   genesis: {
     'genesis-time': TEST_MODE_GENESIS_TIME,
@@ -53,6 +55,7 @@ export const getTestModeNodeConfig = () => ({
   post: {
     'post-labels-per-unit': 128,
     'post-max-numunits': 4,
+    'post-min-numunits': 1,
     'post-k1': 12,
     'post-k2': 4,
     'post-k3': 4,

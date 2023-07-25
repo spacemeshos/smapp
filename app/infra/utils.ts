@@ -1,5 +1,5 @@
+import { MutableRefObject } from 'react';
 import { TX_STATE_LABELS } from '../../shared/constants';
-import HRP from '../../shared/hrp';
 import { HexString, TxState } from '../../shared/types';
 import { deriveHRP } from '../../shared/utils';
 
@@ -51,9 +51,7 @@ export const getAddress = (key: string) =>
   key.length <= 44 ? key : key.substring(24);
 
 export const validateAddress = (address: string): address is HexString => {
-  const addressRegex = new RegExp(
-    `^(${Object.values(HRP).join('|')})1[a-zA-Z0-9]{45}$`
-  );
+  const addressRegex = new RegExp(/^(\w+)1[a-zA-Z0-9]{45}$/);
   const r = addressRegex.test(address);
   return r;
 };
@@ -88,8 +86,8 @@ const packValueAndUnit = (value: number, unit: string) => ({
   unit,
 });
 
-export const toSMH = (smidge: number) => smidge / 10 ** 12;
-export const toSmidge = (smh: number) => Math.round(smh * 10 ** 12);
+export const toSMH = (smidge: number) => smidge / 10 ** 9;
+export const toSmidge = (smh: number) => Math.round(smh * 10 ** 9);
 
 // Parses number into { value, unit } format.
 // Used to format smidge strings
@@ -117,3 +115,9 @@ export const constrain = (min: number, max: number, value: number) =>
   Math.min(Math.max(value, min), max);
 
 export const safeReactKey = (str: string) => str.replace(/\s|\W/g, '');
+
+export const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
+  el: HTMLElement | null
+) => {
+  ref.current = el;
+};

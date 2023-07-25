@@ -33,6 +33,7 @@ export interface ProtoGrpcType {
       LogLevel: EnumTypeDefinition
       MeshTransaction: MessageTypeDefinition
       NodeError: MessageTypeDefinition
+      NodeInfoResponse: MessageTypeDefinition
       NodeService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_NodeServiceClient> & { service: _spacemesh_v1_NodeServiceDefinition }
       NodeStatus: MessageTypeDefinition
       Nonce: MessageTypeDefinition

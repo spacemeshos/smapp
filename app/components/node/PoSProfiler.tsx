@@ -90,6 +90,7 @@ type Props = {
   nextAction: (nonces: number, threads: number, numUnits?: number) => void;
   numUnitSize: number;
   maxUnits: number;
+  dataDir: string;
 };
 
 enum BenchmarkStatus {
@@ -182,9 +183,11 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
-  const [noncesValue, setNoncesValue] = useState<number | null>(null);
-  const [threadsValue, setThreadsValue] = useState<number | null>(null);
+const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
+  const [noncesValue, setNoncesValue] = useState<number | null>(288);
+  const [threadsValue, setThreadsValue] = useState<number | null>(
+    maxCpuAvailable
+  );
   const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
     createBenchmarks([
@@ -241,7 +244,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
         isRunningBatch
       )
     );
-    eventsService.runBenchmarks([req]);
+    eventsService.runBenchmarks([req], dataDir);
   };
 
   const runBenchmarks = () => {
@@ -256,7 +259,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
         isRunningBatch
       )
     );
-    eventsService.runBenchmarks(benchmarks);
+    eventsService.runBenchmarks(benchmarks, dataDir);
   };
 
   const roundTo16 = roundToMultipleOf(16);
@@ -290,7 +293,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
               <Tooltip
                 width={250}
                 marginTop={0}
-                text="Amount of nonces generated per one read. Generating 16 nonces has about 7% chance to find out the nonce, while 192 nonces gives about 90% of probability. If valid nonce was not found — it runs again."
+                text="Amount of nonces generated per one read. On a slow CPU you may consider reducing amount of nonces or size of your PoS data."
               />
             </TCol>
             <TCol width={COL_WIDTH.THREADS}>
@@ -306,7 +309,7 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits }: Props) => {
               <Tooltip
                 width={250}
                 marginTop={0}
-                text="Speed of reading PoS and finding nonces in gigibits per second"
+                text="Speed of reading PoS and finding nonces in gibibytes per second"
               />
             </TCol>
             <TCol width={COL_WIDTH.SIZE}>

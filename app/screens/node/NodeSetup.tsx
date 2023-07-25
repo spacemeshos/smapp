@@ -18,6 +18,7 @@ import { constrain, formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
+  DeviceType,
   PostSetupProvider,
 } from '../../../shared/types';
 import Link from '../../basicComponents/Link';
@@ -187,7 +188,7 @@ const NodeSetup = ({ history, location }: Props) => {
         coinbase: rewardAddress,
         dataDir,
         numUnits,
-        provider: provider.id,
+        provider: provider?.id || 0,
         throttle,
         maxFileSize,
         nonces,
@@ -206,6 +207,16 @@ const NodeSetup = ({ history, location }: Props) => {
     } else {
       setupAndInitMining();
     }
+  };
+
+  const handleSkipProvider = () => {
+    setProvider({
+      id: 0,
+      deviceType: DeviceType.DEVICE_CLASS_UNKNOWN,
+      model: 'No POS Provider',
+      performance: 0,
+    });
+    setMode(mode + 1);
   };
 
   const handleDeletePosData = async () => {
@@ -243,6 +254,7 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSProfiler
             numUnitSize={singleCommitmentSize}
             maxUnits={smesherConfig.maxNumUnits}
+            dataDir={dataDir}
             nextAction={(nonces, threads, numUnits) => {
               setNonces(nonces);
               setThreads(threads);
@@ -278,6 +290,7 @@ const NodeSetup = ({ history, location }: Props) => {
         return (
           <PoSProvider
             nextAction={handleNextAction}
+            skipAction={handleSkipProvider}
             providers={postSetupProviders}
             provider={provider}
             setProvider={setProvider}

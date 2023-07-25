@@ -7,12 +7,14 @@ import {
   interval,
   map,
   Observable,
+  pairwise,
   retry,
+  startWith,
   Subject,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { of } from 'ramda';
+import { equals, of } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network, NodeConfig, Wallet } from '../../../shared/types';
 import {
@@ -22,6 +24,10 @@ import {
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
+import { Managers } from '../app.types';
+import Logger from '../../logger';
+
+const logger = Logger({ className: 'fetchDiscovery' });
 
 export const fromNetworkConfig = (net: Network) =>
   from(fetchNodeConfig(net.conf)).pipe(
@@ -78,6 +84,29 @@ export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
       (nets) => nets
     ),
     (networks) => $networks.next(networks)
+  );
+
+export const listenNodeConfigAndRestartNode = (
+  $nodeConfig: Observable<NodeConfig>,
+  $managers: Subject<Managers>
+) =>
+  makeSubscription(
+    $nodeConfig.pipe(startWith(null), pairwise(), withLatestFrom($managers)),
+    ([[prevNodeConfig, nextNodeConfig], managers]) => {
+      (async () => {
+        if (
+          prevNodeConfig !== null &&
+          !equals(prevNodeConfig, nextNodeConfig) &&
+          managers.node.isNodeRunning()
+        ) {
+          logger.log(
+            'listenNodeConfigAndRestartNode',
+            'Node config changed. Restart the Node'
+          );
+          await managers.node.restartNode();
+        }
+      })();
+    }
   );
 
 export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>

@@ -8,6 +8,11 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 };
 
 export interface ProtoGrpcType {
+  google: {
+    protobuf: {
+      Empty: MessageTypeDefinition
+    }
+  }
   spacemesh: {
     v1: {
       AccountId: MessageTypeDefinition
@@ -20,6 +25,7 @@ export interface ProtoGrpcType {
       EpochNumber: MessageTypeDefinition
       GetRequest: MessageTypeDefinition
       GetResponse: MessageTypeDefinition
+      HighestResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
