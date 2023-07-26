@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export const useClickAway = (ref, onClose: () => void) => {
+const useClickAway = (ref, onClose: () => void) => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -15,3 +15,5 @@ export const useClickAway = (ref, onClose: () => void) => {
     };
   }, [ref, onClose]);
 };
+
+export default useClickAway;

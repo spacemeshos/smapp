@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { smColors } from '../vars';
-import { useClickAway } from '../hooks/useClickAway';
+import useClickAway from '../hooks/useClickAway';
 
 const Wrapper = styled.div<{
   isDisabled: boolean;
