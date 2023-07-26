@@ -3,7 +3,8 @@ import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString } from '../../shared/utils';
 import { getStandaloneNetwork, isTestMode } from '../testMode';
-import { fetchJSON, isDevNet } from '../utils';
+import { fetchJSON, isDevNet, patchQueryString } from '../utils';
+import { getEnvInfo } from '../envinfo';
 import { toPublicService } from './utils';
 
 //
@@ -44,7 +45,9 @@ const getDiscoveryUrl = () =>
   'https://smapp.spacemesh.network/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
-  const networks: Network[] = await fetchJSON(getDiscoveryUrl());
+  const networks: Network[] = await fetchJSON(
+    patchQueryString(getDiscoveryUrl(), await getEnvInfo())
+  );
   const result: Network[] = [
     ...(isTestMode() ? ([await getStandaloneNetwork()] as Network[]) : []),
     ...(isDevNet() ? ([await getDevNet()] as Network[]) : []),
