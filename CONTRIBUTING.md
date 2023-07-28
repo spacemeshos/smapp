@@ -14,6 +14,20 @@ Before reporting a bug, please check our [Github issues](https://github.com/spac
 
 If you have an idea for a new feature or an enhancement for an existing one, please first check our [Github issues](https://github.com/spacemeshos/smapp/issues) and [Discord channel](https://discord.com/channels/623195163510046732/691261757921951756) to see if it has already been suggested. If not, feel free to [open a new suggestion](https://github.com/spacemeshos/smapp/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)!
 
+### Good First Issues
+
+If you are new to the project or to open source in general, a great way to get started with contributing to SMAPP is by tackling issues labeled as "good first issues". These are relatively small and straightforward issues that have been specifically identified as friendly to newcomers.
+
+Here's how you can get started:
+
+1. Go to the [Issues tab](https://github.com/spacemeshos/smapp/issues) on the SMAPP GitHub repository.
+2. Filter for issues labeled ["good first issue"](https://github.com/spacemeshos/smapp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+3. Select an issue that you find interesting and feel that you can handle. Don't hesitate to ask questions in the issue comments if something is unclear.
+4. Fork the repository, clone it to your local machine, and create a new branch for your work.
+5. After you have finished your work, create a Pull Request (PR) to the main repository. Be sure to link to the issue in your PR description.
+
+The goal is to make a meaningful contribution to the project, learn something new, and have fun! If you have any questions or need help, don't hesitate to ask. We're a friendly community and we're always ready to help new contributors.
+
 ### Pull Requests
 
 1. Fork the repo and create your branch from `develop` (or `master` if `develop` does not exist).
