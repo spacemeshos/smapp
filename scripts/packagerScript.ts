@@ -112,7 +112,10 @@ const getBuildOptions = ({ target }) => {
       },
       win: {
         ...(process.env.DONT_SIGN_APP ? {} : {
-          publisherName: 'Spacemesh (Unruly Technologies, Inc.)',
+          publisherName: [
+            'Unruly Technologies, Inc.',
+            'Spacemesh (Unruly Technologies, Inc.)',
+          ],
         }),
         target: 'nsis',
       },
