@@ -189,7 +189,7 @@
     "@spacemesh/address-wasm": "^0.2.0",
     "@spacemesh/ed25519-bip32": "^0.1.0",
     "@spacemesh/sm-codec": "^0.4.1",
-    "auto-launch": "^5.0.5",
+    "auto-launch": "^5.0.6",
     "bip39": "3.0.3",
     "check-disk-space": "2.1.0",
     "checksum": "^1.0.0",
