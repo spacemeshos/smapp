@@ -14,7 +14,7 @@ import StoreService from '../storeService';
 import { getShortGenesisId } from '../../shared/utils';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
-import { safeSmeshingOpts } from './smeshingOpts';
+import { isValidProvingOpts, safeSmeshingOpts } from './smeshingOpts';
 
 export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
@@ -48,19 +48,6 @@ const getCustomNodeConfigName = (genesisID: string) =>
 export const getCustomNodeConfigPath = (genesisID: string) =>
   path.join(USERDATA_DIR, getCustomNodeConfigName(genesisID));
 
-export const loadCustomNodeConfig = async (
-  genesisID: string
-): Promise<Partial<NodeConfig>> => {
-  const customConfigPath = getCustomNodeConfigPath(genesisID);
-  return existsSync(customConfigPath)
-    ? fs
-        .readFile(customConfigPath, {
-          encoding: 'utf8',
-        })
-        .then((res) => JSON.parse(res))
-    : {};
-};
-
 export const writeCustomNodeConfig = async (
   genesisID: string,
   config: Partial<NodeConfig>
@@ -80,6 +67,30 @@ export const writeCustomNodeConfig = async (
       error
     );
   }
+};
+
+export const loadCustomNodeConfig = async (
+  genesisID: string
+): Promise<Partial<NodeConfig>> => {
+  const customConfigPath = getCustomNodeConfigPath(genesisID);
+  return existsSync(customConfigPath)
+    ? fs
+        .readFile(customConfigPath, {
+          encoding: 'utf8',
+        })
+        .then((res) => JSON.parse(res) as Partial<NodeConfig>)
+        .then(async (res) => {
+          // Fix zeroes in custom node config asap
+          if (!isValidProvingOpts(res?.smeshing?.['smeshing-proving-opts'])) {
+            await writeCustomNodeConfig(genesisID, {
+              ...res,
+              smeshing: safeSmeshingOpts(res.smeshing, genesisID),
+            });
+            return loadCustomNodeConfig(genesisID);
+          }
+          return res;
+        })
+    : {};
 };
 
 export const saveSmeshingOptsInCustomConfig = async (
