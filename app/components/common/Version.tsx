@@ -157,7 +157,7 @@ const ProgressInfo = () => {
   return (
     <>
       <ProgressChunk>{line}</ProgressChunk>
-      <ProgressChunk>{progress?.percent || 0}%</ProgressChunk>
+      <ProgressChunk>{Math.round(progress?.percent || 0)}%</ProgressChunk>
     </>
   );
 };
