@@ -12,6 +12,7 @@ import Warning, {
 import { fetchNodeConfig } from '../utils';
 import StoreService from '../storeService';
 import { getShortGenesisId } from '../../shared/utils';
+import deepMergeOmitNulls from '../../shared/deepMergeOmitNulls';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
 import { safeSmeshingOpts } from './smeshingOpts';
@@ -136,7 +137,7 @@ export const updateSmeshingOpts = async (
     netName,
     smeshingOpts
   );
-  const mergedConfig = R.mergeLeft(customConfig, clientConfig);
+  const mergedConfig = deepMergeOmitNulls(clientConfig, customConfig);
 
   await writeNodeConfig(mergedConfig);
 
@@ -148,7 +149,7 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
   const customNodeConfig = await loadOrCreateCustomConfig(
     generateGenesisIDFromConfig(discoveryConfig)
   );
-  const mergedConfig = R.mergeLeft(customNodeConfig, discoveryConfig);
+  const mergedConfig = deepMergeOmitNulls(discoveryConfig, customNodeConfig);
 
   await writeNodeConfig(mergedConfig);
 
