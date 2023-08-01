@@ -57,7 +57,7 @@ export default (event: NodeEvent) => {
             : ''
         }`,
         event.timestamp,
-        event.poetWaitRound?.wait
+        event.poetWaitProof?.wait
       );
     }
     case 'postStart':
