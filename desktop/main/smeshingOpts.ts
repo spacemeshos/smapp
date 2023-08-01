@@ -1,5 +1,6 @@
 import { homedir } from 'os';
 import { resolve } from 'path';
+import { isEmpty } from 'ramda';
 import Bech32 from '@spacemesh/address-wasm';
 import { HexString } from '../../shared/types';
 import { fromHexString, getShortGenesisId } from '../../shared/utils';
@@ -9,6 +10,11 @@ export type NoSmeshingDefaults = {
   'smeshing-opts': {
     'smeshing-opts-datadir': string;
   };
+};
+
+export type SmeshingProvingOpts = {
+  'smeshing-opts-proving-nonces': number;
+  'smeshing-opts-proving-threads': number;
 };
 
 export type SmeshingOpts = {
@@ -21,6 +27,7 @@ export type SmeshingOpts = {
     'smeshing-opts-throttle': boolean;
     'smeshing-opts-compute-batch-size': number;
   };
+  'smeshing-proving-opts'?: Partial<SmeshingProvingOpts>;
   'smeshing-start': boolean;
 };
 
@@ -46,6 +53,26 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
 
 export const getDefaultPosDir = (genesisId: HexString) =>
   resolve(homedir(), `./post/${getShortGenesisId(genesisId)}`);
+
+export const isValidProvingOpts = (
+  opts?: Partial<SmeshingProvingOpts>
+): opts is SmeshingProvingOpts => {
+  if (!opts || (typeof opts === 'object' && isEmpty(opts))) return true;
+
+  const nonces = opts['smeshing-opts-proving-nonces'];
+  const threads = opts['smeshing-opts-proving-threads'];
+  return (
+    typeof nonces === 'number' &&
+    nonces > 0 &&
+    typeof threads === 'number' &&
+    threads > 0
+  );
+};
+
+export const safeProvingOpts = (
+  opts?: Partial<SmeshingProvingOpts>
+): SmeshingProvingOpts | Record<string, never> =>
+  isValidProvingOpts(opts) ? opts : {};
 
 export const safeSmeshingOpts = (
   opts: any,
@@ -76,6 +103,7 @@ export const safeSmeshingOpts = (
           opts['smeshing-opts']['smeshing-opts-compute-batch-size'] ||
           DEFAULT_SMESHING_BATCH_SIZE,
       },
+      'smeshing-proving-opts': safeProvingOpts(opts['smeshing-proving-opts']),
       'smeshing-coinbase': coinbase,
     };
   } else {
