@@ -88,7 +88,7 @@ export const saveSmeshingOptsInCustomConfig = async (
 ): Promise<Partial<NodeConfig>> => {
   const customConfig = await loadCustomNodeConfig(genesisID);
 
-  customConfig.smeshing = opts;
+  customConfig.smeshing = safeSmeshingOpts(opts, genesisID);
 
   await writeCustomNodeConfig(genesisID, customConfig);
 
@@ -103,9 +103,7 @@ const createCustomNodeConfig = async (
   );
 
   // migrate options from StoreService or place only default opts
-  const smeshingOpts = opts || safeSmeshingOpts(undefined, genesisID); // set default dir path
-
-  const config = await saveSmeshingOptsInCustomConfig(genesisID, smeshingOpts);
+  const config = await saveSmeshingOptsInCustomConfig(genesisID, opts);
 
   StoreService.remove(`smeshing.${genesisID}`);
 
@@ -125,10 +123,7 @@ export const updateSmeshingOpts = async (
   const customNodeConfig = await loadCustomNodeConfig(netName);
   const clientConfig = await loadNodeConfig();
   const smeshingOpts = {
-    ...(R.isEmpty(updateSmeshingOpts) ? {} : customNodeConfig.smeshing), // on delete, ignore customNodeConfig smehsing
-    ...(R.isEmpty(updateSmeshingOpts) // on delete , take default smeshing opts
-      ? safeSmeshingOpts(undefined, generateGenesisIDFromConfig(clientConfig))
-      : {}),
+    ...(R.isEmpty(updateSmeshingOpts) ? {} : customNodeConfig.smeshing),
     ...updateSmeshingOpts, // apply update for other cases
   };
 
