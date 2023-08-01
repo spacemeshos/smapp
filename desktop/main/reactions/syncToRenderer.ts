@@ -234,16 +234,18 @@ export default (
         return {
           smesher: {
             postProvingOpts: {
-              nonces: R.pathOr(
-                0,
-                ['smeshing-proving-opts', 'smeshing-opts-proving-nonces'],
-                nodeConfig.smeshing
-              ),
-              threads: R.pathOr(
-                0,
-                ['smeshing-proving-opts', 'smeshing-opts-proving-threads'],
-                nodeConfig.smeshing
-              ),
+              nonces:
+                R.pathOr(
+                  undefined,
+                  ['smeshing-proving-opts', 'smeshing-opts-proving-nonces'],
+                  nodeConfig.smeshing
+                ) || undefined,
+              threads:
+                R.pathOr(
+                  undefined,
+                  ['smeshing-proving-opts', 'smeshing-opts-proving-threads'],
+                  nodeConfig.smeshing
+                ) || undefined,
             },
           },
         };

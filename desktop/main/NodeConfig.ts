@@ -137,7 +137,6 @@ export const updateSmeshingOpts = async (
     smeshingOpts
   );
   const mergedConfig = R.mergeLeft(customConfig, clientConfig);
-
   await writeNodeConfig(mergedConfig);
 
   return mergedConfig;
@@ -145,9 +144,30 @@ export const updateSmeshingOpts = async (
 
 export const downloadNodeConfig = async (networkConfigUrl: string) => {
   const discoveryConfig = await fetchNodeConfig(networkConfigUrl);
-  const customNodeConfig = await loadOrCreateCustomConfig(
-    generateGenesisIDFromConfig(discoveryConfig)
-  );
+  const genesisId = generateGenesisIDFromConfig(discoveryConfig);
+  const customNodeConfig = await loadOrCreateCustomConfig(genesisId);
+
+  // @TODO care about this hot fix, when smeshing-proving-opts update modal will be released
+  if (
+    customNodeConfig?.smeshing &&
+    customNodeConfig?.smeshing?.['smeshing-proving-opts'] &&
+    (customNodeConfig?.smeshing?.['smeshing-proving-opts']?.[
+      'smeshing-opts-proving-nonces'
+    ] === 0 ||
+      customNodeConfig?.smeshing?.['smeshing-proving-opts']?.[
+        'smeshing-opts-proving-threads'
+      ] === 0)
+  ) {
+    customNodeConfig.smeshing['smeshing-proving-opts'][
+      'smeshing-opts-proving-nonces'
+    ] = undefined;
+    customNodeConfig.smeshing['smeshing-proving-opts'][
+      'smeshing-opts-proving-threads'
+    ] = undefined;
+
+    await updateSmeshingOpts(genesisId, customNodeConfig.smeshing);
+  }
+
   const mergedConfig = R.mergeLeft(customNodeConfig, discoveryConfig);
 
   await writeNodeConfig(mergedConfig);
