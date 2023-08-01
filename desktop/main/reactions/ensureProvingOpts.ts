@@ -5,7 +5,6 @@ import {
   filter,
   distinctUntilChanged,
 } from 'rxjs';
-import * as R from 'ramda';
 import { equals } from 'ramda';
 import { makeSubscription } from '../rx.utils';
 import { NodeConfig, Wallet, WalletType } from '../../../shared/types';
@@ -29,27 +28,17 @@ export default (
       )
     ),
     ([_, nodeConfig]) => {
-      const isSmeshingSetUp = R.pathOr(
-        null,
-        ['smeshing-start'],
-        nodeConfig.smeshing
-      );
+      const isSmeshingSetUp = nodeConfig?.smeshing?.['smeshing-start'] ?? null;
+      const nonces =
+        nodeConfig.smeshing?.['smeshing-proving-opts']?.[
+          'smeshing-opts-proving-nonces'
+        ];
+      const threads =
+        nodeConfig.smeshing?.['smeshing-proving-opts']?.[
+          'smeshing-opts-proving-threads'
+        ];
 
-      const nonces = R.pathOr(
-        null,
-        ['smeshing-proving-opts', 'smeshing-opts-proving-nonces'],
-        nodeConfig.smeshing
-      );
-      const threads = R.pathOr(
-        null,
-        ['smeshing-proving-opts', 'smeshing-opts-proving-threads'],
-        nodeConfig.smeshing
-      );
-
-      if (
-        isSmeshingSetUp !== null &&
-        (nonces === null || threads === null || nonces === 0 || threads === 0)
-      ) {
+      if (isSmeshingSetUp !== null && !(nonces && threads)) {
         $warnings.next(
           new Warning(WarningType.UpdateSmeshingProvingOpts, {
             payload: {},

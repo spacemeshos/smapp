@@ -18,7 +18,6 @@ import {
   PAUSED_SMESHING,
   RESUMED_SMESHING,
   SET_METADATA,
-  UPDATE_POST_PROVING_OPTS,
 } from './actions';
 
 const initialState = {
@@ -163,19 +162,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         ...state,
         numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
         postSetupState,
-      };
-    }
-    case UPDATE_POST_PROVING_OPTS: {
-      const {
-        payload: { threads, nonces },
-      } = action;
-
-      return {
-        ...state,
-        postProvingOpts: {
-          threads,
-          nonces,
-        },
       };
     }
     case LOGOUT:

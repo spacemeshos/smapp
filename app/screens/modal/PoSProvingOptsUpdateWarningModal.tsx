@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PoSProfiler from '../../components/node/PoSProfiler';
 import { Modal } from '../../components/common';
 import { getWarningByType } from '../../redux/ui/selectors';
-import { WarningObject, WarningType } from '../../../shared/warning';
+import { WarningType } from '../../../shared/warning';
 import { omitWarning } from '../../redux/ui/actions';
 import { smColors } from '../../vars';
 import useUpdatePostProvingOpts from '../../hooks/useUpdatePostProvingOpts';
@@ -22,13 +22,9 @@ const PoSProvingOptsUpdateWarningModal = () => {
     loading,
     nonces,
     threads,
-  } = useUpdatePostProvingOpts(() => {
-    dispatch(
-      omitWarning(
-        provingOptsWarning as WarningObject<WarningType.UpdateSmeshingProvingOpts>
-      )
-    );
-  });
+  } = useUpdatePostProvingOpts(
+    () => provingOptsWarning && dispatch(omitWarning(provingOptsWarning))
+  );
 
   if (!provingOptsWarning) {
     return null;

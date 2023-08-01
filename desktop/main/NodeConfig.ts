@@ -128,10 +128,10 @@ export const loadOrCreateCustomConfig = async (
     : createCustomNodeConfig(genesisID);
 
 export const updateSmeshingOpts = async (
-  netName: string,
+  genesisId: string,
   updateSmeshingOpts: Partial<NodeConfig['smeshing']>
-): Promise<Partial<NodeConfig>> => {
-  const customNodeConfig = await loadCustomNodeConfig(netName);
+): Promise<NodeConfig> => {
+  const customNodeConfig = await loadCustomNodeConfig(genesisId);
   const clientConfig = await loadNodeConfig();
   const smeshingOpts = {
     ...(R.isEmpty(updateSmeshingOpts) ? {} : customNodeConfig.smeshing),
@@ -139,7 +139,7 @@ export const updateSmeshingOpts = async (
   };
 
   const customConfig = await saveSmeshingOptsInCustomConfig(
-    netName,
+    genesisId,
     smeshingOpts
   );
   const mergedConfig = R.mergeLeft(customConfig, clientConfig);

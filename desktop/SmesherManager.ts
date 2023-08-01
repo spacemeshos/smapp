@@ -6,6 +6,7 @@ import { ipcConsts } from '../app/vars';
 import {
   HexString,
   IPCSmesherStartupData,
+  NodeConfig,
   PostProvingOpts,
   PostSetupOpts,
   PostSetupState,
@@ -265,9 +266,8 @@ class SmesherManager extends AbstractManager {
 
   updateSmeshingConfig = async (
     postSetupOpts: PostSetupOpts,
-    provingOpts: PostProvingOpts,
-    genesisID: HexString
-  ) => {
+    provingOpts: PostProvingOpts
+  ): Promise<NodeConfig> => {
     const {
       coinbase,
       dataDir,
@@ -299,21 +299,10 @@ class SmesherManager extends AbstractManager {
         },
         'smeshing-start': true,
       },
-      genesisID
+      this.genesisID
     );
 
-    await updateSmeshingOpts(this.genesisID, opts);
-  };
-
-  updatePostProvingOpts = async (provingOpts: PostProvingOpts) => {
-    const { nonces, threads } = provingOpts;
-
-    return updateSmeshingOpts(this.genesisID, {
-      'smeshing-proving-opts': {
-        'smeshing-opts-proving-nonces': nonces,
-        'smeshing-opts-proving-threads': threads,
-      },
-    });
+    return updateSmeshingOpts(this.genesisID, opts);
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {

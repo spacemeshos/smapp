@@ -6,7 +6,6 @@ import {
   resumeSmeshing,
   updatePostProvingOpts,
 } from '../redux/smesher/actions';
-import { eventsService } from '../infra/eventsService';
 
 export default (onFinishHandler: () => void) => {
   const dispatch = useDispatch();
@@ -22,9 +21,7 @@ export default (onFinishHandler: () => void) => {
 
   const updateConfigHandler = async (nonces: number, threads: number) => {
     setLoading(true);
-    dispatch(updatePostProvingOpts(nonces, threads));
-    await eventsService.updatePostProvingOpts({ nonces, threads });
-
+    await dispatch(updatePostProvingOpts(nonces, threads));
     await dispatch(pauseSmeshing());
     await dispatch(resumeSmeshing());
 
