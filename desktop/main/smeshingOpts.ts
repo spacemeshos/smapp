@@ -1,14 +1,19 @@
 import { homedir } from 'os';
 import { resolve } from 'path';
-import Bech32 from '@spacemesh/address-wasm';
+import { isEmpty } from 'ramda';
 import { HexString } from '../../shared/types';
-import { fromHexString, getShortGenesisId } from '../../shared/utils';
+import { getShortGenesisId } from '../../shared/utils';
 import { DEFAULT_SMESHING_BATCH_SIZE } from './constants';
 
 export type NoSmeshingDefaults = {
   'smeshing-opts': {
     'smeshing-opts-datadir': string;
   };
+};
+
+export type SmeshingProvingOpts = {
+  'smeshing-opts-proving-nonces': number;
+  'smeshing-opts-proving-threads': number;
 };
 
 export type SmeshingOpts = {
@@ -21,6 +26,7 @@ export type SmeshingOpts = {
     'smeshing-opts-throttle': boolean;
     'smeshing-opts-compute-batch-size': number;
   };
+  'smeshing-proving-opts'?: Partial<SmeshingProvingOpts>;
   'smeshing-start': boolean;
 };
 
@@ -47,6 +53,26 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
 export const getDefaultPosDir = (genesisId: HexString) =>
   resolve(homedir(), `./post/${getShortGenesisId(genesisId)}`);
 
+export const isValidProvingOpts = (
+  opts?: Partial<SmeshingProvingOpts>
+): opts is SmeshingProvingOpts => {
+  if (!opts || (typeof opts === 'object' && isEmpty(opts))) return true;
+
+  const nonces = opts['smeshing-opts-proving-nonces'];
+  const threads = opts['smeshing-opts-proving-threads'];
+  return (
+    typeof nonces === 'number' &&
+    nonces > 0 &&
+    typeof threads === 'number' &&
+    threads > 0
+  );
+};
+
+export const safeProvingOpts = (
+  opts?: Partial<SmeshingProvingOpts>
+): SmeshingProvingOpts | Record<string, never> =>
+  isValidProvingOpts(opts) ? opts : {};
+
 export const safeSmeshingOpts = (
   opts: any,
   genesisId: HexString
@@ -60,25 +86,17 @@ export const safeSmeshingOpts = (
 
   if (!isSmeshingOpts(opts)) return defaultSmeshingOpts;
 
-  const oCoinbase = opts['smeshing-coinbase'];
-  const coinbase =
-    typeof oCoinbase === 'string' && oCoinbase.startsWith('0x')
-      ? Bech32.generateAddress(fromHexString(oCoinbase))
-      : oCoinbase;
-  if (Bech32.verify(coinbase)) {
-    return {
-      ...opts,
-      'smeshing-opts': {
-        ...opts['smeshing-opts'],
-        'smeshing-opts-datadir':
-          opts['smeshing-opts']['smeshing-opts-datadir'] || defaultPosDir,
-        'smeshing-opts-compute-batch-size':
-          opts['smeshing-opts']['smeshing-opts-compute-batch-size'] ||
-          DEFAULT_SMESHING_BATCH_SIZE,
-      },
-      'smeshing-coinbase': coinbase,
-    };
-  } else {
-    return defaultSmeshingOpts;
-  }
+  return {
+    ...opts,
+    'smeshing-opts': {
+      ...opts['smeshing-opts'],
+      'smeshing-opts-datadir':
+        opts['smeshing-opts']['smeshing-opts-datadir'] || defaultPosDir,
+      'smeshing-opts-compute-batch-size':
+        opts['smeshing-opts']['smeshing-opts-compute-batch-size'] ||
+        DEFAULT_SMESHING_BATCH_SIZE,
+    },
+    'smeshing-proving-opts': safeProvingOpts(opts['smeshing-proving-opts']),
+    'smeshing-coinbase': opts['smeshing-coinbase'],
+  };
 };

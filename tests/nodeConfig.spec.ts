@@ -1,5 +1,4 @@
 /* eslint-disable global-require */
-
 import { generateGenesisIDFromConfig } from '../desktop/main/Networks';
 import { NodeConfig } from '../shared/types';
 import {
@@ -321,7 +320,6 @@ describe('NodeConfig.ts', () => {
       const smeshingOptsAfterReset = {
         smeshing: {
           ...smeshingOptsFromStoreService.smeshing,
-          ...{ 'smeshing-start': false },
         },
       };
 
@@ -379,7 +377,6 @@ describe('NodeConfig.ts', () => {
       const smeshingOptsAfterReset = {
         smeshing: {
           ...customConfigWithInitedSmeshingOptsAndRewriteLogging.smeshing,
-          ...{ 'smeshing-start': false },
         },
         logging: customConfigWithInitedSmeshingOptsAndRewriteLogging.logging,
       };

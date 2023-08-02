@@ -14,7 +14,7 @@ import StoreService from '../storeService';
 import { getShortGenesisId } from '../../shared/utils';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
-import { safeSmeshingOpts } from './smeshingOpts';
+import { isValidProvingOpts, safeSmeshingOpts } from './smeshingOpts';
 
 export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
@@ -48,19 +48,6 @@ const getCustomNodeConfigName = (genesisID: string) =>
 export const getCustomNodeConfigPath = (genesisID: string) =>
   path.join(USERDATA_DIR, getCustomNodeConfigName(genesisID));
 
-export const loadCustomNodeConfig = async (
-  genesisID: string
-): Promise<Partial<NodeConfig>> => {
-  const customConfigPath = getCustomNodeConfigPath(genesisID);
-  return existsSync(customConfigPath)
-    ? fs
-        .readFile(customConfigPath, {
-          encoding: 'utf8',
-        })
-        .then((res) => JSON.parse(res))
-    : {};
-};
-
 export const writeCustomNodeConfig = async (
   genesisID: string,
   config: Partial<NodeConfig>
@@ -82,13 +69,37 @@ export const writeCustomNodeConfig = async (
   }
 };
 
+export const loadCustomNodeConfig = async (
+  genesisID: string
+): Promise<Partial<NodeConfig>> => {
+  const customConfigPath = getCustomNodeConfigPath(genesisID);
+  return existsSync(customConfigPath)
+    ? fs
+        .readFile(customConfigPath, {
+          encoding: 'utf8',
+        })
+        .then((res) => JSON.parse(res) as Partial<NodeConfig>)
+        .then(async (res) => {
+          // Fix zeroes in custom node config asap
+          if (!isValidProvingOpts(res?.smeshing?.['smeshing-proving-opts'])) {
+            await writeCustomNodeConfig(genesisID, {
+              ...res,
+              smeshing: safeSmeshingOpts(res.smeshing, genesisID),
+            });
+            return loadCustomNodeConfig(genesisID);
+          }
+          return res;
+        })
+    : {};
+};
+
 export const saveSmeshingOptsInCustomConfig = async (
   genesisID: string,
   opts: Partial<NodeConfig['smeshing']>
 ): Promise<Partial<NodeConfig>> => {
   const customConfig = await loadCustomNodeConfig(genesisID);
 
-  customConfig.smeshing = opts;
+  customConfig.smeshing = safeSmeshingOpts(opts, genesisID);
 
   await writeCustomNodeConfig(genesisID, customConfig);
 
@@ -103,9 +114,7 @@ const createCustomNodeConfig = async (
   );
 
   // migrate options from StoreService or place only default opts
-  const smeshingOpts = opts || safeSmeshingOpts(undefined, genesisID); // set default dir path
-
-  const config = await saveSmeshingOptsInCustomConfig(genesisID, smeshingOpts);
+  const config = await saveSmeshingOptsInCustomConfig(genesisID, opts);
 
   StoreService.remove(`smeshing.${genesisID}`);
 
@@ -125,10 +134,7 @@ export const updateSmeshingOpts = async (
   const customNodeConfig = await loadCustomNodeConfig(netName);
   const clientConfig = await loadNodeConfig();
   const smeshingOpts = {
-    ...(R.isEmpty(updateSmeshingOpts) ? {} : customNodeConfig.smeshing), // on delete, ignore customNodeConfig smehsing
-    ...(R.isEmpty(updateSmeshingOpts) // on delete , take default smeshing opts
-      ? safeSmeshingOpts(undefined, generateGenesisIDFromConfig(clientConfig))
-      : {}),
+    ...(R.isEmpty(updateSmeshingOpts) ? {} : customNodeConfig.smeshing),
     ...updateSmeshingOpts, // apply update for other cases
   };
 
