@@ -1,9 +1,11 @@
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, GetState } from '../../types';
-import { SmeshingOpts } from '../../../shared/types';
+import { PostSetupState, SmeshingOpts } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
 import { setUiError } from '../ui/actions';
+import { getGenesisID } from '../network/selectors';
 import {
+  getPostSetupState,
   getSmeshingOpts,
   isSmeshingPaused,
   isValidSmeshingOpts,
@@ -70,9 +72,16 @@ export const deletePosData = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: DELETED_POS_DATA });
 };
 
-export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
-  await eventsService.stopSmeshing({ deleteFiles: false });
-  dispatch({ type: PAUSED_SMESHING });
+export const pauseSmeshing = () => async (
+  dispatch: AppThDispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const postSetupState = getPostSetupState(state);
+  if (postSetupState === PostSetupState.STATE_IN_PROGRESS) {
+    await eventsService.stopSmeshing({ deleteFiles: false });
+    dispatch({ type: PAUSED_SMESHING });
+  }
 };
 
 export const resumeSmeshing = () => async (

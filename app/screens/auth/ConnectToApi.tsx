@@ -56,9 +56,8 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
     services: [] as PublicServicesView[],
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updatePublicServices = async () => {
-    await eventsService
+  const updatePublicServices = () => {
+    eventsService
       .listPublicServices(genesisID)
       .then(({ error, payload }) => {
         if (error) throw error;
@@ -85,9 +84,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(() => {
-    updatePublicServices();
-  }, [genesisID]);
+  useEffect(updatePublicServices, [genesisID]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
