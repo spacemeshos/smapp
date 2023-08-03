@@ -29,12 +29,6 @@ export const isDevNet = (
 // Network
 // --------------------------------------------------------
 
-export const patchNoCacheQueryString = (url: string) => {
-  const res = new URL(url);
-  res.searchParams.set('no-cache', Date.now().toString());
-  return res.toString();
-};
-
 export const patchQueryString = (
   url: string,
   queryParams: Record<string, string>
@@ -47,12 +41,12 @@ export const patchQueryString = (
     .toString();
 
 export const fetchJSON = async (url?: string) =>
-  url ? fetch(patchNoCacheQueryString(url)).then((res) => res.json()) : null;
+  url ? fetch(url).then((res) => res.json()) : null;
 
 export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
   isTestMode() && url === STANDALONE_GENESIS_EXTRA
     ? getTestModeNodeConfig()
-    : fetch(patchQueryString(patchNoCacheQueryString(url), await getEnvInfo()))
+    : fetch(patchQueryString(url, await getEnvInfo()))
         .then((res) => res.text())
         .then((res) => configCodecByFirstChar(res).parse(res));
 
