@@ -3,14 +3,13 @@ import { unlink } from 'fs/promises';
 import { BrowserWindow, Notification } from 'electron';
 import { ProgressInfo } from 'builder-util-runtime';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
-import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import { SemVer } from 'semver';
 import { Subject } from 'rxjs';
 
 import pkg from '../../package.json';
 import { ipcConsts } from '../../app/vars';
-import { isDev, isNetError } from '../utils';
+import { isDev, isNetError, fetch } from '../utils';
 import { Network } from '../../shared/types';
 import { verifySignature } from '../verifyFileSignature';
 import { GPG_PUBLIC_KEY_URL } from './constants';
