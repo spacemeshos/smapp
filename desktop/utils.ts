@@ -2,7 +2,7 @@ import util from 'util';
 import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
-import fetch from 'electron-fetch';
+import electronFetch, { RequestInit } from 'electron-fetch';
 import { configCodecByFirstChar } from '../shared/utils';
 import { NodeConfig } from '../shared/types';
 import {
@@ -40,8 +40,18 @@ export const patchQueryString = (
     }, new URL(url))
     .toString();
 
-export const fetchJSON = async (url?: string) =>
-  url ? fetch(url).then((res) => res.json()) : null;
+export const fetch = async (url: string, options?: RequestInit) =>
+  electronFetch(url, {
+    // Use `https` or `http` modules of NodeJS stdlib
+    // instead of electron's `net` module
+    // to avoid caching on the client
+    useElectronNet: false,
+    // But keep the flexibility
+    ...options,
+  });
+
+export const fetchJSON = async (url: string) =>
+  fetch(url).then((res) => res.json());
 
 export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
   isTestMode() && url === STANDALONE_GENESIS_EXTRA
