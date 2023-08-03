@@ -1,8 +1,8 @@
-# Contributing to SMAPP
+# Contributing to Smapp
 
 First off, thanks for taking the time to contribute!
 
-The following is a set of guidelines for contributing to SMAPP, which is hosted in the [Spacemesh Organization](https://github.com/spacemeshos) on GitHub. These are just guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+The following is a set of guidelines for contributing to Smapp, which is hosted in the [Spacemesh Organization](https://github.com/spacemeshos) on GitHub. These are just guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
 ## How Can I Contribute?
 
@@ -16,11 +16,11 @@ If you have an idea for a new feature or an enhancement for an existing one, ple
 
 ### Good First Issues
 
-If you are new to the project or to open source in general, a great way to get started with contributing to SMAPP is by tackling issues labeled as "good first issues". These are relatively small and straightforward issues that have been specifically identified as friendly to newcomers.
+If you are new to the project or to open source in general, a great way to get started with contributing to Smapp is by tackling issues labeled as "good first issues". These are relatively small and straightforward issues that have been specifically identified as friendly to newcomers.
 
 Here's how you can get started:
 
-1. Go to the [Issues tab](https://github.com/spacemeshos/smapp/issues) on the SMAPP GitHub repository.
+1. Go to the [Issues tab](https://github.com/spacemeshos/smapp/issues) on the Smapp GitHub repository.
 2. Filter for issues labeled ["good first issue"](https://github.com/spacemeshos/smapp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 3. Select an issue that you find interesting and feel that you can handle. Don't hesitate to ask questions in the issue comments if something is unclear.
 4. Fork the repository, clone it to your local machine, and create a new branch for your work.
@@ -34,7 +34,9 @@ The goal is to make a meaningful contribution to the project, learn something ne
 2. If you've added code that should be tested, add tests.
 3. Ensure the test suite passes.
 4. Make sure your code lints and follows the established coding standards and conventions.
-5. Issue that pull request!
+5. **When opening a pull request, please mark it for project contributors to review**. This will give them the rights to push to the branch and streamline the review process. If you are not able to mark the PR, leave a comment requesting the project contributors' review.
+
+**Note**: Our CI pipeline won't trigger by default if you're not already a project contributor. However, we can trigger it for you upon request. We expect contributions to pass and not break the CI pipeline.
 
 ## How to Take an Issue and Start Contributing
 
@@ -56,11 +58,11 @@ Remember, contributions are not limited to code. You can help with documentation
 
 ## Coding Standards and Conventions
 
-Please ensure that your contributions adhere to the coding standards and conventions used in the SMAPP project. This includes proper indentation, accurate comments, and following naming conventions. If the project includes a linter or formatter config (like .editorconfig, .eslintrc, .prettierrc), please make sure your contributions do not violate the rules.
+Please ensure that your contributions adhere to the coding standards and conventions used in the Smapp project. This includes proper indentation, accurate comments, and following naming conventions. If the project includes a linter or formatter config (like .editorconfig, .eslintrc, .prettierrc), please make sure your contributions do not violate the rules.
 
 ## Setting Up the Development Environment
 
-Before you can start contributing to SMAPP, you'll need to set up a development environment on your local machine. You can find instructions on how to do this in the [README.md](https://github.com/spacemeshos/smapp/blob/develop/README.md) file of the SMAPP repository.
+Before you can start contributing to Smapp, you'll need to set up a development environment on your local machine. You can find instructions on how to do this in the [README.md](https://github.com/spacemeshos/smapp/blob/develop/README.md) file of the Smapp repository.
 
 ## Commit Messages
 
@@ -72,5 +74,4 @@ Good commit messages serve at least three important purposes:
 
 Read [this](https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/) practical guide for writing good commit messages.
 
-
-Please note that the SMAPP project is released with a [Contributor Code of Conduct](https://github.com/spacemeshos/smapp/blob/develop/CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
+Please note that the Smapp project is released with a [Contributor Code of Conduct](https://github.com/spacemeshos/smapp/blob/develop/CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
