@@ -13,7 +13,11 @@ services:
                 count: all
                 capabilities: [gpu]
      command: [ 'start',
+                '--env=XDG_RUNTIME_DIR=/tmp',
                 '--daemon=no',
+                '--pulseaudio=no',
+                '--dbus-launch=no',
+                '--opengl=no',
                 '--start-child=no-sandbox-smapp',
                 '--exit-with-children',
                 '--bind-tcp=0.0.0.0:9999' ]

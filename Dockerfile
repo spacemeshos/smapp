@@ -20,7 +20,8 @@ ENV SENTRY_DSN=
 RUN yarn && yarn build && yarn package-linux
 
 FROM ubuntu:22.04 
-ARG XPRA_REPO=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra.sources
+#ARG XPRA_REPO=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra.sources
+ARG XPRA_REPO=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra-beta.sources
 ARG XPRA_KEY_ID=73254CAD17978FAF
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
@@ -28,7 +29,19 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnu
 RUN gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys ${XPRA_KEY_ID} && gpg --export --armor ${XPRA_KEY_ID} > "/usr/share/keyrings/xpra.asc"
 RUN cd /etc/apt/sources.list.d && curl -O ${XPRA_REPO}
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y xpra libnss3 libgtk-3-0 libxss1 libasound2 musl desktop-file-utils x11-apps epiphany-browser ocl-icd-libopencl1 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y libnss3 libgtk-3-0 libxss1 libasound2 musl desktop-file-utils x11-apps epiphany-browser ocl-icd-libopencl1 ffmpeg python3-pycuda
+
+## While xpra repository is borkedo
+ARG XPRA_VERSION=5.0-r33872-1
+ARG XPRA_DEPENDENCIES="python3 gir1.2-gtk-3.0 python3-cairo python3-pil openssl xvfb keyboard-configuration"
+ARG XPRA_PACKAGES="xpra-server xpra-common xpra-codecs xpra-x11"
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ${XPRA_DEPENDENCIES}
+RUN cd /tmp && \
+    for i in ${XPRA_PACKAGES}  ; do curl -L -O "https://xpra.org/beta/jammy/main/binary-amd64/${i}_${XPRA_VERSION}_amd64.deb" ; done && \
+    dpkg -i *deb; DEBIAN_FRONTEND=noninteractive apt-get install -y -f
+    
+
+
 
 RUN mkdir -p /etc/OpenCL/vendors && \
     echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
