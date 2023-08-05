@@ -24,8 +24,8 @@ export default ($nodeConfig: Subject<NodeConfig>) =>
         ),
       () => true
     ),
-    (_) => {
-      $nodeConfig.next(_);
+    (nodeConfig) => {
+      $nodeConfig.next(nodeConfig);
       logger.log(
         ipcConsts.SMESHER_UPDATE_PROVING_OPTS,
         'postProvingOpts updated in the node config'

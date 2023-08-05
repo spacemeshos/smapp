@@ -242,7 +242,7 @@ const startApp = (): AppStore => {
     // IPC Reactions
     handleWipeOut($mainWindow, $isAppClosing),
     handleDeleteWalletFile($mainWindow, $wallet, $walletPath),
-    // Handle update Smeshing opts from client
+    // Handle update Smeshing proving opts from client
     handleUpdateSmesherProvingOptsIpc($nodeConfig),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
