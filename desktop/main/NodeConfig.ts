@@ -14,7 +14,7 @@ import StoreService from '../storeService';
 import { getShortGenesisId } from '../../shared/utils';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
-import { isValidProvingOpts, safeSmeshingOpts } from './smeshingOpts';
+import { safeSmeshingOpts } from './smeshingOpts';
 
 export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
@@ -79,17 +79,6 @@ export const loadCustomNodeConfig = async (
           encoding: 'utf8',
         })
         .then((res) => JSON.parse(res) as Partial<NodeConfig>)
-        .then(async (res) => {
-          // Fix zeroes in custom node config asap
-          if (!isValidProvingOpts(res?.smeshing?.['smeshing-proving-opts'])) {
-            await writeCustomNodeConfig(genesisID, {
-              ...res,
-              smeshing: safeSmeshingOpts(res.smeshing, genesisID),
-            });
-            return loadCustomNodeConfig(genesisID);
-          }
-          return res;
-        })
     : {};
 };
 
