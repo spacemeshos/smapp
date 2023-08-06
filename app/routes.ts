@@ -74,7 +74,7 @@ const auth = formatRoutes([
   [AuthPath.SwitchNetwork, SwitchNetwork],
   [AuthPath.Leaving, Leaving],
   [AuthPath.WalletType, WalletType],
-  [AuthPath.ProtectWalletMnemonicType, WalletMnemonicStrength],
+  [AuthPath.ProtectWalletMnemonicStrength, WalletMnemonicStrength],
   [AuthPath.CreateWallet, CreateWallet],
   [AuthPath.ProtectWallet, ProtectWallet],
   [AuthPath.ProtectWalletTestMnemonic, ProtectWalletTestMnemonic],
