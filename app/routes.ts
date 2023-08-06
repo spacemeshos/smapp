@@ -27,7 +27,7 @@ import {
   Backup,
   BackupOptions,
   FileBackup,
-  TwelveWordsBackup,
+  WordsBackup,
   Transactions,
   Settings,
   Contacts,
@@ -42,6 +42,7 @@ import SpawnAccount from './screens/wallet/SpawnAccount';
 import ProtectWallet from './screens/auth/ProtectWallet';
 import ProtectWalletTestMnemonic from './screens/auth/ProtectWalletTestMnemonic';
 import WalletCreated from './screens/auth/WalletCreated';
+import WalletMnemonicStrength from './screens/auth/WalletMnemonicStrength';
 
 //
 // Types
@@ -73,6 +74,7 @@ const auth = formatRoutes([
   [AuthPath.SwitchNetwork, SwitchNetwork],
   [AuthPath.Leaving, Leaving],
   [AuthPath.WalletType, WalletType],
+  [AuthPath.ProtectWalletMnemonicType, WalletMnemonicStrength],
   [AuthPath.CreateWallet, CreateWallet],
   [AuthPath.ProtectWallet, ProtectWallet],
   [AuthPath.ProtectWalletTestMnemonic, ProtectWalletTestMnemonic],
@@ -106,7 +108,7 @@ const wallet = formatRoutes([
 
 const backup = formatRoutes([
   [BackupPath.Options, BackupOptions],
-  [BackupPath.Mnemonics, TwelveWordsBackup],
+  [BackupPath.Mnemonics, WordsBackup],
   [BackupPath.TestMnemonics, TestMe],
   [BackupPath.File, FileBackup],
 ]);

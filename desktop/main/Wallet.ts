@@ -13,7 +13,10 @@ import {
 import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
-import { CreateWalletRequest } from '../../shared/ipcMessages';
+import {
+  CreateWalletRequest,
+  MnemonicStrengthType,
+} from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { copyWalletFile, listWallets } from './walletFile';
@@ -59,11 +62,12 @@ const createAccount = ({
 // Index stands for naming
 const create = (
   index: number,
+  mnemonicType: MnemonicStrengthType,
   mnemonicSeed?: string,
   name?: string
 ): Wallet => {
   const timestamp = getISODate();
-  const mnemonic = mnemonicSeed || CryptoService.generateMnemonic();
+  const mnemonic = mnemonicSeed || CryptoService.generateMnemonic(mnemonicType);
   const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
     mnemonic,
     index: 0,
@@ -122,9 +126,15 @@ export const createWallet = async ({
   apiUrl,
   password,
   name,
+  mnemonicType,
 }: CreateWalletRequest) => {
   const { files } = await list();
-  const wallet = create(files?.length || 0, existingMnemonic, name);
+  const wallet = create(
+    files?.length || 0,
+    mnemonicType,
+    existingMnemonic,
+    name
+  );
 
   wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =
