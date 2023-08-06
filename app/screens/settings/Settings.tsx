@@ -414,8 +414,14 @@ class Settings extends Component<Props, State> {
                       style={{ marginRight: '1em' }}
                     />
                     <Button
-                      onClick={this.restoreFromMnemonics}
+                      onClick={this.restoreFrom12Mnemonic}
                       text="RESTORE FROM 12 WORDS"
+                      width={180}
+                      style={{ marginRight: '1em' }}
+                    />
+                    <Button
+                      onClick={this.restoreFrom24Mnemonic}
+                      text="RESTORE FROM 24 WORDS"
                       width={180}
                     />
                   </>
@@ -636,7 +642,10 @@ class Settings extends Component<Props, State> {
     switchSkin(index.toString());
   };
 
-  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
+  restoreFrom12Mnemonic = () => this.goTo(AuthPath.RecoverFromMnemonics);
+
+  restoreFrom24Mnemonic = () =>
+    this.goTo(AuthPath.RecoverFromMnemonics, { wordsAmount: 24 });
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { accounts } = this.props;

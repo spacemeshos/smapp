@@ -1,13 +1,14 @@
 import React from 'react';
+import { useHistory } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link } from '../../basicComponents';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
-import { AuthRouterParams } from './routerParams';
 
-const btnStyle = { margin: '30px 0 15px' };
+const btnStyle = { margin: '7px 0' };
 
-const RestoreWallet = ({ history }: AuthRouterParams) => {
+const RestoreWallet = () => {
+  const history = useHistory();
   const navigateToWalletGuide = () => window.open(ExternalLinks.RestoreGuide);
 
   return (
@@ -30,6 +31,16 @@ const RestoreWallet = ({ history }: AuthRouterParams) => {
         isPrimary={false}
         onClick={() => history.push(AuthPath.RecoverFromMnemonics)}
         width={250}
+        style={btnStyle}
+      />
+      <Button
+        text="RESTORE FROM 24 WORDS"
+        isPrimary={false}
+        onClick={() =>
+          history.push(AuthPath.RecoverFromMnemonics, { wordsAmount: 24 })
+        }
+        width={250}
+        style={btnStyle}
       />
       <Link
         onClick={navigateToWalletGuide}

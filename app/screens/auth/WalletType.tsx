@@ -163,7 +163,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             />{' '}
             <Tooltip
               width={120}
-              text="Locate a file or restore from 12 words"
+              text="Locate a file or restore from 12/24 words"
             />
           </Row>
         </BottomPart>
