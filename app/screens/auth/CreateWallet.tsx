@@ -162,6 +162,13 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const nextAction = () => {
     if (validate() && handleValidateWalletName()) {
       createWallet();
+
+      // recovery wallet mode
+      if (location?.state?.mnemonic) {
+        history.push(AuthPath.WalletCreated);
+        return;
+      }
+
       history.push(AuthPath.ProtectWallet);
     }
   };
