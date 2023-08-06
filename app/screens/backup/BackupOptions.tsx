@@ -117,7 +117,7 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
             />
             <Button
               onClick={navigateTo12WordsBackup}
-              text="12 WORDS BACKUP"
+              text="MNEMONIC BACKUP"
               isPrimary={false}
               isContainerFullWidth
             />

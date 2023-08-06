@@ -18,7 +18,7 @@ export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';
 export {
   Backup,
   BackupOptions,
-  TwelveWordsBackup,
+  WordsBackup,
   TestMe,
   FileBackup,
 } from './backup';

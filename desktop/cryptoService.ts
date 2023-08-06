@@ -1,9 +1,11 @@
 import * as bip39 from 'bip39';
 import { toHexString } from '../shared/utils';
+import { MnemonicStrengthType } from '../shared/ipcMessages';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
 class CryptoService {
-  static generateMnemonic = () => bip39.generateMnemonic();
+  static generateMnemonic = (mnemonicType: MnemonicStrengthType) =>
+    bip39.generateMnemonic(mnemonicType === 24 ? 256 : 128);
 
   static createWallet = (mnemonic: string, walletIndex = 0) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);

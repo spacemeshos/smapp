@@ -21,12 +21,15 @@ const ContentSection = styled.div`
 
 const ProtectWallet = () => {
   const history = useHistory();
+
   const handleNext = (mnemonic: string) => {
     history.push(AuthPath.ProtectWalletTestMnemonic, { mnemonic });
   };
+
   const handleSkip = () => {
     history.push(AuthPath.WalletCreated);
   };
+
   return (
     <Wrapper>
       <Steps step={Step.PROTECT_WALLET} />

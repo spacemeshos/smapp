@@ -139,6 +139,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
           name: convenientWalletName,
+          mnemonicType: location?.state?.mnemonicType || 12,
         })
       );
       setIsLoaderVisible(false);
