@@ -131,7 +131,10 @@ const Welcome = ({ history }: AuthRouterParams) => {
             onClick={() => history.push(AuthPath.Recover)}
             text="OPEN AN EXISTING WALLET"
           />
-          <Tooltip width={140} text="Locate a file or restore from 12 words" />
+          <Tooltip
+            width={140}
+            text="Locate a file or restore from 12/24 words"
+          />
           <ButtonMargin>
             <Button
               text="SETUP"

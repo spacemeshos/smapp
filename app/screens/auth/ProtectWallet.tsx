@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
 import { AuthPath } from '../../routerPaths';
-import TwelveWordsBackup from '../backup/TwelveWordsBackup';
+import WordsBackup from '../backup/WordsBackup';
 import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
@@ -31,7 +31,7 @@ const ProtectWallet = () => {
     <Wrapper>
       <Steps step={Step.PROTECT_WALLET} />
       <ContentSection>
-        <TwelveWordsBackup
+        <WordsBackup
           nextButtonHandler={handleNext}
           skipButtonHandler={handleSkip}
         />

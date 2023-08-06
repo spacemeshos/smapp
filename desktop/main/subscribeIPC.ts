@@ -12,7 +12,7 @@ export default (context: AppContext) => {
     context.isDarkMode = request.isDarkMode;
   });
 
-  // Open print page with 12 words
+  // Open print page with recovery words
   ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {
     const { mainWindow } = context;
     const printerWindow = new BrowserWindow({
