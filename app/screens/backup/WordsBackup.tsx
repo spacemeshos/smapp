@@ -41,6 +41,7 @@ const BottomRow = styled(MiddleSectionRow)`
   flex: 1;
   align-items: end;
   justify-content: space-between;
+  margin-top: 5px;
 `;
 
 const BottomActionSection = styled.div`
@@ -58,6 +59,8 @@ const WordsSection = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  max-height: 290px;
+  overflow-y: auto;
 `;
 
 const WordContainer = styled.div`
@@ -98,21 +101,21 @@ interface TwelveWordsBackupProps {
   nextButtonHandler?: (mnemonic: string) => void;
   skipButtonHandler?: () => void;
 }
-const TwelveWordsBackup = ({
+const WordsBackup = ({
   nextButtonHandler,
   skipButtonHandler,
 }: TwelveWordsBackupProps) => {
-  const [isCopied, setIsCopied] = useState(false);
   const history = useHistory();
+  const [isCopied, setIsCopied] = useState(false);
 
   const mnemonic = useSelector((state: RootState) => state.wallet.mnemonic);
 
-  const twelveWords: Array<string> = mnemonic.split(' ');
-  let twelveWordsPrint = '<div>';
-  twelveWords.forEach((word: string, index: number) => {
-    twelveWordsPrint += `<h2>${index + 1} ${word}</h2>`;
+  const words: Array<string> = mnemonic.split(' ');
+  let wordsPrint = '<div>';
+  words.forEach((word: string, index: number) => {
+    wordsPrint += `<h2>${index + 1} ${word}</h2>`;
   });
-  twelveWordsPrint += '</div>';
+  wordsPrint += '</div>';
 
   const navigateToTestMe = () => {
     if (nextButtonHandler) {
@@ -122,7 +125,7 @@ const TwelveWordsBackup = ({
     history.push(BackupPath.TestMnemonics, { mnemonic });
   };
 
-  const copy12Words = async () => {
+  const copyWords = async () => {
     const words = mnemonic.split(' ');
     const wordsWithNumbers = words.map(
       (word: string, index: number) => `${index + 1}. ${word}`
@@ -133,14 +136,14 @@ const TwelveWordsBackup = ({
     setIsCopied(true);
   };
 
-  const print12Words = () => {
-    eventsService.print({ content: twelveWordsPrint });
+  const printWords = () => {
+    eventsService.print({ content: wordsPrint });
   };
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
-    <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP">
+    <WrapperWith2SideBars width={920} header="YOUR WORDS BACKUP">
       <TextWrapper>
         <Text>
           A paper backup is a numbered list of words written down on a paper.
@@ -151,14 +154,14 @@ const TwelveWordsBackup = ({
       <MiddleSectionRow>
         <ButtonsSection>
           <Button
-            onClick={print12Words}
+            onClick={printWords}
             text="PRINT WORDS"
             width={172}
             isPrimary={false}
             style={{ marginBottom: 35 }}
           />
           <Button
-            onClick={copy12Words}
+            onClick={copyWords}
             text="COPY WORDS"
             width={172}
             isPrimary={false}
@@ -167,7 +170,7 @@ const TwelveWordsBackup = ({
           {isCopied && <GreenText>Copied to clipboard</GreenText>}
         </ButtonsSection>
         <WordsSection>
-          {twelveWords.map((word: string, index: number) => (
+          {words.map((word: string, index: number) => (
             <WordWrapper key={word}>
               <IndexWrapper>
                 <Index>{`${index + 1}`}</Index>
@@ -198,4 +201,4 @@ const TwelveWordsBackup = ({
   );
 };
 
-export default TwelveWordsBackup;
+export default WordsBackup;

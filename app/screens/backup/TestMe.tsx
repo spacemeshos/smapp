@@ -48,15 +48,20 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
-const TestWordsSection = styled.div`
+const ScrollableContainer = styled.div`
+  height: 300px;
+  overflow-y: auto;
+`;
+
+const TestWordsSection = styled(ScrollableContainer)`
   display: flex;
   flex-direction: column;
   margin-right: 20px;
-  min-width: 190px;
+  min-width: 200px;
   user-select: none;
 `;
 
-const WordsSection = styled.div`
+const WordsSection = styled(ScrollableContainer)`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -98,14 +103,15 @@ const TestWordDroppable = styled.div<{
   isDraggingOver: boolean;
 }>`
   border: 1px dashed ${smColors.darkGray};
-  height: 29px;
   width: 157px;
   border-radius: 5px;
+  margin-bottom: 10px;
   margin-right: 20px;
-  margin-bottom: 30px;
+
   ${({ isDraggingOver }) =>
     isDraggingOver &&
     `
+    border: none;
     background-color: ${smColors.lightGray};
   `};
 `;
@@ -156,7 +162,7 @@ const NotificationBoxOuter = styled(CorneredWrapper)`
 `;
 
 const NotificationBox = styled.div`
-  min-width: 300px;
+  min-width: 312px;
   padding: 2px 7px;
   font-size: 14px;
   line-height: 14px;
@@ -180,16 +186,15 @@ type TestWords = Record<
   }
 >;
 
-const TEST_WORDS_AMOUNT = 4;
-
-const TEST_WORDS_LIST = range(0, TEST_WORDS_AMOUNT);
-const PLACEHOLDERS_LIST = range(TEST_WORDS_AMOUNT, 12);
-
-const getTestWords = (mnemonic: string): TestWords => {
+const getTestWords = (
+  mnemonic: string,
+  wordsAmount: number,
+  mnemonicLength: number
+): TestWords => {
   const twelveWords = mnemonic.split(' ');
   const indices = new Set<number>();
-  while (indices.size < TEST_WORDS_AMOUNT) {
-    const idx = Math.floor(Math.random() * 12);
+  while (indices.size < wordsAmount) {
+    const idx = Math.floor(Math.random() * mnemonicLength);
     if (!indices.has(idx)) {
       indices.add(idx);
     }
@@ -216,9 +221,17 @@ const TestMe = (props: Props) => {
   const history = useHistory();
   const { mnemonic } = location.state || props;
   const { nextButtonHandler } = props;
-  const [testWords, setTestWords] = useState<TestWords>(getTestWords(mnemonic));
+  const MNEMONIC_LENGTH = mnemonic?.split(' ').length;
+  const TEST_WORDS_AMOUNT = MNEMONIC_LENGTH === 24 ? 8 : 4;
+  const TEST_WORDS_LIST = range(0, TEST_WORDS_AMOUNT);
+  const PLACEHOLDERS_LIST = range(TEST_WORDS_AMOUNT, MNEMONIC_LENGTH);
 
-  const resetTest = () => setTestWords(getTestWords(mnemonic));
+  const [testWords, setTestWords] = useState<TestWords>(
+    getTestWords(mnemonic, TEST_WORDS_AMOUNT, MNEMONIC_LENGTH)
+  );
+
+  const resetTest = () =>
+    setTestWords(getTestWords(mnemonic, TEST_WORDS_AMOUNT, MNEMONIC_LENGTH));
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
@@ -319,18 +332,21 @@ const TestMe = (props: Props) => {
   );
 
   const showResults = Object.values(testWords).every(
-    ({ index }) => index >= 4 && index <= 15
+    ({ index }) =>
+      index >= TEST_WORDS_AMOUNT && index <= MNEMONIC_LENGTH + TEST_WORDS_AMOUNT
   );
+
   const isTestSuccess =
     showResults &&
     Object.values(testWords).every(
-      ({ index, validIndex }) => index - 4 === validIndex
+      ({ index, validIndex }) => index - TEST_WORDS_AMOUNT === validIndex
     );
+
   return (
     <>
       <WrapperWith2SideBars
         width={920}
-        header="CONFIRM YOUR 12 WORDS BACKUP"
+        header="CONFIRM YOUR WORDS BACKUP"
         key="1"
       >
         <SubHeader>
@@ -355,7 +371,7 @@ const TestMe = (props: Props) => {
             color={isTestSuccess ? smColors.green : smColors.orange}
           >
             {isTestSuccess
-              ? 'All right! Your 12 word backup is confirmed.'
+              ? `All right! Your ${MNEMONIC_LENGTH} word backup is confirmed.`
               : 'That confirmation isn’t correct, please try again'}
           </NotificationBox>
         </NotificationBoxOuter>

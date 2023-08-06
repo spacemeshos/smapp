@@ -2,6 +2,8 @@ import * as R from 'ramda';
 import * as bip39 from 'bip39';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { BackButton } from '../../components/common';
 import {
   WrapperWith2SideBars,
@@ -13,14 +15,13 @@ import {
 import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
-import { AuthRouterParams } from './routerParams';
-
-const WORDS_AMOUNT = 12;
 
 const Table = styled.div`
   display: flex;
   flex-direction: row;
   padding: 30px 30px 15px 30px;
+  overflow: auto;
+  margin: 15px 0;
 `;
 
 const TableColumn = styled.div`
@@ -56,7 +57,13 @@ const getInputStyle = (hasError: boolean) => ({
   borderRadius: 2,
 });
 
-const WordsRestore = ({ history }: AuthRouterParams) => {
+const DEFAULT_RESTORE_WORDS_AMOUNT = 12;
+
+const WordsRestore = () => {
+  const history = useHistory();
+  const location = useLocation<{ wordsAmount?: number }>();
+  const WORDS_AMOUNT =
+    location.state?.wordsAmount ?? DEFAULT_RESTORE_WORDS_AMOUNT;
   const [words, setWords] = useState(Array(WORDS_AMOUNT).fill(''));
   const [hasError, setHasError] = useState(false);
 
@@ -95,7 +102,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     return bip39.validateMnemonic(mnemonic);
   };
 
-  const restoreWith12Words = useCallback(() => {
+  const handleRestore = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
     if (validateMnemonic({ mnemonic })) {
       history.push(AuthPath.ConnectionType, { mnemonic });
@@ -108,10 +115,10 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     (e) => {
       if (e.keyCode === 13) {
         e.preventDefault();
-        restoreWith12Words();
+        handleRestore();
       }
     },
-    [restoreWith12Words]
+    [handleRestore]
   );
   const nextInput = (index: number) => {
     const next = Math.max(0, Math.min(WORDS_AMOUNT, index + 1));
@@ -130,7 +137,8 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
 
   const renderInputs = ({ start }: { start: number }) => {
     const res: Array<any> = [];
-    for (let index = start; index < start + 4; index += 1) {
+    const end = start + WORDS_AMOUNT / 3;
+    for (let index = start; index < end; index += 1) {
       res.push(
         <InputWrapper key={`input${index}`}>
           <InputCounter>{index + 1}</InputCounter>
@@ -151,23 +159,28 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
   };
 
   const isDoneDisabled = !isDoneEnabled();
+  const tableColumns =
+    WORDS_AMOUNT === DEFAULT_RESTORE_WORDS_AMOUNT ? [0, 4, 8] : [0, 8, 16];
   return (
     <WrapperWith2SideBars
       width={800}
       height={480}
-      header="RESTORE WALLET FROM 12 WORDS"
-      subHeader="Please enter the 12 words in the right order."
+      header={`RESTORE WALLET FROM ${WORDS_AMOUNT} WORDS`}
+      subHeader={`Please enter the ${WORDS_AMOUNT} words in the right order.`}
     >
       <BackButton action={history.goBack} />
       <Table>
-        <TableColumn>{renderInputs({ start: 0 })}</TableColumn>
-        <TableColumn>{renderInputs({ start: 4 })}</TableColumn>
-        <TableColumn>{renderInputs({ start: 8 })}</TableColumn>
+        {tableColumns.map((start) => (
+          <TableColumn>{renderInputs({ start })}</TableColumn>
+        ))}
       </Table>
       <BottomSection>
-        <Link onClick={navigateTo12WordRestoreGuide} text="12 WORDS GUIDE" />
+        <Link
+          onClick={navigateTo12WordRestoreGuide}
+          text={'WORDS BACKUP GUIDE'}
+        />
         <Button
-          onClick={restoreWith12Words}
+          onClick={handleRestore}
           text="RESTORE"
           isDisabled={isDoneDisabled}
         />
@@ -177,7 +190,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
           onClick={() => {
             setHasError(false);
           }}
-          text="this 12 words phrase in incorrect, please try again"
+          text={`this ${WORDS_AMOUNT} words phrase in incorrect, please try again`}
           style={{ bottom: 15, left: 185 }}
         />
       )}
