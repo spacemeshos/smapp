@@ -59,7 +59,7 @@ const WordsSection = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  max-height: 290px;
+  max-height: 350px;
   overflow-y: auto;
 `;
 
@@ -143,7 +143,11 @@ const WordsBackup = ({
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
-    <WrapperWith2SideBars width={920} header="YOUR WORDS BACKUP">
+    <WrapperWith2SideBars
+      width={920}
+      height={590}
+      header={`YOUR ${words.length} WORDS BACKUP`}
+    >
       <TextWrapper>
         <Text>
           A paper backup is a numbered list of words written down on a paper.

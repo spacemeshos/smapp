@@ -17,6 +17,7 @@ import { ExternalLinks } from '../../../shared/constants';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  max-height: 626px;
 `;
 
 const SmallText = styled.span`
