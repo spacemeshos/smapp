@@ -49,7 +49,6 @@ const BottomRow = styled(MiddleSectionRow)`
 `;
 
 const ScrollableContainer = styled.div`
-  height: 300px;
   overflow-y: auto;
 `;
 
@@ -104,6 +103,7 @@ const TestWordDroppable = styled.div<{
 }>`
   border: 1px dashed ${smColors.darkGray};
   width: 157px;
+  min-height: 29px;
   border-radius: 5px;
   margin-bottom: 10px;
   margin-right: 20px;

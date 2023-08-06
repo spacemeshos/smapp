@@ -54,6 +54,10 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
+const ButtonWrapper = styled.div`
+  width: 100%;
+`;
+
 const WalletMnemonicStrength = () => {
   const history = useHistory();
   const location = useLocation<AuthLocationState>();
@@ -72,9 +76,9 @@ const WalletMnemonicStrength = () => {
       <Steps step={Step.SELECT_WALLET_MNEMONIC_STRENGTH} />
       <ContentSection>
         <WrapperWith2SideBars
-          width={920}
-          header="YOUR WORDS BACKUP"
-          subHeader={'text'}
+          width={750}
+          height={400}
+          header="CHOOSE THE MNEMONIC SECURITY LEVEL"
         >
           <BackButton action={history.goBack} />
           <RightSection>
@@ -85,21 +89,23 @@ const WalletMnemonicStrength = () => {
               </SmallText>
             </MiddleSectionRow>
             <MiddleSectionRow>
-              <Button
-                onClick={() => handleNext(12)}
-                text="12 WORDS MNEMONIC"
-                isPrimary={false}
-                isContainerFullWidth
-                style={{ marginRight: 22 }}
-                width={250}
-              />
-              <Button
-                onClick={() => handleNext(24)}
-                text="24 WORDS MNEMONIC"
-                isPrimary={false}
-                isContainerFullWidth
-                width={250}
-              />
+              <ButtonWrapper>
+                <Button
+                  onClick={() => handleNext(12)}
+                  text="12 WORDS MNEMONIC"
+                  isPrimary={false}
+                  style={{ marginRight: 22 }}
+                  width={250}
+                />
+              </ButtonWrapper>
+              <ButtonWrapper>
+                <Button
+                  onClick={() => handleNext(24)}
+                  text="24 WORDS MNEMONIC"
+                  isPrimary={false}
+                  width={250}
+                />
+              </ButtonWrapper>
             </MiddleSectionRow>
           </RightSection>
           <BottomRow>

@@ -23,7 +23,7 @@ const SideBar = styled.img.attrs<{ isLeft: boolean }>(
   })
 )<{ isLeft: boolean }>`
   display: block;
-  width: 13px;
+  width: 18px;
   height: 100%;
 
   ${({ theme, isLeft }) => `
