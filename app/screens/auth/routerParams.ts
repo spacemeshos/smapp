@@ -1,7 +1,8 @@
 import { RouteComponentProps, StaticContext } from 'react-router';
 import { SocketAddress } from '../../../shared/types';
+import { MnemonicStrengthType } from '../../../shared/ipcMessages';
 
-type AuthLocationState = Partial<{
+export type AuthLocationState = Partial<{
   isLoggedOut: boolean;
   mnemonic: string;
   creatingWallet: boolean;
@@ -9,6 +10,7 @@ type AuthLocationState = Partial<{
   apiUrl: SocketAddress | null;
   genesisID: string;
   isWalletOnly: boolean;
+  mnemonicType: MnemonicStrengthType;
 }>;
 
 export type AuthRouterParams = RouteComponentProps<

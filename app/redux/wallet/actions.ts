@@ -21,6 +21,7 @@ import { AppThDispatch, GetState } from '../../types';
 import { logout } from '../auth/actions';
 import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
+import { MnemonicStrengthType } from '../../../shared/ipcMessages';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
@@ -109,6 +110,7 @@ export const createNewWallet = ({
   genesisID,
   type,
   name,
+  mnemonicType,
 }: {
   existingMnemonic?: string | undefined;
   password: string;
@@ -116,9 +118,18 @@ export const createNewWallet = ({
   apiUrl: SocketAddress | null;
   genesisID: string;
   name?: string;
+  mnemonicType: MnemonicStrengthType;
 }) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
-    .createWallet({ password, existingMnemonic, type, apiUrl, genesisID, name })
+    .createWallet({
+      password,
+      existingMnemonic,
+      type,
+      apiUrl,
+      genesisID,
+      name,
+      mnemonicType,
+    })
     .then(async ({ error, payload }) => {
       if (error) {
         throw error;
