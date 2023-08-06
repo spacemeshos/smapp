@@ -107,7 +107,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     if (creatingWallet) {
       if (isWalletOnly && genesisID?.length) {
         return history.push(AuthPath.ConnectToAPI, {
-          redirect: AuthPath.CreateWallet,
+          redirect: AuthPath.ProtectWalletMnemonicStrength,
           genesisID,
           isWalletOnly,
           creatingWallet,
@@ -123,7 +123,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         });
       }
 
-      return history.push(AuthPath.ProtectWalletMnemonicType, {
+      return history.push(AuthPath.ProtectWalletMnemonicStrength, {
         genesisID,
         isWalletOnly,
         mnemonic,
