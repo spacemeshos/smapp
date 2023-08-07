@@ -59,7 +59,7 @@ const WordsSection = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  max-height: 350px;
+  max-height: 250px;
   overflow-y: auto;
 `;
 
@@ -145,7 +145,7 @@ const WordsBackup = ({
   return (
     <WrapperWith2SideBars
       width={920}
-      height={590}
+      height={515}
       header={`YOUR ${words.length} WORDS BACKUP`}
     >
       <TextWrapper>

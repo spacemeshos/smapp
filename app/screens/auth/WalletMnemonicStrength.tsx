@@ -76,7 +76,7 @@ const WalletMnemonicStrength = () => {
       <Steps step={Step.SELECT_WALLET_MNEMONIC_STRENGTH} />
       <ContentSection>
         <WrapperWith2SideBars
-          width={750}
+          width={720}
           height={400}
           header="CHOOSE THE MNEMONIC SECURITY LEVEL"
         >
