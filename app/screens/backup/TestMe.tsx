@@ -346,6 +346,7 @@ const TestMe = (props: Props) => {
     <>
       <WrapperWith2SideBars
         width={920}
+        height={515}
         header="CONFIRM YOUR WORDS BACKUP"
         key="1"
       >
