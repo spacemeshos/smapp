@@ -231,6 +231,7 @@ const CheckForUpdates = () => {
     Checking,
     NoUpdates,
     HasUpdate,
+    ManualUpdate,
   }
   const [curState, setCurState] = useState(CheckState.Idle);
 
@@ -245,12 +246,12 @@ const CheckForUpdates = () => {
   });
 
   useEffect(() => {
-    const handler = () => setCurState(CheckState.HasUpdate);
+    const handler = () => setCurState(CheckState.ManualUpdate);
     const timer = setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
-    ipcRenderer.on(ipcConsts.AU_DOWNLOAD_LIST_VERSIONS, handler);
+    ipcRenderer.on(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
     return () => {
       clearTimeout(timer);
-      ipcRenderer.off(ipcConsts.AU_DOWNLOAD_LIST_VERSIONS, handler);
+      ipcRenderer.off(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
     };
   });
 
@@ -274,11 +275,12 @@ const CheckForUpdates = () => {
     return <ProgressChunk>Checking for updates...</ProgressChunk>;
   } else if (curState === CheckState.NoUpdates) {
     return <ProgressChunk>No new updates available</ProgressChunk>;
-  } else if (curState === CheckState.HasUpdate) {
+  } else if (curState === CheckState.ManualUpdate) {
     return (
       <Link
         onClick={() => window.open(ExternalLinks.DownloadLatestAppVersion)}
         text="Download latest version"
+        style={{ fontSize: 10 }}
       />
     );
   } else return null;
