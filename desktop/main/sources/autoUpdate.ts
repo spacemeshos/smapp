@@ -1,3 +1,4 @@
+import os from 'os';
 import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
@@ -25,6 +26,7 @@ import {
   notifyDownloadStarted,
   notifyError,
   notifyForceUpdate,
+  notifyListAvailableVersions,
   notifyNoUpdates,
   subscribe,
   unsubscribe,
@@ -72,7 +74,10 @@ const handleAutoUpdates = (
     // Check for updates when: init, ipc request, byInterval
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
-      if (!nextUpdateInfo) {
+
+      if (!nextUpdateInfo && os.platform() === 'linux') {
+        notifyListAvailableVersions(mainWindow);
+      } else if (!nextUpdateInfo) {
         notifyNoUpdates(mainWindow);
       } else if (download) {
         notifyDownloadStarted(mainWindow);

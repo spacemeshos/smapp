@@ -21,6 +21,8 @@ import { getNetworkInfo } from '../../redux/network/selectors';
 import { checkUpdates as checkUpdatesIco } from '../../assets/images';
 import { AppThDispatch } from '../../types';
 import updaterSlice from '../../redux/updater/slice';
+import { Link } from '../../basicComponents';
+import { ExternalLinks } from '../../../shared/constants';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -242,6 +244,16 @@ const CheckForUpdates = () => {
     };
   });
 
+  useEffect(() => {
+    const handler = () => setCurState(CheckState.HasUpdate);
+    const timer = setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
+    ipcRenderer.on(ipcConsts.AU_DOWNLOAD_LIST_VERSIONS, handler);
+    return () => {
+      clearTimeout(timer);
+      ipcRenderer.off(ipcConsts.AU_DOWNLOAD_LIST_VERSIONS, handler);
+    };
+  });
+
   if (updateInfo) return null;
 
   const checkUpdates = async () => {
@@ -262,6 +274,13 @@ const CheckForUpdates = () => {
     return <ProgressChunk>Checking for updates...</ProgressChunk>;
   } else if (curState === CheckState.NoUpdates) {
     return <ProgressChunk>No new updates available</ProgressChunk>;
+  } else if (curState === CheckState.HasUpdate) {
+    return (
+      <Link
+        onClick={() => window.open(ExternalLinks.DownloadLatestAppVersion)}
+        text="Download latest version"
+      />
+    );
   } else return null;
 };
 
