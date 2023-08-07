@@ -39,6 +39,9 @@ export const notifyUpdateDownloaded = notify<UpdateInfo>(
 export const notifyDownloadStarted = notify<void>(
   ipcConsts.AU_DOWNLOAD_STARTED
 );
+export const notifyListAvailableVersions = notify<void>(
+  ipcConsts.AU_DOWNLOAD_LIST_VERSIONS
+);
 export const notifyNoUpdates = notify<void>(ipcConsts.AU_NO_UPDATES_AVAILABLE);
 export const notifyError = notify<Error>(ipcConsts.AU_ERROR);
 export const notifyForceUpdate = notify<UpdateInfo>(
