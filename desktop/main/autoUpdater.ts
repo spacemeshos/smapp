@@ -39,8 +39,8 @@ export const notifyUpdateDownloaded = notify<UpdateInfo>(
 export const notifyDownloadStarted = notify<void>(
   ipcConsts.AU_DOWNLOAD_STARTED
 );
-export const notifyListAvailableVersions = notify<void>(
-  ipcConsts.AU_DOWNLOAD_LIST_VERSIONS
+export const notifyDownloadManually = notify<void>(
+  ipcConsts.AU_DOWNLOAD_MANUALLY
 );
 export const notifyNoUpdates = notify<void>(ipcConsts.AU_NO_UPDATES_AVAILABLE);
 export const notifyError = notify<Error>(ipcConsts.AU_ERROR);
@@ -68,26 +68,26 @@ export const checkUpdates = async (
     smappBaseDownloadUrl,
   } = currentNetwork;
   const isEqualVersion = currentVersion.compare(latestSmappRelease) === 0;
-  if (!isEqualVersion) {
-    const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
-    autoUpdater.allowDowngrade = true;
-    autoUpdater.autoDownload = autoDownload || isOutdatedVersion;
-    const feedUrl = getFeedUrl(smappBaseDownloadUrl, latestSmappRelease);
-    autoUpdater.setFeedURL(feedUrl);
-    try {
-      const result = await autoUpdater.checkForUpdates();
-      if (!result) return null;
-      const { updateInfo } = result;
-      return updateInfo;
-    } catch (err) {
-      if (err instanceof Error && !isNetError(err)) {
-        notifyError(mainWindow, err as Error);
-      }
-      return null;
+
+  if (isEqualVersion) {
+    return false;
+  }
+
+  const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
+  autoUpdater.allowDowngrade = true;
+  autoUpdater.autoDownload = autoDownload || isOutdatedVersion;
+  const feedUrl = getFeedUrl(smappBaseDownloadUrl, latestSmappRelease);
+  autoUpdater.setFeedURL(feedUrl);
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    return result ? result.updateInfo : {};
+  } catch (err) {
+    if (err instanceof Error && !isNetError(err)) {
+      notifyError(mainWindow, err as Error);
     }
   }
 
-  return null;
+  return false;
 };
 
 export const installUpdate = () => {

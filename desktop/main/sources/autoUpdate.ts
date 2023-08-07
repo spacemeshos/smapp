@@ -1,4 +1,5 @@
 import os from 'os';
+import * as process from 'process';
 import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
@@ -13,6 +14,7 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
+import { isEmpty } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network } from '../../../shared/types';
 import { delay } from '../../../shared/utils';
@@ -26,7 +28,7 @@ import {
   notifyDownloadStarted,
   notifyError,
   notifyForceUpdate,
-  notifyListAvailableVersions,
+  notifyDownloadManually,
   notifyNoUpdates,
   subscribe,
   unsubscribe,
@@ -74,10 +76,22 @@ const handleAutoUpdates = (
     // Check for updates when: init, ipc request, byInterval
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
+      // when no updates or empty update response
+      const isUpdateInfoEmpty = isEmpty(nextUpdateInfo);
+      /**
+       * @see https://stackoverflow.com/questions/66974771/see-build-target-of-electron-builder-in-running-application
+       */
+      const isDebPackage = os.platform() === 'linux' && !process.env.APPIMAGE;
+      // when version from package and network equal
+      if (nextUpdateInfo === false) {
+        notifyNoUpdates(mainWindow);
+        return;
+      }
 
-      if (!nextUpdateInfo && os.platform() === 'linux') {
-        notifyListAvailableVersions(mainWindow);
-      } else if (!nextUpdateInfo) {
+      // dep package does not support auto update, for dep update info always empty
+      if (isUpdateInfoEmpty && isDebPackage) {
+        notifyDownloadManually(mainWindow);
+      } else if (isUpdateInfoEmpty) {
         notifyNoUpdates(mainWindow);
       } else if (download) {
         notifyDownloadStarted(mainWindow);
