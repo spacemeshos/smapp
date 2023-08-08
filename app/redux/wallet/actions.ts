@@ -7,6 +7,7 @@ import {
   WalletMeta,
   WalletType,
   Account,
+  MnemonicStrengthType,
 } from '../../../shared/types';
 import {
   delay,
@@ -21,7 +22,6 @@ import { AppThDispatch, GetState } from '../../types';
 import { logout } from '../auth/actions';
 import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
-import { MnemonicStrengthType } from '../../../shared/ipcMessages';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';

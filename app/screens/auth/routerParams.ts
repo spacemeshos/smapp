@@ -1,6 +1,5 @@
 import { RouteComponentProps, StaticContext } from 'react-router';
-import { SocketAddress } from '../../../shared/types';
-import { MnemonicStrengthType } from '../../../shared/ipcMessages';
+import { SocketAddress, MnemonicStrengthType } from '../../../shared/types';
 
 export type AuthLocationState = Partial<{
   isLoggedOut: boolean;

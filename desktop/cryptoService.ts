@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import { toHexString } from '../shared/utils';
-import { MnemonicStrengthType } from '../shared/ipcMessages';
+import { MnemonicStrengthType } from '../shared/types';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
 class CryptoService {

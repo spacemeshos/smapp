@@ -6,6 +6,7 @@ import {
   SocketAddress,
   WalletMeta,
   WalletType,
+  MnemonicStrengthType,
 } from './types';
 
 // Utils
@@ -52,8 +53,6 @@ export type UnlockWalletResponse = IpcResponse<{
   forceNetworkSelection: boolean;
 }>;
 export type CreateAccountResponse = IpcResponse<KeyPair | null>;
-
-export type MnemonicStrengthType = 12 | 24;
 
 export type CreateWalletRequest = {
   password: string;
