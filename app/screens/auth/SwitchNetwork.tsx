@@ -115,6 +115,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         });
       }
 
+      // when restoring the wallet, skip wallet protection screen
       if (mnemonic) {
         return history.push(AuthPath.CreateWallet, {
           genesisID,
@@ -126,7 +127,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       return history.push(AuthPath.ProtectWalletMnemonicStrength, {
         genesisID,
         isWalletOnly,
-        mnemonic,
       });
     }
     if (genesisID?.length && isWalletOnly) {
@@ -135,7 +135,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         genesisID,
         isWalletOnly,
         creatingWallet,
-        mnemonic,
       });
     }
     if (redirect === AuthPath.Unlock) {
