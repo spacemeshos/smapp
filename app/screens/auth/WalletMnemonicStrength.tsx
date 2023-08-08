@@ -7,7 +7,7 @@ import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { BackButton } from '../../components/common';
-import { MnemonicStrengthType } from '../../../shared/ipcMessages';
+import { MnemonicStrengthType } from '../../../shared/types';
 import Steps, { Step } from './Steps';
 import { AuthLocationState } from './routerParams';
 
