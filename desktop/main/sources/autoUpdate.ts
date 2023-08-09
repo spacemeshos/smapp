@@ -12,10 +12,9 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { isEmpty } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network } from '../../../shared/types';
-import { delay, isDebPackage } from '../../../shared/utils';
+import { delay } from '../../../shared/utils';
 import Logger from '../../logger';
 import StoreService from '../../storeService';
 import { Managers } from '../app.types';
@@ -30,6 +29,7 @@ import {
   notifyNoUpdates,
   subscribe,
   unsubscribe,
+  UpdateInfoStatus,
 } from '../autoUpdater';
 import { MINUTE } from '../constants';
 import { fromIPC } from '../rx.utils';
@@ -74,18 +74,12 @@ const handleAutoUpdates = (
     // Check for updates when: init, ipc request, byInterval
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
-      // when no updates or empty update response
-      const isUpdateInfoEmpty = isEmpty(nextUpdateInfo);
-      // when version from package and network equal
-      if (nextUpdateInfo === false) {
-        notifyNoUpdates(mainWindow);
-        return;
-      }
 
-      // dep package does not support auto update, for dep update info always empty
-      if (isUpdateInfoEmpty && isDebPackage()) {
+      if (nextUpdateInfo.status === UpdateInfoStatus.UpdateManually) {
         notifyDownloadManually(mainWindow);
-      } else if (isUpdateInfoEmpty) {
+      } else if (
+        nextUpdateInfo.status === UpdateInfoStatus.UpdateNotAvailable
+      ) {
         notifyNoUpdates(mainWindow);
       } else if (download) {
         notifyDownloadStarted(mainWindow);
