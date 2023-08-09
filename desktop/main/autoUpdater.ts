@@ -13,6 +13,7 @@ import { isNetError, fetch } from '../utils';
 import { isDev } from '../envModes';
 import { Network } from '../../shared/types';
 import { verifySignature } from '../verifyFileSignature';
+import { isDebPackage } from '../../shared/utils';
 import { GPG_PUBLIC_KEY_URL } from './constants';
 
 autoUpdater.logger = logger;
@@ -56,11 +57,22 @@ export const getCurrentVersion = () =>
 
 const getFeedUrl = (baseUrl: string, semver: string) => `${baseUrl}/v${semver}`;
 
+export enum UpdateInfoStatus {
+  UpdateAvailable = 0,
+  UpdateNotAvailable,
+  UpdateManually,
+}
+
+type CheckUpdateResults =
+  | { status: UpdateInfoStatus.UpdateAvailable; updateInfo: UpdateInfo }
+  | { status: UpdateInfoStatus.UpdateNotAvailable }
+  | { status: UpdateInfoStatus.UpdateManually };
+
 export const checkUpdates = async (
   mainWindow: BrowserWindow,
   currentNetwork: Network,
   autoDownload = false
-) => {
+): Promise<CheckUpdateResults> => {
   const currentVersion = getCurrentVersion();
   const {
     latestSmappRelease,
@@ -70,7 +82,7 @@ export const checkUpdates = async (
   const isEqualVersion = currentVersion.compare(latestSmappRelease) === 0;
 
   if (isEqualVersion) {
-    return false;
+    return { status: UpdateInfoStatus.UpdateNotAvailable };
   }
 
   const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
@@ -80,14 +92,24 @@ export const checkUpdates = async (
   autoUpdater.setFeedURL(feedUrl);
   try {
     const result = await autoUpdater.checkForUpdates();
-    return result ? result.updateInfo : {};
+
+    if (result) {
+      return {
+        status: UpdateInfoStatus.UpdateAvailable,
+        updateInfo: result.updateInfo,
+      };
+    }
+
+    if (isDebPackage() && !result) {
+      return { status: UpdateInfoStatus.UpdateManually };
+    }
   } catch (err) {
     if (err instanceof Error && !isNetError(err)) {
       notifyError(mainWindow, err as Error);
     }
   }
 
-  return false;
+  return { status: UpdateInfoStatus.UpdateNotAvailable };
 };
 
 export const installUpdate = () => {
