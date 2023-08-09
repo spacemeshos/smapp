@@ -72,12 +72,8 @@ export const deletePosData = () => async (dispatch: AppThDispatch) => {
 };
 
 export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
-  // const state = getState();
-  // const postSetupState = getPostSetupState(state);
-  // if (postSetupState === PostSetupState.STATE_IN_PROGRESS) {
   await eventsService.stopSmeshing({ deleteFiles: false });
   dispatch({ type: PAUSED_SMESHING });
-  // }
 };
 
 export const resumeSmeshing = () => async (
