@@ -247,10 +247,8 @@ const CheckForUpdates = () => {
 
   useEffect(() => {
     const handler = () => setCurState(CheckState.ManualUpdate);
-    const timer = setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
     ipcRenderer.on(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
     return () => {
-      clearTimeout(timer);
       ipcRenderer.off(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
     };
   });
