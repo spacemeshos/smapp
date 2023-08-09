@@ -1,11 +1,10 @@
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, GetState } from '../../types';
-import { PostSetupState, SmeshingOpts } from '../../../shared/types';
+import { SmeshingOpts, PostSetupState } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
 import { setUiError } from '../ui/actions';
 import { getGenesisID } from '../network/selectors';
 import {
-  getPostSetupState,
   getSmeshingOpts,
   isSmeshingPaused,
   isValidSmeshingOpts,
@@ -72,16 +71,13 @@ export const deletePosData = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: DELETED_POS_DATA });
 };
 
-export const pauseSmeshing = () => async (
-  dispatch: AppThDispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const postSetupState = getPostSetupState(state);
-  if (postSetupState === PostSetupState.STATE_IN_PROGRESS) {
-    await eventsService.stopSmeshing({ deleteFiles: false });
-    dispatch({ type: PAUSED_SMESHING });
-  }
+export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
+  // const state = getState();
+  // const postSetupState = getPostSetupState(state);
+  // if (postSetupState === PostSetupState.STATE_IN_PROGRESS) {
+  await eventsService.stopSmeshing({ deleteFiles: false });
+  dispatch({ type: PAUSED_SMESHING });
+  // }
 };
 
 export const resumeSmeshing = () => async (
@@ -104,3 +100,17 @@ export const updatePostProvingOpts = (
     nonces,
     threads,
   });
+
+export const updateProvingOptsAndRestartSmeshing = (
+  nonces: number,
+  threads: number,
+  postSetupState: PostSetupState
+) => async (dispatch: AppThDispatch) => {
+  // update node-config file
+  await dispatch(updatePostProvingOpts(nonces, threads));
+  // if smeshing in progress postSetupState === PostSetupState.STATE_IN_PROGRESS
+  postSetupState === PostSetupState.STATE_IN_PROGRESS &&
+    (await dispatch(pauseSmeshing()));
+  // handle start smeshing, PostSetupState.STATE_PAUSED or STATE_NOT_STARTED
+  await dispatch(resumeSmeshing());
+};
