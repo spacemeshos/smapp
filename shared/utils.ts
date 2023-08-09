@@ -1,3 +1,4 @@
+import os from 'os';
 import TOML from '@iarna/toml';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
 import { Event } from '../proto/spacemesh/v1/Event';
@@ -147,3 +148,11 @@ export const getEventType = (event: NodeEvent): Event['details'] => {
 
 export const getShortGenesisId = (genesisID: HexString) =>
   genesisID.substring(0, 8);
+
+/**
+ * @see https://stackoverflow.com/questions/66974771/see-build-target-of-electron-builder-in-running-application
+ */
+export const isDebPackage = () =>
+  os.platform() === 'linux' && !process.env.APPIMAGE;
+
+export const isLinuxAppImage = () => !isDebPackage();
