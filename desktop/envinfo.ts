@@ -23,7 +23,7 @@ export const getEnvInfo = async () => ({
   node: await getNodeVersion().catch(() => 'unknown'),
   platform: os.platform(),
   arch: os.arch(),
-  isAppImage: process.env.APPIMAGE || '',
+  isAppImage: Boolean(process.env.APPIMAGE).toString(),
 });
 
 export type EnvInfo = ReturnType<typeof getEnvInfo>;
