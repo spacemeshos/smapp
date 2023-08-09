@@ -96,3 +96,7 @@ export interface NodeConfig {
     'post-k2pow-difficulty'?: bigint | number;
   };
 }
+
+export type NodeConfigWithDefinedSmeshing = NodeConfig & {
+  smeshing: NodeConfig['smeshing'];
+};

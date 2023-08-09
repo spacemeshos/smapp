@@ -4,12 +4,19 @@ import {
   Subject,
   filter,
   distinctUntilChanged,
+  map,
 } from 'rxjs';
-import { equals } from 'ramda';
+import { eqProps } from 'ramda';
 import { makeSubscription } from '../rx.utils';
-import { NodeConfig, Wallet, WalletType } from '../../../shared/types';
+import {
+  NodeConfig,
+  NodeConfigWithDefinedSmeshing,
+  Wallet,
+  WalletType,
+} from '../../../shared/types';
 import Warning, { WarningType } from '../../../shared/warning';
 
+// @ts-ignore
 export default (
   $wallet: Observable<Wallet | null>,
   $nodeConfig: Subject<NodeConfig>,
@@ -23,11 +30,10 @@ export default (
           Boolean(nodeConfig?.smeshing) &&
           wallet?.meta.type !== WalletType.RemoteApi
       ),
-      distinctUntilChanged((prev, next) =>
-        equals(prev[1]?.smeshing, next[1]?.smeshing)
-      )
+      map(([_, nodeConfig]) => nodeConfig as NodeConfigWithDefinedSmeshing),
+      distinctUntilChanged(eqProps('smeshing'))
     ),
-    ([_, nodeConfig]) => {
+    (nodeConfig: NodeConfigWithDefinedSmeshing) => {
       const isSmeshingSetUp = nodeConfig?.smeshing?.['smeshing-start'] ?? null;
       const nonces =
         nodeConfig.smeshing?.['smeshing-proving-opts']?.[
