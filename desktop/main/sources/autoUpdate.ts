@@ -1,5 +1,3 @@
-import os from 'os';
-import * as process from 'process';
 import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
@@ -17,7 +15,7 @@ import {
 import { isEmpty } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network } from '../../../shared/types';
-import { delay } from '../../../shared/utils';
+import { delay, isDebPackage } from '../../../shared/utils';
 import Logger from '../../logger';
 import StoreService from '../../storeService';
 import { Managers } from '../app.types';
@@ -78,10 +76,6 @@ const handleAutoUpdates = (
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
       // when no updates or empty update response
       const isUpdateInfoEmpty = isEmpty(nextUpdateInfo);
-      /**
-       * @see https://stackoverflow.com/questions/66974771/see-build-target-of-electron-builder-in-running-application
-       */
-      const isDebPackage = os.platform() === 'linux' && !process.env.APPIMAGE;
       // when version from package and network equal
       if (nextUpdateInfo === false) {
         notifyNoUpdates(mainWindow);
@@ -89,7 +83,7 @@ const handleAutoUpdates = (
       }
 
       // dep package does not support auto update, for dep update info always empty
-      if (isUpdateInfoEmpty && isDebPackage) {
+      if (isUpdateInfoEmpty && isDebPackage()) {
         notifyDownloadManually(mainWindow);
       } else if (isUpdateInfoEmpty) {
         notifyNoUpdates(mainWindow);

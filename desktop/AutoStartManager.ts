@@ -1,8 +1,8 @@
-import os from 'os';
 import { ipcMain } from 'electron';
 import AutoLaunch from 'auto-launch';
 import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
+import { isLinuxAppImage } from '../shared/utils';
 import StoreService from './storeService';
 
 export const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
@@ -22,7 +22,7 @@ class AutoStartManager {
     };
 
     // Linux issue with path to the application
-    if (os.platform() === 'linux' && process.env.APPIMAGE) {
+    if (isLinuxAppImage()) {
       options.path = process.env.APPIMAGE;
     }
 
