@@ -100,7 +100,7 @@ export const checkUpdates = async (
       };
     }
 
-    if (isDebPackage() && !result) {
+    if (isDebPackage()) {
       return { status: UpdateInfoStatus.UpdateManually };
     }
   } catch (err) {
