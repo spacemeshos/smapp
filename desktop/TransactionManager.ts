@@ -189,7 +189,6 @@ class TransactionManager extends AbstractManager {
         accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
       },
       handler: updateAccountData,
-      retries: 0,
     });
 
     this.unsubs[address].push(
@@ -359,27 +358,20 @@ class TransactionManager extends AbstractManager {
   retrieveAccountData = async <F extends AccountDataValidFlags>({
     filter,
     handler,
-    retries,
   }: {
     filter: {
       accountId: { address: string };
       accountDataFlags: F;
     };
     handler: (data: AccountDataStreamHandlerArg[F]) => void;
-    retries: number;
   }) => {
     const { data, error } = await this.glStateService.sendAccountDataQuery({
       filter,
       offset: 0,
     });
-    if (error && retries < 5) {
-      await this.retrieveAccountData({
-        filter,
-        handler,
-        retries: retries + 1,
-      });
-    } else {
-      data?.length > 0 && handler(data[0]);
+    data?.length > 0 && handler(data[0]);
+    if (error) {
+      this.logger.error('retrieveAccountData', error, filter);
     }
   };
 
@@ -592,7 +584,6 @@ class TransactionManager extends AbstractManager {
           accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
         },
         handler: this.updateAccountData(address),
-        retries: 0,
       });
 
       return { error, tx };
@@ -689,7 +680,6 @@ class TransactionManager extends AbstractManager {
           accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
         },
         handler: this.updateAccountData(address),
-        retries: 0,
       });
 
       return { error, tx };
