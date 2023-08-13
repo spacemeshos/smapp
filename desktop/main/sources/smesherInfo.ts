@@ -2,6 +2,7 @@ import {
   BehaviorSubject,
   combineLatest,
   concat,
+  concatMap,
   distinctUntilChanged,
   filter,
   first,
@@ -183,17 +184,18 @@ const syncSmesherInfo = (
   const $rewards = combineLatest([$coinbase, $genesisId]).pipe(
     withLatestFrom($managers),
     switchMap(([[coinbase, _], managers]) => {
-      const oldRewards = managers.wallet.getOldRewardsByCoinbase(coinbase);
-      const oldRewardsMap = oldRewards.reduce((acc, next) => {
-        const key = `${next.layer}$${next.amount}`;
-        return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
-      }, new Map<string, Reward>());
+      const historicalRewards = from(
+        managers.wallet.requestRewardsByCoinbase(coinbase)
+      ).pipe(concatMap((x) => x));
 
-      return getRewardsStream$(managers, coinbase).pipe(
+      return merge(
+        historicalRewards,
+        getRewardsStream$(managers, coinbase)
+      ).pipe(
         scan((acc, next) => {
           const key = `${next.layer}$${next.amount}`;
           return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
-        }, oldRewardsMap),
+        }, new Map<string, Reward>()),
         map((uniqRewards) => Array.from(uniqRewards.values()))
       );
     }),

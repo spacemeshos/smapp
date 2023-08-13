@@ -70,7 +70,7 @@ export default (event: NodeEvent) => {
       return event?.eligibilities?.eligibilities
         ? `Eligible for rewards in layers ${event.eligibilities.eligibilities
             .map((el) => el.layer)
-            .sort((a,b) => (a||0)-(b||0))
+            .sort((a, b) => (a || 0) - (b || 0))
             .join(', ')}`
         : `Computed eligibilities for the epoch ${
             event.eligibilities?.epoch || ''
