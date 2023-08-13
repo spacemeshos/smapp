@@ -206,7 +206,13 @@ class SmesherManager extends AbstractManager {
     this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, {});
   };
 
-  getCoinbase = () => this.smesherService.getCoinbase();
+  getCoinbase = async () => {
+    // return this.smesherService.getCoinbase();
+    // Node returns wrong coinbase when smeshing is paused
+    // To avoid flaky behavior here is a workaround:
+    const config = await this.getSmeshingConfig();
+    return { coinbase: config['smeshing-coinbase'] ?? '' };
+  };
 
   subscribeIPCEvents() {
     // handlers
