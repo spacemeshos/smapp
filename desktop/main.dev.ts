@@ -15,7 +15,7 @@ import 'regenerator-runtime/runtime';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
-import { isDebug, isProd } from './utils';
+import { isDebug, isProd } from './envModes';
 import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';

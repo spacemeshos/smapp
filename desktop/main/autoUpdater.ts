@@ -9,7 +9,8 @@ import { Subject } from 'rxjs';
 
 import pkg from '../../package.json';
 import { ipcConsts } from '../../app/vars';
-import { isDev, isNetError, fetch } from '../utils';
+import { isNetError, fetch } from '../utils';
+import { isDev } from '../envModes';
 import { Network } from '../../shared/types';
 import { verifySignature } from '../verifyFileSignature';
 import { GPG_PUBLIC_KEY_URL } from './constants';

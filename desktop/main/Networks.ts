@@ -3,8 +3,9 @@ import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString } from '../../shared/utils';
 import { getStandaloneNetwork, isTestMode } from '../testMode';
-import { fetchJSON, isDevNet, patchQueryString } from '../utils';
+import { fetchJSON, patchQueryString } from '../utils';
 import { getEnvInfo } from '../envinfo';
+import { isDevNet } from '../envModes';
 import { toPublicService } from './utils';
 
 //
