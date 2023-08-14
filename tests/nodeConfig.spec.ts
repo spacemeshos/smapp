@@ -19,6 +19,12 @@ describe('NodeConfig.ts', () => {
     jest.mock('fs/promises');
     jest.mock('fs');
     jest.mock('electron-store');
+    jest.mock('electron-log', () => ({
+      transports: {
+        file: {},
+        console: {},
+      },
+    }));
   });
 
   afterEach(() => {
