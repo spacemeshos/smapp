@@ -17,6 +17,7 @@ import {
   ReplaySubject,
 } from 'rxjs';
 import { createIpcResponse, IpcResponse } from '../../shared/ipcMessages';
+import { isObject } from '../../shared/utils';
 import Logger from '../logger';
 
 const logger = Logger({ className: 'rxUtils' });
@@ -54,6 +55,26 @@ export const explodeResult = <A>(hr: HandlerResult<A>): A => {
 export const wrapResult = <A>(promise: Promise<A>): Promise<HandlerResult<A>> =>
   promise.then((x) => handlerResult(x)).catch((err) => handlerError(err));
 
+const hideSecretProps = (a: any) => {
+  const HIDDEN_KEYS = ['password', 'mnemonic', 'secretKey'];
+  if (isObject(a)) {
+    return Object.entries(a).reduce((acc, [key, value]) => {
+      if (HIDDEN_KEYS.includes(key)) {
+        return {
+          ...acc,
+          [key]: 'HIDDEN',
+        };
+      } else {
+        return {
+          ...acc,
+          [key]: isObject(value) ? hideSecretProps(value) : value,
+        };
+      }
+    }, {});
+  }
+  return a;
+};
+
 export const handleIPC = <Request, Response, Output>(
   channel: string,
   handler: (input: Request) => Observable<HandlerResult<Output>>,
@@ -63,11 +84,17 @@ export const handleIPC = <Request, Response, Output>(
   const ipcSubject = new Subject<Request>();
 
   ipcMain.handle(channel, (_, payload: Request) => {
-    logger.debug(`handleIPC(${channel}) got request:`, payload);
+    logger.debug(
+      `handleIPC(${channel}) got request:`,
+      hideSecretProps(payload)
+    );
     ipcSubject.next(payload);
     return firstValueFrom(ipcResponse).then(
       R.tap((response) =>
-        logger.debug(`handleIPC(${channel}) replied:`, response)
+        logger.debug(
+          `handleIPC(${channel}) replied:`,
+          hideSecretProps(response)
+        )
       )
     );
   });
