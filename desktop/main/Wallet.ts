@@ -5,6 +5,7 @@ import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import {
   KeyPair,
+  MnemonicStrengthType,
   Wallet,
   WalletMeta,
   WalletSecrets,
@@ -13,10 +14,7 @@ import {
 import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
-import {
-  CreateWalletRequest,
-  MnemonicStrengthType,
-} from '../../shared/ipcMessages';
+import { CreateWalletRequest } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { copyWalletFile, listWallets } from './walletFile';
@@ -59,15 +57,20 @@ const createAccount = ({
   secretKey,
 });
 
+const DEFAULT_MNEMONIC_STRENGTH_TYPE = 12;
 // Index stands for naming
 const create = (
   index: number,
-  mnemonicType: MnemonicStrengthType,
+  mnemonicStrengthType: MnemonicStrengthType,
   mnemonicSeed?: string,
   name?: string
 ): Wallet => {
   const timestamp = getISODate();
-  const mnemonic = mnemonicSeed || CryptoService.generateMnemonic(mnemonicType);
+  const mnemonic =
+    mnemonicSeed ||
+    CryptoService.generateMnemonic(
+      mnemonicStrengthType || DEFAULT_MNEMONIC_STRENGTH_TYPE
+    );
   const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
     mnemonic,
     index: 0,
@@ -120,19 +123,18 @@ export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
 //
 
 export const createWallet = async ({
-  existingMnemonic,
   type,
   genesisID,
   apiUrl,
   password,
   name,
-  mnemonicType,
+  mnemonic,
 }: CreateWalletRequest) => {
   const { files } = await list();
   const wallet = create(
     files?.length || 0,
-    mnemonicType,
-    existingMnemonic,
+    mnemonic.generate || 12,
+    mnemonic.existing,
     name
   );
 

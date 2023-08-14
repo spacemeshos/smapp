@@ -131,7 +131,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       setIsLoaderVisible(true);
       await dispatch(
         createNewWallet({
-          existingMnemonic: location?.state?.mnemonic,
+          mnemonic: location?.state?.mnemonic,
           password,
           type: location?.state?.isWalletOnly
             ? WalletType.RemoteApi
@@ -139,7 +139,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
           name: convenientWalletName,
-          mnemonicType: location?.state?.mnemonicType || 12,
         })
       );
       setIsLoaderVisible(false);
@@ -163,8 +162,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (validate() && handleValidateWalletName()) {
       createWallet();
 
-      // recovery wallet mode
-      if (location?.state?.mnemonic) {
+      if (location?.state?.mnemonic?.existing) {
         history.push(AuthPath.WalletCreated);
         return;
       }

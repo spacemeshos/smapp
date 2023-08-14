@@ -56,12 +56,14 @@ export type CreateAccountResponse = IpcResponse<KeyPair | null>;
 
 export type CreateWalletRequest = {
   password: string;
-  existingMnemonic: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
   genesisID: string;
   name?: string;
-  mnemonicType: MnemonicStrengthType;
+  mnemonic: {
+    existing?: string;
+    generate?: MnemonicStrengthType;
+  };
 };
 export type CreateWalletResponse = IpcResponse<{ path: string }>;
 

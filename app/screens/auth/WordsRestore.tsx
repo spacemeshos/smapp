@@ -105,7 +105,9 @@ const WordsRestore = () => {
   const handleRestore = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
     if (validateMnemonic({ mnemonic })) {
-      history.push(AuthPath.ConnectionType, { mnemonic });
+      history.push(AuthPath.ConnectionType, {
+        mnemonic: { existing: mnemonic },
+      });
     } else {
       setHasError(true);
     }
