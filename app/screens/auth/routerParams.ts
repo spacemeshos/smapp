@@ -1,15 +1,23 @@
 import { RouteComponentProps, StaticContext } from 'react-router';
 import { SocketAddress, MnemonicStrengthType } from '../../../shared/types';
+import { AuthPath } from '../../routerPaths';
 
 export type AuthLocationState = Partial<{
   isLoggedOut: boolean;
-  mnemonic: string;
+  mnemonic: {
+    existing?: string;
+    generate?: MnemonicStrengthType;
+  };
   creatingWallet: boolean;
-  redirect: string; // TODO: Enums of paths?
+  redirect:
+    | AuthPath.Auth
+    | AuthPath.Unlock
+    | AuthPath.SwitchNetwork
+    | AuthPath.ProtectWalletMnemonicStrength
+    | AuthPath.CreateWallet;
   apiUrl: SocketAddress | null;
   genesisID: string;
   isWalletOnly: boolean;
-  mnemonicType: MnemonicStrengthType;
 }>;
 
 export type AuthRouterParams = RouteComponentProps<

@@ -67,8 +67,9 @@ const WalletMnemonicStrength = () => {
     history.push(AuthPath.CreateWallet, {
       genesisID: location.state.genesisID,
       isWalletOnly: location.state.isWalletOnly,
-      mnemonic: location.state.mnemonic,
-      mnemonicType,
+      mnemonic: {
+        generate: mnemonicType,
+      },
     });
 
   return (

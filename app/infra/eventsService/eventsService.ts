@@ -58,21 +58,19 @@ import {
 class EventsService {
   static createWallet = ({
     password,
-    existingMnemonic,
+    mnemonic,
     type,
     apiUrl,
     genesisID,
     name,
-    mnemonicType,
   }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
-      existingMnemonic,
       type,
       apiUrl,
       genesisID,
       name,
-      mnemonicType,
+      mnemonic,
     });
 
   static readWalletFiles = () =>

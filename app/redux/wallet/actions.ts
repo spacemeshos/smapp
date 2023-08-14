@@ -104,31 +104,31 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
 };
 
 export const createNewWallet = ({
-  existingMnemonic = '',
+  mnemonic,
   password,
   apiUrl,
   genesisID,
   type,
   name,
-  mnemonicType,
 }: {
-  existingMnemonic?: string | undefined;
   password: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
   genesisID: string;
   name?: string;
-  mnemonicType: MnemonicStrengthType;
+  mnemonic: {
+    existing?: string;
+    generate?: MnemonicStrengthType;
+  };
 }) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
     .createWallet({
+      mnemonic,
       password,
-      existingMnemonic,
       type,
       apiUrl,
       genesisID,
       name,
-      mnemonicType,
     })
     .then(async ({ error, payload }) => {
       if (error) {
