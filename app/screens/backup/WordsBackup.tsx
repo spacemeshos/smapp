@@ -11,7 +11,7 @@ import { ExternalLinks } from '../../../shared/constants';
 
 const TextWrapper = styled.div`
   height: 75px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -59,8 +59,8 @@ const WordsSection = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  max-height: 250px;
   overflow-y: auto;
+  justify-content: space-between;
 `;
 
 const WordContainer = styled.div`
@@ -86,15 +86,6 @@ const Index = styled(Text)`
 
 const WordWrapper = styled.div`
   display: flex;
-  &:not(:nth-child(1n)) {
-    margin-bottom: 20px;
-  }
-  &:not(:nth-child(2n)) {
-    margin-bottom: 20px;
-  }
-  &:not(:nth-child(3n)) {
-    margin-bottom: 20px;
-  }
 `;
 
 interface TwelveWordsBackupProps {
