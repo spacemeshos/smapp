@@ -11,7 +11,9 @@ import {
   isTestMode,
 } from './testMode';
 import { getEnvInfo } from './envinfo';
+import Logger from './logger';
 
+const logger = Logger({ className: 'desktop/utils' });
 
 // --------------------------------------------------------
 // Network
@@ -28,15 +30,23 @@ export const patchQueryString = (
     }, new URL(url))
     .toString();
 
-export const fetch = async (url: string, options?: RequestInit) =>
-  electronFetch(url, {
-    // Use `https` or `http` modules of NodeJS stdlib
-    // instead of electron's `net` module
-    // to avoid caching on the client
-    useElectronNet: false,
-    // But keep the flexibility
-    ...options,
-  });
+export const fetch = async (url: string, options?: RequestInit) => {
+  try {
+    const res = await electronFetch(url, {
+      // Use `https` or `http` modules of NodeJS stdlib
+      // instead of electron's `net` module
+      // to avoid caching on the client
+      useElectronNet: false,
+      // But keep the flexibility
+      ...options,
+    });
+    logger.log('fetch:success', res.status, { url, options });
+    return res;
+  } catch (err) {
+    logger.error('fetch:error', err, { url, options });
+    throw err;
+  }
+};
 
 export const fetchJSON = async (url: string) =>
   fetch(url).then((res) => res.json());
