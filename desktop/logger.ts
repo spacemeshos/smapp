@@ -1,6 +1,6 @@
 import path from 'path';
 import logger from 'electron-log';
-import { isDebug } from './utils';
+import { isDebug } from './envModes';
 import { USERDATA_DIR } from './main/constants';
 
 const formatLogMessage = (className, fn, res, args) =>
