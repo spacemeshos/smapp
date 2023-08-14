@@ -1,11 +1,9 @@
 import {
   BehaviorSubject,
   combineLatest,
-  concat,
   concatMap,
   distinctUntilChanged,
   filter,
-  first,
   from,
   interval,
   map,
@@ -21,7 +19,6 @@ import {
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
-  Activation,
   HexString,
   NodeEvent,
   Reward,
@@ -84,12 +81,6 @@ const getRewardsStream$ = (
       subscriber.next(toReward(x));
     })
   );
-
-const getActivations$ = (
-  managers: Managers,
-  coinbase: string
-): Observable<Activation[]> =>
-  from(managers.wallet.requestActivationsByCoinbase(coinbase));
 
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
@@ -204,30 +195,8 @@ const syncSmesherInfo = (
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
 
-  const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
-    first(),
-    switchMap(([coinbase, managers]) =>
-      new Observable<Activation>((subscriber) =>
-        managers.wallet.listenActivationsByCoinbase(coinbase, (atx) =>
-          subscriber.next(atx)
-        )
-      ).pipe(share())
-    )
-  );
-  const $activationsHistory = combineLatest([$coinbase, $managers]).pipe(
-    switchMap(([coinbase, managers]) => getActivations$(managers, coinbase))
-  );
-
-  const $activations = concat(
-    $activationsHistory,
-    $activationsStream.pipe(
-      scan<Activation, Activation[]>((acc, next) => [...acc, next], [])
-    )
-  );
-
   return {
     $smesherId,
-    $activations,
     $rewards,
     $coinbase,
     $smeshingStarted,

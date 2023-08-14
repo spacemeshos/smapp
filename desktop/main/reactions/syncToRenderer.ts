@@ -22,7 +22,6 @@ import parse from 'parse-duration';
 import { getEventType } from '../../../shared/utils';
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
-  Activation,
   Network,
   NodeConfig,
   NodeVersionAndBuild,
@@ -171,7 +170,6 @@ export default (
   $rootHash: Observable<string>,
   $nodeVersion: Observable<NodeVersionAndBuild>,
   $smesherId: Observable<string>,
-  $activations: Observable<Activation[]>,
   $rewards: Observable<Reward[]>,
   $nodeEvents: Observable<NodeEvent>,
   $hrp: Observable<string>
@@ -205,10 +203,6 @@ export default (
     $walletOpened.pipe(
       switchMap(() => $rewards),
       map((rewards) => ({ smesher: { rewards } }))
-    ),
-    $walletOpened.pipe(
-      switchMap(() => $activations),
-      map((activations) => ({ smesher: { activations } }))
     ),
     $walletOpened.pipe(
       switchMap(() =>
