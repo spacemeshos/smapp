@@ -11,19 +11,9 @@ import {
   isTestMode,
 } from './testMode';
 import { getEnvInfo } from './envinfo';
+import Logger from './logger';
 
-// --------------------------------------------------------
-// ENV modes
-// --------------------------------------------------------
-export const isProd = () => process.env.NODE_ENV === 'production';
-export const isDev = () => process.env.NODE_ENV === 'development';
-export const isDebug = () => isDev() || !!process.env.DEBUG_PROD;
-
-export const isDevNet = (
-  proc = process
-): proc is NodeJS.Process & {
-  env: { NODE_ENV: 'development'; DEV_NET_URL: string };
-} => proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
+const logger = Logger({ className: 'desktop/utils' });
 
 // --------------------------------------------------------
 // Network
@@ -40,15 +30,23 @@ export const patchQueryString = (
     }, new URL(url))
     .toString();
 
-export const fetch = async (url: string, options?: RequestInit) =>
-  electronFetch(url, {
-    // Use `https` or `http` modules of NodeJS stdlib
-    // instead of electron's `net` module
-    // to avoid caching on the client
-    useElectronNet: false,
-    // But keep the flexibility
-    ...options,
-  });
+export const fetch = async (url: string, options?: RequestInit) => {
+  try {
+    const res = await electronFetch(url, {
+      // Use `https` or `http` modules of NodeJS stdlib
+      // instead of electron's `net` module
+      // to avoid caching on the client
+      useElectronNet: false,
+      // But keep the flexibility
+      ...options,
+    });
+    logger.log('fetch:success', res.status, { url, options });
+    return res;
+  } catch (err) {
+    logger.error('fetch:error', err, { url, options });
+    throw err;
+  }
+};
 
 export const fetchJSON = async (url: string) =>
   fetch(url).then((res) => res.json());

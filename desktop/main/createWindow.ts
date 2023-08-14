@@ -1,7 +1,7 @@
 import path from 'path';
 import { BrowserWindow, shell } from 'electron';
 import MenuBuilder from '../menu';
-import { isDev } from '../utils';
+import { isDev } from '../envModes';
 
 export default async () => {
   const pagePath = `file://${path.resolve(

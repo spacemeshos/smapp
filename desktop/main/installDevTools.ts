@@ -2,7 +2,7 @@ import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
-import { isDebug } from '../utils';
+import { isDebug } from '../envModes';
 
 export default async () => {
   if (!isDebug()) return;
