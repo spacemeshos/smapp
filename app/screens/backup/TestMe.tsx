@@ -112,7 +112,7 @@ const TestWordDroppable = styled.div<{
     isDraggingOver &&
     `
     border: none;
-    background-color: ${smColors.lightGray};
+    background-color: ${smColors.darkGray};
   `};
 `;
 
@@ -120,8 +120,8 @@ const WordDroppable = styled.div<{
   isDraggingOver: boolean;
   isDropped: boolean;
 }>`
-  height: 31px;
-  width: 160px;
+  height: 29px;
+  width: 157px;
   border: 1px dashed ${smColors.darkGray};
   border-radius: 5px;
   margin-right: 20px;
@@ -129,7 +129,7 @@ const WordDroppable = styled.div<{
   ${({ isDraggingOver }) =>
     isDraggingOver &&
     `
-    background-color: ${smColors.lightGray};
+    background-color: ${smColors.darkGray};
   `};
   ${({ isDropped }) =>
     isDropped &&
