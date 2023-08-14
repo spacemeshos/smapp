@@ -133,7 +133,7 @@ export const createWallet = async ({
   const { files } = await list();
   const wallet = create(
     files?.length || 0,
-    mnemonic.generate || 12,
+    mnemonic.generate || DEFAULT_MNEMONIC_STRENGTH_TYPE,
     mnemonic.existing,
     name
   );
