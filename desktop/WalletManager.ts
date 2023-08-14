@@ -182,9 +182,6 @@ class WalletManager extends AbstractManager {
     this.txManager.setAccounts(accounts);
   };
 
-  getStoredRewards = (coinbase: HexString) =>
-    this.txManager.getStoredRewards(coinbase);
-
   requestRewardsByCoinbase = async (coinbase: string): Promise<Reward[]> =>
     this.txManager.retrieveNewRewards(coinbase);
 
