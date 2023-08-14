@@ -10,7 +10,7 @@ import { ExternalLinks } from '../../../shared/constants';
 import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath, MainPath } from '../../routerPaths';
 import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
-import { AuthRouterParams } from './routerParams';
+import { AuthLocationState, AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
@@ -52,8 +52,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     curIndex > -1 ? curIndex : 0
   );
 
-  const { creatingWallet, isWalletOnly, mnemonic, redirect } =
-    location?.state || {};
+  const {
+    creatingWallet,
+    isWalletOnly,
+    mnemonic,
+    redirect,
+  }: AuthLocationState = location?.state || {};
 
   const updateNetworks = async () => {
     if (networksLoading) return;
@@ -115,8 +119,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         });
       }
 
-      // when restoring the wallet, skip wallet protection screen
-      if (mnemonic) {
+      if (mnemonic?.existing) {
         return history.push(AuthPath.CreateWallet, {
           genesisID,
           isWalletOnly,
