@@ -1,13 +1,6 @@
-import * as R from 'ramda';
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import {
-  Activation,
-  HexString,
-  KeyPair,
-  Reward,
-  Wallet,
-} from '../shared/types';
+import { KeyPair, Reward, Wallet } from '../shared/types';
 import {
   delay,
   isLocalNodeType,
@@ -15,7 +8,7 @@ import {
   toHexString,
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
-import { isActivation, isNodeError } from '../shared/types/guards';
+import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
@@ -23,20 +16,11 @@ import TransactionManager from './TransactionManager';
 import NodeManager from './NodeManager';
 import TransactionService from './TransactionService';
 import Logger from './logger';
-import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 import AbstractManager from './AbstractManager';
 import { sign } from './ed25519';
 import { toSocketAddress } from './main/utils';
 
 const logger = Logger({ className: 'WalletManager' });
-
-const pluckActivations = (list: any[]): Activation[] =>
-  (list || []).reduce((acc, { activation }) => {
-    if (isActivation(activation)) {
-      return [...acc, activation];
-    }
-    return acc;
-  }, <Activation[]>[]);
 
 class WalletManager extends AbstractManager {
   private readonly meshService: MeshService;
@@ -198,38 +182,6 @@ class WalletManager extends AbstractManager {
     this.txManager.setAccounts(accounts);
   };
 
-  requestActivationsByCoinbase = async (
-    coinbase: string
-  ): Promise<Activation[]> => {
-    const res = await this.meshService.requestMeshActivations(coinbase, 0);
-    if (!res) {
-      logger.debug(
-        `meshService.requestMeshActivations(${coinbase}, 0) returned`,
-        res
-      );
-      logger.debug('SmesherId:', coinbase);
-      return [];
-    }
-    const { totalResults, data } = res;
-
-    const firstActivations = pluckActivations(data);
-    if (totalResults <= BATCH_SIZE) {
-      return firstActivations;
-    } else {
-      const nextData = await Promise.all(
-        R.compose(
-          R.map((idx) =>
-            this.meshService
-              .requestMeshActivations(coinbase, idx * BATCH_SIZE)
-              .then((resp) => pluckActivations(resp.data))
-          ),
-          R.range(1)
-        )(Math.ceil(totalResults / BATCH_SIZE))
-      ).then(R.unnest);
-      return [...firstActivations, ...nextData];
-    }
-  };
-
   getStoredRewards = (coinbase: HexString) =>
     this.txManager.getStoredRewards(coinbase);
 
@@ -240,11 +192,6 @@ class WalletManager extends AbstractManager {
     coinbase: string,
     handler: (reward: Reward__Output) => void
   ) => this.glStateService.listenRewardsByCoinbase(coinbase, handler);
-
-  listenActivationsByCoinbase = (
-    coinbase: string,
-    handler: (atx: Activation) => void
-  ) => this.meshService.listenMeshActivations(coinbase, handler);
 }
 
 export default WalletManager;
