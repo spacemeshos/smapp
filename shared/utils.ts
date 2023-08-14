@@ -155,4 +155,5 @@ export const getShortGenesisId = (genesisID: HexString) =>
 export const isDebPackage = () =>
   os.platform() === 'linux' && !process.env.APPIMAGE;
 
-export const isLinuxAppImage = () => !isDebPackage();
+export const isLinuxAppImage = () =>
+  os.platform() === 'linux' && process.env.APPIMAGE;
