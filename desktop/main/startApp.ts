@@ -159,7 +159,6 @@ const startApp = (): AppStore => {
 
   const {
     $smesherId,
-    $activations,
     $rewards,
     $smeshingStarted,
     $smeshingSetupState,
@@ -252,7 +251,6 @@ const startApp = (): AppStore => {
       $rootHash,
       $nodeVersion,
       $smesherId,
-      $activations,
       $rewards,
       $nodeEvents,
       $hrp
