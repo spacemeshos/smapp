@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
-  max-height: 517px;
+  height: 517px;
 `;
 
 const Backup = () => {
