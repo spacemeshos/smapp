@@ -16,7 +16,6 @@ import {
 } from '../../../shared/types';
 import Warning, { WarningType } from '../../../shared/warning';
 
-// @ts-ignore
 export default (
   $wallet: Observable<Wallet | null>,
   $nodeConfig: Subject<NodeConfig>,
