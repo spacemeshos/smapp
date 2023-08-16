@@ -100,13 +100,19 @@ export const updatePostProvingOpts = (
 export const updateProvingOptsAndRestartSmeshing = (
   nonces: number,
   threads: number,
-  postSetupState: PostSetupState
+  postSetupState: PostSetupState,
+  isSmeshingStarted: boolean
 ) => async (dispatch: AppThDispatch) => {
   // update node-config file
   await dispatch(updatePostProvingOpts(nonces, threads));
-  // if smeshing in progress postSetupState === PostSetupState.STATE_IN_PROGRESS
-  postSetupState === PostSetupState.STATE_IN_PROGRESS &&
-    (await dispatch(pauseSmeshing()));
-  // handle start smeshing, PostSetupState.STATE_PAUSED or STATE_NOT_STARTED
-  await dispatch(resumeSmeshing());
+
+  // resolve an issue with Windows, when we use to much resources RAM and CPU and smeshing was stopped in config
+  // if in config smeshing ['smeshing-start'] === true
+  if (isSmeshingStarted) {
+    // if smeshing in progress postSetupState === PostSetupState.STATE_IN_PROGRESS
+    postSetupState === PostSetupState.STATE_IN_PROGRESS &&
+      (await dispatch(pauseSmeshing()));
+    // handle start smeshing, PostSetupState.STATE_PAUSED or STATE_NOT_STARTED
+    await dispatch(resumeSmeshing());
+  }
 };

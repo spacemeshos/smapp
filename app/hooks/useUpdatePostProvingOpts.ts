@@ -13,6 +13,9 @@ export default (onFinishHandler: () => void) => {
   const postSetupState = useSelector(
     (state: RootState) => state.smesher.postSetupState
   );
+  const isSmeshingStarted = useSelector(
+    (state: RootState) => state.smesher.isSmeshingStarted
+  );
   const numUnits = useSelector((state: RootState) => state.smesher.numUnits);
   const dataDir = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
@@ -24,13 +27,18 @@ export default (onFinishHandler: () => void) => {
 
     try {
       await dispatch(
-        updateProvingOptsAndRestartSmeshing(nonces, threads, postSetupState)
+        updateProvingOptsAndRestartSmeshing(
+          nonces,
+          threads,
+          postSetupState,
+          isSmeshingStarted
+        )
       );
     } catch (error: any) {
       captureReactException(error);
       // error handles by ErrorBoundary, here we should just finish loading
       setLoading(false);
-      throw error;
+      return;
     }
 
     setLoading(false);
