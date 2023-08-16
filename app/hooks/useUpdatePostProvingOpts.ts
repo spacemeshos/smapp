@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BITS, RootState } from '../types';
 import { updateProvingOptsAndRestartSmeshing } from '../redux/smesher/actions';
+import { captureReactException } from '../sentry';
 
 export default (onFinishHandler: () => void) => {
   const dispatch = useDispatch();
@@ -26,9 +27,10 @@ export default (onFinishHandler: () => void) => {
         updateProvingOptsAndRestartSmeshing(nonces, threads, postSetupState)
       );
     } catch (error: any) {
+      captureReactException(error);
       // error handles by ErrorBoundary, here we should just finish loading
       setLoading(false);
-      return;
+      throw error;
     }
 
     setLoading(false);
