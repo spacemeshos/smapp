@@ -63,12 +63,12 @@ const WalletMnemonicStrength = () => {
   const location = useLocation<AuthLocationState>();
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
-  const handleNext = (mnemonicType: MnemonicStrengthType) =>
+  const handleNext = (mnemonicStrengthType: MnemonicStrengthType) =>
     history.push(AuthPath.CreateWallet, {
       genesisID: location.state.genesisID,
       isWalletOnly: location.state.isWalletOnly,
       mnemonic: {
-        generate: mnemonicType,
+        strength: mnemonicStrengthType,
       },
     });
 
