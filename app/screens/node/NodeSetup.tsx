@@ -137,7 +137,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const getPosDirectorySubheader = () => (
     <>
       {Number.isNaN(commitmentSize) ? (
-        <ErrorMessage align="left" oneLine={false}>
+        <ErrorMessage align="left">
           {!status?.connectedPeers ? (
             <>
               The Node is not connected yet.
