@@ -15,6 +15,7 @@ import {
 import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
+import { MnemonicStrengthType } from '../../../shared/types';
 
 const Table = styled.div`
   display: flex;
@@ -57,7 +58,7 @@ const getInputStyle = (hasError: boolean) => ({
   borderRadius: 2,
 });
 
-const DEFAULT_RESTORE_WORDS_AMOUNT = 12;
+const DEFAULT_RESTORE_WORDS_AMOUNT: MnemonicStrengthType = 12;
 
 const WordsRestore = () => {
   const history = useHistory();

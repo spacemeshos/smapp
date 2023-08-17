@@ -5,6 +5,7 @@ import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import {
   KeyPair,
+  MnemonicOpts,
   MnemonicStrengthType,
   Wallet,
   WalletMeta,
@@ -16,6 +17,7 @@ import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
 import { CreateWalletRequest } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
+import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { copyWalletFile, listWallets } from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
@@ -57,20 +59,21 @@ const createAccount = ({
   secretKey,
 });
 
-const DEFAULT_MNEMONIC_STRENGTH_TYPE = 12;
+const DEFAULT_MNEMONIC_STRENGTH_TYPE: MnemonicStrengthType = 12;
 // Index stands for naming
 const create = (
   index: number,
-  mnemonicStrengthType: MnemonicStrengthType,
-  mnemonicSeed?: string,
+  mnemonicOpts: MnemonicOpts,
   name?: string
 ): Wallet => {
   const timestamp = getISODate();
-  const mnemonic =
-    mnemonicSeed ||
-    CryptoService.generateMnemonic(
-      mnemonicStrengthType || DEFAULT_MNEMONIC_STRENGTH_TYPE
-    );
+  const mnemonic = isMnemonicExisting(mnemonicOpts)
+    ? mnemonicOpts.existing
+    : CryptoService.generateMnemonic(
+        isMnemonicNew(mnemonicOpts)
+          ? mnemonicOpts.strength
+          : DEFAULT_MNEMONIC_STRENGTH_TYPE
+      );
   const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
     mnemonic,
     index: 0,
@@ -131,12 +134,7 @@ export const createWallet = async ({
   mnemonic,
 }: CreateWalletRequest) => {
   const { files } = await list();
-  const wallet = create(
-    files?.length || 0,
-    mnemonic.generate || DEFAULT_MNEMONIC_STRENGTH_TYPE,
-    mnemonic.existing,
-    name
-  );
+  const wallet = create(files?.length || 0, mnemonic, name);
 
   wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =

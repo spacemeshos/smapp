@@ -12,6 +12,7 @@ import { WalletType } from '../../../shared/types';
 import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
+import { isMnemonicExisting } from '../../../shared/mnemonic';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 import { validationWalletName } from './Validation';
@@ -162,7 +163,8 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (validate() && handleValidateWalletName()) {
       createWallet();
 
-      if (location?.state?.mnemonic?.existing) {
+      // recovery wallet flow
+      if (isMnemonicExisting(location?.state?.mnemonic)) {
         history.push(AuthPath.WalletCreated);
         return;
       }

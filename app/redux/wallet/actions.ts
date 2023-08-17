@@ -7,7 +7,7 @@ import {
   WalletMeta,
   WalletType,
   Account,
-  MnemonicStrengthType,
+  MnemonicOpts,
 } from '../../../shared/types';
 import {
   delay,
@@ -115,11 +115,8 @@ export const createNewWallet = ({
   type: WalletType;
   apiUrl: SocketAddress | null;
   genesisID: string;
+  mnemonic: MnemonicOpts;
   name?: string;
-  mnemonic: {
-    existing?: string;
-    generate?: MnemonicStrengthType;
-  };
 }) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
     .createWallet({

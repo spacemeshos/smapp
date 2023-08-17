@@ -80,5 +80,3 @@ export interface WalletFile {
   meta: WalletMeta;
   crypto: WalletSecretsEncrypted;
 }
-
-export type MnemonicStrengthType = 12 | 24;
