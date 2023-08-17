@@ -10,6 +10,7 @@ import { ExternalLinks } from '../../../shared/constants';
 import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath, MainPath } from '../../routerPaths';
 import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
+import { isMnemonicExisting } from '../../../shared/mnemonic';
 import { AuthLocationState, AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -119,7 +120,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         });
       }
 
-      if (mnemonic?.existing) {
+      // recovery wallet flow
+      if (isMnemonicExisting(mnemonic)) {
         return history.push(AuthPath.CreateWallet, {
           genesisID,
           isWalletOnly,

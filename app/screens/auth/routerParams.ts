@@ -1,13 +1,10 @@
 import { RouteComponentProps, StaticContext } from 'react-router';
-import { SocketAddress, MnemonicStrengthType } from '../../../shared/types';
+import { MnemonicOpts, SocketAddress } from '../../../shared/types';
 import { AuthPath } from '../../routerPaths';
 
 export type AuthLocationState = Partial<{
   isLoggedOut: boolean;
-  mnemonic: {
-    existing?: string;
-    generate?: MnemonicStrengthType;
-  };
+  mnemonic: MnemonicOpts;
   creatingWallet: boolean;
   redirect:
     | AuthPath.Auth

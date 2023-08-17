@@ -6,7 +6,7 @@ import {
   SocketAddress,
   WalletMeta,
   WalletType,
-  MnemonicStrengthType,
+  MnemonicOpts,
 } from './types';
 
 // Utils
@@ -60,10 +60,7 @@ export type CreateWalletRequest = {
   apiUrl: SocketAddress | null;
   genesisID: string;
   name?: string;
-  mnemonic: {
-    existing?: string;
-    generate?: MnemonicStrengthType;
-  };
+  mnemonic: MnemonicOpts;
 };
 export type CreateWalletResponse = IpcResponse<{ path: string }>;
 
