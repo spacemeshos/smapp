@@ -275,7 +275,7 @@ const Network = ({ history }) => {
       <SubHeader>
         {netName}
         {nodeError && (
-          <ErrorMessage compact>
+          <ErrorMessage compact title={nodeError.msg || nodeError.stackTrace}>
             {nodeError.msg || nodeError.stackTrace}
           </ErrorMessage>
         )}
