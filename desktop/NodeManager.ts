@@ -79,6 +79,8 @@ export enum SmeshingSetupState {
   ViaRestart = 2,
 }
 
+const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\sFATAL\s/gm;
+
 class NodeManager extends AbstractManager {
   private nodeService: NodeService;
 
@@ -127,9 +129,7 @@ class NodeManager extends AbstractManager {
         getNodeLogsPath(this.genesisID),
         100
       );
-      const fatalErrorLine = lastLines.find((line) =>
-        /^\{"L":"FATAL",.+\}$/.test(line)
-      );
+      const fatalErrorLine = lastLines.find((line) => FATAL_REGEXP.test(line));
       if (!fatalErrorLine) {
         // If we can't find fatal error — show default crash error
         this.sendNodeError(defaultCrashError());
@@ -137,9 +137,10 @@ class NodeManager extends AbstractManager {
       }
       // If we found fatal error — parse it and convert to NodeError
       try {
-        const json = JSON.parse(fatalErrorLine);
+        // const json = JSON.parse(fatalErrorLine);
+        const message = fatalErrorLine.replace(FATAL_REGEXP, '');
         const fatalError = {
-          msg: json.errmsg || json.M,
+          msg: message,
           level: NodeErrorLevel.LOG_LEVEL_FATAL,
           module: 'NodeManager',
           stackTrace: '',

@@ -468,14 +468,10 @@ const Node = ({ history, location }: Props) => {
     return (
       <>
         {isErrorState && (
-          <ErrorMessage oneLine={false} align="right">
-            {ERR_MESSAGE_ERR_STATE}
-          </ErrorMessage>
+          <ErrorMessage align="right">{ERR_MESSAGE_ERR_STATE}</ErrorMessage>
         )}
         {nodeStatusError && (
-          <ErrorMessage oneLine={false} align="right">
-            {ERR_MESSAGE_NODE_ERROR}
-          </ErrorMessage>
+          <ErrorMessage align="right">{ERR_MESSAGE_NODE_ERROR}</ErrorMessage>
         )}
         <EventsWrap>
           <TextWrapper>
