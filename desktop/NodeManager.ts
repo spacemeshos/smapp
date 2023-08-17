@@ -1,5 +1,4 @@
 import path from 'path';
-import fs from 'fs';
 import { ChildProcess } from 'node:child_process';
 import { Writable } from 'stream';
 import fse from 'fs-extra';
@@ -16,6 +15,7 @@ import {
   NodeError,
   NodeErrorLevel,
   NodeStatus,
+  PostProvingOpts,
   PostSetupOpts,
   PublicService,
   SocketAddress,
@@ -31,12 +31,7 @@ import NodeService, {
   StatusStreamHandler,
 } from './NodeService';
 import SmesherManager from './SmesherManager';
-import {
-  createDebouncePool,
-  getSpawnErrorReason,
-  isEmptyDir,
-  isFileExists,
-} from './utils';
+import { createDebouncePool, getSpawnErrorReason, isEmptyDir } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import {
   DEFAULT_GRPC_PRIVATE_PORT,
@@ -330,21 +325,6 @@ class NodeManager extends AbstractManager {
 
     if (!this.isNodeRunning()) {
       await this.startNode();
-    }
-
-    // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
-    const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir(
-      this.genesisID
-    );
-    const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');
-    const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
-
-    const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
-    const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
-
-    if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
-      // Copy current `key.bin` file into newly created PoS directory
-      await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
     }
 
     const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
