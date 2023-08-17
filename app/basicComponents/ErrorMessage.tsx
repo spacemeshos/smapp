@@ -3,7 +3,7 @@ import { smColors } from '../vars';
 
 interface ErrorMessageProps {
   align?: 'left' | 'right';
-  oneLine?: boolean;
+  compact?: boolean;
 }
 
 const ErrorMessage = styled.span<ErrorMessageProps>`
@@ -15,13 +15,13 @@ const ErrorMessage = styled.span<ErrorMessageProps>`
   display: -webkit-box;
   overflow: hidden;
   text-align: ${({ align }) => align || 'left'};
-  ${({ oneLine }) =>
-    oneLine && '-webkit-line-clamp: 1; -webkit-box-orient: vertical;'}
+  ${({ compact }) =>
+    compact && '-webkit-line-clamp: 2; -webkit-box-orient: vertical;'}
 `;
 
 ErrorMessage.defaultProps = {
   align: 'left',
-  oneLine: true,
+  compact: false,
 };
 
 export default ErrorMessage;
