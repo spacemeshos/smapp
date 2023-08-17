@@ -1,9 +1,8 @@
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, GetState } from '../../types';
-import { SmeshingOpts, PostSetupState } from '../../../shared/types';
+import { SmeshingOpts } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
 import { setUiError } from '../ui/actions';
-import { getGenesisID } from '../network/selectors';
 import {
   getSmeshingOpts,
   isSmeshingPaused,
@@ -86,33 +85,4 @@ export const resumeSmeshing = () => async (
   return isPaused && isValidSmeshingOpts(smeshingOpts)
     ? dispatch(startSmeshing(smeshingOpts))
     : false;
-};
-
-export const updatePostProvingOpts = (
-  nonces: number,
-  threads: number
-) => async (_, getState: GetState) =>
-  eventsService.updateProvingOpts(getGenesisID(getState()), {
-    nonces,
-    threads,
-  });
-
-export const updateProvingOptsAndRestartSmeshing = (
-  nonces: number,
-  threads: number,
-  postSetupState: PostSetupState,
-  isSmeshingStarted: boolean
-) => async (dispatch: AppThDispatch) => {
-  // update node-config file
-  await dispatch(updatePostProvingOpts(nonces, threads));
-
-  // resolve an issue with Windows, when we use to much resources RAM and CPU and smeshing was stopped in config
-  // if in config smeshing ['smeshing-start'] === true
-  if (isSmeshingStarted) {
-    // if smeshing in progress postSetupState === PostSetupState.STATE_IN_PROGRESS
-    postSetupState === PostSetupState.STATE_IN_PROGRESS &&
-      (await dispatch(pauseSmeshing()));
-    // handle start smeshing, PostSetupState.STATE_PAUSED or STATE_NOT_STARTED
-    await dispatch(resumeSmeshing());
-  }
 };

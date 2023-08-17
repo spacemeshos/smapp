@@ -243,7 +243,7 @@ const startApp = (): AppStore => {
     handleWipeOut($mainWindow, $isAppClosing),
     handleDeleteWalletFile($mainWindow, $wallet, $walletPath),
     // Handle update Smeshing proving opts from client
-    handleUpdateSmesherProvingOptsIpc($nodeConfig),
+    handleUpdateSmesherProvingOptsIpc($managers, $nodeConfig),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
       $mainWindow,

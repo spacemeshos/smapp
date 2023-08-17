@@ -1,34 +1,61 @@
-import { from, Subject } from 'rxjs';
+import { from, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { NodeConfig, PostProvingOpts } from '../../../shared/types';
-import { handleIPC, makeSubscription, wrapResult } from '../rx.utils';
+import { fromIPC, wrapResult } from '../rx.utils';
 import { updateSmeshingOpts } from '../NodeConfig';
 import Logger from '../../logger';
+import { Managers } from '../app.types';
 
 const logger = Logger({ className: 'handleUpdateSmeshingOptsIpc' });
 
-export default ($nodeConfig: Subject<NodeConfig>) =>
-  makeSubscription(
-    handleIPC(
-      ipcConsts.SMESHER_UPDATE_PROVING_OPTS,
-      ([genesisID, postProvingOpts]: [string, PostProvingOpts]) =>
-        from(
-          wrapResult(
-            updateSmeshingOpts(genesisID, {
-              'smeshing-proving-opts': {
-                'smeshing-opts-proving-nonces': postProvingOpts.nonces,
-                'smeshing-opts-proving-threads': postProvingOpts.threads,
-              },
-            })
-          )
-        ),
-      () => true
-    ),
-    (nodeConfig) => {
-      $nodeConfig.next(nodeConfig);
+const updateSmeshingOptsAndRestartNode = async (
+  managers: Managers,
+  provingOpts: PostProvingOpts
+) => {
+  const mergedConfig = await updateSmeshingOpts(managers.node.getGenesisID(), {
+    'smeshing-proving-opts': {
+      'smeshing-opts-proving-nonces': provingOpts.nonces,
+      'smeshing-opts-proving-threads': provingOpts.threads,
+    },
+  });
+
+  if (managers.node.isNodeRunning()) {
+    await managers.node.restartNode();
+  }
+
+  return mergedConfig;
+};
+
+export default (
+  $managers: Subject<Managers>,
+  $nodeConfig: Subject<NodeConfig>
+) => {
+  const smeshingUpdateProvingOptsAndRestart = fromIPC<[PostProvingOpts]>(
+    ipcConsts.SMESHER_UPDATE_PROVING_OPTS
+  ).pipe(
+    withLatestFrom($managers),
+    switchMap(([[provingOpts], managers]) =>
+      from(wrapResult(updateSmeshingOptsAndRestartNode(managers, provingOpts)))
+    )
+  );
+
+  const sub = smeshingUpdateProvingOptsAndRestart.subscribe(([err, res]) => {
+    if (err) {
+      logger.error('NodeManager.updateSmeshingOptsAndRestartNode failed', err);
+    } else if (!res) {
+      logger.error(
+        'NodeManager.updateSmeshingOptsAndRestartNode not started',
+        err,
+        res
+      );
+    } else {
+      $nodeConfig.next(res);
       logger.log(
         ipcConsts.SMESHER_UPDATE_PROVING_OPTS,
         'postProvingOpts updated in the node config'
       );
     }
-  );
+  });
+
+  return () => sub.unsubscribe();
+};
