@@ -108,6 +108,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [rewardAddress, setRewardAddress] = useState(accounts[0].address);
   const [nonces, setNonces] = useState(16);
   const [threads, setThreads] = useState(1);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const singleCommitmentSize =
     (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
@@ -220,7 +221,9 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleDeletePosData = async () => {
+    setIsDeleting(true);
     await dispatch(deletePosData());
+    setIsDeleting(false);
     history.push('/main/wallet/');
   };
 
@@ -235,7 +238,12 @@ const NodeSetup = ({ history, location }: Props) => {
   const renderRightSection = () => {
     switch (mode) {
       case SetupMode.Modify:
-        return <PoSModifyPostData deleteData={handleDeletePosData} />;
+        return (
+          <PoSModifyPostData
+            deleteData={handleDeletePosData}
+            isDeleting={isDeleting}
+          />
+        );
       case SetupMode.Directory:
         return (
           <PoSDirectory

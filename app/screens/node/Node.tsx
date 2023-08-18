@@ -358,6 +358,9 @@ const Node = ({ history, location }: Props) => {
   );
   const currentEpoch = getEpochByLayer(status?.topLayer || 0);
 
+  const postProvingOpts = useSelector(
+    (state: RootState) => state.smesher.postProvingOpts
+  );
   const commitmentSize = useSelector(
     (state: RootState) => state.smesher.commitmentSize
   );
@@ -448,6 +451,10 @@ const Node = ({ history, location }: Props) => {
       ['Data Size', formatBytes(commitmentSize)],
       ['Max File Size', `${convertBytesToMiB(maxFileSize)} MiB`],
       [
+        'Proof Generation',
+        `${postProvingOpts.nonces} nonces | ${postProvingOpts.threads} CPU threads`,
+      ],
+      [
         'Smesher ID',
         <Address
           key="smesherId"
@@ -492,9 +499,13 @@ const Node = ({ history, location }: Props) => {
             <ButtonWrapper>
               <Button
                 isDisabled={!!nodeError}
-                onClick={() =>
-                  history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-                }
+                onClick={() => {
+                  // @TODO find out the reason for the stale state, and get rid of hideSmesherLeftPanel call
+                  dispatch(hideSmesherLeftPanel());
+                  history.push(MainPath.SmeshingSetup, {
+                    modifyPostData: true,
+                  });
+                }}
                 img={posDirectoryWhite}
                 text="EDIT"
                 isPrimary={false}
