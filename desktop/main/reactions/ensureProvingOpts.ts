@@ -16,12 +16,36 @@ import {
 } from '../../../shared/types';
 import Warning, { WarningType } from '../../../shared/warning';
 
+const handleSmeshingProvingOptsWarning = (
+  nodeConfig: NodeConfigWithDefinedSmeshing,
+  $warnings: Subject<Warning>
+) => {
+  const isSmeshingSetUp = nodeConfig?.smeshing?.['smeshing-start'] ?? null;
+  const nonces =
+    nodeConfig.smeshing?.['smeshing-proving-opts']?.[
+      'smeshing-opts-proving-nonces'
+    ];
+  const threads =
+    nodeConfig.smeshing?.['smeshing-proving-opts']?.[
+      'smeshing-opts-proving-threads'
+    ];
+
+  if (isSmeshingSetUp !== null && !(nonces && threads)) {
+    $warnings.next(
+      new Warning(WarningType.UpdateSmeshingProvingOpts, {
+        payload: {},
+        message: 'No smeshing-proving-opts in the user node config',
+      })
+    );
+  }
+};
+
 export default (
   $wallet: Observable<Wallet | null>,
   $nodeConfig: Subject<NodeConfig>,
   $warnings: Subject<Warning>
-) =>
-  makeSubscription(
+) => {
+  return makeSubscription(
     combineLatest([$wallet, $nodeConfig]).pipe(
       filter(
         ([wallet, nodeConfig]) =>
@@ -32,24 +56,7 @@ export default (
       map(([_, nodeConfig]) => nodeConfig as NodeConfigWithDefinedSmeshing),
       distinctUntilChanged(eqProps('smeshing'))
     ),
-    (nodeConfig: NodeConfigWithDefinedSmeshing) => {
-      const isSmeshingSetUp = nodeConfig?.smeshing?.['smeshing-start'] ?? null;
-      const nonces =
-        nodeConfig.smeshing?.['smeshing-proving-opts']?.[
-          'smeshing-opts-proving-nonces'
-        ];
-      const threads =
-        nodeConfig.smeshing?.['smeshing-proving-opts']?.[
-          'smeshing-opts-proving-threads'
-        ];
-
-      if (isSmeshingSetUp !== null && !(nonces && threads)) {
-        $warnings.next(
-          new Warning(WarningType.UpdateSmeshingProvingOpts, {
-            payload: {},
-            message: 'No smeshing-proving-opts in the user node config',
-          })
-        );
-      }
-    }
+    (nodeConfig: NodeConfigWithDefinedSmeshing) =>
+      handleSmeshingProvingOptsWarning(nodeConfig, $warnings)
   );
+};
