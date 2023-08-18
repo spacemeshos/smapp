@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { ExternalLinks } from '../../../shared/constants';
 import { Link, Button } from '../../basicComponents';
@@ -19,40 +19,43 @@ const ButtonWrap = styled.div`
   flex-direction: row;
 `;
 
-type Props = {
+interface Props {
   action: () => void;
   isDisabled: boolean;
   skipAction?: () => void;
   skipLabel?: string;
   nextLabel?: string;
-};
-
-class PoSFooter extends PureComponent<Props> {
-  render() {
-    const { action, isDisabled, skipAction, skipLabel, nextLabel } = this.props;
-    return (
-      <Footer>
-        <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
-        <ButtonWrap>
-          {skipAction && (
-            <Button
-              isPrimary={false}
-              onClick={skipAction}
-              text={skipLabel || 'SKIP'}
-            />
-          )}
-          <Button
-            style={{ marginLeft: '20px' }}
-            onClick={action}
-            text={nextLabel || 'NEXT'}
-            isDisabled={isDisabled}
-          />
-        </ButtonWrap>
-      </Footer>
-    );
-  }
-
-  navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 }
+
+const PoSFooter = ({
+  action,
+  isDisabled,
+  skipAction,
+  skipLabel,
+  nextLabel,
+}: Props) => {
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+
+  return (
+    <Footer>
+      <Link onClick={navigateToExplanation} text="POST SETUP GUIDE" />
+      <ButtonWrap>
+        {skipAction && (
+          <Button
+            isPrimary={false}
+            onClick={skipAction}
+            text={skipLabel || 'SKIP'}
+          />
+        )}
+        <Button
+          style={{ marginLeft: '20px' }}
+          onClick={action}
+          text={nextLabel || 'NEXT'}
+          isDisabled={isDisabled}
+        />
+      </ButtonWrap>
+    </Footer>
+  );
+};
 
 export default PoSFooter;
