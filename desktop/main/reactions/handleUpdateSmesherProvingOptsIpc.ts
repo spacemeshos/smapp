@@ -30,21 +30,24 @@ export default (
   $managers: Subject<Managers>,
   $nodeConfig: Subject<NodeConfig>
 ) => {
-  const smeshingUpdateProvingOptsAndRestart = fromIPC<[PostProvingOpts]>(
+  const smeshingUpdateProvingOptsAndRestart = fromIPC<PostProvingOpts>(
     ipcConsts.SMESHER_UPDATE_PROVING_OPTS
   ).pipe(
     withLatestFrom($managers),
-    switchMap(([[provingOpts], managers]) =>
+    switchMap(([provingOpts, managers]) =>
       from(wrapResult(updateSmeshingOptsAndRestartNode(managers, provingOpts)))
     )
   );
 
   const sub = smeshingUpdateProvingOptsAndRestart.subscribe(([err, res]) => {
     if (err) {
-      logger.error('NodeManager.updateSmeshingOptsAndRestartNode failed', err);
+      logger.error(
+        `${ipcConsts.SMESHER_UPDATE_PROVING_OPTS} update failed`,
+        err
+      );
     } else if (!res) {
       logger.error(
-        'NodeManager.updateSmeshingOptsAndRestartNode not started',
+        `${ipcConsts.SMESHER_UPDATE_PROVING_OPTS} update failed`,
         err,
         res
       );

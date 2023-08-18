@@ -25,9 +25,6 @@ export default (onFinishHandler: () => void) => {
       });
     } catch (error: any) {
       captureReactException(error);
-      // error handles by ErrorBoundary, we should just finish loading
-      setLoading(false);
-      return;
     }
 
     setLoading(false);
