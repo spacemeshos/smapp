@@ -48,8 +48,10 @@ const PoSProvingOptsUpdateWarningModal = () => {
           dataDir={dataDir}
           threads={threads}
           nonces={nonces}
-          footerNextDisabled={loading}
-          footerNextLabel={loading ? 'Setting...' : 'Set'}
+          posFooterProps={{
+            isDisabled: loading,
+            nextLabel: loading ? 'Setting...' : 'Set',
+          }}
         />
       </Modal>
     </ReactPortal>

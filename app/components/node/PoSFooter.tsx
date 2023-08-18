@@ -19,7 +19,7 @@ const ButtonWrap = styled.div`
   flex-direction: row;
 `;
 
-interface Props {
+export interface PoSFooterProps {
   action: () => void;
   isDisabled: boolean;
   skipAction?: () => void;
@@ -33,7 +33,7 @@ const PoSFooter = ({
   skipAction,
   skipLabel,
   nextLabel,
-}: Props) => {
+}: PoSFooterProps) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   return (

@@ -11,7 +11,7 @@ import { constrain, formatBytes } from '../../infra/utils';
 import { ipcConsts, smColors } from '../../vars';
 import { BenchmarkRequest, BenchmarkResponse } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
-import PoSFooter from './PoSFooter';
+import PoSFooter, { PoSFooterProps } from './PoSFooter';
 
 const Row = styled.div`
   display: flex;
@@ -93,10 +93,7 @@ type Props = {
   dataDir: string;
   nonces?: number | undefined;
   threads?: number | undefined;
-  footerSkipAction?: () => void | undefined;
-  footerSkipLabel?: string | undefined;
-  footerNextLabel?: string | undefined;
-  footerNextDisabled?: boolean | undefined;
+  posFooterProps?: Partial<PoSFooterProps>;
 };
 
 enum BenchmarkStatus {
@@ -196,10 +193,7 @@ const PoSProfiler = ({
   dataDir,
   threads,
   nonces,
-  footerSkipLabel,
-  footerSkipAction,
-  footerNextLabel,
-  footerNextDisabled,
+  posFooterProps = {},
 }: Props) => {
   const [noncesValue, setNoncesValue] = useState<number | null>(nonces || 288);
   const [threadsValue, setThreadsValue] = useState<number | null>(
@@ -435,12 +429,10 @@ const PoSProfiler = ({
       </Row>
       <PoSFooter
         action={goNext}
+        {...posFooterProps}
         isDisabled={
-          !noncesValue || !threadsValue || Boolean(footerNextDisabled)
+          !noncesValue || !threadsValue || Boolean(posFooterProps?.isDisabled)
         }
-        skipAction={footerSkipAction}
-        nextLabel={footerNextLabel}
-        skipLabel={footerSkipLabel}
       />
     </>
   );
