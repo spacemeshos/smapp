@@ -302,7 +302,7 @@ class SmesherManager extends AbstractManager {
       genesisID
     );
 
-    await updateSmeshingOpts(this.genesisID, opts);
+    await updateSmeshingOpts(genesisID, opts);
 
     return true;
   };
