@@ -233,7 +233,7 @@ const startApp = (): AppStore => {
       $smeshingStarted,
       $warnings
     ),
-    // Handle check for post proving opts
+    // Ensure smeshing-proving-opts settings valid and exists in the node-config file
     ensureProvingOpts($wallet, $nodeConfig, $warnings),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingSetupState),
@@ -242,7 +242,7 @@ const startApp = (): AppStore => {
     // IPC Reactions
     handleWipeOut($mainWindow, $isAppClosing),
     handleDeleteWalletFile($mainWindow, $wallet, $walletPath),
-    // Handle update Smeshing proving opts from client
+    // Handle update smeshing-proving-opts settings from GUI
     handleUpdateSmesherProvingOptsIpc($managers, $nodeConfig),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(

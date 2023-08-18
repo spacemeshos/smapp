@@ -47,7 +47,7 @@ export default (
         $warnings.next(
           new Warning(WarningType.UpdateSmeshingProvingOpts, {
             payload: {},
-            message: 'No smeshing proving opts',
+            message: 'No smeshing-proving-opts in the user node config',
           })
         );
       }

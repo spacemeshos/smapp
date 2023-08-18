@@ -6,7 +6,7 @@ import { updateSmeshingOpts } from '../NodeConfig';
 import Logger from '../../logger';
 import { Managers } from '../app.types';
 
-const logger = Logger({ className: 'handleUpdateSmeshingOptsIpc' });
+const logger = Logger({ className: 'handleUpdateSmeshingProvingOptsIpc' });
 
 const updateSmeshingOptsAndRestartNode = async (
   managers: Managers,
