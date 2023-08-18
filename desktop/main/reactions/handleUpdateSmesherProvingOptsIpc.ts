@@ -1,4 +1,4 @@
-import { from, Subject, switchMap, withLatestFrom, tap } from 'rxjs';
+import { from, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { NodeConfig, PostProvingOpts } from '../../../shared/types';
 import { fromIPC, wrapResult } from '../rx.utils';
@@ -8,7 +8,7 @@ import { Managers } from '../app.types';
 
 const logger = Logger({ className: 'handleUpdateSmeshingProvingOptsIpc' });
 
-const updateSmeshingProvingOptsAndRestartNode = async (
+const updateSmeshingOptsAndRestartNode = async (
   managers: Managers,
   provingOpts: PostProvingOpts
 ) => {
@@ -30,35 +30,35 @@ export default (
   $managers: Subject<Managers>,
   $nodeConfig: Subject<NodeConfig>
 ) => {
-  const updateSmeshingProvingOptsAndRestartNode$ = fromIPC<PostProvingOpts>(
+  const smeshingUpdateProvingOptsAndRestart = fromIPC<PostProvingOpts>(
     ipcConsts.SMESHER_UPDATE_PROVING_OPTS
   ).pipe(
     withLatestFrom($managers),
     switchMap(([provingOpts, managers]) =>
-      from(
-        wrapResult(
-          updateSmeshingProvingOptsAndRestartNode(managers, provingOpts)
-        )
-      )
-    ),
-    tap(([err, res]) => {
-      if (err || !res) {
-        logger.error(
-          `${ipcConsts.SMESHER_UPDATE_PROVING_OPTS} update failed`,
-          err,
-          res
-        );
-      } else {
-        $nodeConfig.next(res);
-        logger.log(
-          ipcConsts.SMESHER_UPDATE_PROVING_OPTS,
-          'postProvingOpts updated in the node config'
-        );
-      }
-    })
+      from(wrapResult(updateSmeshingOptsAndRestartNode(managers, provingOpts)))
+    )
   );
 
-  const sub = updateSmeshingProvingOptsAndRestartNode$.subscribe();
+  const sub = smeshingUpdateProvingOptsAndRestart.subscribe(([err, res]) => {
+    if (err) {
+      logger.error(
+        `${ipcConsts.SMESHER_UPDATE_PROVING_OPTS} update failed`,
+        err
+      );
+    } else if (!res) {
+      logger.error(
+        `${ipcConsts.SMESHER_UPDATE_PROVING_OPTS} update failed`,
+        err,
+        res
+      );
+    } else {
+      $nodeConfig.next(res);
+      logger.log(
+        ipcConsts.SMESHER_UPDATE_PROVING_OPTS,
+        'postProvingOpts updated in the node config'
+      );
+    }
+  });
 
   return () => sub.unsubscribe();
 };
