@@ -151,7 +151,7 @@ const PoSSummary = ({
       <PoSFooter
         action={handleNextAction}
         isDisabled={isProcessing || !status}
-        isLastMode
+        nextLabel="CREATE DATA"
       />
     </>
   );

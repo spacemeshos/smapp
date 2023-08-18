@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { ExternalLinks } from '../../../shared/constants';
 import { Link, Button } from '../../basicComponents';
@@ -19,46 +19,43 @@ const ButtonWrap = styled.div`
   flex-direction: row;
 `;
 
-type Props = {
+export interface PoSFooterProps {
   action: () => void;
   isDisabled: boolean;
-  isLastMode?: boolean;
   skipAction?: () => void;
   skipLabel?: string;
-};
-
-class PoSFooter extends PureComponent<Props> {
-  render() {
-    const {
-      action,
-      isDisabled,
-      isLastMode,
-      skipAction,
-      skipLabel,
-    } = this.props;
-    return (
-      <Footer>
-        <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
-        <ButtonWrap>
-          {skipAction && (
-            <Button
-              isPrimary={false}
-              onClick={skipAction}
-              text={skipLabel || 'SKIP'}
-            />
-          )}
-          <Button
-            style={{ marginLeft: '20px' }}
-            onClick={action}
-            text={isLastMode ? 'CREATE DATA' : 'NEXT'}
-            isDisabled={isDisabled}
-          />
-        </ButtonWrap>
-      </Footer>
-    );
-  }
-
-  navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  nextLabel?: string;
 }
+
+const PoSFooter = ({
+  action,
+  isDisabled,
+  skipAction,
+  skipLabel,
+  nextLabel,
+}: PoSFooterProps) => {
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+
+  return (
+    <Footer>
+      <Link onClick={navigateToExplanation} text="POST SETUP GUIDE" />
+      <ButtonWrap>
+        {skipAction && (
+          <Button
+            isPrimary={false}
+            onClick={skipAction}
+            text={skipLabel || 'SKIP'}
+          />
+        )}
+        <Button
+          style={{ marginLeft: '20px' }}
+          onClick={action}
+          text={nextLabel || 'NEXT'}
+          isDisabled={isDisabled}
+        />
+      </ButtonWrap>
+    </Footer>
+  );
+};
 
 export default PoSFooter;

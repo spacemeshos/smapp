@@ -3,6 +3,7 @@ import { enumFromStringValue } from './utils';
 export enum WarningType {
   Unknown = 'Unknown',
   WriteFilePermission = 'WriteFilePermission',
+  UpdateSmeshingProvingOpts = 'UpdateSmeshingProvingOpts',
 }
 
 export enum WriteFilePermissionWarningKind {
@@ -18,6 +19,7 @@ interface WarningTypeOptions {
     kind: WriteFilePermissionWarningKind;
     filePath: string;
   }>;
+  [WarningType.UpdateSmeshingProvingOpts]: WarningOptions<boolean>;
 }
 
 export type AnyWarningType = keyof WarningTypeOptions;
