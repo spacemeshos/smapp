@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { BITS, RootState } from '../types';
-import { captureReactException } from '../sentry';
 import { eventsService } from '../infra/eventsService';
 
 export default (onFinishHandler: () => void) => {
