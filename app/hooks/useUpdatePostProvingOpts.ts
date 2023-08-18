@@ -18,14 +18,10 @@ export default (onFinishHandler: () => void) => {
   const updateConfigHandler = async (nonces: number, threads: number) => {
     setLoading(true);
 
-    try {
-      eventsService.updateProvingOpts({
-        nonces,
-        threads,
-      });
-    } catch (error: any) {
-      captureReactException(error);
-    }
+    eventsService.updateProvingOpts({
+      nonces,
+      threads,
+    });
 
     setLoading(false);
     onFinishHandler();
