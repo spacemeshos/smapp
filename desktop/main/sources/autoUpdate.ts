@@ -76,7 +76,7 @@ const handleAutoUpdates = (
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
 
       if (nextUpdateInfo.status === UpdateInfoStatus.UpdateManually) {
-        notifyDownloadManually(mainWindow);
+        notifyDownloadManually(mainWindow, nextUpdateInfo.version);
       } else if (
         nextUpdateInfo.status === UpdateInfoStatus.UpdateNotAvailable
       ) {

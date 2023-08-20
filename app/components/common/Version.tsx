@@ -21,8 +21,6 @@ import { getNetworkInfo } from '../../redux/network/selectors';
 import { checkUpdates as checkUpdatesIco } from '../../assets/images';
 import { AppThDispatch } from '../../types';
 import updaterSlice from '../../redux/updater/slice';
-import { Link } from '../../basicComponents';
-import { ExternalLinks } from '../../../shared/constants';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -141,6 +139,19 @@ const UpdateInfo = ({ info }: { info: UpdateInfoT }) => {
   );
 };
 
+const ManualUpdateInfo = ({ version }: { version: string }) => (
+  <>
+    <Attractor />
+    <Chunk>Update available: v{version}</Chunk>
+    <SecondaryAction
+      href={`https://github.com/spacemeshos/smapp/releases/tag/v${version}`}
+      target="_blank"
+    >
+      Download
+    </SecondaryAction>
+  </>
+);
+
 const ProgressInfo = () => {
   const progress = useSelector(getProgressInfo);
   const isDownloaded = useSelector(isUpdateDownloaded);
@@ -234,22 +245,21 @@ const CheckForUpdates = () => {
     ManualUpdate,
   }
   const [curState, setCurState] = useState(CheckState.Idle);
+  const [manualUpdateSmappVersion, setManualUpdateSmappVersion] = useState('');
 
   useEffect(() => {
-    const handler = () => setCurState(CheckState.NoUpdates);
+    const handleManualUpdate = (_, version: string) => {
+      setCurState(CheckState.ManualUpdate);
+      setManualUpdateSmappVersion(version);
+    };
+    const handleNoUpdates = () => setCurState(CheckState.NoUpdates);
     const timer = setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
-    ipcRenderer.on(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
+    ipcRenderer.on(ipcConsts.AU_NO_UPDATES_AVAILABLE, handleNoUpdates);
+    ipcRenderer.on(ipcConsts.AU_DOWNLOAD_MANUALLY, handleManualUpdate);
     return () => {
       clearTimeout(timer);
-      ipcRenderer.off(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
-    };
-  });
-
-  useEffect(() => {
-    const handler = () => setCurState(CheckState.ManualUpdate);
-    ipcRenderer.on(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
-    return () => {
-      ipcRenderer.off(ipcConsts.AU_DOWNLOAD_MANUALLY, handler);
+      ipcRenderer.off(ipcConsts.AU_NO_UPDATES_AVAILABLE, handleNoUpdates);
+      ipcRenderer.off(ipcConsts.AU_DOWNLOAD_MANUALLY, handleManualUpdate);
     };
   });
 
@@ -274,13 +284,7 @@ const CheckForUpdates = () => {
   } else if (curState === CheckState.NoUpdates) {
     return <ProgressChunk>No new updates available</ProgressChunk>;
   } else if (curState === CheckState.ManualUpdate) {
-    return (
-      <Link
-        onClick={() => window.open(ExternalLinks.DownloadLatestAppVersion)}
-        text="Download latest version"
-        style={{ fontSize: 10 }}
-      />
-    );
+    return <ManualUpdateInfo version={manualUpdateSmappVersion} />;
   } else return null;
 };
 
