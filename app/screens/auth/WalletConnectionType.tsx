@@ -4,6 +4,7 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
+import { isMnemonicExisting } from '../../../shared/mnemonic';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -86,7 +87,7 @@ const BottomPart = styled.div`
 
 const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
-
+  const isRecoveryMode = isMnemonicExisting(location?.state?.mnemonic);
   const handleNextStep = (walletOnly: boolean) => () => {
     if (location?.state?.mnemonic) {
       history.push(AuthPath.SwitchNetwork, {
@@ -151,10 +152,12 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             text="NOT SURE WHAT TO DO? READ THE GUIDE "
           />
           <Row>
-            <Link
-              onClick={() => history.push(AuthPath.Recover)}
-              text="RESTORE EXISTING WALLET"
-            />
+            {!isRecoveryMode && (
+              <Link
+                onClick={() => history.push(AuthPath.Recover)}
+                text="RESTORE EXISTING WALLET"
+              />
+            )}
             <Tooltip
               width={120}
               text="Locate a file or restore from 12/24 words"
