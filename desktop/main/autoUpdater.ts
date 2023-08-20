@@ -40,7 +40,7 @@ export const notifyUpdateDownloaded = notify<UpdateInfo>(
 export const notifyDownloadStarted = notify<void>(
   ipcConsts.AU_DOWNLOAD_STARTED
 );
-export const notifyDownloadManually = notify<void>(
+export const notifyDownloadManually = notify<string>(
   ipcConsts.AU_DOWNLOAD_MANUALLY
 );
 export const notifyNoUpdates = notify<void>(ipcConsts.AU_NO_UPDATES_AVAILABLE);
@@ -66,7 +66,7 @@ export enum UpdateInfoStatus {
 type CheckUpdateResults =
   | { status: UpdateInfoStatus.UpdateAvailable; updateInfo: UpdateInfo }
   | { status: UpdateInfoStatus.UpdateNotAvailable }
-  | { status: UpdateInfoStatus.UpdateManually };
+  | { status: UpdateInfoStatus.UpdateManually; version: string };
 
 export const checkUpdates = async (
   mainWindow: BrowserWindow,
@@ -101,7 +101,10 @@ export const checkUpdates = async (
     }
 
     if (isDebPackage()) {
-      return { status: UpdateInfoStatus.UpdateManually };
+      return {
+        status: UpdateInfoStatus.UpdateManually,
+        version: latestSmappRelease,
+      };
     }
   } catch (err) {
     if (err instanceof Error && !isNetError(err)) {
