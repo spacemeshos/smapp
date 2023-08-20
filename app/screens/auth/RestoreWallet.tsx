@@ -16,7 +16,7 @@ const RestoreWallet = () => {
       width={650}
       height={400}
       header="OPEN AN EXISTING WALLET"
-      subHeader="Open from a file or restore from 12 words"
+      subHeader="Open from a file or restore from 12 or 24 words"
     >
       <BackButton action={history.goBack} />
       <Button
