@@ -139,18 +139,32 @@ const UpdateInfo = ({ info }: { info: UpdateInfoT }) => {
   );
 };
 
-const ManualUpdateInfo = ({ version }: { version: string }) => (
-  <>
-    <Attractor />
-    <Chunk>Update available: v{version}</Chunk>
-    <SecondaryAction
-      href={`https://github.com/spacemeshos/smapp/releases/tag/v${version}`}
-      target="_blank"
-    >
-      Download
-    </SecondaryAction>
-  </>
-);
+const ManualUpdateInfo = ({ version }: { version: string }) => {
+  const history = useHistory();
+  const curVersion = new SemVer(packageInfo.version);
+  const isDowngrade = curVersion.compare(version) === 1;
+  return (
+    <>
+      <Attractor />
+      <Chunk>
+        {isDowngrade
+          ? `This network supports only v${version}`
+          : `Update available: v${version}`}
+      </Chunk>
+      <SecondaryAction
+        href={`https://github.com/spacemeshos/smapp/releases/tag/v${version}`}
+        target="_blank"
+      >
+        Download
+      </SecondaryAction>
+      {isDowngrade && (
+        <SwitchNetwork onClick={() => history.push(AuthPath.SwitchNetwork)}>
+          Switch network
+        </SwitchNetwork>
+      )}
+    </>
+  );
+};
 
 const ProgressInfo = () => {
   const progress = useSelector(getProgressInfo);
