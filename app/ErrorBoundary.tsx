@@ -53,7 +53,11 @@ class ErrorBoundary extends Component<Props, State> {
     return (
       <>
         {error && (
-          <Modal header="ERROR :-(" indicatorColor={smColors.orange}>
+          <Modal
+            header="ERROR :-("
+            indicatorColor={smColors.orange}
+            modalZIndex={1100}
+          >
             --
             <ErrorMessage>{error.message}</ErrorMessage>
             <ButtonsWrapper hasSingleButton>
