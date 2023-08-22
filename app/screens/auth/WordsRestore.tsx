@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import * as bip39 from 'bip39';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, JSX } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
@@ -17,30 +17,27 @@ import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { MnemonicStrengthType } from '../../../shared/types';
 
-const Table = styled.div`
+const WordsContainer = styled.div<{ is24WordsMode: boolean }>`
   display: flex;
   flex-direction: row;
-  padding: 30px 30px 15px 30px;
+  padding: ${({ is24WordsMode }) => (is24WordsMode ? 5 : 30)}px 30px 15px 30px;
   overflow: auto;
   margin: 15px 0;
+  flex-wrap: wrap;
 `;
 
-const TableColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-right: 50px;
-`;
-
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<{ is24WordsMode: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 15px;
+  width: ${({ is24WordsMode }) => (is24WordsMode ? 153 : 210)}px;
+  margin-bottom: ${({ is24WordsMode }) => (is24WordsMode ? 15 : 30)}px;
+  margin-right: 15px;
 `;
 
-const InputCounter = styled.div`
-  width: 25px;
-  font-size: 18px;
+const InputCounter = styled.div<{ is24WordsMode: boolean }>`
+  width: ${({ is24WordsMode }) => (is24WordsMode ? 21 : 25)}px;
+  font-size: ${({ is24WordsMode }) => (is24WordsMode ? 14 : 18)}px;
   line-height: 22px;
   color: ${({ theme }) => theme.color.contrast};
   margin-right: 10px;
@@ -53,9 +50,10 @@ const BottomSection = styled.div`
   align-items: flex-end;
 `;
 
-const getInputStyle = (hasError: boolean) => ({
+const getInputStyle = (hasError: boolean, is24WordsMode: boolean) => ({
   border: `1px dashed ${hasError ? smColors.orange : smColors.darkGray}`,
   borderRadius: 2,
+  height: is24WordsMode ? 35 : 40,
 });
 
 const DEFAULT_RESTORE_WORDS_AMOUNT: MnemonicStrengthType = 12;
@@ -85,6 +83,7 @@ const WordsRestore = () => {
       (acc, val, idx) => R.adjust(index + idx, R.always(val), acc),
       words
     );
+
     setWords(newWords);
     setHasError(false);
   };
@@ -138,13 +137,14 @@ const WordsRestore = () => {
   const navigateTo12WordRestoreGuide = () =>
     window.open(ExternalLinks.RestoreMnemoGuide);
 
-  const renderInputs = ({ start }: { start: number }) => {
-    const res: Array<any> = [];
-    const end = start + WORDS_AMOUNT / 3;
-    for (let index = start; index < end; index += 1) {
+  const renderInputs = () => {
+    const is24WordsMode = WORDS_AMOUNT !== DEFAULT_RESTORE_WORDS_AMOUNT;
+    const res: JSX.Element[] = [];
+
+    for (let index = 0; index < WORDS_AMOUNT; index += 1) {
       res.push(
-        <InputWrapper key={`input${index}`}>
-          <InputCounter>{index + 1}</InputCounter>
+        <InputWrapper is24WordsMode={is24WordsMode} key={`input${index}`}>
+          <InputCounter is24WordsMode={is24WordsMode}>{index + 1}</InputCounter>
           <Input
             inputRef={(el) => {
               inputRefs.current[index] = el;
@@ -152,18 +152,17 @@ const WordsRestore = () => {
             value={words[index]}
             onChange={({ value }) => handleInputChange({ value, index })}
             onKeyDown={(event) => event.code === 'Space' && nextInput(index)}
-            style={getInputStyle(hasError)}
+            style={getInputStyle(hasError, is24WordsMode)}
             autofocus={index === 0}
           />
         </InputWrapper>
       );
     }
-    return res;
+    return <WordsContainer is24WordsMode={is24WordsMode}>{res}</WordsContainer>;
   };
 
   const isDoneDisabled = !isDoneEnabled();
-  const tableColumns =
-    WORDS_AMOUNT === DEFAULT_RESTORE_WORDS_AMOUNT ? [0, 4, 8] : [0, 8, 16];
+
   return (
     <WrapperWith2SideBars
       width={800}
@@ -172,11 +171,7 @@ const WordsRestore = () => {
       subHeader={`Please enter the ${WORDS_AMOUNT} words in the right order.`}
     >
       <BackButton action={history.goBack} />
-      <Table>
-        {tableColumns.map((start) => (
-          <TableColumn>{renderInputs({ start })}</TableColumn>
-        ))}
-      </Table>
+      {renderInputs()}
       <BottomSection>
         <Link
           onClick={navigateTo12WordRestoreGuide}
