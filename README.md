@@ -159,34 +159,51 @@ Additionally:
 
 ### Windows: 
 
-- The following directories should be removed in case of reinstallation:
+- The following directories should be removed in case of reinstallation from scratch:
 
-  ```C:\Users\your_username\AppData\Local\Spacemesh```
+  ```C:\Users\{USERNAME}\AppData\Local\Programs\Spacemesh``` or your installation path
 
-  ```C:\Users\your_username\AppData\Roaming\Spacemesh```
+  ```C:\Users\{USERNAME}\AppData\Roaming\Spacemesh```
 
-  ```C:\Users\your_username\post```
+- Remove the PoS data directory if you want to remove/recreate PoS data:
+
+  ```C:\Users\{USERNAME}\post\{GENESIS_ID}``` or your PoS directory path
+
+  Where `{GENESIS_ID}` is first 8 chars from the HexString. Eg `7c8cef2b`
 
 - The latest Visual C++ Redist should be installed
 - Check the Firewall settings, and amend them if needed
 
 ### Linux: 
 
-- The following directories should be removed in case of reinstallation:
+- The following directories should be removed in case of reinstallation from scratch:
 
-  ```/opt/Spacemesh```
+  ```/opt/Spacemesh``` (deb) or ```~/Applications/Spacemesh-...``` (AppImage) or your installation path
 
   ```~/.config/Spacemesh```
+
+- Remove the PoS data directory if you want to remove/recreate PoS data:
+
+  ```~/post/{GENESIS_ID}``` or your PoS directory path
+
+  Where `{GENESIS_ID}` is first 8 chars from the HexString. Eg `7c8cef2b`
 
 - We recommend using AppImage as some features cannot be embedded into a .deb package.
 - If you are using Ubuntu, check the OS version. We recommend at least 22.04
 - Glibc and other libraries should be up to date
 
-### macOS: 
-- The following directories should be removed in case of reinstallation:
+### macOS:
 
-  ```/Users/your_username/Library/Application\ Support/Spacemesh```
+- The following directories should be removed in case of reinstallation from scratch:
 
-  ```/Users/your_username/post```
+  ```/Applications/Spacemesh``` or your installation path
+
+  ```~/Library/Application\ Support/Spacemesh```
+
+- Remove the PoS data directory if you want to remove/recreate PoS data:
+
+  ```~/post/{GENESIS_ID}``` or your PoS directory path
+
+  Where `{GENESIS_ID}` is first 8 chars from the HexString. Eg `7c8cef2b`
 
 - Check if the incoming connections aren’t blocked for go-spacemesh
