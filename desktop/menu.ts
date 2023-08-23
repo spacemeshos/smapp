@@ -1,6 +1,8 @@
 import { app, Menu, shell, BrowserWindow } from 'electron';
 import { ExternalLinks } from '../shared/constants';
 
+import { isMacOS } from './osSystem';
+
 class MenuBuilder {
   mainWindow: BrowserWindow;
 
@@ -73,7 +75,7 @@ class MenuBuilder {
   }
 
   buildMenuTemplate() {
-    const isMac = process.platform === 'darwin';
+    const isMac = isMacOS();
     return [
       isMac
         ? {
