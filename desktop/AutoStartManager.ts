@@ -5,6 +5,8 @@ import { ipcConsts } from '../app/vars';
 import { isLinuxAppImage } from '../shared/utils';
 import StoreService from './storeService';
 
+import { isMacOS } from './osSystem';
+
 export const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
 
 type ToggleResult = {
@@ -68,7 +70,7 @@ class AutoStartManager {
     } catch (err) {
       StoreService.set(IS_AUTO_START_ENABLED, false);
       if (
-        process.platform === 'darwin' &&
+        isMacOS() &&
         err instanceof Error &&
         err.message &&
         /System Events/.test(err.message)
@@ -98,7 +100,7 @@ class AutoStartManager {
       }
     } catch (err) {
       if (
-        process.platform === 'darwin' &&
+        isMacOS() &&
         err instanceof Error &&
         err.message &&
         /System Events/.test(err.message)
