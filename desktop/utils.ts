@@ -6,9 +6,9 @@ import electronFetch, { RequestInit } from 'electron-fetch';
 import { configCodecByFirstChar } from '../shared/utils';
 import { NodeConfig } from '../shared/types';
 import {
-  STANDALONE_GENESIS_EXTRA,
   getTestModeNodeConfig,
   isTestMode,
+  STANDALONE_GENESIS_EXTRA,
 } from './testMode';
 import { getEnvInfo } from './envinfo';
 import Logger from './logger';
