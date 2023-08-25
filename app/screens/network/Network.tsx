@@ -23,6 +23,7 @@ import Address from '../../components/common/Address';
 import {
   getFirstLayerInEpochFn,
   getTimestampByLayerFn,
+  isGenesisPhase,
 } from '../../redux/network/selectors';
 
 const Container = styled.div`
@@ -97,6 +98,7 @@ const Network = ({ history }) => {
 
   const getFirstLayerInEpoch = useSelector(getFirstLayerInEpochFn);
   const getTimestampByLayer = useSelector(getTimestampByLayerFn);
+  const isGenesis = useSelector(isGenesisPhase);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
@@ -175,12 +177,13 @@ const Network = ({ history }) => {
           <NetworkStatus
             status={status}
             error={nodeError}
+            isGenesis={isGenesis}
             isRestarting={isRestarting}
             isWalletMode={isWalletMode}
           />
         </GrayText>
       </DetailsRow>
-      {status && status.topLayer < status.syncedLayer ? (
+      {status && isGenesis ? (
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Genesis will end in</DetailsText>
@@ -206,16 +209,6 @@ const Network = ({ history }) => {
               />
             </DetailsTextWrap>
             <GrayText>{status?.topLayer || 0}</GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Verified Layer</DetailsText>
-              <Tooltip
-                width={250}
-                text="The last processed and synced Layer number. Usually lags behind Current Layer by a layer or two."
-              />
-            </DetailsTextWrap>
-            <GrayText>{status?.verifiedLayer || 0}</GrayText>
           </DetailsRow>
         </>
       )}
