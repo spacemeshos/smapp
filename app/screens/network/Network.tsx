@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
-  WrapperWith2SideBars,
+  Button,
+  CustomTimeAgo,
   Link,
   Tooltip,
-  CustomTimeAgo,
-  Button,
+  WrapperWith2SideBars,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
@@ -25,6 +25,13 @@ import {
   getTimestampByLayerFn,
   isGenesisPhase,
 } from '../../redux/network/selectors';
+import { NodeErrorType } from '../../../shared/types';
+import { ExternalLinks } from '../../../shared/constants';
+import {
+  isLinux as isLinuxSelector,
+  isWindows as isWindowsSelector,
+} from '../../redux/ui/selectors';
+import ErrorCheckListModal from '../modal/ErrorCheckListModal';
 
 const Container = styled.div`
   display: flex;
@@ -84,6 +91,8 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = ({ history }) => {
+  const isWindows = useSelector(isWindowsSelector);
+  const isLinux = useSelector(isLinuxSelector);
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
@@ -95,6 +104,7 @@ const Network = ({ history }) => {
       state.network.netName ||
       (genesisID === '' ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
+  const [isCheckListModalOpened, setOpenCheckListModal] = useState(false);
 
   const getFirstLayerInEpoch = useSelector(getFirstLayerInEpochFn);
   const getTimestampByLayer = useSelector(getTimestampByLayerFn);
@@ -118,6 +128,17 @@ const Network = ({ history }) => {
   const requestSwitchApiProvider = () => {
     history.push(AuthPath.ConnectToAPI);
   };
+  const isShowMissingLibsMessage = [
+    NodeErrorType.OPEN_CL_NOT_INSTALLED,
+    NodeErrorType.REDIST_NOT_INSTALLED,
+  ].includes(nodeError?.type as NodeErrorType);
+
+  const navigateToWindowsOpenCLInstallationGuide = () =>
+    window.open(ExternalLinks.OpenCLWindowsInstallGuide);
+  const navigateToUbuntuOpenCLInstallationGuide = () =>
+    window.open(ExternalLinks.OpenCLUbuntuInstallGuide);
+  const navigateToRedistInstallationGuide = () =>
+    window.open(ExternalLinks.RedistWindowsInstallOfficialSite);
 
   const renderActionButton = () => {
     if (!nodeError) return null;
@@ -180,6 +201,7 @@ const Network = ({ history }) => {
             isGenesis={isGenesis}
             isRestarting={isRestarting}
             isWalletMode={isWalletMode}
+            isShowMissingLibsMessage={isShowMissingLibsMessage}
           />
         </GrayText>
       </DetailsRow>
@@ -259,37 +281,80 @@ const Network = ({ history }) => {
   };
 
   return (
-    <WrapperWith2SideBars
-      width={1000}
-      header="NETWORK"
-      headerIcon={network}
-      style={{ minHeight: 485 }}
-    >
-      <SubHeader>
-        {netName}
-        {nodeError && (
-          <ErrorMessage compact title={nodeError.msg || nodeError.stackTrace}>
-            {nodeError.msg || nodeError.stackTrace}
-          </ErrorMessage>
-        )}
-      </SubHeader>
-      <Container>
-        {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
-        <FooterWrap>
-          {!isWalletMode && (
+    <>
+      <WrapperWith2SideBars
+        width={1000}
+        header="NETWORK"
+        headerIcon={network}
+        style={{ minHeight: 485 }}
+      >
+        <SubHeader>
+          {netName}
+          {nodeError && (
             <>
-              <Link onClick={openLogFile} text="BROWSE LOG FILE" />
-              <Tooltip
-                width={250}
-                text="Locate the go-spacemesh and app log files on your computer"
-              />
+              <ErrorMessage compact>
+                {nodeError.msg || nodeError.stackTrace}
+                {nodeError?.type === NodeErrorType.OPEN_CL_NOT_INSTALLED && (
+                  <>
+                    {isWindows && (
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        onClick={navigateToWindowsOpenCLInstallationGuide}
+                        text="OPEN CL INSTALLATION GUIDE"
+                      />
+                    )}
+                    {isLinux && (
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        onClick={navigateToUbuntuOpenCLInstallationGuide}
+                        text="OPEN CL INSTALLATION GUIDE."
+                      />
+                    )}
+                  </>
+                )}
+                {nodeError?.type === NodeErrorType.REDIST_NOT_INSTALLED && (
+                  <Link
+                    style={{ display: 'inline-block' }}
+                    onClick={navigateToRedistInstallationGuide}
+                    text="REDIST INSTALLATION GUIDE."
+                  />
+                )}
+                {isShowMissingLibsMessage &&
+                  nodeError?.type === NodeErrorType.NOT_SPECIFIED && (
+                    <ErrorMessage compact>
+                      WE HAVE A CHECKLIST THAT CAN HELP YOU DETECT THE ISSUE.{' '}
+                      <Link
+                        style={{ display: 'inline-block' }}
+                        onClick={() => setOpenCheckListModal(true)}
+                        text="OPEN CHECKLIST."
+                      />
+                    </ErrorMessage>
+                  )}
+              </ErrorMessage>
             </>
           )}
+        </SubHeader>
+        <Container>
+          {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
+          <FooterWrap>
+            {!isWalletMode && (
+              <>
+                <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+                <Tooltip
+                  width={250}
+                  text="Locate the go-spacemesh and app log files on your computer"
+                />
+              </>
+            )}
 
-          {renderActionButton()}
-        </FooterWrap>
-      </Container>
-    </WrapperWith2SideBars>
+            {renderActionButton()}
+          </FooterWrap>
+        </Container>
+      </WrapperWith2SideBars>
+      {isCheckListModalOpened && (
+        <ErrorCheckListModal onClose={() => setOpenCheckListModal(false)} />
+      )}
+    </>
   );
 };
 
