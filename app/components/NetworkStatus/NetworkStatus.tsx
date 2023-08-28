@@ -20,6 +20,7 @@ const Progress = styled.div`
 type Props = {
   status: NodeStatus | null;
   error: any;
+  isGenesis: boolean;
   isRestarting: boolean;
   isWalletMode: boolean;
 };
@@ -27,13 +28,14 @@ type Props = {
 const NetworkStatus = ({
   status,
   error,
+  isGenesis,
   isRestarting,
   isWalletMode,
 }: Props) => {
   const getSyncLabelPercentage = (): number => {
-    if (status && status.syncedLayer && status.topLayer) {
+    if (status && status.verifiedLayer && status.topLayer) {
       const percentage = Math.floor(
-        (status.syncedLayer * 100) / status.topLayer
+        (status.verifiedLayer * 100) / status.topLayer
       );
       const maxPercentage = status.isSynced ? 100 : 99;
       return constrain(0, maxPercentage, percentage);
@@ -46,16 +48,16 @@ const NetworkStatus = ({
       return <ProgressLabel>Connecting...</ProgressLabel>;
     }
 
-    const syncedLayer = status.syncedLayer || 0;
+    const verifiedLayer = status.verifiedLayer || 0;
     const topLayer = status.topLayer || 0;
 
-    if (topLayer < syncedLayer) {
-      const progress = Math.floor((topLayer / syncedLayer) * 100);
+    if (isGenesis) {
+      const progress = Math.floor((topLayer / verifiedLayer) * 100);
       return (
         <>
           <ProgressLabel>Genesis</ProgressLabel>
           <ProgressLabel>{progress}%</ProgressLabel>
-          <ProgressLabel>{`${topLayer} / ${syncedLayer}`}</ProgressLabel>
+          <ProgressLabel>{`${topLayer} / ${verifiedLayer}`}</ProgressLabel>
           <Progress>
             <ProgressBar progress={progress} />
           </Progress>
@@ -68,7 +70,7 @@ const NetworkStatus = ({
       <>
         <ProgressLabel>syncing</ProgressLabel>
         <ProgressLabel>{progress}%</ProgressLabel>
-        <ProgressLabel>{`${syncedLayer} / ${topLayer}`}</ProgressLabel>
+        <ProgressLabel>{`${verifiedLayer} / ${topLayer}`}</ProgressLabel>
         <Progress>
           <ProgressBar progress={progress} />
         </Progress>
@@ -79,7 +81,7 @@ const NetworkStatus = ({
   const renderSyncingStatus = () => {
     return (
       <>
-        {status?.isSynced && status.topLayer === status.syncedLayer ? (
+        {status?.isSynced && status.verifiedLayer - status.topLayer <= 2 ? (
           <>
             <ColorStatusIndicator color={smColors.green} />
             <ProgressLabel>synced</ProgressLabel>

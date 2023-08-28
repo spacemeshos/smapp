@@ -17,3 +17,6 @@ export const getTimestampByLayerFn = (state: RootState) =>
 
 export const getFirstLayerInEpochFn = (state: RootState) =>
   firstLayerInEpoch(state.network.layersPerEpoch);
+
+export const isGenesisPhase = (state: RootState) =>
+  (state.node.status?.topLayer || 0) < getFirstLayerInEpochFn(state)(2);
