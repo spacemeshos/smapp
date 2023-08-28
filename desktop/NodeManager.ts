@@ -3,7 +3,7 @@ import { ChildProcess } from 'node:child_process';
 import { Writable } from 'stream';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
-import { ipcMain, BrowserWindow, dialog } from 'electron';
+import { BrowserWindow, dialog, ipcMain } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
@@ -17,6 +17,7 @@ import {
   NodeConfig,
   NodeError,
   NodeErrorLevel,
+  NodeErrorType,
   NodeStatus,
   PostProvingOpts,
   PostSetupOpts,
@@ -49,6 +50,10 @@ import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
 import { getBinaryPath, getNodePath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
+import {
+  checkRequiredLibs,
+  requiredLibsCrashErrors,
+} from './checkRequiredLibs';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -61,6 +66,7 @@ const defaultCrashError = (error?: Error): NodeError => ({
   stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeManager',
+  type: NodeErrorType.NOT_SPECIFIED,
 });
 
 type PoolNodeError = { type: 'NodeError'; error: NodeError };
@@ -106,6 +112,7 @@ class NodeManager extends AbstractManager {
       const exitError = poolList.find((e) => e.type === 'Exit') as
         | PoolExitCode
         | undefined;
+
       // In case if Node exited with 0 code count that
       // there was no errors and do not notify client about any of
       // possible errors caused by exiting
@@ -115,6 +122,7 @@ class NodeManager extends AbstractManager {
       // Checking for `!exitError` is needed to avoid showing some fatal errors
       // that are consequence of Node crash
       // E.G. SIGKILL of Node will also produce a bunch of GRPC errors
+
       const errors = poolList.filter(
         (a) => a.type === 'NodeError'
       ) as PoolNodeError[];
@@ -127,26 +135,44 @@ class NodeManager extends AbstractManager {
       }
       // Otherwise if Node exited, but there are no critical errors
       // in the pool — search for fatal error in the logs
+
       const lastLines = await readLinesFromBottom(
         getNodeLogsPath(this.genesisID),
         100
       );
+
       const fatalErrorLine = lastLines.find((line) => FATAL_REGEXP.test(line));
+
       if (!fatalErrorLine) {
+        const installedLibs = await checkRequiredLibs();
+
+        if (!installedLibs.openCL) {
+          this.sendNodeError(requiredLibsCrashErrors.openCL);
+          return;
+        }
+
+        if (!installedLibs.visualCpp) {
+          this.sendNodeError(requiredLibsCrashErrors.visualCpp);
+          return;
+        }
+
         // If we can't find fatal error — show default crash error
         this.sendNodeError(defaultCrashError());
+
         return;
       }
-      // If we found fatal error — parse it and convert to NodeError
+
       try {
-        // const json = JSON.parse(fatalErrorLine);
         const message = fatalErrorLine.replace(FATAL_REGEXP, '');
+
         const fatalError = {
           msg: message,
           level: NodeErrorLevel.LOG_LEVEL_FATAL,
           module: 'NodeManager',
           stackTrace: '',
+          type: NodeErrorType.LOG_FATAL,
         };
+
         this.sendNodeError(fatalError);
       } catch (err) {
         // If we can't parse it — show default error message
@@ -297,6 +323,7 @@ class NodeManager extends AbstractManager {
         stackTrace: '',
         module: 'NodeManager',
         level: NodeErrorLevel.LOG_LEVEL_FATAL,
+        type: NodeErrorType.API_NOT_RESPONDING,
       });
       return false;
     }
@@ -440,13 +467,16 @@ class NodeManager extends AbstractManager {
     const transformNodeError = (error: any) => {
       if (error?.code && error?.syscall?.startsWith('spawn')) {
         const reason = getSpawnErrorReason(error);
+
         return {
           msg: 'Cannot spawn the Node process'.concat(reason),
           level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
           module: 'NodeManager',
           stackTrace: JSON.stringify(error),
+          type: NodeErrorType.SPAWN,
         };
       }
+
       return defaultCrashError(error);
     };
 
@@ -475,6 +505,7 @@ class NodeManager extends AbstractManager {
           module: 'NodeManager',
           msg: `Can't start the Node: ${spawnError}`,
           stackTrace: '',
+          type: NodeErrorType.LOG_SYSERROR,
         };
         this.nodeLogStream?.write(JSON.stringify(error));
         this.pushToErrorPool({
@@ -603,21 +634,25 @@ class NodeManager extends AbstractManager {
 
   sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
     if (this.isRestarting) return;
+
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
       // we have to check Node for liveness.
-      // In case that Node does not responds
+      // In case that Node does not respond
       // raise the error level to FATAL
       const isAlive = await this.isNodeAlive();
+
       if (!isAlive) {
         // Raise error level and call this method again, to ensure
-        // that this error is not a consequence of real critical error
+        // that this error is not a consequence of a real critical error
         error.level = NodeErrorLevel.LOG_LEVEL_FATAL;
+
         await this.sendNodeError(error);
         return;
       }
     }
+
     if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // Send only critical errors
       this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
