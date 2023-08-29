@@ -381,6 +381,8 @@ const Node = ({ history, location }: Props) => {
   const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
+  const isNodeConnecting = !status || status?.topLayer === 0;
+  const isActionButtonDisabled = !!nodeError || isNodeConnecting;
 
   const dispatch = useDispatch();
 
@@ -498,7 +500,7 @@ const Node = ({ history, location }: Props) => {
           <FooterSection>
             <ButtonWrapper>
               <Button
-                isDisabled={!!nodeError}
+                isDisabled={isActionButtonDisabled}
                 onClick={() => {
                   // @TODO find out the reason for the stale state, and get rid of hideSmesherLeftPanel call
                   dispatch(hideSmesherLeftPanel());
@@ -520,7 +522,7 @@ const Node = ({ history, location }: Props) => {
               {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
                 <>
                   <Button
-                    isDisabled={!!nodeError}
+                    isDisabled={isActionButtonDisabled}
                     onClick={handlePauseSmeshing}
                     text="PAUSE POST DATA GENERATION"
                     img={pauseIcon}
@@ -534,7 +536,7 @@ const Node = ({ history, location }: Props) => {
               {isPausedSmeshing && (
                 <>
                   <Button
-                    isDisabled={!!nodeError}
+                    isDisabled={isActionButtonDisabled}
                     onClick={handleResumeSmeshing}
                     text="RESUME SMESHING"
                     img={playIcon}
@@ -578,7 +580,7 @@ const Node = ({ history, location }: Props) => {
           <BottomActionSection>
             <ButtonWrapper>
               <Button
-                isDisabled={!!nodeError}
+                isDisabled={isActionButtonDisabled}
                 onClick={buttonHandler}
                 text="SETUP PROOF OF SPACE"
                 width={250}
