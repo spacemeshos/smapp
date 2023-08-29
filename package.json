@@ -205,7 +205,7 @@
     "history": "4",
     "json-bigint-patch": "^0.0.8",
     "logrotate-stream": "^0.2.8",
-    "openpgp": "^5.9.0",
+    "openpgp": "^5.10.1",
     "parse-duration": "^1.0.3",
     "pbkdf2": "3.1.2",
     "ramda": "^0.28.0",
