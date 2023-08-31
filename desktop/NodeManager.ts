@@ -494,6 +494,7 @@ class NodeManager extends AbstractManager {
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.nodeService.dropNetService();
       this.smesherManager.unsubscribe();
       // Request Node shutdown
       this.nodeProcess.kill('SIGTERM');
