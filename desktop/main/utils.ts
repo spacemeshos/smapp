@@ -67,8 +67,8 @@ export const getGrpcPrivatePort = () =>
   app.commandLine.getSwitchValue('grpc-private-listener') ||
   DEFAULT_GRPC_PRIVATE_PORT;
 
-export const getProofOfServerClientValue = () =>
-  process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server');
+export const getPprofServerArgument = () =>
+  !!process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server');
 
 export const getLocalNodeConnectionConfig = (): SocketAddress => ({
   host: 'localhost',
