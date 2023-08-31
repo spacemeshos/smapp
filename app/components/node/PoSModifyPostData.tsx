@@ -81,6 +81,7 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
             <Modal header="Are you sure you want to delete your POS data?">
               <StyledRow>
                 <Button
+                  isDisabled={isDeleting}
                   isPrimary={false}
                   text="CANCEL"
                   onClick={() => setShowDeletePoSModal(false)}
