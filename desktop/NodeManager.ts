@@ -42,7 +42,7 @@ import {
   getGrpcPrivatePort,
   getGrpcPublicPort,
   getNodeLogsPath,
-  getProofOfServerClientValue,
+  getPprofServerArgument,
   readLinesFromBottom,
 } from './main/utils';
 import AbstractManager from './AbstractManager';
@@ -407,7 +407,7 @@ class NodeManager extends AbstractManager {
     );
 
     const nodeArgumentsMap = {
-      'pprof-server': getProofOfServerClientValue(),
+      'pprof-server': getPprofServerArgument(),
     };
 
     const nodeUserArguments = {
@@ -426,9 +426,9 @@ class NodeManager extends AbstractManager {
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
-      ...Object.values(nodeArgumentsMap)
-        .filter((value) => value)
-        .map((value) => `--${value}`), // ['--key']
+      ...Object.entries(nodeArgumentsMap)
+        .filter(([_, value]) => value)
+        .map(([key]) => `--${key}`), // ['--key']
       ...Object.keys(nodeUserArguments)
         .filter((key) => nodeUserArguments[key])
         .map((key) => [`--${key}`, nodeUserArguments[key]])
