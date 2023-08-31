@@ -277,23 +277,22 @@ class NodeManager extends AbstractManager {
   };
 
   startGRPCClient = async () => {
-    this.nodeService.createService();
-    const success = await this.isNodeAlive();
-    if (success) {
-      // update node status once by query request
-      await this.updateNodeStatus();
-      // and activate streams
-      this.activateNodeStatusStream();
-      this.activateNodeErrorStream();
-      // resubscribe smesherManager IPC Events if needed
-      this.smesherManager.subscribeIPC();
-      // and then call method to update renderer data
-      // TODO: move into `sources/smesherInfo` module
-      await this.smesherManager.serviceStartupFlow();
-      return true;
-    } else {
-      return this.startGRPCClient();
-    }
+    // Resubscribe smesherManager IPC Events asap
+    // to avoid issues with unregistered handlers
+    this.smesherManager.subscribeIPC();
+    // Create GRPC Client for NodeService
+    await this.nodeService.createService();
+    // Wait for the GRPC API
+    await this.isNodeAlive(Infinity);
+    // update node status once by query request
+    await this.updateNodeStatus();
+    // and activate streams
+    this.activateNodeStatusStream();
+    this.activateNodeErrorStream();
+    // and then call method to update renderer data
+    // TODO: move into `sources/smesherInfo` module
+    await this.smesherManager.serviceStartupFlow();
+    return true;
   };
 
   startNode = async () => {
