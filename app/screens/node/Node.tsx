@@ -638,7 +638,11 @@ const Node = ({ history, location }: Props) => {
                 text="SETUP PROOF OF SPACE"
                 width={250}
               />
-              {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+              <ActionHelperTooltips
+                nodeError={!!nodeError}
+                isActionButtonLoading={isActionButtonLoading}
+                isNodeConnecting={isNodeConnecting}
+              />
             </ButtonWrapper>
           </BottomActionSection>
         </>
