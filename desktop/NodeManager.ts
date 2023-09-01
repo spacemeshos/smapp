@@ -96,6 +96,8 @@ class NodeManager extends AbstractManager {
 
   public $warnings = new Subject<Warning>();
 
+  private isRestarting = false;
+
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
     async (poolList) => {
@@ -532,8 +534,14 @@ class NodeManager extends AbstractManager {
 
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
+    this.isRestarting = true;
     await this.stopNode();
-    return this.startNode();
+    const res = await this.startNode();
+    const setRestarting = (val) => () => {
+      this.isRestarting = val;
+    };
+    this.isNodeAlive().then(setRestarting(false)).catch(setRestarting(false));
+    return res;
   };
 
   getVersionAndBuild = async () => {
@@ -558,6 +566,7 @@ class NodeManager extends AbstractManager {
   });
 
   sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
+    if (this.isRestarting) return;
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
