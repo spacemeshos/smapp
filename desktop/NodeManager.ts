@@ -8,7 +8,7 @@ import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
-import { debounceShared, delay, getShortGenesisId } from '../shared/utils';
+import { delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
@@ -236,23 +236,20 @@ class NodeManager extends AbstractManager {
     };
   }
 
-  isNodeAlive = debounceShared(
-    200,
-    async (retries = 60): Promise<boolean> => {
-      if (!this.isNodeRunning()) {
-        return false;
-      }
-      const isReady = await this.nodeService.echo();
-      if (isReady) {
-        return true;
-      } else if (retries > 0) {
-        await delay(1000);
-        return this.isNodeAlive(retries - 1);
-      } else {
-        return false;
-      }
+  isNodeAlive = async (retries = 60): Promise<boolean> => {
+    if (!this.isNodeRunning()) {
+      return false;
     }
-  );
+    const isReady = await this.nodeService.echo();
+    if (isReady) {
+      return true;
+    } else if (retries > 0) {
+      await delay(1000);
+      return this.isNodeAlive(retries - 1);
+    } else {
+      return false;
+    }
+  };
 
   isNodeRunning = () => {
     return !!this.nodeProcess && this.nodeProcess.exitCode === null;
