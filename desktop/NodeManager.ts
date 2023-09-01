@@ -12,6 +12,7 @@ import { debounceShared, delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
+  NodeConfig,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
@@ -161,9 +162,9 @@ class NodeManager extends AbstractManager {
   }
 
   // Before deleting
-  unsubscribe = () => {
-    this.stopNode();
-    this.nodeService.cancelStreams();
+  unsubscribe = async () => {
+    await this.stopNode();
+    await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
   };
 
@@ -314,18 +315,18 @@ class NodeManager extends AbstractManager {
   //
   startSmeshing = async (
     postSetupOpts: PostSetupOpts,
-    provingOpts: PostProvingOpts
+    provingOpts: PostProvingOpts,
+    $nodeConfig: Subject<NodeConfig>
   ) => {
     if (!postSetupOpts.dataDir) {
       throw new Error(
         'Can not setup Smeshing without specified data directory'
       );
     }
-
-    if (!this.isNodeRunning()) {
-      await this.startNode();
-    }
-
+    logger.log('startSmeshing called with arguments: ', {
+      postSetupOpts,
+      provingOpts,
+    });
     const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
       posInitStart: Date.now(),
     });
@@ -333,12 +334,15 @@ class NodeManager extends AbstractManager {
 
     // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config
-    await this.smesherManager.updateSmeshingConfig(
+    const newConfig = await this.smesherManager.updateSmeshingConfig(
       postSetupOpts,
       provingOpts,
       this.genesisID
     );
-    await this.restartNode();
+
+    // Update $nodeConfig subject
+    // and it will also trigger restarting the Node
+    $nodeConfig.next(newConfig);
     return SmeshingSetupState.ViaRestart;
   };
 

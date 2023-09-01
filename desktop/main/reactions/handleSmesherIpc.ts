@@ -1,6 +1,10 @@
 import { from, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
-import { PostProvingOpts, PostSetupOpts } from '../../../shared/types';
+import {
+  NodeConfig,
+  PostProvingOpts,
+  PostSetupOpts,
+} from '../../../shared/types';
 import { SmeshingSetupState } from '../../NodeManager';
 import Logger from '../../logger';
 import { Managers } from '../app.types';
@@ -11,19 +15,21 @@ const logger = Logger({ className: 'handleSmesherIpc' });
 const startSmeshing = (
   managers: Managers,
   opts: PostSetupOpts,
-  provingOpts: PostProvingOpts
-) => wrapResult(managers.node.startSmeshing(opts, provingOpts));
+  provingOpts: PostProvingOpts,
+  $nodeConfig: Subject<NodeConfig>
+) => wrapResult(managers.node.startSmeshing(opts, provingOpts, $nodeConfig));
 
 export default (
   $managers: Subject<Managers>,
-  $smeshingSetupState: Subject<SmeshingSetupState>
+  $smeshingSetupState: Subject<SmeshingSetupState>,
+  $nodeConfig: Subject<NodeConfig>
 ) => {
   const startSmeshingRequest = fromIPC<[PostSetupOpts, PostProvingOpts]>(
     ipcConsts.SMESHER_START_SMESHING
   ).pipe(
     withLatestFrom($managers),
     switchMap(([[opts, provingOpts], managers]) =>
-      from(startSmeshing(managers, opts, provingOpts))
+      from(startSmeshing(managers, opts, provingOpts, $nodeConfig))
     )
   );
 
