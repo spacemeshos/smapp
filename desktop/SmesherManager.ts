@@ -302,9 +302,7 @@ class SmesherManager extends AbstractManager {
       genesisID
     );
 
-    await updateSmeshingOpts(genesisID, opts);
-
-    return true;
+    return updateSmeshingOpts(genesisID, opts);
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {

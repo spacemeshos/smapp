@@ -236,7 +236,7 @@ const startApp = (): AppStore => {
     // Ensure smeshing-proving-opts settings valid and exists in the node-config file
     ensureProvingOpts($wallet, $nodeConfig, $warnings),
     // Handle Start Smeshing request
-    handleSmesherIpc($managers, $smeshingSetupState),
+    handleSmesherIpc($managers, $smeshingSetupState, $nodeConfig),
     // Handle show file
     handleShowFile($currentNetwork),
     // IPC Reactions
