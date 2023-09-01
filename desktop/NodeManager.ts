@@ -500,6 +500,7 @@ class NodeManager extends AbstractManager {
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.sendNodeStatus(DEFAULT_NODE_STATUS);
       this.nodeService.dropNetService();
       this.smesherManager.unsubscribe();
       // Request Node shutdown
@@ -599,13 +600,7 @@ class NodeManager extends AbstractManager {
       if (retries > 0)
         return delay(500).then(() => this.getNodeStatus(retries - 1));
       logger.error('getNodeStatus', error);
-      return {
-        connectedPeers: 0,
-        isSynced: false,
-        syncedLayer: 0,
-        topLayer: 0,
-        verifiedLayer: 0,
-      };
+      return DEFAULT_NODE_STATUS;
     }
   };
 
