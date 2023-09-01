@@ -92,6 +92,8 @@ class NodeManager extends AbstractManager {
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
 
+  private $nodeConfig: Subject<NodeConfig>;
+
   public $warnings = new Subject<Warning>();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
@@ -152,13 +154,15 @@ class NodeManager extends AbstractManager {
   constructor(
     mainWindow: BrowserWindow,
     genesisID: string,
-    smesherManager: SmesherManager
+    smesherManager: SmesherManager,
+    $nodeConfig: Subject<NodeConfig>
   ) {
     super(mainWindow);
     this.nodeService = new NodeService();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.genesisID = genesisID;
+    this.$nodeConfig = $nodeConfig;
   }
 
   // Before deleting
@@ -315,8 +319,7 @@ class NodeManager extends AbstractManager {
   //
   startSmeshing = async (
     postSetupOpts: PostSetupOpts,
-    provingOpts: PostProvingOpts,
-    $nodeConfig: Subject<NodeConfig>
+    provingOpts: PostProvingOpts
   ) => {
     if (!postSetupOpts.dataDir) {
       throw new Error(
@@ -342,7 +345,7 @@ class NodeManager extends AbstractManager {
 
     // Update $nodeConfig subject
     // and it will also trigger restarting the Node
-    $nodeConfig.next(newConfig);
+    this.$nodeConfig.next(newConfig);
     return SmeshingSetupState.ViaRestart;
   };
 
