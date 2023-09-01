@@ -18,15 +18,16 @@ let managers: Managers | null = null;
 
 const spawnManagers = async (
   mainWindow: BrowserWindow,
-  genesisID: string
+  genesisID: string,
+  $nodeConfig: Subject<NodeConfig>
 ): Promise<Managers> => {
   if (!mainWindow)
     throw new Error('Cannot spawn managers: MainWindow not found');
 
   // init managers
   if (!managers) {
-    const smesher = new SmesherManager(mainWindow, genesisID);
-    const node = new NodeManager(mainWindow, genesisID, smesher);
+    const smesher = new SmesherManager(mainWindow, genesisID, $nodeConfig);
+    const node = new NodeManager(mainWindow, genesisID, smesher, $nodeConfig);
     const wallet = new WalletManager(mainWindow, node);
 
     managers = { smesher, node, wallet };
@@ -54,7 +55,13 @@ const spawnManagers$ = (
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
       withLatestFrom($mainWindow),
       switchMap(([nodeConfig, mainWindow]) =>
-        from(spawnManagers(mainWindow, generateGenesisIDFromConfig(nodeConfig)))
+        from(
+          spawnManagers(
+            mainWindow,
+            generateGenesisIDFromConfig(nodeConfig),
+            $nodeConfig
+          )
+        )
       )
     )
     .subscribe((newManagers) => {
