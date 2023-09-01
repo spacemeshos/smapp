@@ -3,7 +3,7 @@ import fs from 'fs';
 import { equals } from 'ramda';
 import { app } from 'electron';
 import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
-import { debounceShared, shallowEq } from '../shared/utils';
+import { shallowEq } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
@@ -78,13 +78,11 @@ const save = async (state: AccountState, baseDir = DEFAULT_BASE_DIR) => {
 interface Opts {
   accountStateDir: string;
   autosave: boolean;
-  debounce: number;
 }
 
 const DEFAULT_OPTS: Opts = {
   accountStateDir: path.resolve(app.getPath('userData'), 'accounts'),
   autosave: true,
-  debounce: 300,
 };
 
 export class AccountStateManager {
@@ -99,7 +97,7 @@ export class AccountStateManager {
     this.baseDir = opts.accountStateDir;
     this.genesisID = genesisID;
     if (opts.autosave) {
-      this.autosave = debounceShared(opts.debounce, this.save);
+      this.autosave = this.save;
     }
   }
 

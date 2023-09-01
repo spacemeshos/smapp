@@ -131,7 +131,7 @@ export const updateSmeshingOpts = async (
     genesisId,
     smeshingOpts
   );
-  const mergedConfig = R.mergeLeft(customConfig, clientConfig);
+  const mergedConfig: NodeConfig = R.mergeLeft(customConfig, clientConfig);
 
   await writeNodeConfig(mergedConfig);
 

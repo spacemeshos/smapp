@@ -14,7 +14,7 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { equals, of } from 'ramda';
+import { dissocPath, equals, of } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network, NodeConfig, Wallet } from '../../../shared/types';
 import {
@@ -94,17 +94,30 @@ export const listenNodeConfigAndRestartNode = (
     $nodeConfig.pipe(startWith(null), pairwise(), withLatestFrom($managers)),
     ([[prevNodeConfig, nextNodeConfig], managers]) => {
       (async () => {
+        // Do not restart the Node if...
+        // A. it's a first Config ever
+        if (prevNodeConfig === null) return;
+        // B. configs are equal
+        if (equals(prevNodeConfig, nextNodeConfig)) return;
+        // C. Node is not running
+        if (!managers.node.isNodeRunning()) return;
+        // D. if User only turned smeshing off (and the rest config not changed)
         if (
-          prevNodeConfig !== null &&
-          !equals(prevNodeConfig, nextNodeConfig) &&
-          managers.node.isNodeRunning()
-        ) {
-          logger.log(
-            'listenNodeConfigAndRestartNode',
-            'Node config changed. Restart the Node'
-          );
-          await managers.node.restartNode();
-        }
+          prevNodeConfig?.smeshing?.['smeshing-start'] === true &&
+          nextNodeConfig?.smeshing?.['smeshing-start'] === false &&
+          equals(
+            dissocPath(['smeshing', 'smeshing-start'], prevNodeConfig),
+            dissocPath(['smeshing', 'smeshing-start'], nextNodeConfig)
+          )
+        )
+          return;
+
+        // In other cases — restart the Node
+        logger.log(
+          'listenNodeConfigAndRestartNode',
+          'Node config changed. Restart the Node'
+        );
+        await managers.node.restartNode();
       })();
     }
   );

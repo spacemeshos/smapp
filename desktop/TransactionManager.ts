@@ -22,7 +22,6 @@ import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
 import {
-  debounceByArgs,
   delay,
   fromHexString,
   longToNumber,
@@ -103,7 +102,7 @@ class TransactionManager extends AbstractManager {
   };
 
   // Debounce update functions to avoid excessive IPC calls
-  updateAppStateAccount = debounceByArgs(100, (address: string) => {
+  updateAppStateAccount = (address: string) => {
     const account = this.accountStates[address].getState();
     if (!account) {
       return;
@@ -112,25 +111,29 @@ class TransactionManager extends AbstractManager {
       account,
       accountId: address,
     });
-  });
+  };
 
-  updateAppStateTxs = debounceByArgs(100, (publicKey: string) => {
+  updateAppStateTxs = (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
-  });
+  };
 
-  updateAppStateRewards = debounceByArgs(100, (publicKey: string) => {
+  updateAppStateRewards = (publicKey: string) => {
     const rewards = this.accountStates[publicKey].getRewards() || [];
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
-  });
+  };
 
-  private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
+  private storeTx = (publicKey: string, tx: Tx): Promise<boolean> =>
     this.accountStates[publicKey]
       .storeTransaction(tx)
-      .then((isNew) => isNew && this.updateAppStateTxs(publicKey))
+      .then((isNew) => {
+        isNew && this.updateAppStateTxs(publicKey);
+        return true;
+      })
       .catch((err) => {
         console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeTx', err);
+        return false;
       });
 
   private storeReward = (publicKey: string, reward: Reward) =>
@@ -153,7 +156,7 @@ class TransactionManager extends AbstractManager {
     await this.upsertTransaction(publicKey)(newTx);
   };
 
-  private subscribeTransactions = debounceByArgs(100, (publicKey: string) => {
+  private subscribeTransactions = (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
@@ -165,7 +168,7 @@ class TransactionManager extends AbstractManager {
       this.handleNewTx(publicKey),
       txIds
     );
-  });
+  };
 
   private subscribeAccount = (address: Bech32Address): void => {
     // Cancel account Txs subscription

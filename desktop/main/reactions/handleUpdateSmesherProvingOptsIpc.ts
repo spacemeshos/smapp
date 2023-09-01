@@ -19,10 +19,6 @@ const updateSmeshingOptsAndRestartNode = async (
     },
   });
 
-  if (managers.node.isNodeRunning()) {
-    await managers.node.restartNode();
-  }
-
   return mergedConfig;
 };
 
