@@ -8,10 +8,11 @@ import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
-import { debounceShared, delay, getShortGenesisId } from '../shared/utils';
+import { delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
+  NodeConfig,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
@@ -91,7 +92,11 @@ class NodeManager extends AbstractManager {
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
 
+  private $nodeConfig: Subject<NodeConfig>;
+
   public $warnings = new Subject<Warning>();
+
+  private isRestarting = false;
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -151,19 +156,21 @@ class NodeManager extends AbstractManager {
   constructor(
     mainWindow: BrowserWindow,
     genesisID: string,
-    smesherManager: SmesherManager
+    smesherManager: SmesherManager,
+    $nodeConfig: Subject<NodeConfig>
   ) {
     super(mainWindow);
     this.nodeService = new NodeService();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.genesisID = genesisID;
+    this.$nodeConfig = $nodeConfig;
   }
 
   // Before deleting
-  unsubscribe = () => {
-    this.stopNode();
-    this.nodeService.cancelStreams();
+  unsubscribe = async () => {
+    await this.stopNode();
+    await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
   };
 
@@ -231,23 +238,20 @@ class NodeManager extends AbstractManager {
     };
   }
 
-  isNodeAlive = debounceShared(
-    200,
-    async (retries = 60): Promise<boolean> => {
-      if (!this.isNodeRunning()) {
-        return false;
-      }
-      const isReady = await this.nodeService.echo();
-      if (isReady) {
-        return true;
-      } else if (retries > 0) {
-        await delay(1000);
-        return this.isNodeAlive(retries - 1);
-      } else {
-        return false;
-      }
+  isNodeAlive = async (retries = 60): Promise<boolean> => {
+    if (!this.isNodeRunning()) {
+      return false;
     }
-  );
+    const isReady = await this.nodeService.echo();
+    if (isReady) {
+      return true;
+    } else if (retries > 0) {
+      await delay(5000);
+      return this.isNodeAlive(retries - 1);
+    } else {
+      return false;
+    }
+  };
 
   isNodeRunning = () => {
     return !!this.nodeProcess && this.nodeProcess.exitCode === null;
@@ -277,23 +281,22 @@ class NodeManager extends AbstractManager {
   };
 
   startGRPCClient = async () => {
+    // Resubscribe smesherManager IPC Events asap
+    // to avoid issues with unregistered handlers
+    this.smesherManager.subscribeIPC();
+    // Create GRPC Client for NodeService
     this.nodeService.createService();
-    const success = await this.isNodeAlive();
-    if (success) {
-      // update node status once by query request
-      await this.updateNodeStatus();
-      // and activate streams
-      this.activateNodeStatusStream();
-      this.activateNodeErrorStream();
-      // resubscribe smesherManager IPC Events if needed
-      this.smesherManager.subscribeIPC();
-      // and then call method to update renderer data
-      // TODO: move into `sources/smesherInfo` module
-      await this.smesherManager.serviceStartupFlow();
-      return true;
-    } else {
-      return this.startGRPCClient();
-    }
+    // Wait for the GRPC API
+    await this.isNodeAlive();
+    // update node status once by query request
+    await this.updateNodeStatus();
+    // and activate streams
+    this.activateNodeStatusStream();
+    this.activateNodeErrorStream();
+    // and then call method to update renderer data
+    // TODO: move into `sources/smesherInfo` module
+    await this.smesherManager.serviceStartupFlow();
+    return true;
   };
 
   startNode = async () => {
@@ -322,11 +325,10 @@ class NodeManager extends AbstractManager {
         'Can not setup Smeshing without specified data directory'
       );
     }
-
-    if (!this.isNodeRunning()) {
-      await this.startNode();
-    }
-
+    logger.log('startSmeshing called with arguments: ', {
+      postSetupOpts,
+      provingOpts,
+    });
     const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
       posInitStart: Date.now(),
     });
@@ -334,12 +336,15 @@ class NodeManager extends AbstractManager {
 
     // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config
-    await this.smesherManager.updateSmeshingConfig(
+    const newConfig = await this.smesherManager.updateSmeshingConfig(
       postSetupOpts,
       provingOpts,
       this.genesisID
     );
-    await this.restartNode();
+
+    // Update $nodeConfig subject
+    // and it will also trigger restarting the Node
+    this.$nodeConfig.next(newConfig);
     return SmeshingSetupState.ViaRestart;
   };
 
@@ -495,6 +500,8 @@ class NodeManager extends AbstractManager {
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.sendNodeStatus(DEFAULT_NODE_STATUS);
+      this.nodeService.dropNetService();
       this.smesherManager.unsubscribe();
       // Request Node shutdown
       this.nodeProcess.kill('SIGTERM');
@@ -528,8 +535,14 @@ class NodeManager extends AbstractManager {
 
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
+    this.isRestarting = true;
     await this.stopNode();
-    return this.startNode();
+    const res = await this.startNode();
+    const setRestarting = (val) => () => {
+      this.isRestarting = val;
+    };
+    this.isNodeAlive().then(setRestarting(false)).catch(setRestarting(false));
+    return res;
   };
 
   getVersionAndBuild = async () => {
@@ -554,6 +567,7 @@ class NodeManager extends AbstractManager {
   });
 
   sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
+    if (this.isRestarting) return;
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
@@ -586,13 +600,7 @@ class NodeManager extends AbstractManager {
       if (retries > 0)
         return delay(500).then(() => this.getNodeStatus(retries - 1));
       logger.error('getNodeStatus', error);
-      return {
-        connectedPeers: 0,
-        isSynced: false,
-        syncedLayer: 0,
-        topLayer: 0,
-        verifiedLayer: 0,
-      };
+      return DEFAULT_NODE_STATUS;
     }
   };
 

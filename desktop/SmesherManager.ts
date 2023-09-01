@@ -1,11 +1,13 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import * as R from 'ramda';
+import { Subject } from 'rxjs';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
   HexString,
   IPCSmesherStartupData,
+  NodeConfig,
   PostProvingOpts,
   PostSetupOpts,
   PostSetupState,
@@ -42,13 +44,20 @@ class SmesherManager extends AbstractManager {
 
   private genesisID: string;
 
-  constructor(mainWindow: BrowserWindow, genesisID: string) {
+  private $nodeConfig: Subject<NodeConfig>;
+
+  constructor(
+    mainWindow: BrowserWindow,
+    genesisID: string,
+    $nodeConfig: Subject<NodeConfig>
+  ) {
     super(mainWindow);
     this.adminService = new AdminService();
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.adminService.createService();
     this.genesisID = genesisID;
+    this.$nodeConfig = $nodeConfig;
   }
 
   unsubscribe = () => {
@@ -233,10 +242,12 @@ class SmesherManager extends AbstractManager {
 
         deleteFiles && (await this.clearSmesherMetadata());
 
-        await updateSmeshingOpts(
+        const newConfig = await updateSmeshingOpts(
           this.genesisID,
           deleteFiles ? {} : { 'smeshing-start': false }
         );
+
+        this.$nodeConfig.next(newConfig);
 
         return res?.error;
       }
@@ -302,9 +313,7 @@ class SmesherManager extends AbstractManager {
       genesisID
     );
 
-    await updateSmeshingOpts(this.genesisID, opts);
-
-    return true;
+    return updateSmeshingOpts(genesisID, opts);
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {

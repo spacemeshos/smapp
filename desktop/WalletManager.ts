@@ -155,10 +155,11 @@ class WalletManager extends AbstractManager {
         this.txManager.setGenesisID(actualGenesisId);
       }
       if (isLocalNodeType(wallet.meta.type)) {
-        res =
-          isNewGenesisId && this.nodeManager.isNodeRunning()
-            ? await this.nodeManager.restartNode()
-            : await this.nodeManager.startNode();
+        const isRunning = this.nodeManager.isNodeRunning();
+        if (isRunning && !isNewGenesisId) return true;
+        res = isRunning
+          ? await this.nodeManager.restartNode()
+          : await this.nodeManager.startNode();
         if (!res) return false;
       } else {
         await this.nodeManager.stopNode();

@@ -9,6 +9,7 @@ import {
   SocketAddress,
 } from '../shared/types';
 import { longToNumber } from '../shared/utils';
+import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 import { getLocalNodeConnectionConfig } from './main/utils';
@@ -72,14 +73,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
   getNodeStatus = (): Promise<NodeStatus> =>
     this.callServiceWithRetries('Status', {})
       .then((response) => {
-        const DEFAULTS = {
-          connectedPeers: 0,
-          isSynced: false,
-          syncedLayer: 0,
-          topLayer: 0,
-          verifiedLayer: 0,
-        };
-        if (!response.status) return { ...DEFAULTS };
+        if (!response.status) return { ...DEFAULT_NODE_STATUS };
 
         const {
           connectedPeers,

@@ -292,6 +292,9 @@ const ButtonWrapper = styled.div`
   }
 `;
 
+const ERROR_MESSAGE = 'Node is not connected. Check Network tab.';
+const APPLYING_UPDATE = 'Node is applying new settings. Please wait.';
+const NODE_CONNECTING = 'Node is restarting.';
 const ERR_MESSAGE_ERR_STATE =
   'PoS initialization failed. Try to delete it and re-initialize.';
 const ERR_MESSAGE_NODE_ERROR =
@@ -317,7 +320,31 @@ const SmesherStatus = ({
   </SubHeader>
 );
 
-const ERROR_MESSAGE = 'Node is not connected. Check Network tab.';
+interface ActionHelperTooltipsProps {
+  nodeError: boolean;
+  isNodeConnecting: boolean;
+  isActionButtonLoading: boolean;
+}
+
+const ActionHelperTooltips = ({
+  nodeError,
+  isNodeConnecting,
+  isActionButtonLoading,
+}: ActionHelperTooltipsProps) => {
+  if (nodeError) {
+    return <CustomTooltip text={ERROR_MESSAGE} />;
+  }
+
+  if (isNodeConnecting) {
+    return <CustomTooltip text={NODE_CONNECTING} />;
+  }
+
+  if (isActionButtonLoading) {
+    return <CustomTooltip text={APPLYING_UPDATE} />;
+  }
+
+  return null;
+};
 
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
@@ -358,6 +385,9 @@ const Node = ({ history, location }: Props) => {
   );
   const currentEpoch = getEpochByLayer(status?.topLayer || 0);
 
+  const postProvingOpts = useSelector(
+    (state: RootState) => state.smesher.postProvingOpts
+  );
   const commitmentSize = useSelector(
     (state: RootState) => state.smesher.commitmentSize
   );
@@ -375,9 +405,13 @@ const Node = ({ history, location }: Props) => {
   const numLabelsWritten = useSelector(
     (state: RootState) => state.smesher.numLabelsWritten
   );
+  const [isActionButtonLoading, setIsActionButtonLoading] = useState(false);
   const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
+  const isNodeConnecting = !status || status?.topLayer === 0;
+  const isActionButtonDisabled =
+    !!nodeError || isNodeConnecting || isActionButtonLoading;
 
   const dispatch = useDispatch();
 
@@ -448,6 +482,10 @@ const Node = ({ history, location }: Props) => {
       ['Data Size', formatBytes(commitmentSize)],
       ['Max File Size', `${convertBytesToMiB(maxFileSize)} MiB`],
       [
+        'Proof Generation',
+        `${postProvingOpts.nonces} nonces | ${postProvingOpts.threads} CPU threads`,
+      ],
+      [
         'Smesher ID',
         <Address
           key="smesherId"
@@ -459,8 +497,16 @@ const Node = ({ history, location }: Props) => {
     ];
   };
 
-  const handlePauseSmeshing = () => dispatch(pauseSmeshing());
-  const handleResumeSmeshing = () => dispatch(resumeSmeshing());
+  const handlePauseSmeshing = async () => {
+    setIsActionButtonLoading(true);
+    await dispatch(pauseSmeshing());
+    setIsActionButtonLoading(false);
+  };
+  const handleResumeSmeshing = async () => {
+    setIsActionButtonLoading(true);
+    await dispatch(resumeSmeshing());
+    setIsActionButtonLoading(false);
+  };
   const renderNodeDashboard = () => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
@@ -491,10 +537,14 @@ const Node = ({ history, location }: Props) => {
           <FooterSection>
             <ButtonWrapper>
               <Button
-                isDisabled={!!nodeError}
-                onClick={() =>
-                  history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-                }
+                isDisabled={isActionButtonDisabled}
+                onClick={() => {
+                  // @TODO find out the reason for the stale state, and get rid of hideSmesherLeftPanel call
+                  dispatch(hideSmesherLeftPanel());
+                  history.push(MainPath.SmeshingSetup, {
+                    modifyPostData: true,
+                  });
+                }}
                 img={posDirectoryWhite}
                 text="EDIT"
                 isPrimary={false}
@@ -502,36 +552,52 @@ const Node = ({ history, location }: Props) => {
                 imgPosition="before"
                 width={180}
               />
-              {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+              <ActionHelperTooltips
+                nodeError={!!nodeError}
+                isActionButtonLoading={isActionButtonLoading}
+                isNodeConnecting={isNodeConnecting}
+              />
             </ButtonWrapper>
 
             <ButtonWrapper>
               {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
                 <>
                   <Button
-                    isDisabled={!!nodeError}
+                    isDisabled={isActionButtonDisabled}
                     onClick={handlePauseSmeshing}
-                    text="PAUSE POST DATA GENERATION"
+                    text={`${
+                      isActionButtonLoading ? 'PAUSING' : 'PAUSE'
+                    } POST DATA GENERATION `}
                     img={pauseIcon}
                     isPrimary={false}
                     width={280}
                     imgPosition="before"
                   />
-                  {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+                  <ActionHelperTooltips
+                    nodeError={!!nodeError}
+                    isActionButtonLoading={isActionButtonLoading}
+                    isNodeConnecting={isNodeConnecting}
+                  />
                 </>
               )}
               {isPausedSmeshing && (
                 <>
                   <Button
-                    isDisabled={!!nodeError}
+                    isDisabled={isActionButtonDisabled}
                     onClick={handleResumeSmeshing}
-                    text="RESUME SMESHING"
+                    text={`${
+                      isActionButtonLoading ? 'RESUMING' : 'RESUME'
+                    } SMESHING `}
                     img={playIcon}
                     isPrimary
                     width={280}
                     imgPosition="before"
                   />
-                  {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+                  <ActionHelperTooltips
+                    nodeError={!!nodeError}
+                    isActionButtonLoading={isActionButtonLoading}
+                    isNodeConnecting={isNodeConnecting}
+                  />
                 </>
               )}
             </ButtonWrapper>
@@ -567,12 +633,16 @@ const Node = ({ history, location }: Props) => {
           <BottomActionSection>
             <ButtonWrapper>
               <Button
-                isDisabled={!!nodeError}
+                isDisabled={isActionButtonDisabled}
                 onClick={buttonHandler}
                 text="SETUP PROOF OF SPACE"
                 width={250}
               />
-              {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+              <ActionHelperTooltips
+                nodeError={!!nodeError}
+                isActionButtonLoading={isActionButtonLoading}
+                isNodeConnecting={isNodeConnecting}
+              />
             </ButtonWrapper>
           </BottomActionSection>
         </>

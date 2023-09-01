@@ -2,8 +2,11 @@ import { RootState } from 'app/types';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { useHistory } from 'react-router';
 import { Tooltip, Button } from '../../basicComponents';
 import { Modal } from '../common';
+import PoSProvingOptsUpdateModal from '../../screens/modal/PoSProvingOptsUpdateModal';
+import { MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,14 +52,15 @@ const StyledRow = styled(Row)`
 
 type Props = {
   deleteData: () => void;
+  isDeleting: boolean;
 };
 
-const PoSModifyPostData = ({ deleteData }: Props) => {
+const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
+  const history = useHistory();
   const nodeError = useSelector((state: RootState) => state.node.error);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const onDeleteClick = () => {
-    setShowModal(true);
-  };
+  const [showDeletePoSModal, setShowDeletePoSModal] = useState<boolean>(false);
+  const [showPoSProfiler, setShowPoSProfiler] = useState<boolean>(false);
+
   return (
     <>
       <Wrapper>
@@ -69,21 +73,49 @@ const PoSModifyPostData = ({ deleteData }: Props) => {
           <Dots>.....................................................</Dots>
           <Button
             isDisabled={!!nodeError}
-            onClick={onDeleteClick}
+            onClick={() => setShowDeletePoSModal(true)}
             text="DELETE DATA"
             isPrimary={false}
           />
-          {showModal && (
+          {showDeletePoSModal && (
             <Modal header="Are you sure you want to delete your POS data?">
               <StyledRow>
                 <Button
+                  isDisabled={isDeleting}
                   isPrimary={false}
                   text="CANCEL"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowDeletePoSModal(false)}
                 />
-                <Button text="CONFIRM" onClick={() => deleteData()} />
+                <Button
+                  text={isDeleting ? 'Deleting...' : 'CONFIRM'}
+                  onClick={() => deleteData()}
+                  isDisabled={isDeleting}
+                />
               </StyledRow>
             </Modal>
+          )}
+        </Row>
+        <Row>
+          <Text>Update PoS proving opts</Text>
+          <Tooltip
+            width={200}
+            text={`Allows updating the number of Nonces and CPU threads. 
+          These values will be used in the proving process.`}
+          />
+          <Dots>.....................................................</Dots>
+          <Button
+            isDisabled={!!nodeError}
+            onClick={() => setShowPoSProfiler(true)}
+            text="UPDATE"
+            isPrimary={false}
+          />
+          {showPoSProfiler && (
+            <PoSProvingOptsUpdateModal
+              closeHandler={() => {
+                setShowPoSProfiler(false);
+                history.push(MainPath.Smeshing);
+              }}
+            />
           )}
         </Row>
       </Wrapper>

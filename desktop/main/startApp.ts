@@ -43,6 +43,8 @@ import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
+import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherProvingOptsIpc';
+import ensureProvingOpts from './reactions/ensureProvingOpts';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -231,13 +233,17 @@ const startApp = (): AppStore => {
       $smeshingStarted,
       $warnings
     ),
+    // Ensure smeshing-proving-opts settings valid and exists in the node-config file
+    ensureProvingOpts($wallet, $nodeConfig, $warnings),
     // Handle Start Smeshing request
-    handleSmesherIpc($managers, $smeshingSetupState),
+    handleSmesherIpc($managers, $smeshingSetupState, $nodeConfig),
     // Handle show file
     handleShowFile($currentNetwork),
     // IPC Reactions
     handleWipeOut($mainWindow, $isAppClosing),
     handleDeleteWalletFile($mainWindow, $wallet, $walletPath),
+    // Handle update smeshing-proving-opts settings from GUI
+    handleUpdateSmesherProvingOptsIpc($managers, $nodeConfig),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
       $mainWindow,

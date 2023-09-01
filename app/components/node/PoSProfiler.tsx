@@ -11,7 +11,7 @@ import { constrain, formatBytes } from '../../infra/utils';
 import { ipcConsts, smColors } from '../../vars';
 import { BenchmarkRequest, BenchmarkResponse } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
-import PoSFooter from './PoSFooter';
+import PoSFooter, { PoSFooterProps } from './PoSFooter';
 
 const Row = styled.div`
   display: flex;
@@ -91,6 +91,9 @@ type Props = {
   numUnitSize: number;
   maxUnits: number;
   dataDir: string;
+  nonces?: number | undefined;
+  threads?: number | undefined;
+  posFooterProps?: Partial<PoSFooterProps>;
 };
 
 enum BenchmarkStatus {
@@ -183,10 +186,18 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
-const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
-  const [noncesValue, setNoncesValue] = useState<number | null>(288);
+const PoSProfiler = ({
+  nextAction,
+  numUnitSize,
+  maxUnits,
+  dataDir,
+  threads,
+  nonces,
+  posFooterProps = {},
+}: Props) => {
+  const [noncesValue, setNoncesValue] = useState<number | null>(nonces || 288);
   const [threadsValue, setThreadsValue] = useState<number | null>(
-    maxCpuAvailable
+    threads || maxCpuAvailable
   );
   const [isRunningBatch, setRunningBatch] = useState(false);
   const [benchmarks, setBenchmarks] = useState(
@@ -416,7 +427,13 @@ const PoSProfiler = ({ nextAction, numUnitSize, maxUnits, dataDir }: Props) => {
           </TRow>
         </Table>
       </Row>
-      <PoSFooter action={goNext} isDisabled={!noncesValue || !threadsValue} />
+      <PoSFooter
+        action={goNext}
+        {...posFooterProps}
+        isDisabled={
+          !noncesValue || !threadsValue || Boolean(posFooterProps?.isDisabled)
+        }
+      />
     </>
   );
 };

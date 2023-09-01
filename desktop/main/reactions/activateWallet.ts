@@ -1,5 +1,12 @@
 import { BrowserWindow } from 'electron';
-import { combineLatest, map, Observable, startWith, Subject } from 'rxjs';
+import {
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+  Subject,
+} from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
@@ -22,7 +29,15 @@ export default (
         map(() => true),
         startWith(false)
       ),
-    ]),
+    ]).pipe(
+      distinctUntilChanged(
+        (prev, next) =>
+          prev[0]?.meta.genesisID === next[0]?.meta.genesisID &&
+          prev[0]?.meta.remoteApi === next[0]?.meta.remoteApi &&
+          prev[0]?.crypto.mnemonic === next[0]?.crypto.mnemonic &&
+          prev[3] === next[3]
+      )
+    ),
     async ([wallet, managers, mw, shallRestart]) => {
       if (
         !wallet ||
@@ -37,7 +52,13 @@ export default (
 
       const res = await managers.wallet.activate(wallet);
       if (res) {
-        managers.wallet.activateAccounts(wallet.crypto.accounts);
+        managers.node
+          .isNodeAlive()
+          .then(() => managers.wallet.activateAccounts(wallet.crypto.accounts))
+          .catch(() =>
+            managers.wallet.activateAccounts(wallet.crypto.accounts)
+          );
+
         $isWalletActivated.next();
       }
       // Renderer waits for WALLET_ACTIVATED event

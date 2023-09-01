@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { CorneredContainer } from '.';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ modalZIndex?: number }>`
   position: fixed;
   top: 0;
   bottom: 0;
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   background-color: ${smColors.black80Alpha2};
-  z-index: 1000;
+  z-index: ${({ modalZIndex }) => modalZIndex || 1000}; ;
 `;
 
 const Indicator = styled.div<{ indColor?: string }>`
@@ -37,6 +37,7 @@ type Props = {
   height?: number;
   headerColor?: string;
   indicatorColor?: string;
+  modalZIndex?: number;
   children: any;
 };
 
@@ -48,9 +49,10 @@ const Modal = ({
   children,
   width = 520,
   height = 310,
+  modalZIndex,
 }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper modalZIndex={modalZIndex}>
       <CorneredContainer
         width={width}
         height={height}
