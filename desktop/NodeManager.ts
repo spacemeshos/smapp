@@ -246,7 +246,7 @@ class NodeManager extends AbstractManager {
     if (isReady) {
       return true;
     } else if (retries > 0) {
-      await delay(1000);
+      await delay(5000);
       return this.isNodeAlive(retries - 1);
     } else {
       return false;
@@ -285,9 +285,9 @@ class NodeManager extends AbstractManager {
     // to avoid issues with unregistered handlers
     this.smesherManager.subscribeIPC();
     // Create GRPC Client for NodeService
-    await this.nodeService.createService();
+    this.nodeService.createService();
     // Wait for the GRPC API
-    await this.isNodeAlive(Infinity);
+    await this.isNodeAlive();
     // update node status once by query request
     await this.updateNodeStatus();
     // and activate streams
