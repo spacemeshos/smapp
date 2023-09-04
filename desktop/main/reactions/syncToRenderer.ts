@@ -14,7 +14,6 @@ import {
   shareReplay,
   skipUntil,
   Subject,
-  switchMap,
   withLatestFrom,
 } from 'rxjs';
 import parse from 'parse-duration';
@@ -174,17 +173,6 @@ export default (
   $nodeEvents: Observable<NodeEvent>,
   $hrp: Observable<string>
 ) => {
-  const $walletOpened = $wallet.pipe(
-    distinctUntilChanged(
-      (a, b) =>
-        !!a?.meta?.genesisID &&
-        !!b?.meta?.genesisID &&
-        a.meta.genesisID === b.meta.genesisID
-    ),
-    filter(Boolean),
-    map(() => {})
-  );
-
   const $currentNodeConfig = $nodeConfig.pipe(shareReplay(1));
 
   return sync(
@@ -196,34 +184,19 @@ export default (
     networkView($currentNetwork, $currentNodeConfig),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
-    $walletOpened.pipe(
-      switchMap(() => $smesherId),
-      map((smesherId) => ({ smesher: { smesherId } }))
-    ),
-    $walletOpened.pipe(
-      switchMap(() => $rewards),
-      map((rewards) => ({ smesher: { rewards } }))
-    ),
-    $walletOpened.pipe(
-      switchMap(() =>
-        $nodeEvents.pipe(
-          distinct(getNodeEventKey),
-          scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),
-          distinctUntilChanged()
-        )
-      ),
+    $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
+    $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
+    $nodeEvents.pipe(
+      distinct(getNodeEventKey),
+      scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),
+      distinctUntilChanged(),
       map((events) => ({ smesher: { events } }))
     ),
-    $walletOpened.pipe(
-      switchMap(() =>
-        combineLatest([$rewards, $currentNodeConfig, $currentLayer]).pipe(
-          map(([rewards, cfg, layer]) => getRewardsInfo(cfg, layer, rewards))
-        )
-      ),
+    combineLatest([$rewards, $currentNodeConfig, $currentLayer]).pipe(
+      map(([rewards, cfg, layer]) => getRewardsInfo(cfg, layer, rewards)),
       map((rewardsInfo) => ({ smesher: { rewardsInfo } }))
     ),
-    $walletOpened.pipe(
-      switchMap(() => $currentNodeConfig),
+    $currentNodeConfig.pipe(
       map((nodeConfig) => {
         return {
           smesher: {
