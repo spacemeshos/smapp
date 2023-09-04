@@ -9,6 +9,7 @@ const networkInitialState: NetworkState = {
   rootHash: '',
   explorerUrl: '',
   layersPerEpoch: 0,
+  tapBotDiscordURL: '',
 };
 
 export default networkInitialState;
