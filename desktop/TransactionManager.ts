@@ -480,10 +480,22 @@ class TransactionManager extends AbstractManager {
     this.accountStates[coinbase]?.getRewards() || [];
 
   retrieveNewRewards = async (coinbase: string) => {
+    this.logger.log('retrieveNewRewards() called', coinbase);
     const oldRewards = this.getStoredRewards(coinbase);
+    this.logger.log(
+      'retrieveNewRewards',
+      `Found ${oldRewards.length} stored rewards`
+    );
     const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
       (acc, reward) => {
-        if (!reward || !hasRequiredRewardFields(reward)) return acc;
+        if (!reward || !hasRequiredRewardFields(reward)) {
+          this.logger.log(
+            'retrieveRewards',
+            'Object is not a valid Reward type',
+            reward
+          );
+          return acc;
+        }
         const parsedReward: Reward = {
           layer: reward.layer.number,
           amount: longToNumber(reward.total.value),
@@ -497,6 +509,10 @@ class TransactionManager extends AbstractManager {
     const uniq = [...oldRewards, ...newRewards].reduce(
       (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
       <Record<string, Reward>>{}
+    );
+    this.logger.log(
+      'retrieveNewRewards',
+      `Found ${uniq.length} rewards in total`
     );
     return Object.values(uniq);
   };
