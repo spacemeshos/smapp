@@ -408,6 +408,8 @@ class SmesherManager extends AbstractManager {
       .postSetupState;
     return (
       smeshing ||
+      status === PostSetupState.STATE_PREPARED ||
+      status === PostSetupState.STATE_PAUSED ||
       status === PostSetupState.STATE_IN_PROGRESS ||
       status === PostSetupState.STATE_COMPLETE
     );
