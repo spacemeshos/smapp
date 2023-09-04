@@ -16,6 +16,7 @@ import {
   Subject,
   switchMap,
   withLatestFrom,
+  tap,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
@@ -38,6 +39,7 @@ import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
 import { Event } from '../../../proto/spacemesh/v1/Event';
 import { isSmeshingOpts, safeSmeshingOpts } from '../smeshingOpts';
+import Logger from '../../logger';
 
 const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
@@ -87,6 +89,8 @@ const syncSmesherInfo = (
   $wallet: BehaviorSubject<Wallet | null>,
   $nodeConfig: Observable<NodeConfig>
 ) => {
+  const logger = Logger({ className: 'syncSmesherInfo' });
+
   const $smeshingSetupState = new Subject<SmeshingSetupState>();
   const $smeshingStarted = $smeshingSetupState.pipe(
     filter((s) => s !== SmeshingSetupState.Failed)
@@ -121,6 +125,7 @@ const syncSmesherInfo = (
       }
       return of(false);
     }),
+    tap((x) => logger.log('$isSmeshing', x)),
     share()
   );
 
@@ -145,15 +150,22 @@ const syncSmesherInfo = (
     ),
     share()
   );
+
   const $coinbase = $smeshingOpts.pipe(
     map((c) => c['smeshing-coinbase']),
+    tap((x) => logger.log('$coinbase', x)),
     share()
   );
 
   const $nodeEvents = new Subject<NodeEvent>();
 
   const $rewards = combineLatest([$coinbase, $genesisId, $managers]).pipe(
-    switchMap(([coinbase, _, managers]) => {
+    switchMap(([coinbase, genesisId, managers]) => {
+      logger.log(
+        '$rewards',
+        'Going to fetch historical data and subscribe on new rewards',
+        { coinbase, genesisId }
+      );
       const historicalRewards = from(
         managers.wallet.requestRewardsByCoinbase(coinbase)
       ).pipe(concatMap((x) => x));
@@ -169,24 +181,31 @@ const syncSmesherInfo = (
         map((uniqRewards) => Array.from(uniqRewards.values()))
       );
     }),
+    tap((x) =>
+      logger.log(
+        '$rewards',
+        'Got new rewards. Amount of reward messages:',
+        x.length
+      )
+    ),
     shareReplay(1),
     distinctUntilChanged((prev, next) => prev.length === next.length),
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
 
-  $isSmeshing
-    .pipe(
-      switchMap(() => $coinbase),
-      filter(Boolean),
-      withLatestFrom($managers, $isLocalNode)
-    )
-    .subscribe(([_, managers, isLocalNode]) => {
+  combineLatest([$isSmeshing, $managers, $isLocalNode]).subscribe(
+    ([_, managers, isLocalNode]) => {
       if (!isLocalNode) return;
+      logger.log('subscribe for NodeEvents', null);
       managers.smesher.subscribeNodeEvents((err, event) => {
-        if (err || !event) return;
+        if (err || !event) {
+          logger.error('subscribeNodeEvents', err, event);
+          return;
+        }
         $nodeEvents.next(transformEvent(event));
       });
-    });
+    }
+  );
 
   return {
     $smesherId,
