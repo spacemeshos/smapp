@@ -324,7 +324,7 @@ const FeedbackButton = () => {
     setUniqIdentifierForSuccessDialog('');
   };
 
-  const openDiscord = () => window.open(ExternalLinks.DiscordTapAccount);
+  const openDiscord = () => window.open(ExternalLinks.Discord);
 
   if (isLoading) {
     return (
