@@ -3,7 +3,7 @@ import fs from 'fs';
 import { equals } from 'ramda';
 import { app } from 'electron';
 import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
-import { shallowEq } from '../shared/utils';
+import { delay, shallowEq } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
@@ -92,12 +92,22 @@ export class AccountStateManager {
 
   private genesisID: string;
 
+  private saveTimeout: NodeJS.Timeout | null = null;
+
   constructor(address: string, genesisID: string, opts = DEFAULT_OPTS) {
     this.state = load(address, genesisID, opts.accountStateDir);
     this.baseDir = opts.accountStateDir;
     this.genesisID = genesisID;
     if (opts.autosave) {
-      this.autosave = this.save;
+      this.autosave = async () => {
+        if (!this.saveTimeout) {
+          this.saveTimeout = setTimeout(async () => {
+            await this.save();
+            this.saveTimeout = null;
+          }, 1000);
+        }
+        return delay(0);
+      };
     }
   }
 
