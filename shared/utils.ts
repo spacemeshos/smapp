@@ -9,6 +9,153 @@ export const delay = (ms: number) =>
     setTimeout(() => resolve(), ms);
   });
 
+// Promisifed debounce function for multiple consumers
+//
+// It calls the callback function not more often than once
+// per specified delay time. The result of callback function
+// is spreaded (as resolved promise) to all callers.
+// Callback function will be called with the latest arguments.
+//
+// Check out the example:
+//   Let's say that we need to fetch some value from API
+//   however, we have a lot of async events that may trigger
+//   this function, to avoid making excessive fetch requests
+//   you can wrap your function in the `debounceShared`.
+//
+//   const myFetch = debounceShared(1000, () => fetch('0.0.0.0:8000/value.txt'));
+//   setInterval(() => myFetch().then(console.log), 800);
+//   setInterval(() => myFetch().then(console.log), 300);
+//   setInterval(() => myFetch().then(console.log), 400);
+//
+//   const myFetch = debounceShared(1000, async (x) => {
+//     console.log('fetch!', x);
+//     await delay(50);
+//     return { timestamp: Date.now(), x };
+//   }));
+//   setInterval(() => myFetch(800).then((x) => console.log(800, '>', x)), 800);
+//   setInterval(() => myFetch(300).then((x) => console.log(300, '>', x)), 300);
+//   setInterval(() => myFetch(400).then((x) => console.log(400, '>', x)), 400);
+//
+//   Output:
+//   fetch! 300
+//   300 > { timestamp: 1674162027724, x: 300 }
+//   400 > { timestamp: 1674162027724, x: 300 }
+//   300 > { timestamp: 1674162027724, x: 300 }
+//   800 > { timestamp: 1674162027724, x: 300 }
+//   400 > { timestamp: 1674162027724, x: 300 }
+//   300 > { timestamp: 1674162027724, x: 300 }
+//   400 > { timestamp: 1674162027724, x: 300 }
+//   300 > { timestamp: 1674162027724, x: 300 }
+//   fetch! 300
+//   300 > { timestamp: 1674162028933, x: 300 }
+//   ...
+//
+//   Will send one fetch request every 1000ms, the result will be spreaded to
+//   everyone who are awaiting for the result. So you will see bunches of results
+//   in console, however all of them will refer to the single result with the same
+//   `timestamp` and `x` properties.
+//
+//   In case if you want to have separate debounce "threads" for individual arguments
+//   use `debounceByArgs`
+//
+export const debounceShared = <T extends unknown>(
+  delay: number,
+  cb: (...args: any[]) => T | Promise<T>
+) => {
+  type PromiseHandler = (T) => any;
+
+  let t: ReturnType<typeof setTimeout> | null = null;
+  let startedAt = 0;
+  let thenResolvers: PromiseHandler[] = [];
+  let thenRejecters: PromiseHandler[] = [];
+  let catchResolvers: PromiseHandler[] = [];
+
+  const resolve = (r: any) =>
+    thenResolvers.forEach((fn: PromiseHandler) => fn(r));
+  const reject = (r: any) => {
+    thenRejecters.forEach((fn: PromiseHandler) => fn(r));
+    catchResolvers.forEach((fn: PromiseHandler) => fn(r));
+  };
+  const clearHandlers = () => {
+    thenResolvers = [];
+    thenRejecters = [];
+    catchResolvers = [];
+  };
+
+  return (...args: any[]) => {
+    const now = Date.now();
+    if (now > startedAt + delay) {
+      t && clearTimeout(t);
+      startedAt = now;
+      t = setTimeout(() => {
+        try {
+          const r = cb(...args);
+          if (r && r instanceof Promise) {
+            // eslint-disable-next-line promise/catch-or-return
+            r.then(resolve)
+              .catch(reject)
+              .then((x) => {
+                clearHandlers();
+                return x;
+              });
+          } else {
+            resolve(r);
+            clearHandlers();
+          }
+        } catch (err) {
+          reject(err);
+          clearHandlers();
+        }
+      }, delay);
+    }
+    return {
+      then: (fn: PromiseHandler) =>
+        new Promise((resolve, reject) => {
+          thenResolvers.push((result: T) => resolve(fn(result)));
+          thenRejecters.push((err: Error) => reject(err));
+        }),
+      catch: (fn: PromiseHandler) =>
+        new Promise((resolve) => {
+          catchResolvers.push((result: T) => resolve(fn(result)));
+        }),
+    } as Promise<T>;
+  };
+};
+
+// The extended version of `debounceShared`
+// This wrapper groups function calls by arguments in separate "threads".
+// Saying simpler, if you take the example of `debounceShared` function
+// and replace it with `debounceByArgs`, then there will be three
+// calls for each argument set individually:
+//   fetch! 300
+//   300 > { timestamp: 1674162440796, x: 300 }
+//   300 > { timestamp: 1674162440796, x: 300 }
+//   300 > { timestamp: 1674162440796, x: 300 }
+//   300 > { timestamp: 1674162440796, x: 300 }
+//   fetch! 400
+//   400 > { timestamp: 1674162440892, x: 400 }
+//   400 > { timestamp: 1674162440892, x: 400 }
+//   400 > { timestamp: 1674162440892, x: 400 }
+//   fetch! 800
+//   800 > { timestamp: 1674162441291, x: 800 }
+//   800 > { timestamp: 1674162441291, x: 800 }
+//   fetch! 300
+//   300 > { timestamp: 1674162442008, x: 300 }
+// ...
+export const debounceByArgs = <T extends (...args: any[]) => any>(
+  ms: number,
+  callback: T
+) => {
+  const t = {};
+  return (...args) => {
+    const k = JSON.stringify(args);
+    if (!t[k]) {
+      t[k] = debounceShared(ms, callback);
+    }
+    return t[k](...args);
+  };
+};
+
 // Func utils
 export const shallowEq = <T extends Record<string, any> | Array<any>>(
   a: T,
