@@ -20,6 +20,7 @@ import {
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
   HexString,
+  NodeConfig,
   NodeEvent,
   Reward,
   Wallet,
@@ -32,13 +33,11 @@ import {
   parseTimestamp,
   shallowEq,
 } from '../../../shared/utils';
-import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
 import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
 import { Event } from '../../../proto/spacemesh/v1/Event';
-
-const logger = Logger({ className: 'smesherInfo' });
+import { isSmeshingOpts, safeSmeshingOpts } from '../smeshingOpts';
 
 const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
@@ -85,7 +84,8 @@ const getRewardsStream$ = (
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
   $isWalletActivated: Subject<void>,
-  $wallet: BehaviorSubject<Wallet | null>
+  $wallet: BehaviorSubject<Wallet | null>,
+  $nodeConfig: Observable<NodeConfig>
 ) => {
   const $smeshingSetupState = new Subject<SmeshingSetupState>();
   const $smeshingStarted = $smeshingSetupState.pipe(
@@ -95,6 +95,18 @@ const syncSmesherInfo = (
   const $isLocalNode = $wallet.pipe(
     filter(Boolean),
     map((wallet) => wallet.meta.type === WalletType.LocalNode)
+  );
+
+  const $genesisId = $wallet.pipe(
+    filter(Boolean),
+    map((wallet) => wallet.meta.genesisID),
+    distinctUntilChanged(),
+    share()
+  );
+
+  const $smeshingOpts = combineLatest([$nodeConfig, $genesisId]).pipe(
+    map(([config, genesisId]) => safeSmeshingOpts(config.smeshing, genesisId)),
+    filter(isSmeshingOpts)
   );
 
   const $isSmeshing = merge(
@@ -133,48 +145,15 @@ const syncSmesherInfo = (
     ),
     share()
   );
-  const $coinbase = $isSmeshing.pipe(
-    filter(Boolean),
-    withLatestFrom($managers, $isLocalNode),
-    switchMap(([_, managers, isLocalNode]) =>
-      isLocalNode
-        ? from(
-            managers.smesher.getCoinbase().then((res) => {
-              if (!res) return null;
-              if (res.error) {
-                logger.error('getCoinbase() return', res);
-                return null;
-              }
-              return res.coinbase;
-            })
-          )
-        : of(null)
-    ),
-    filter(Boolean),
+  const $coinbase = $smeshingOpts.pipe(
+    map((c) => c['smeshing-coinbase']),
     share()
   );
 
   const $nodeEvents = new Subject<NodeEvent>();
-  $isSmeshing
-    .pipe(filter(Boolean), withLatestFrom($managers, $isLocalNode))
-    .subscribe(([_, managers, isLocalNode]) => {
-      if (!isLocalNode) return;
-      managers.smesher.subscribeNodeEvents((err, event) => {
-        if (err || !event) return;
-        $nodeEvents.next(transformEvent(event));
-      });
-    });
 
-  const $genesisId = $wallet.pipe(
-    filter(Boolean),
-    map((wallet) => wallet.meta.genesisID),
-    distinctUntilChanged(),
-    share()
-  );
-
-  const $rewards = combineLatest([$coinbase, $genesisId]).pipe(
-    withLatestFrom($managers),
-    switchMap(([[coinbase, _], managers]) => {
+  const $rewards = combineLatest([$coinbase, $genesisId, $managers]).pipe(
+    switchMap(([coinbase, _, managers]) => {
       const historicalRewards = from(
         managers.wallet.requestRewardsByCoinbase(coinbase)
       ).pipe(concatMap((x) => x));
@@ -194,6 +173,20 @@ const syncSmesherInfo = (
     distinctUntilChanged((prev, next) => prev.length === next.length),
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
+
+  $isSmeshing
+    .pipe(
+      switchMap(() => $coinbase),
+      filter(Boolean),
+      withLatestFrom($managers, $isLocalNode)
+    )
+    .subscribe(([_, managers, isLocalNode]) => {
+      if (!isLocalNode) return;
+      managers.smesher.subscribeNodeEvents((err, event) => {
+        if (err || !event) return;
+        $nodeEvents.next(transformEvent(event));
+      });
+    });
 
   return {
     $smesherId,
