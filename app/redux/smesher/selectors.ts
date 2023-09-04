@@ -58,6 +58,7 @@ export const isSmeshing = (state: RootState) => {
     state.smesher.isSmeshingStarted &&
     (postSetupState === PostSetupState.STATE_COMPLETE ||
       postSetupState === PostSetupState.STATE_PREPARED ||
+      postSetupState === PostSetupState.STATE_PAUSED ||
       // Until Node will sync enough GRPC API returns NOT STARTED state
       // even if we already started smeshing (so PoS will be created soon)
       (postSetupState === PostSetupState.STATE_NOT_STARTED &&
