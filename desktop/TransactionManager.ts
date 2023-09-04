@@ -105,6 +105,10 @@ class TransactionManager extends AbstractManager {
   updateAppStateAccount = (address: string) => {
     const account = this.accountStates[address].getState();
     if (!account) {
+      this.logger.error(
+        'updateAppStateAccount',
+        `Account not found: ${address}`
+      );
       return;
     }
     this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, {
@@ -149,10 +153,19 @@ class TransactionManager extends AbstractManager {
     transaction: Transaction__Output | null;
     transactionState: TransactionState__Output | null;
   }) => {
-    if (!tx.transaction || !tx.transactionState || !tx.transactionState.state)
+    if (!tx.transaction || !tx.transactionState || !tx.transactionState.state) {
+      this.logger.error('handleNewTx', 'Not a valid tx', tx);
       return;
+    }
     const newTx = toTx(tx.transaction, toTxState(tx.transactionState.state));
-    if (!newTx) return;
+    if (!newTx) {
+      this.logger.error(
+        'handleNewTx',
+        'Cannot convert tx&txState into Tx type',
+        tx
+      );
+      return;
+    }
     await this.upsertTransaction(publicKey)(newTx);
   };
 
@@ -171,6 +184,7 @@ class TransactionManager extends AbstractManager {
   };
 
   private subscribeAccount = (address: Bech32Address): void => {
+    this.logger.log('subscribeAccount', address);
     // Cancel account Txs subscription
     this.txStateStream[address]?.();
 
@@ -252,6 +266,8 @@ class TransactionManager extends AbstractManager {
       address,
       this.genesisID
     );
+    this.logger.log('addAccount', address, this.genesisID);
+
     // Send stored Tx & Rewards
     this.updateAppStateTxs(address);
     this.updateAppStateRewards(address);
@@ -271,7 +287,13 @@ class TransactionManager extends AbstractManager {
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
     tx: Tx<T>
   ) => {
-    if (!this.accountStates[accountAddress]) return;
+    if (!this.accountStates[accountAddress]) {
+      this.logger.error(
+        'upsertTransaction',
+        `AccountState for ${accountAddress} not found`
+      );
+      return;
+    }
     const originalTx = this.accountStates[accountAddress].getTxById(tx.id);
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
@@ -292,9 +314,23 @@ class TransactionManager extends AbstractManager {
   private upsertTransactionFromMesh = (accountAddress: Bech32Address) => async (
     tx: TxHandlerArg
   ) => {
-    if (!tx || !tx?.transaction?.id || !tx.layerId) return;
+    if (!tx || !tx?.transaction?.id || !tx.layerId) {
+      this.logger.error(
+        'upsertTransactionFromMesh',
+        'Transaction is not valid',
+        tx
+      );
+      return;
+    }
     const newTxData = toTx(tx.transaction, null);
-    if (!newTxData) return;
+    if (!newTxData) {
+      this.logger.error(
+        'upsertTransactionFromMesh',
+        'Cannot convert transaction message into Tx type',
+        tx
+      );
+      return;
+    }
     this.upsertTransaction(accountAddress)({
       ...newTxData,
       ...(tx.layerId?.number ? { layer: tx.layerId.number } : {}),
@@ -340,7 +376,12 @@ class TransactionManager extends AbstractManager {
   };
 
   updateAccountData = (address: string) => (data: Account__Output) => {
-    if (!this.accountStates[address]) return;
+    if (!this.accountStates[address]) {
+      this.logger.error('updateAccountData', `No AccountState for ${address}`);
+      return;
+    }
+
+    this.logger.log('updateAccountData', address);
     const currentState = {
       counter: longToNumber(data.stateCurrent?.counter || 0),
       balance: longToNumber(data.stateCurrent?.balance?.value || 0),
@@ -379,7 +420,14 @@ class TransactionManager extends AbstractManager {
   };
 
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
-    if (!reward || !hasRequiredRewardFields(reward)) return;
+    if (!reward || !hasRequiredRewardFields(reward)) {
+      this.logger.error(
+        'addReward',
+        'Object is not a valid Reward type',
+        reward
+      );
+      return;
+    }
     const parsedReward: Reward = {
       layer: reward.layer.number,
       amount: longToNumber(reward.total.value),
