@@ -294,7 +294,7 @@ const ButtonWrapper = styled.div`
 
 const ERROR_MESSAGE = 'Node is not connected. Check Network tab.';
 const APPLYING_UPDATE = 'Node is applying new settings. Please wait.';
-const NODE_CONNECTING = 'Node is restarting.';
+const NODE_CONNECTING = 'Node is connecting. Please wait';
 const ERR_MESSAGE_ERR_STATE =
   'PoS initialization failed. Try to delete it and re-initialize.';
 const ERR_MESSAGE_NODE_ERROR =
@@ -409,7 +409,7 @@ const Node = ({ history, location }: Props) => {
   const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
-  const isNodeConnecting = !status || status?.topLayer === 0;
+  const isNodeConnecting = (!status || status?.topLayer === 0) && isSmeshing; // to make it possible to set up smeshing asap
   const isActionButtonDisabled =
     !!nodeError || isNodeConnecting || isActionButtonLoading;
 
