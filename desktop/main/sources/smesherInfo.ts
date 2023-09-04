@@ -85,6 +85,7 @@ const getRewardsStream$ = (
 
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
+  $isNodeReady: Observable<void>,
   $isWalletActivated: Subject<void>,
   $wallet: BehaviorSubject<Wallet | null>,
   $nodeConfig: Observable<NodeConfig>
@@ -113,11 +114,10 @@ const syncSmesherInfo = (
     filter(isSmeshingOpts)
   );
 
-  const $isSmeshing = merge(
-    $isWalletActivated,
-    $smeshingStarted,
-    interval(5 * MINUTE)
-  ).pipe(
+  const $isSmeshing = $isNodeReady.pipe(
+    switchMap(() =>
+      merge($isWalletActivated, $smeshingStarted, interval(5 * MINUTE))
+    ),
     withLatestFrom($managers, $isLocalNode),
     switchMap(([_, managers, isLocalNode]) => {
       if (isLocalNode) {
@@ -133,6 +133,7 @@ const syncSmesherInfo = (
     $isLocalNode,
     $managers,
     $isWalletActivated,
+    $isNodeReady,
   ]).pipe(
     switchMap(([isLocalNode, managers]) =>
       from(
@@ -159,7 +160,12 @@ const syncSmesherInfo = (
 
   const $nodeEvents = new Subject<NodeEvent>();
 
-  const $rewards = combineLatest([$coinbase, $genesisId, $managers]).pipe(
+  const $rewards = combineLatest([
+    $coinbase,
+    $genesisId,
+    $managers,
+    $isNodeReady,
+  ]).pipe(
     switchMap(([coinbase, genesisId, managers]) => {
       logger.log(
         '$rewards',

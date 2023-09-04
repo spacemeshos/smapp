@@ -45,6 +45,7 @@ import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
 import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherProvingOptsIpc';
 import ensureProvingOpts from './reactions/ensureProvingOpts';
+import isNodeReady$ from './reactions/isNodeReady';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -139,6 +140,7 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
+  const $isNodeReady = new $.Subject<void>();
   const $hrp = $nodeConfig.pipe(
     $.map((c) => c.main['network-hrp'] ?? HRP.MainNet),
     $.startWith(HRP.MainNet),
@@ -165,7 +167,13 @@ const startApp = (): AppStore => {
     $smeshingStarted,
     $smeshingSetupState,
     $nodeEvents,
-  } = getSmesherInfo($managers, $isWalletActivated, $wallet, $nodeConfig);
+  } = getSmesherInfo(
+    $managers,
+    $isNodeReady,
+    $isWalletActivated,
+    $wallet,
+    $nodeConfig
+  );
 
   const { $nodeRestartRequest } = nodeIPCStreams();
 
@@ -180,6 +188,8 @@ const startApp = (): AppStore => {
   const unsubs = [
     // Spawn managers (and handle unsubscribing)
     spawnManagers($nodeConfig, $managers, $mainWindow),
+    // Update `$isNodeReady`
+    isNodeReady$($isNodeReady, $managers),
     // On changing network -> update node config
     syncNodeConfig(
       $currentNetwork,
