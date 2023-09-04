@@ -20,3 +20,6 @@ export const getFirstLayerInEpochFn = (state: RootState) =>
 
 export const isGenesisPhase = (state: RootState) =>
   (state.node.status?.topLayer || 0) < getFirstLayerInEpochFn(state)(2);
+
+export const getNetworkTapBotDiscordURL = (state: RootState) =>
+  getNetworkInfo(state).tapBotDiscordURL;

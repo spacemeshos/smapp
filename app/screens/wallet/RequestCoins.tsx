@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import CopyButton from '../../basicComponents/CopyButton';
 import { Link, Button, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { Account } from '../../../shared/types';
+import { getNetworkTapBotDiscordURL } from '../../redux/network/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -88,6 +90,7 @@ const RequestCoins = ({ history, location }: Props) => {
   const {
     state: { account, isSmesherActive },
   } = location;
+  const netowrkTabBotUrl = useSelector(getNetworkTapBotDiscordURL);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const navigateToNodeSetup = () => {
@@ -96,7 +99,7 @@ const RequestCoins = ({ history, location }: Props) => {
 
   const navigateToGuide = () => window.open(ExternalLinks.GetCoinGuide);
 
-  const navigateToTap = () => window.open(ExternalLinks.DiscordTapAccount);
+  const navigateToTap = () => window.open(netowrkTabBotUrl);
 
   return (
     <Wrapper>
@@ -120,15 +123,17 @@ const RequestCoins = ({ history, location }: Props) => {
       </SubHeader>
       <Text>* This address is public and safe to share with anyone.</Text>
       <Text>* Send this address to anyone you want to receive Smesh from.</Text>
-      <ComplexText>
-        <Text>* You may also paste this address in the&nbsp;</Text>
-        <Link
-          onClick={navigateToTap}
-          text="Testnet Tap"
-          style={{ fontSize: 16, lineHeight: '22px' }}
-        />
-        <TextElement>.</TextElement>
-      </ComplexText>
+      {netowrkTabBotUrl && (
+        <ComplexText>
+          <Text>* You may also paste this address in the&nbsp;</Text>
+          <Link
+            onClick={navigateToTap}
+            text="Testnet Tap"
+            style={{ fontSize: 16, lineHeight: '22px' }}
+          />
+          <TextElement>.</TextElement>
+        </ComplexText>
+      )}
       <br />
       {!isSmesherActive && (
         <ComplexText>

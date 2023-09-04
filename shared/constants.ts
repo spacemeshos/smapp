@@ -38,7 +38,6 @@ export enum ExternalLinks {
   RestoreFileGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file',
   RestoreMnemoGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list',
   Help = 'https://testnet.spacemesh.io/#/help',
-  DiscordTapAccount = 'https://discord.gg/ASpy52C',
 }
 
 export const BITS_PER_LABEL = 128;

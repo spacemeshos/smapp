@@ -7,4 +7,5 @@ export interface NetworkState {
   rootHash: string;
   explorerUrl: string;
   genesisID: string;
+  tapBotDiscordURL: string;
 }

@@ -18,6 +18,7 @@ export default (
           layerDurationSec: parse(nodeConfig.main['layer-duration'], 's'),
           layersPerEpoch: nodeConfig.main['layers-per-epoch'],
           explorerUrl: curNet?.explorer || '',
+          tapBotDiscordURL: curNet?.tapBotDiscordURL || '',
         }
     ),
     map(objOf('network'))
