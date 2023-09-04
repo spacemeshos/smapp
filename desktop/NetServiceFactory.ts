@@ -90,7 +90,6 @@ class NetServiceFactory<
       return;
     }
 
-    this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
     if (this.service) {
       this.cancelStreams();
       this.dropNetService();
@@ -125,12 +124,17 @@ class NetServiceFactory<
     this.setIsStarted(false);
   };
 
-  ensureService = (): Promise<Service<T, ServiceName>> =>
-    this.service
-      ? Promise.resolve(this.service)
-      : Promise.reject(
-          new Error(`Service "${this.serviceName}" is not running`)
-        );
+  ensureService = (method: string): Promise<Service<T, ServiceName>> => {
+    if (this.service) return Promise.resolve(this.service);
+
+    this.logger?.error(
+      'ensureService',
+      `Cannot complete call to ${method} because Service is not started yet`
+    );
+    return Promise.reject(
+      new Error(`Service "${this.serviceName}" is not running`)
+    );
+  };
 
   callService = <K extends keyof Service<T, ServiceName>>(
     method: K,
@@ -138,7 +142,7 @@ class NetServiceFactory<
   ) => {
     type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
-    return this.ensureService().then(
+    return this.ensureService(String(method)).then(
       (_service: Service<T, ServiceName>) =>
         new Promise<Result>((resolve, reject) => {
           _service[method](

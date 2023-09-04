@@ -300,6 +300,12 @@ class NodeManager extends AbstractManager {
   };
 
   startNode = async () => {
+    logger.log(
+      'startNode',
+      `called, while node is ${
+        this.isNodeRunning() ? 'running' : 'not running'
+      }`
+    );
     if (this.isNodeRunning()) return true;
     this.$_nodeStatus.reset();
     await this.spawnNode();
@@ -498,6 +504,12 @@ class NodeManager extends AbstractManager {
   };
 
   stopNode = async () => {
+    logger.log(
+      'stopNode',
+      `called. ${
+        this.nodeProcess ? 'Has a running process' : 'No running process'
+      }`
+    );
     if (!this.nodeProcess) return;
     try {
       this.sendNodeStatus(DEFAULT_NODE_STATUS);

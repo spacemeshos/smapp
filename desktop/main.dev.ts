@@ -12,6 +12,8 @@ import 'json-bigint-patch';
 
 import { app } from 'electron';
 import 'regenerator-runtime/runtime';
+
+import pkg from '../package.json';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
@@ -23,6 +25,7 @@ import Wallet from './main/Wallet';
 import startApp from './main/startApp';
 import { init, captureMainException } from './sentry';
 import { cleanupTmpDir } from './testMode';
+import Logger from './logger';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -31,6 +34,9 @@ import { cleanupTmpDir } from './testMode';
 require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
+
+const logger = Logger({ className: 'App' });
+logger.log('Started', { version: pkg.version });
 
 // Preload data
 StoreService.init();
