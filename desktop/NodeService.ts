@@ -4,6 +4,7 @@ import {
   asNodeError,
   NodeError,
   NodeErrorLevel,
+  NodeErrorType,
   NodeStatus,
   PublicService,
   SocketAddress,
@@ -24,6 +25,7 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   stackTrace: error.stack || '',
   module: 'NodeService',
   level: NodeErrorLevel.LOG_LEVEL_WARN,
+  type: NodeErrorType.LOG_WARN,
 });
 
 const LOST_CONNECTION_ERROR = asNodeError({
@@ -31,6 +33,7 @@ const LOST_CONNECTION_ERROR = asNodeError({
   level: NodeErrorLevel.LOG_LEVEL_ERROR,
   module: 'NodeService',
   stackTrace: new Error().stack || '',
+  type: NodeErrorType.LOST_CONNECTION,
 });
 
 const NODE_NOT_RESPONDING_ERROR = asNodeError({
@@ -38,6 +41,7 @@ const NODE_NOT_RESPONDING_ERROR = asNodeError({
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeService',
   stackTrace: new Error().stack || '',
+  type: NodeErrorType.NODE_NOT_RESPONDING,
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
@@ -141,6 +145,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           asNodeError({
             ...err.error,
             level: (err.error.level as unknown) as NodeErrorLevel,
+            type: NodeErrorType.STREAM,
           })
         )
     );
