@@ -381,7 +381,6 @@ class TransactionManager extends AbstractManager {
       return;
     }
 
-    this.logger.log('updateAccountData', address);
     const currentState = {
       counter: longToNumber(data.stateCurrent?.counter || 0),
       balance: longToNumber(data.stateCurrent?.balance?.value || 0),
@@ -390,6 +389,13 @@ class TransactionManager extends AbstractManager {
       counter: longToNumber(data.stateProjected?.counter || 0),
       balance: longToNumber(data.stateProjected?.balance?.value || 0),
     };
+
+    this.logger.log('updateAccountData', {
+      address,
+      currentState,
+      projectedState,
+    });
+
     this.accountStates[address] &&
       this.accountStates[address].storeState({
         currentState,
@@ -492,7 +498,7 @@ class TransactionManager extends AbstractManager {
     const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
       (acc, reward) => {
         if (!reward || !hasRequiredRewardFields(reward)) {
-          this.logger.log(
+          this.logger.error(
             'retrieveRewards',
             'Object is not a valid Reward type',
             reward
@@ -509,15 +515,20 @@ class TransactionManager extends AbstractManager {
       },
       <Reward[]>[]
     );
+    this.logger.log(
+      'retrieveNewRewards',
+      `Got ${newRewards.length} rewards from API`
+    );
     const uniq = [...oldRewards, ...newRewards].reduce(
       (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
       <Record<string, Reward>>{}
     );
+    const uniqRewards = Object.values(uniq);
     this.logger.log(
       'retrieveNewRewards',
-      `Found ${uniq.length} rewards in total`
+      `${uniqRewards.length} unique rewards`
     );
-    return Object.values(uniq);
+    return uniqRewards;
   };
 
   getMaxGasFromEncodedTx = async (transaction: Uint8Array) => {
