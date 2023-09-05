@@ -181,13 +181,7 @@ const syncSmesherInfo = (
         map((uniqRewards) => Array.from(uniqRewards.values()))
       );
     }),
-    tap((x) =>
-      logger.log(
-        '$rewards',
-        'Got new rewards. Amount of reward messages:',
-        x.length
-      )
-    ),
+    tap((x) => logger.log('$rewards', `${x.length} rewards`)),
     shareReplay(1),
     distinctUntilChanged((prev, next) => prev.length === next.length),
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
