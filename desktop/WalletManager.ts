@@ -1,12 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { KeyPair, Reward, Wallet } from '../shared/types';
-import {
-  delay,
-  isLocalNodeType,
-  isRemoteNodeApi,
-  toHexString,
-} from '../shared/utils';
+import { isLocalNodeType, isRemoteNodeApi, toHexString } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
@@ -116,28 +111,23 @@ class WalletManager extends AbstractManager {
     };
   }
 
-  unsubscribe = () => {
-    this.txManager.unsubscribeAllStreams();
-    this.txService.cancelStreams();
+  private stopStreams() {
     this.meshService.cancelStreams();
     this.glStateService.cancelStreams();
+    this.txService.cancelStreams();
+    this.txManager.unsubscribeAllStreams();
+  }
+
+  unsubscribe = () => {
+    this.stopStreams();
     this.unsubscribeIPC();
   };
-
-  private stopServices() {
-    this.meshService.cancelStreams();
-    this.meshService.dropNetService();
-    this.glStateService.cancelStreams();
-    this.glStateService.dropNetService();
-    this.txService.cancelStreams();
-    this.txService.dropNetService();
-  }
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
     let res = false;
     try {
-      this.stopServices();
+      this.stopStreams();
 
       const prevGenesisId = this.nodeManager.getGenesisID();
       const actualGenesisId = wallet.meta.genesisID;
