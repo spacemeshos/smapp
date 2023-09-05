@@ -29,11 +29,26 @@ export enum NodeErrorLevel {
   LOG_LEVEL_SYSERROR = 8,
 }
 
+export enum NodeErrorType {
+  NOT_SPECIFIED = 0,
+  OPEN_CL_NOT_INSTALLED,
+  REDIST_NOT_INSTALLED,
+  API_NOT_RESPONDING = 4,
+  SPAWN,
+  LOG_SYSERROR,
+  LOG_FATAL,
+  LOG_WARN,
+  LOST_CONNECTION,
+  NODE_NOT_RESPONDING,
+  STREAM,
+}
+
 export interface NodeError {
   level: NodeErrorLevel;
   module: string;
   msg: string;
   stackTrace: string;
+  type: NodeErrorType;
 }
 
 export const asNodeError = (nodeError: NodeError): NodeError => nodeError;
