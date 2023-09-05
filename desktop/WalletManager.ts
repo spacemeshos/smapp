@@ -57,18 +57,10 @@ class WalletManager extends AbstractManager {
   unsubscribeAllStreams = () => this.txManager.unsubscribeAllStreams();
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.meshService.getCurrentLayer().catch((err) => {
-      logger.error('getCurrentLayer', err);
-      // eslint-disable-next-line promise/no-nesting
-      return delay(1000).then(() => this.getCurrentLayer());
-    });
+    this.meshService.getCurrentLayer();
 
   getRootHash = (): Promise<GlobalStateHash> =>
-    this.glStateService.getGlobalStateHash().catch((err) => {
-      logger.error('getRootHash', err);
-      // eslint-disable-next-line promise/no-nesting
-      return delay(1000).then(() => this.getRootHash());
-    });
+    this.glStateService.getGlobalStateHash();
 
   subscribeIPCEvents() {
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () =>
