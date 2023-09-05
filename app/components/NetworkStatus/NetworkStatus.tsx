@@ -23,6 +23,7 @@ type Props = {
   isGenesis: boolean;
   isRestarting: boolean;
   isWalletMode: boolean;
+  isLibsNotInstalled: boolean;
 };
 
 const NetworkStatus = ({
@@ -31,6 +32,7 @@ const NetworkStatus = ({
   isGenesis,
   isRestarting,
   isWalletMode,
+  isLibsNotInstalled,
 }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.verifiedLayer && status.topLayer) {
@@ -105,7 +107,11 @@ const NetworkStatus = ({
         <ProgressLabel>Connection error</ProgressLabel>
       ) : (
         <ProgressLabel>
-          {isRestarting ? 'Restarting node...' : 'Please restart node'}
+          {isRestarting
+            ? 'Restarting node...'
+            : isLibsNotInstalled
+            ? 'Please install libs and restart node'
+            : 'Please restart node'}
         </ProgressLabel>
       )}
     </>
