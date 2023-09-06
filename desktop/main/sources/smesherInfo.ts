@@ -20,7 +20,6 @@ import {
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
-  HexString,
   NodeConfig,
   NodeEvent,
   Reward,
@@ -72,16 +71,6 @@ const transformEvent = (e: Event): NodeEvent => {
     }, {});
   return transform(e);
 };
-
-const getRewardsStream$ = (
-  managers: Managers,
-  coinbase: HexString
-): Observable<Reward> =>
-  new Observable<Reward>((subscriber) =>
-    managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
-      subscriber.next(toReward(x));
-    })
-  );
 
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
@@ -159,35 +148,64 @@ const syncSmesherInfo = (
 
   const $nodeEvents = new Subject<NodeEvent>();
 
-  const $rewards = combineLatest([$coinbase, $genesisId, $managers]).pipe(
-    switchMap(([coinbase, genesisId, managers]) => {
-      logger.log(
-        '$rewards',
-        'Going to fetch historical data and subscribe on new rewards',
-        { coinbase, genesisId }
-      );
-      const historicalRewards = from(
-        managers.wallet.requestRewardsByCoinbase(coinbase)
-      ).pipe(concatMap((x) => x));
+  const $rewardsControlTuple = combineLatest([
+    $coinbase,
+    $genesisId,
+    $managers,
+  ]).pipe(
+    distinctUntilChanged(
+      (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
+    ),
+    tap(() => logger.log('$rewardsControlTuple', 'updated')),
+    share()
+  );
 
-      return merge(
-        historicalRewards,
-        getRewardsStream$(managers, coinbase)
-      ).pipe(
-        scan((acc, next) => {
-          const key = `${next.layer}$${next.amount}`;
-          return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
-        }, new Map<string, Reward>()),
-        map((uniqRewards) => Array.from(uniqRewards.values()))
-      );
+  const $rewardsHistorical = $rewardsControlTuple.pipe(
+    switchMap(([coinbase, genesisId, managers]) => {
+      logger.log('$rewardsHistorical', 'Fetching historical rewards for', {
+        coinbase,
+        genesisId,
+      });
+      return from(managers.wallet.requestRewardsByCoinbase(coinbase));
     }),
+    concatMap((x) => x)
+  );
+
+  const $rewardsStream = new Subject<Reward>();
+
+  const $isNodeReady = $managers.pipe(
+    switchMap((managers) => managers.node.$nodeStatus),
+    map((status) => status.topLayer > 0),
+    tap((x) => logger.log('$isNodeReady', x)),
+    filter(Boolean),
+    share()
+  );
+
+  $rewardsControlTuple
+    .pipe(withLatestFrom($isNodeReady))
+    .subscribe(([[coinbase, genesisId, managers]]) => {
+      logger.log('$rewardsStream', 'Subscribe on new rewards for', {
+        coinbase,
+        genesisId,
+      });
+      return managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
+        $rewardsStream.next(toReward(x));
+      });
+    });
+
+  const $rewards = merge($rewardsHistorical, $rewardsStream).pipe(
+    scan((acc, next) => {
+      const key = `${next.layer}$${next.amount}`;
+      return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
+    }, new Map<string, Reward>()),
+    map((uniqRewards) => Array.from(uniqRewards.values())),
     tap((x) => logger.log('$rewards', `${x.length} rewards`)),
     shareReplay(1),
     distinctUntilChanged((prev, next) => prev.length === next.length),
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
 
-  combineLatest([$isSmeshing, $managers, $isLocalNode]).subscribe(
+  combineLatest([$isSmeshing, $managers, $isLocalNode, $isNodeReady]).subscribe(
     ([_, managers, isLocalNode]) => {
       if (!isLocalNode) return;
       logger.log('subscribe for NodeEvents', null);
