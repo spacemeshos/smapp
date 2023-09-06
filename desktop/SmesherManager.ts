@@ -54,8 +54,6 @@ class SmesherManager extends AbstractManager {
     super(mainWindow);
     this.adminService = new AdminService();
     this.smesherService = new SmesherService();
-    this.smesherService.createService();
-    this.adminService.createService();
     this.genesisID = genesisID;
     this.$nodeConfig = $nodeConfig;
   }
