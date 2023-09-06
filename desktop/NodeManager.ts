@@ -7,6 +7,8 @@ import { ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
+import { tap } from 'ramda';
+
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -47,7 +49,6 @@ import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
 import { getBinaryPath, getNodePath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
-import { tap } from 'ramda';
 
 const logger = Logger({ className: 'NodeManager' });
 
