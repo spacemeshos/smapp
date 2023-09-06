@@ -1,3 +1,4 @@
+import os from 'os';
 import { BrowserWindow } from 'electron';
 import * as R from 'ramda';
 import {
@@ -10,6 +11,7 @@ import {
   map,
   merge,
   Observable,
+  of,
   scan,
   shareReplay,
   skipUntil,
@@ -217,6 +219,7 @@ export default (
       })
     ),
     $rootHash.pipe(map((rootHash) => ({ network: { rootHash } }))),
-    $currentLayer.pipe(map((currentLayer) => ({ network: { currentLayer } })))
+    $currentLayer.pipe(map((currentLayer) => ({ network: { currentLayer } }))),
+    of({ ui: { osPlatform: os.platform() } })
   );
 };

@@ -1,5 +1,6 @@
 import { UiState, CustomAction } from '../../types';
 import { isDarkBackground } from '../../theme';
+import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_OS_THEME,
   // THEME_SWITCHER,
@@ -18,6 +19,7 @@ const initialState: UiState = {
   skinId: null,
   error: null,
   warnings: [],
+  osPlatform: '',
 };
 
 const reducer = (state: UiState = initialState, action: CustomAction) => {
@@ -52,6 +54,8 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
       };
     case SHOW_CLOSING_APP_MODAL:
       return { ...state, isClosingApp: true };
+    case IPC_BATCH_SYNC:
+      return reduceChunkUpdate('ui', action.payload, state);
     default:
       return state;
   }
