@@ -41,6 +41,12 @@ class WalletManager extends AbstractManager {
       mainWindow,
       this.nodeManager.getGenesisID()
     );
+
+    // Temporary workaround
+    // To have Services creates asap and connected to local node by default
+    this.meshService.createService();
+    this.glStateService.createService();
+    this.txService.createService();
   }
 
   setBrowserWindow = (mainWindow: BrowserWindow, force = false) => {
