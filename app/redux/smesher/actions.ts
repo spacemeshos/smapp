@@ -14,6 +14,7 @@ export const SET_SMESHER_SETTINGS_AND_STARTUP_STATUS =
 export const SET_SETUP_COMPUTE_PROVIDERS = 'SET_SETUP_COMPUTE_PROVIDERS';
 export const SET_SMESHER_CONFIG = 'SET_SMESHER_CONFIG';
 export const STARTED_SMESHING = 'STARTED_SMESHING';
+export const NODE_RESTARTED = 'NODE_RESTARTED';
 export const DELETED_POS_DATA = 'DELETED_POST_DATA';
 export const PAUSED_SMESHING = 'PAUSED_SMESHING';
 export const RESUMED_SMESHING = 'RESUMED_SMESHING';
@@ -86,3 +87,8 @@ export const resumeSmeshing = () => async (
     ? dispatch(startSmeshing(smeshingOpts))
     : false;
 };
+
+export const nodeRestarted = () => ({
+  type: NODE_RESTARTED,
+  payload: {},
+});

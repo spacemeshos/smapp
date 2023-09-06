@@ -1,5 +1,4 @@
 import { CustomAction, SmesherState } from '../../types/redux';
-import { LOGOUT } from '../auth/actions';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
   PostSetupProvider as PostSetupProviders,
@@ -18,6 +17,7 @@ import {
   PAUSED_SMESHING,
   RESUMED_SMESHING,
   SET_METADATA,
+  NODE_RESTARTED,
 } from './actions';
 
 const initialState = {
@@ -147,6 +147,11 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postSetupState: PostSetupState.STATE_PAUSED,
       };
     }
+    case NODE_RESTARTED:
+      return {
+        ...state,
+        postSetupState: PostSetupState.STATE_PAUSED,
+      };
     case RESUMED_SMESHING: {
       return {
         ...state,
@@ -164,8 +169,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postSetupState,
       };
     }
-    case LOGOUT:
-      return initialState;
     case SET_METADATA: {
       const { payload } = action;
 
