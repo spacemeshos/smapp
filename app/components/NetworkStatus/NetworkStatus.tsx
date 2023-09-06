@@ -112,7 +112,7 @@ const NetworkStatus = ({
             isRestarting
               ? 'Restarting node...'
               : isShowMissingLibsMessage
-              ? 'Please install libs and restart node'
+              ? 'Please install required libraries and restart node'
               : 'Please restart node'
           }
         </ProgressLabel>
