@@ -87,7 +87,7 @@ const syncSmesherInfo = (
 
   const $isLocalNode = $wallet.pipe(
     filter(Boolean),
-    map((wallet) => wallet.meta.type === WalletType.LocalNode)
+    map((wallet) => wallet.meta.type !== WalletType.RemoteApi)
   );
 
   const $genesisId = $wallet.pipe(
@@ -102,12 +102,20 @@ const syncSmesherInfo = (
     filter(isSmeshingOpts)
   );
 
+  const $isNodeReady = $managers.pipe(
+    switchMap((managers) => managers.node.$nodeStatus),
+    map((status) => status.topLayer > 0),
+    tap((x) => logger.log('$isNodeReady', x)),
+    filter(Boolean),
+    share()
+  );
+
   const $isSmeshing = merge(
     $isWalletActivated,
     $smeshingStarted,
     interval(5 * MINUTE)
   ).pipe(
-    withLatestFrom($managers, $isLocalNode),
+    withLatestFrom($managers, $isLocalNode, $isNodeReady),
     switchMap(([_, managers, isLocalNode]) => {
       if (isLocalNode) {
         return from(managers.smesher.isSmeshing().catch(() => false));
@@ -173,14 +181,6 @@ const syncSmesherInfo = (
 
   const $rewardsStream = new Subject<Reward>();
 
-  const $isNodeReady = $managers.pipe(
-    switchMap((managers) => managers.node.$nodeStatus),
-    map((status) => status.topLayer > 0),
-    tap((x) => logger.log('$isNodeReady', x)),
-    filter(Boolean),
-    share()
-  );
-
   $rewardsControlTuple
     .pipe(withLatestFrom($isNodeReady))
     .subscribe(([[coinbase, genesisId, managers]]) => {
@@ -205,7 +205,7 @@ const syncSmesherInfo = (
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
 
-  combineLatest([$isSmeshing, $managers, $isLocalNode, $isNodeReady]).subscribe(
+  combineLatest([$isSmeshing, $managers, $isLocalNode]).subscribe(
     ([_, managers, isLocalNode]) => {
       if (!isLocalNode) return;
       logger.log('subscribe for NodeEvents', null);
