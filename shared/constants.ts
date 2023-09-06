@@ -38,6 +38,10 @@ export enum ExternalLinks {
   RestoreFileGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file',
   RestoreMnemoGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list',
   Help = 'https://testnet.spacemesh.io/#/help',
+  DiscordTapAccount = 'https://discord.gg/ASpy52C',
+  redistWindowsInstallOfficialSite = 'https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022',
+  openCLWindowsInstallGuide = 'https://sasview.org/docs/old_docs/4.1.2/user/opencl_installation.html',
+  goSpacemeshNodeGuide = 'https://github.com/spacemeshos/go-spacemesh',
 }
 
 export const BITS_PER_LABEL = 128;

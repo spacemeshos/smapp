@@ -23,7 +23,7 @@ type Props = {
   isGenesis: boolean;
   isRestarting: boolean;
   isWalletMode: boolean;
-  isLibsNotInstalled: boolean;
+  isShowMissingLibsMessage: boolean;
 };
 
 const NetworkStatus = ({
@@ -32,7 +32,7 @@ const NetworkStatus = ({
   isGenesis,
   isRestarting,
   isWalletMode,
-  isLibsNotInstalled,
+  isShowMissingLibsMessage,
 }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.verifiedLayer && status.topLayer) {
@@ -107,11 +107,14 @@ const NetworkStatus = ({
         <ProgressLabel>Connection error</ProgressLabel>
       ) : (
         <ProgressLabel>
-          {isRestarting
-            ? 'Restarting node...'
-            : isLibsNotInstalled
-            ? 'Please install libs and restart node'
-            : 'Please restart node'}
+          {
+            // eslint-disable-next-line no-nested-ternary
+            isRestarting
+              ? 'Restarting node...'
+              : isShowMissingLibsMessage
+              ? 'Please install libs and restart node'
+              : 'Please restart node'
+          }
         </ProgressLabel>
       )}
     </>
