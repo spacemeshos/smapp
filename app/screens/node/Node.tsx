@@ -409,7 +409,7 @@ const Node = ({ history, location }: Props) => {
   const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
-  const isNodeConnecting = (!status || status?.topLayer === 0) && isSmeshing; // to make it possible to set up smeshing asap
+  const isNodeConnecting = (!status || status?.topLayer === 0) && isSmesherActive; // to make it possible to set up smeshing asap
   const isActionButtonDisabled =
     !!nodeError || isNodeConnecting || isActionButtonLoading;
 
