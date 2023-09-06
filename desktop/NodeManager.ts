@@ -7,6 +7,8 @@ import { ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
+import { tap } from 'ramda';
+
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -238,19 +240,39 @@ class NodeManager extends AbstractManager {
     };
   }
 
+  private isNodeAlivePromise: Promise<boolean> | null = null;
+
   isNodeAlive = async (retries = 60): Promise<boolean> => {
-    if (!this.isNodeRunning()) {
-      return false;
+    if (this.isNodeAlivePromise) {
+      logger.log('isNodeAlive', 'Pending promise exist -> return reference');
+      return this.isNodeAlivePromise;
     }
-    const isReady = await this.nodeService.echo();
-    if (isReady) {
-      return true;
-    } else if (retries > 0) {
-      await delay(5000);
-      return this.isNodeAlive(retries - 1);
-    } else {
-      return false;
-    }
+
+    const checkLiveness = async (retries: number): Promise<boolean> => {
+      const isReady = await this.nodeService.echo();
+      if (isReady) {
+        return true;
+      } else if (retries > 0) {
+        await delay(5000);
+        return checkLiveness(retries - 1);
+      } else {
+        return false;
+      }
+    };
+
+    const resetPromise = tap<any>((x) => {
+      logger.log('isNodeAlive', 'Promise resolved/rejected with', x);
+      this.isNodeAlivePromise = null;
+      logger.log('isNodeAlive', 'Dropped the Promise reference');
+    });
+
+    logger.log('isNodeAlive', 'Run new Promise...');
+    this.isNodeAlivePromise = checkLiveness(retries).then(
+      resetPromise,
+      resetPromise
+    );
+
+    return this.isNodeAlivePromise;
   };
 
   isNodeRunning = () => {
