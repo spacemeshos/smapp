@@ -23,7 +23,6 @@ export default (
         await managers.node.startNode();
         await managers.node.updateNodeStatus();
         await managers.smesher.serviceStartupFlow();
-        await managers.smesher.updateSmesherState();
       })();
     }
   );
