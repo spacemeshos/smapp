@@ -1,17 +1,13 @@
 import { BrowserWindow } from 'electron';
-import {
-  combineLatest,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-  Subject,
-} from 'rxjs';
+import { combineLatest, map, Observable, startWith, Subject } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
 import { Managers } from '../app.types';
 import { makeSubscription } from '../rx.utils';
+import Logger from '../../logger';
+
+const logger = Logger({ className: 'activateWallet' });
 
 export default (
   $wallet: Observable<Wallet | null>,
@@ -29,15 +25,7 @@ export default (
         map(() => true),
         startWith(false)
       ),
-    ]).pipe(
-      distinctUntilChanged(
-        (prev, next) =>
-          prev[0]?.meta.genesisID === next[0]?.meta.genesisID &&
-          prev[0]?.meta.remoteApi === next[0]?.meta.remoteApi &&
-          prev[0]?.crypto.mnemonic === next[0]?.crypto.mnemonic &&
-          prev[3] === next[3]
-      )
-    ),
+    ]),
     async ([wallet, managers, mw, shallRestart]) => {
       if (
         !wallet ||
@@ -64,5 +52,6 @@ export default (
       // Renderer waits for WALLET_ACTIVATED event
       // to show the next screen, so we send it anyway
       mw.webContents.send(ipcConsts.WALLET_ACTIVATED);
+      logger.debug('Send IPC Event WALLET_ACTIVATE IPC');
     }
   );
