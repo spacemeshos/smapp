@@ -54,6 +54,8 @@ class SmesherManager extends AbstractManager {
     super(mainWindow);
     this.adminService = new AdminService();
     this.smesherService = new SmesherService();
+    this.smesherService.createService();
+    this.adminService.createService();
     this.genesisID = genesisID;
     this.$nodeConfig = $nodeConfig;
   }
@@ -104,9 +106,6 @@ class SmesherManager extends AbstractManager {
   serviceStartupFlow = async () => {
     const cfg = await this.sendSmesherConfig();
     if (cfg?.start) {
-      // Ensure that we started service
-      this.smesherService.createService();
-      this.adminService.createService();
       const { postSetupState } = await this.smesherService.getPostSetupStatus();
       // Unsubscribe first
       this.smesherService.deactivateProgressStream();
