@@ -39,6 +39,7 @@ import handleOpenDashboard from './reactions/handleOpenDashboard';
 import nodeIPCStreams, { sentryLogsListener } from './sources/node.ipc';
 import handleWipeOut from './reactions/wipeOut.ipc';
 import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
+import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
@@ -196,6 +197,8 @@ const startApp = (): AppStore => {
     ),
     // When silent mode enabled, and smeshing-start: true in node-config
     handleNodeAutoStart($runNodeBeforeLogin, $wallet, $managers),
+    // Each time when Smapp is activated (window reloaded and shown)...
+    handleAppWalletChange($isWalletActivated, $wallet, $managers),
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
