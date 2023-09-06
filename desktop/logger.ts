@@ -14,6 +14,7 @@ const formatErrorMessage = (className, fn, err, args) =>
 
 logger.transports.file.resolvePath = (vars) =>
   path.join(USERDATA_DIR, `/app-log.${vars.appVersion}.txt`);
+logger.transports.file.level = 'debug';
 logger.transports.console.level = isDebug() && 'debug';
 
 const Logger = ({ className }: { className: string }) => ({
