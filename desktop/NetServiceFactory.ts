@@ -90,7 +90,6 @@ class NetServiceFactory<
       return;
     }
 
-    this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
     if (this.service) {
       this.cancelStreams();
       this.dropNetService();
