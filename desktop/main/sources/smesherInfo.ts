@@ -106,8 +106,7 @@ const syncSmesherInfo = (
     switchMap((managers) => managers.node.$nodeStatus),
     map((status) => status.topLayer > 0),
     tap((x) => logger.log('$isNodeReady', x)),
-    filter(Boolean),
-    share()
+    filter(Boolean)
   );
 
   const $isSmeshing = merge(
