@@ -102,19 +102,12 @@ const syncSmesherInfo = (
     filter(isSmeshingOpts)
   );
 
-  const $isNodeReady = $managers.pipe(
-    switchMap((managers) => managers.node.$nodeStatus),
-    map((status) => status.topLayer > 0),
-    tap((x) => logger.log('$isNodeReady', x)),
-    filter(Boolean)
-  );
-
   const $isSmeshing = merge(
     $isWalletActivated,
     $smeshingStarted,
     interval(5 * MINUTE)
   ).pipe(
-    withLatestFrom($managers, $isLocalNode, $isNodeReady),
+    withLatestFrom($managers, $isLocalNode),
     switchMap(([_, managers, isLocalNode]) => {
       if (isLocalNode) {
         return from(managers.smesher.isSmeshing().catch(() => false));
@@ -180,17 +173,15 @@ const syncSmesherInfo = (
 
   const $rewardsStream = new Subject<Reward>();
 
-  $rewardsControlTuple
-    .pipe(withLatestFrom($isNodeReady))
-    .subscribe(([[coinbase, genesisId, managers]]) => {
-      logger.log('$rewardsStream', 'Subscribe on new rewards for', {
-        coinbase,
-        genesisId,
-      });
-      return managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
-        $rewardsStream.next(toReward(x));
-      });
+  $rewardsControlTuple.subscribe(([coinbase, genesisId, managers]) => {
+    logger.log('$rewardsStream', 'Subscribe on new rewards for', {
+      coinbase,
+      genesisId,
     });
+    return managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
+      $rewardsStream.next(toReward(x));
+    });
+  });
 
   const $rewards = merge($rewardsHistorical, $rewardsStream).pipe(
     scan((acc, next) => {
