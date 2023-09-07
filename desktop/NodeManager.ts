@@ -337,7 +337,7 @@ class NodeManager extends AbstractManager {
 
   updateNodeStatus = async () => {
     // wait for status response
-    const status = await this.getNodeStatus(5);
+    const status = await this.getNodeStatus();
     // update node status
     this.sendNodeStatus(status);
     return true;
@@ -596,6 +596,7 @@ class NodeManager extends AbstractManager {
   };
 
   sendNodeStatus: StatusStreamHandler = debounce(200, (status: NodeStatus) => {
+    logger.log('sendNodeStatus', status);
     this.$_nodeStatus.next(status);
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
   });
@@ -627,12 +628,10 @@ class NodeManager extends AbstractManager {
     this.pushToErrorPool({ type: 'NodeError', error });
   };
 
-  getNodeStatus = async (retries: number): Promise<NodeStatus> => {
+  getNodeStatus = async (): Promise<NodeStatus> => {
     try {
       return await this.nodeService.getNodeStatus();
     } catch (error) {
-      if (retries > 0)
-        return delay(500).then(() => this.getNodeStatus(retries - 1));
       logger.error('getNodeStatus', error);
       return DEFAULT_NODE_STATUS;
     }
