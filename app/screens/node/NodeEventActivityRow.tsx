@@ -24,17 +24,23 @@ const withTime = (str: string, now: number, wait?: number) =>
     </>
   );
 
+const getEventErrorMessage = (event: NodeEvent) => {
+  switch (getEventType(event)) {
+    case 'initFailed':
+      return `PoST data initialization failed: ${event.initFailed?.error}`;
+    default:
+      return `Stage "${getNodeEventStage(
+        event
+      )}" failed. Check the logs for more details.`;
+  }
+};
+
 export default (event: NodeEvent) => {
   if (event && event.failure) {
-    return (
-      <ErrorMessage>
-        Stage &quot;{getNodeEventStage(event)}&quot; failed. Check the logs for{' '}
-        more details.
-      </ErrorMessage>
-    );
+    return <ErrorMessage>{getEventErrorMessage(event)}</ErrorMessage>;
   }
   if (!event) {
-    return 'Node is preparing...';
+    return 'Node is connecting...';
   }
   switch (getEventType(event)) {
     case 'initStart':
