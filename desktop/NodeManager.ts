@@ -595,7 +595,7 @@ class NodeManager extends AbstractManager {
     }
   };
 
-  sendNodeStatus: StatusStreamHandler = debounce(200, (status: NodeStatus) => {
+  sendNodeStatus: StatusStreamHandler = debounce(1000, (status: NodeStatus) => {
     logger.log('sendNodeStatus', status);
     this.$_nodeStatus.next(status);
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
@@ -638,14 +638,17 @@ class NodeManager extends AbstractManager {
   };
 
   activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream(this.pushNodeError);
+    logger.debug('activateNodeErrorStream');
+    return this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
-  activateNodeStatusStream = () =>
-    this.nodeService.activateStatusStream(
+  activateNodeStatusStream = () => {
+    logger.debug('activateNodeStatusStream');
+    return this.nodeService.activateStatusStream(
       this.sendNodeStatus,
       this.pushNodeError
     );
+  };
 }
 
 export default NodeManager;
