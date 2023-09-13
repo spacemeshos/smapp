@@ -1,6 +1,8 @@
 import path from 'path';
 import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
+import { flatten } from 'ramda';
+
 import { PublicService, SocketAddress } from '../shared/types';
 import { delay, isNodeApiEq } from '../shared/utils';
 import Logger from './logger';
@@ -59,18 +61,11 @@ class NetServiceFactory<
 
   private isStarted = false;
 
-  private protoPath: string | null = null;
-
   private apiUrl: SocketAddress | null = null;
-
-  private startStreamList: Record<
-    keyof Service<T, ServiceName>,
-    () => Promise<void>
-  > = {} as typeof this.startStreamList;
 
   private cancelStreamList: Record<
     keyof Service<T, ServiceName>,
-    () => Promise<void>
+    Array<() => Promise<void>>
   > = {} as typeof this.cancelStreamList;
 
   private setIsStarted = (value: boolean) => {
@@ -95,7 +90,6 @@ class NetServiceFactory<
       this.dropNetService();
     }
 
-    this.protoPath = protoPath;
     this.apiUrl = apiUrl;
 
     const resolvedProtoPath = path.join(__dirname, '..', protoPath);
@@ -237,9 +231,17 @@ class NetServiceFactory<
     const cancel = () =>
       new Promise<void>((resolve) =>
         setImmediate(() => {
+          this.logger?.debug(
+            `grpc ${this.serviceName}.${String(method)}`,
+            'cancel() called'
+          );
           if (stream && stream.cancel) {
             stream.cancel();
             stream.destroy();
+            this.logger?.debug(
+              `grpc ${this.serviceName}.${String(method)}`,
+              'cancelled'
+            );
           }
           resolve();
         })
@@ -257,8 +259,6 @@ class NetServiceFactory<
         `${this.serviceName}.${String(method)} connecting`,
         `Attempt #${attempt}`
       );
-
-      await cancel();
 
       stream = this.service[method](opts);
       stream.on('data', (data) => {
@@ -278,32 +278,40 @@ class NetServiceFactory<
         onError(error);
       });
       stream.on('end', async () => {
-        await delay(10000);
-        if (this.isStarted) {
-          // Do not log error messages if it is not fully connected yet
-          this.logger?.debug(
-            `grpc ${this.serviceName}.${String(method)} reconnecting...`,
-            null
+        try {
+          await delay(10000);
+          if (this.isStarted) {
+            // Do not log error messages if it is not fully connected yet
+            this.logger?.debug(
+              `grpc ${this.serviceName}.${String(method)} reconnecting...`,
+              opts
+            );
+          }
+          await cancel();
+          await startStream(attempt + 1);
+        } catch (err) {
+          this.logger?.error(
+            `grpc ${this.serviceName}.${String(method)} reconnection failure`,
+            err,
+            opts
           );
         }
-        await startStream(attempt + 1);
       });
     };
     startStream();
 
-    this.cancelStreamList[method] = () => cancel();
-    this.startStreamList[method] = () => startStream();
+    this.cancelStreamList[method] = [
+      ...(this.cancelStreamList[method] ?? []),
+      () => cancel(),
+    ];
 
     return cancel;
   };
 
-  private callStreamList = (
-    list: typeof this.startStreamList | typeof this.cancelStreamList
-  ) => Promise.all(Object.values(list).map((fn) => fn.call(this)));
-
-  restartStreams = () => this.callStreamList(this.startStreamList);
-
-  cancelStreams = () => this.callStreamList(this.cancelStreamList);
+  cancelStreams = () =>
+    Promise.all(
+      flatten(Object.values(this.cancelStreamList)).map((fn) => fn.call(this))
+    );
 }
 
 export default NetServiceFactory;
