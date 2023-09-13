@@ -1,5 +1,4 @@
 import { CustomAction, SmesherState } from '../../types/redux';
-import { LOGOUT } from '../auth/actions';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
   PostSetupProvider as PostSetupProviders,
@@ -164,8 +163,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postSetupState,
       };
     }
-    case LOGOUT:
-      return initialState;
     case SET_METADATA: {
       const { payload } = action;
 

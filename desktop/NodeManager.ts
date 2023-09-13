@@ -7,6 +7,8 @@ import { ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
+import { tap } from 'ramda';
+
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -238,19 +240,39 @@ class NodeManager extends AbstractManager {
     };
   }
 
+  private isNodeAlivePromise: Promise<boolean> | null = null;
+
   isNodeAlive = async (retries = 60): Promise<boolean> => {
-    if (!this.isNodeRunning()) {
-      return false;
+    if (this.isNodeAlivePromise) {
+      logger.log('isNodeAlive', 'Pending promise exist -> return reference');
+      return this.isNodeAlivePromise;
     }
-    const isReady = await this.nodeService.echo();
-    if (isReady) {
-      return true;
-    } else if (retries > 0) {
-      await delay(5000);
-      return this.isNodeAlive(retries - 1);
-    } else {
-      return false;
-    }
+
+    const checkLiveness = async (retries: number): Promise<boolean> => {
+      const isReady = await this.nodeService.echo();
+      if (isReady) {
+        return true;
+      } else if (retries > 0) {
+        await delay(5000);
+        return checkLiveness(retries - 1);
+      } else {
+        return false;
+      }
+    };
+
+    const resetPromise = tap<any>((x) => {
+      logger.log('isNodeAlive', 'Promise resolved/rejected with', x);
+      this.isNodeAlivePromise = null;
+      logger.log('isNodeAlive', 'Dropped the Promise reference');
+    });
+
+    logger.log('isNodeAlive', 'Run new Promise...');
+    this.isNodeAlivePromise = checkLiveness(retries).then(
+      resetPromise,
+      resetPromise
+    );
+
+    return this.isNodeAlivePromise;
   };
 
   isNodeRunning = () => {
@@ -300,6 +322,12 @@ class NodeManager extends AbstractManager {
   };
 
   startNode = async () => {
+    logger.log(
+      'startNode',
+      `called, while node is ${
+        this.isNodeRunning() ? 'running' : 'not running'
+      }`
+    );
     if (this.isNodeRunning()) return true;
     this.$_nodeStatus.reset();
     await this.spawnNode();
@@ -309,7 +337,7 @@ class NodeManager extends AbstractManager {
 
   updateNodeStatus = async () => {
     // wait for status response
-    const status = await this.getNodeStatus(5);
+    const status = await this.getNodeStatus();
     // update node status
     this.sendNodeStatus(status);
     return true;
@@ -498,6 +526,12 @@ class NodeManager extends AbstractManager {
   };
 
   stopNode = async () => {
+    logger.log(
+      'stopNode',
+      `called. ${
+        this.nodeProcess ? 'Has a running process' : 'No running process'
+      }`
+    );
     if (!this.nodeProcess) return;
     try {
       this.sendNodeStatus(DEFAULT_NODE_STATUS);
@@ -562,6 +596,7 @@ class NodeManager extends AbstractManager {
   };
 
   sendNodeStatus: StatusStreamHandler = debounce(200, (status: NodeStatus) => {
+    logger.log('sendNodeStatus', status);
     this.$_nodeStatus.next(status);
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
   });
@@ -593,12 +628,10 @@ class NodeManager extends AbstractManager {
     this.pushToErrorPool({ type: 'NodeError', error });
   };
 
-  getNodeStatus = async (retries: number): Promise<NodeStatus> => {
+  getNodeStatus = async (): Promise<NodeStatus> => {
     try {
       return await this.nodeService.getNodeStatus();
     } catch (error) {
-      if (retries > 0)
-        return delay(500).then(() => this.getNodeStatus(retries - 1));
       logger.error('getNodeStatus', error);
       return DEFAULT_NODE_STATUS;
     }

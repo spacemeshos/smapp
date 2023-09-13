@@ -20,15 +20,9 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   };
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.callServiceWithRetries('CurrentLayer', {})
-      .then(({ layernum }) => ({
-        currentLayer: layernum?.number || 0,
-      }))
-      .catch((err) => {
-        this.logger.error('getCurrentLayer', err);
-        // eslint-disable-next-line promise/no-nesting
-        return delay(1000).then(() => this.getCurrentLayer());
-      });
+    this.callServiceWithRetries('CurrentLayer', {}).then(({ layernum }) => ({
+      currentLayer: layernum?.number || 0,
+    }));
 
   getGenesisID = (): Promise<Uint8Array> =>
     this.callServiceWithRetries('GenesisID', {})

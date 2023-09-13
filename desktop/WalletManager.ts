@@ -1,12 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { KeyPair, Reward, Wallet } from '../shared/types';
-import {
-  delay,
-  isLocalNodeType,
-  isRemoteNodeApi,
-  toHexString,
-} from '../shared/utils';
+import { isLocalNodeType, isRemoteNodeApi, toHexString } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
@@ -46,6 +41,12 @@ class WalletManager extends AbstractManager {
       mainWindow,
       this.nodeManager.getGenesisID()
     );
+
+    // Temporary workaround
+    // To have Services creates asap and connected to local node by default
+    this.meshService.createService();
+    this.glStateService.createService();
+    this.txService.createService();
   }
 
   setBrowserWindow = (mainWindow: BrowserWindow, force = false) => {
@@ -57,18 +58,10 @@ class WalletManager extends AbstractManager {
   unsubscribeAllStreams = () => this.txManager.unsubscribeAllStreams();
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.meshService.getCurrentLayer().catch((err) => {
-      logger.error('getCurrentLayer', err);
-      // eslint-disable-next-line promise/no-nesting
-      return delay(1000).then(() => this.getCurrentLayer());
-    });
+    this.meshService.getCurrentLayer();
 
   getRootHash = (): Promise<GlobalStateHash> =>
-    this.glStateService.getGlobalStateHash().catch((err) => {
-      logger.error('getRootHash', err);
-      // eslint-disable-next-line promise/no-nesting
-      return delay(1000).then(() => this.getRootHash());
-    });
+    this.glStateService.getGlobalStateHash();
 
   subscribeIPCEvents() {
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () =>
@@ -124,28 +117,23 @@ class WalletManager extends AbstractManager {
     };
   }
 
-  unsubscribe = () => {
-    this.txManager.unsubscribeAllStreams();
-    this.txService.cancelStreams();
+  private stopStreams() {
     this.meshService.cancelStreams();
     this.glStateService.cancelStreams();
+    this.txService.cancelStreams();
+    this.txManager.unsubscribeAllStreams();
+  }
+
+  unsubscribe = () => {
+    this.stopStreams();
     this.unsubscribeIPC();
   };
-
-  private stopServices() {
-    this.meshService.cancelStreams();
-    this.meshService.dropNetService();
-    this.glStateService.cancelStreams();
-    this.glStateService.dropNetService();
-    this.txService.cancelStreams();
-    this.txService.dropNetService();
-  }
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
     let res = false;
     try {
-      this.stopServices();
+      this.stopStreams();
 
       const prevGenesisId = this.nodeManager.getGenesisID();
       const actualGenesisId = wallet.meta.genesisID;

@@ -165,7 +165,7 @@ const startApp = (): AppStore => {
     $smeshingStarted,
     $smeshingSetupState,
     $nodeEvents,
-  } = getSmesherInfo($managers, $isWalletActivated, $wallet);
+  } = getSmesherInfo($managers, $isWalletActivated, $wallet, $nodeConfig);
 
   const { $nodeRestartRequest } = nodeIPCStreams();
 
