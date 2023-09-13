@@ -106,10 +106,11 @@ const RequestCoins = ({ history, location }: Props) => {
       <Header>
         Request SMH
         <br />
+        <br />
         --
       </Header>
       <SubHeader>
-        <Text>Request SMH by sharing your wallet&apos;s address:</Text>
+        <Text>Here&apos;s your Account address:</Text>
         <CopyButton
           value={account.address}
           hideCopyIcon={isCopied}
@@ -121,8 +122,8 @@ const RequestCoins = ({ history, location }: Props) => {
           </AddressWrapper>
         </CopyButton>
       </SubHeader>
-      <Text>* This address is public and safe to share with anyone.</Text>
-      <Text>* Send this address to anyone you want to receive Smesh from.</Text>
+      <Text>* This address is public and safe to share.</Text>
+      <Text>* Send it to anyone you want to request SMH from.</Text>
       {netowrkTabBotUrl && (
         <ComplexText>
           <Text>* You may also paste this address in the&nbsp;</Text>
