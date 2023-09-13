@@ -135,7 +135,6 @@ class TransactionManager extends AbstractManager {
         return true;
       })
       .catch((err) => {
-        console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeTx', err);
         return false;
       });
