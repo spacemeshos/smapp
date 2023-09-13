@@ -30,7 +30,8 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "debug:tx": "ts-node ./scripts/composeTx.ts",
-    "debug:wallet": "ts-node ./scripts/readSecrets.ts"
+    "debug:wallet": "ts-node ./scripts/readSecrets.ts",
+    "debug:addViewAccount": "ts-node ./scripts/addViewOnlyAccount.ts"
   },
   "repository": {
     "type": "git",
