@@ -17,6 +17,7 @@ import {
   switchMap,
   withLatestFrom,
   tap,
+  debounceTime,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
@@ -153,6 +154,7 @@ const syncSmesherInfo = (
     $genesisId,
     $managers,
   ]).pipe(
+    debounceTime(30000),
     distinctUntilChanged(
       (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
     ),
@@ -179,7 +181,9 @@ const syncSmesherInfo = (
       genesisId,
     });
     return managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
-      $rewardsStream.next(toReward(x));
+      const reward = toReward(x);
+      logger.log('$rewardsStream', 'Got new reward', reward);
+      $rewardsStream.next(reward);
     });
   });
 
@@ -189,10 +193,11 @@ const syncSmesherInfo = (
       return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
     }, new Map<string, Reward>()),
     map((uniqRewards) => Array.from(uniqRewards.values())),
-    tap((x) => logger.log('$rewards', `${x.length} rewards`)),
     shareReplay(1),
     distinctUntilChanged((prev, next) => prev.length === next.length),
-    map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
+    map((rewards) => rewards.sort((a, b) => a.layer - b.layer)),
+    debounceTime(5000),
+    tap((r) => logger.log('$rewards updated:', r.length))
   );
 
   combineLatest([$isSmeshing, $managers, $isLocalNode]).subscribe(
