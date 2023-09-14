@@ -153,11 +153,9 @@ const syncSmesherInfo = (
     $coinbase,
     $genesisId,
     $managers,
+    $isWalletActivated,
   ]).pipe(
     debounceTime(30000),
-    distinctUntilChanged(
-      (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
-    ),
     tap(() => logger.log('$rewardsControlTuple', 'updated')),
     share()
   );
