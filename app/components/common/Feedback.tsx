@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { captureReactException, captureReactMessage } from '../../sentry';
-import Loader from '../../basicComponents/Loader';
+import { captureReactMessage, captureReactUserFeedback } from '../../sentry';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
 import CopyButton from '../../basicComponents/CopyButton';
@@ -202,40 +200,8 @@ const IssueDescriptionSection = styled.div`
 interface FormFields {
   name: string;
   email: string;
-  description: string;
+  comments: string;
 }
-
-const sendReport = (
-  name: string,
-  email: string,
-  comments: string,
-  uniqID: string
-) =>
-  fetch(
-    `https://sentry.io/api/0/projects/${process.env.SENTRY_SLUG}/${process.env.SENTRY_PROJECT_SLUG}/user-feedback/`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `DSN ${process.env.SENTRY_DSN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event_id: captureReactMessage(`
-           User has submitted an issue and asked to check it. id: ${uniqID}
-           ------------------------------------------------------------------
-           ${name}
-           ------------------------------------------------------------------
-           ${email}
-           ------------------------------------------------------------------
-           ${comments}
-           ------------------------------------------------------------------
-           `),
-        name,
-        email,
-        comments,
-      }),
-    }
-  );
 
 const DESCRIPTION_PLACEHOLDER = `### Describe the bug
 
@@ -255,9 +221,9 @@ What’s happening now?
 `;
 
 const FORM_ERRORS: Partial<FormFields> = {
-  name: 'Your name should not be empty',
+  name: 'Your Discord handle or name should not be empty',
   email: 'Email should be valid',
-  description: 'Steps to reproduce should not be empty',
+  comments: 'Steps to reproduce should not be empty',
 };
 
 const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
@@ -269,23 +235,22 @@ const FeedbackButton = () => {
     setUniqIdentifierForSuccessDialog,
   ] = useState('');
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<FormFields>({
     name: '',
     email: '',
-    description: DESCRIPTION_PLACEHOLDER,
+    comments: DESCRIPTION_PLACEHOLDER,
   });
   const [fieldErrors, setFieldErrors] = useState({
     name: '',
     email: '',
-    description: '',
+    comments: '',
   });
 
   const resetForm = () =>
     setUserData({
       name: '',
       email: '',
-      description: DESCRIPTION_PLACEHOLDER,
+      comments: DESCRIPTION_PLACEHOLDER,
     });
 
   const validate = () => {
@@ -306,18 +271,21 @@ const FeedbackButton = () => {
   };
 
   const handleReport = () => {
-    if (validate()) {
-      setIsLoading(true);
-      const uniqId = uuidv4();
-      sendReport(userData.name, userData.email, userData.description, uniqId)
-        .then(() => {
-          resetForm();
-          setIsLoading(false);
-          setShowReportDialog(false);
-          return setUniqIdentifierForSuccessDialog(uniqId);
-        })
-        .catch(captureReactException);
+    if (!validate()) {
+      return;
     }
+
+    const formData = {
+      event_id: captureReactMessage(`
+           User has submitted an issue and asked to check it. Discord handle: ${userData.name} and email: ${userData.email}, 
+         `),
+      ...userData,
+    };
+
+    captureReactUserFeedback(formData);
+    resetForm();
+    setShowReportDialog(false);
+    setUniqIdentifierForSuccessDialog(formData.event_id);
   };
 
   const handleCloseSuccessMessageModal = () => {
@@ -325,15 +293,6 @@ const FeedbackButton = () => {
   };
 
   const openDiscord = () => window.open(ExternalLinks.Discord);
-
-  if (isLoading) {
-    return (
-      <Loader
-        size={Loader.sizes.SMALL}
-        note="We are sending the report. Please wait."
-      />
-    );
-  }
 
   return (
     <Container>
@@ -382,12 +341,12 @@ const FeedbackButton = () => {
           indicatorColor={smColors.red}
         >
           <ModalContainer>
-            <InputWrapper label="Name" required>
+            <InputWrapper label="Your Discord handle or name" required>
               <ActualInput
                 value={userData.name}
                 type="text"
                 required
-                placeholder="John Doe"
+                placeholder="nickname"
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -418,19 +377,19 @@ const FeedbackButton = () => {
             )}
             <InputWrapper label="Step to reproduce" required>
               <StyledTextArea
-                value={userData.description}
+                value={userData.comments}
                 required
                 placeholder={DESCRIPTION_PLACEHOLDER}
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
-                    description: e.target.value,
+                    comments: e.target.value,
                   }))
                 }
               />
             </InputWrapper>
-            {Boolean(fieldErrors.description) && (
-              <ErrorMessage>{fieldErrors.description}</ErrorMessage>
+            {Boolean(fieldErrors.comments) && (
+              <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
             )}
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
