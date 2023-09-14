@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import { ProgressInfo, UpdateInfo } from 'electron-updater';
 import { TemplateRegistry } from '@spacemesh/sm-codec';
 
+import { setReactTags } from '../../sentry';
 import { ipcConsts } from '../../vars';
 import {
   setNodeError,
@@ -286,6 +287,10 @@ ipcRenderer.on(
   ipcConsts.N_M_GET_VERSION_AND_BUILD,
   (_event, payload: NodeVersionAndBuild) => {
     store.dispatch(setVersionAndBuild(payload));
+    setReactTags({
+      'go-sapacemesh:version': payload.version,
+      'go-sapacemesh:build': payload.build,
+    });
   }
 );
 
