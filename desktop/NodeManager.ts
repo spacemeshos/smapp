@@ -146,19 +146,18 @@ class NodeManager extends AbstractManager {
       if (!fatalErrorLine) {
         const installedLibs = await checkRequiredLibs();
 
-        if (!installedLibs.openCL) {
+        if (installedLibs?.openCL === false) {
           this.sendNodeError(requiredLibsCrashErrors.openCL);
           return;
         }
 
-        if (!installedLibs.visualCpp) {
+        if (installedLibs?.visualCpp === false) {
           this.sendNodeError(requiredLibsCrashErrors.visualCpp);
           return;
         }
 
         // If we can't find fatal error — show default crash error
         this.sendNodeError(defaultCrashError());
-
         return;
       }
 
