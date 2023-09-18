@@ -4,7 +4,6 @@ import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_OS_THEME,
   // THEME_SWITCHER,
-  HIDE_LEFT_PANEL,
   SET_UI_ERROR,
   SHOW_CLOSING_APP_MODAL,
   SKIN_SWITCHER,
@@ -15,7 +14,6 @@ import {
 const initialState: UiState = {
   isDarkMode: false,
   isClosingApp: false,
-  hideSmesherLeftPanel: false,
   skinId: null,
   error: null,
   warnings: [],
@@ -37,9 +35,7 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
         isDarkMode: isDarkBackground(action.payload),
       };
     }
-    case HIDE_LEFT_PANEL: {
-      return { ...state, hideSmesherLeftPanel: true };
-    }
+
     case SET_UI_ERROR:
       return { ...state, error: action.payload };
     case ADD_WARNING:

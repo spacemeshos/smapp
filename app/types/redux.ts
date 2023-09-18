@@ -80,7 +80,6 @@ export interface SmesherState {
 export interface UiState {
   isDarkMode: boolean;
   isClosingApp: boolean;
-  hideSmesherLeftPanel: boolean;
   error: Error | null;
   skinId: string | null;
   warnings: AnyWarningObject[];
