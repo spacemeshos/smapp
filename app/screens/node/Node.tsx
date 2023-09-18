@@ -10,7 +10,7 @@ import {
   Link,
   ColorStatusIndicator,
 } from '../../basicComponents';
-import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
+import { setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
   posIcon,
@@ -540,8 +540,6 @@ const Node = ({ history, location }: Props) => {
               <Button
                 isDisabled={isActionButtonDisabled}
                 onClick={() => {
-                  // @TODO find out the reason for the stale state, and get rid of hideSmesherLeftPanel call
-                  dispatch(hideSmesherLeftPanel());
                   history.push(MainPath.SmeshingSetup, {
                     modifyPostData: true,
                   });
@@ -609,7 +607,6 @@ const Node = ({ history, location }: Props) => {
   };
 
   const buttonHandler = () => {
-    dispatch(hideSmesherLeftPanel());
     history.push(MainPath.SmeshingSetup);
   };
 

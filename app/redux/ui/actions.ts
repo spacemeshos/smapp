@@ -5,7 +5,6 @@ import { AnyWarningObject } from '../../../shared/warning';
 
 export const SET_OS_THEME = 'SET_OS_THEME';
 export const SKIN_SWITCHER = 'SKIN_SWITCHER';
-export const HIDE_LEFT_PANEL = 'HIDE_LEFT_PANEL';
 export const SET_UI_ERROR = 'SET_UI_ERROR';
 export const ADD_WARNING = 'ADD_WARNING';
 export const OMIT_WARNING = 'OMIT_WARNING';
@@ -16,8 +15,6 @@ export const switchSkin = (type: string | null) => ({
   type: SKIN_SWITCHER,
   payload: type,
 });
-
-export const hideSmesherLeftPanel = () => ({ type: HIDE_LEFT_PANEL });
 
 export const setUiError = (err: Error) => ({
   type: SET_UI_ERROR,

@@ -12,7 +12,6 @@ import {
   PoSSummary,
   PoSRewards,
 } from '../../components/node';
-import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { constrain, formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
@@ -94,9 +93,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const dataDirFreeSpace = useSelector(
     (state: RootState) => state.smesher.freeSpace
   );
-  const hideSmesherLeftPanel = useSelector(
-    (state: RootState) => state.ui.hideSmesherLeftPanel
-  );
+
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [dataDir, setDataDir] = useState(existingDataDir || '');
   const [freeSpace, setFreeSpace] = useState(dataDirFreeSpace);
@@ -348,14 +345,8 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      {!hideSmesherLeftPanel && (
-        <StepsContainer
-          steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']}
-          currentStep={1}
-        />
-      )}
       <CorneredContainer
-        width={!hideSmesherLeftPanel ? 650 : 760}
+        width={760}
         height={450}
         header={headers[mode]}
         headerIcon={posIcon}
