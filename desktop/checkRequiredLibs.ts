@@ -110,7 +110,7 @@ const checkUbuntuOpenCLLibrary = async (): Promise<boolean> => {
 };
 
 type RequiredLibraries = {
-  openCL: boolean;
+  openCL?: boolean;
   visualCpp?: boolean;
 };
 const checkWindowsLibs = async (): Promise<RequiredLibraries> => ({
@@ -131,7 +131,7 @@ export const checkRequiredLibs = async (): Promise<RequiredLibraries> => {
     return checkLinuxLibs();
   }
 
-  return {} as RequiredLibraries;
+  return {};
 };
 
 export const requiredLibsCrashErrors = {
