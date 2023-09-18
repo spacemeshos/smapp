@@ -39,20 +39,14 @@ const InnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ isCurrent, theme }) => {
-    if (!isCurrent) {
-      return theme.color.contrast;
-    } else {
-      return smColors.purple;
-    }
-  }};
-  font-weight: ${({ isCurrent }) => (isCurrent ? 400 : 800)};
+  color: ${({ theme }) => theme.color.contrast};
+  font-weight: 400;
   text-align: right;
   cursor: pointer;
 
   .active & {
-    font-family: SourceCodeProBold;
-    color: ${smColors.purple};
+    font-weight: 800;
+    color: ${({ theme: { color } }) => color.contrast};
   }
 `;
 
@@ -70,7 +64,8 @@ const Indicator = styled.div`
   cursor: pointer;
 
   .active & {
-    background-color: ${smColors.purple};
+    background-color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.white : smColors.dMBlack1};
   }
 `;
 
