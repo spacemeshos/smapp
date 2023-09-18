@@ -84,6 +84,7 @@ export interface UiState {
   error: Error | null;
   skinId: string | null;
   warnings: AnyWarningObject[];
+  osPlatform: string;
 }
 
 export interface RootState {

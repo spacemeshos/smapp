@@ -128,7 +128,7 @@ const syncSmesherInfo = (
       from(
         (async () => {
           if (!isLocalNode) return '';
-          if (await managers.node.getNodeStatus(60)) {
+          if (await managers.node.getNodeStatus()) {
             const smesherId = await managers.smesher
               .getSmesherId()
               .catch(() => '');
