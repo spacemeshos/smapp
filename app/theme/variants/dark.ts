@@ -5,7 +5,6 @@ import {
   tooltipWhite,
   closePopup,
   darkPageLeftSidePanel,
-  checkBlack,
   chevronRightWhite,
   chevronLeftWhite,
   chevronBottomWhite,
@@ -34,6 +33,10 @@ import {
   signOutIconBlack,
   upload,
   copyBlack,
+  checkWhite,
+  chevronRightPurple,
+  chevronLeftPurple,
+  chevronBottomPurple,
 } from '../../assets/images';
 
 export default {
@@ -47,6 +50,7 @@ export default {
     gray: smColors.lightGray,
   },
   background: {
+    primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
   },
@@ -99,7 +103,7 @@ export default {
       states: {
         disable: {
           hasBorder: false,
-          borderColor: colors.light150,
+          borderColor: colors.dark30,
           backgroundColor: colors.dark30,
           color: colors.dark35,
         },
@@ -107,7 +111,7 @@ export default {
           backgroundColor: colors.light110,
           color: colors.dark45,
           hasBorder: false,
-          borderColor: colors.dark100,
+          borderColor: colors.dark30,
         },
         click: {
           backgroundColor: colors.light110,
@@ -128,11 +132,11 @@ export default {
       isOutBorder: false,
       dark: {
         isOutBorder: false,
-        borderColor: colors.dark100,
+        borderColor: colors.light110,
         states: {
           disable: {
-            backgroundColor: colors.dark100,
-            color: colors.light100,
+            backgroundColor: colors.light110,
+            color: colors.dark45,
           },
           normal: {
             backgroundColor: colors.dark100,
@@ -185,7 +189,7 @@ export default {
         base: colors.primary100,
         hover: colors.primary90,
         focus: colors.dark,
-        inactive: colors.light140,
+        inactive: colors.dark20,
       },
     },
     secondary: {
@@ -205,7 +209,7 @@ export default {
     },
   },
   header: {
-    color: smColors.realBlack,
+    color: smColors.white,
   },
   dot: {
     color: smColors.white,
@@ -218,8 +222,10 @@ export default {
     tooltip: tooltipWhite,
     closePopup,
     pageLeftSideBar: darkPageLeftSidePanel,
-    check: checkBlack,
-    chevronRight: chevronRightWhite,
+    check: checkWhite,
+    chevronRight: chevronRightPurple,
+    chevronLeft: chevronLeftPurple,
+    chevronBottom: chevronBottomPurple,
     chevronPrimaryDropDownBottom: chevronBottomBlack,
     chevronSecondaryDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightWhite,
