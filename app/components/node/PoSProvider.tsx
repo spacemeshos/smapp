@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { PostSetupProvider, NodeStatus } from '../../../shared/types';
+import { eventsService } from '../../infra/eventsService';
 import Carousel from './Carousel';
 import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
@@ -59,11 +60,18 @@ const PoSProvider = ({
   skipAction,
   status,
 }: Props) => {
+  const [isTimedout, setTimedOut] = useState(false);
   const [selectedProviderIndex, setSelectedProviderIndex] = useState(
     provider
       ? findProviderIndexEqTo(provider, providers)
       : findProviderIndexEqTo(getFastestProvider(providers), providers)
   );
+
+  useEffect(() => {
+    eventsService.requestPostSetupProviders();
+    const t = setTimeout(() => setTimedOut(true), 30000);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const fastestProvider = getFastestProvider(providers);
@@ -80,20 +88,23 @@ const PoSProvider = ({
   const handleSetProcessor = ({ index }: { index: number }) =>
     setSelectedProviderIndex(index);
 
+  const hasProviders = providers && providers.length > 0;
+
   return (
     <>
-      {!providers ? (
-        <Text>CALCULATING POS PROCESSORS</Text>
-      ) : (
+      {/* eslint-disable no-nested-ternary */}
+      {hasProviders ? (
         <Carousel
           data={providers}
           onClick={handleSetProcessor}
           selectedItemIndex={selectedProviderIndex}
         />
-      )}
-      {providers && providers.length === 0 && (
+      ) : isTimedout ? (
         <ErrorText>NO SUPPORTED PROCESSOR DETECTED</ErrorText>
+      ) : (
+        <Text>DETECTING POS PROCESSORS...</Text>
       )}
+      {/* eslint-enable no-nested-ternary */}
       <PauseSelector>
         <Checkbox isChecked={throttle} check={() => setThrottle(!throttle)} />
         <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
