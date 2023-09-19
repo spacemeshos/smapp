@@ -22,7 +22,7 @@ export const init = (history) =>
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
     attachStacktrace: true,
     maxValueLength: 25000,
-    tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
+    tracesSampleRate: parseFloat(process.env.TRACES_SAMPLE_RATE || '1.0'),
     integrations: [
       new BrowserTracing({
         routingInstrumentation: reactRouterV5Instrumentation(
