@@ -99,7 +99,6 @@ class SmesherManager extends AbstractManager {
 
   updateSmesherState = async () => {
     await this.sendSmesherSettingsAndStartupState();
-    await this.sendPostSetupProviders();
     await this.sendSmesherMetadata();
   };
 
@@ -229,6 +228,9 @@ class SmesherManager extends AbstractManager {
     const getMinGas = () => this.smesherService.getMinGas();
     const getEstimatedRewards = () => this.smesherService.getEstimatedRewards();
 
+    ipcMain.on(ipcConsts.REQUEST_SETUP_COMPUTE_PROVIDERS, () =>
+      this.sendPostSetupProviders()
+    );
     ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, selectPostFolder);
     ipcMain.handle(
       ipcConsts.SMESHER_STOP_SMESHING,
@@ -262,6 +264,7 @@ class SmesherManager extends AbstractManager {
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_COINBASE);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_MIN_GAS);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
+      ipcMain.removeAllListeners(ipcConsts.REQUEST_SETUP_COMPUTE_PROVIDERS);
     };
   }
 
