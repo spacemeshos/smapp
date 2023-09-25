@@ -51,8 +51,8 @@
     "smapp"
   ],
   "engines": {
-    "npm": ">=8.10.0",
-    "node": ">=16.15.0"
+    "npm": ">=9.8.1",
+    "node": ">=18.18.0"
   },
   "resolutions": {
     "@sentry/types": "^7.49.0"
