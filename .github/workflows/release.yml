@@ -47,13 +47,22 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Node.js, NPM
+        id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-          cache: 'yarn'
+          node-version-file: 'package.json'
 
       - name: Install Yarn
-        run: npm install -g yarn
+        run: npm install -g yarn@1.22.19
+
+      - name: Get node_modules cache
+        uses: actions/cache@v3.0.2
+        id: node_modules
+        with:
+          path: |
+            **/node_modules
+          # Add node version as a cache key to avoid yarn recompilation for particular node as it doesn't change often
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ steps.setup-node.outputs.node-version }}
 
       - name: Get Smapp version
         id: package-version
@@ -74,7 +83,7 @@ jobs:
       - name: yarn install
         run: |
           yarn config set network-timeout 300000
-          yarn install --prefer-offline
+          yarn install --prefer-offline --immutable
 
       - name: Lint
         run: yarn lint
