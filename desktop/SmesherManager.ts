@@ -33,7 +33,7 @@ import AdminService from './AdminService';
 
 import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
 
-const checkDiskSpace = require('check-disk-space');
+const checkDiskSpace = require('check-disk-space').default;
 
 const logger = Logger({ className: 'SmesherService' });
 
