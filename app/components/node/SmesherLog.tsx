@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import ReactTimeago from 'react-timeago';
 import { useSelector } from 'react-redux';
-import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
+import useVirtual from 'react-cool-virtual';
+import { formatSmidge, getFormattedTimestamp, setRef } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import { horizontalPanelBlack } from '../../assets/images';
@@ -11,15 +12,18 @@ import { CorneredContainer } from '../common';
 import { RootState } from '../../types';
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
   height: 100%;
-  overflow-y: visible;
+  overflow-y: auto;
   overflow-x: hidden;
   margin: 5px -20px -20px -20px;
   padding: 0 20px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+`;
+
+const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const LogEntry = styled.div`
@@ -177,6 +181,11 @@ const SmesherLog = ({
   const { smeshingStart, posInitStart } = useSelector(
     (state: RootState) => state.smesher.metadata
   );
+  const { outerRef, innerRef, items } = useVirtual({
+    itemCount: rewards.length, // Provide the total number for the list items
+    itemSize: 25,
+  });
+
   return (
     <CorneredContainer
       useEmptyWrap
@@ -205,20 +214,21 @@ const SmesherLog = ({
         </>
       )}
 
-      <Wrapper>
-        {rewards &&
-          (() => {
-            let prevEpoch;
-            return rewards.map((reward, index) => {
-              const curEpoch = epochByLayer(reward.layer);
-              const showEpoch = curEpoch !== prevEpoch;
-              prevEpoch = curEpoch;
-              return (
-                <React.Fragment key={`reward_${reward.layer}_${index}`}>
-                  {showEpoch && (
-                    <EpochText>Epoch {epochByLayer(reward.layer)}</EpochText>
-                  )}
-                  <div>
+      <Wrapper ref={setRef(outerRef)}>
+        <InnerWrapper ref={setRef(innerRef)}>
+          {rewards &&
+            (() => {
+              return items.map(({ index, measureRef }) => {
+                const reward = rewards[index];
+                const curEpoch = epochByLayer(reward.layer);
+                const prevLayer = rewards[index - 1]?.layer ?? null;
+                const prevEpoch = prevLayer ? epochByLayer(prevLayer) : null;
+                const showEpoch = curEpoch !== prevEpoch;
+                return (
+                  <div key={`reward_${reward.layer}_${index}`} ref={measureRef}>
+                    {showEpoch && (
+                      <EpochText>Epoch {epochByLayer(reward.layer)}</EpochText>
+                    )}
                     <LogEntry>
                       <LayerReward>
                         <LayerNumber>{reward.layer}</LayerNumber>
@@ -233,31 +243,31 @@ const SmesherLog = ({
                       </LayerReward>
                     </LogEntry>
                   </div>
-                </React.Fragment>
-              );
-            });
-          })()}
-        {posInitStart ? (
-          <>
-            <LogEntry>
-              <DateText>
-                <ReactTimeago date={getFormattedTimestamp(posInitStart)} />
-              </DateText>
-              <LogText>Started creating PoS data</LogText>
-            </LogEntry>
-          </>
-        ) : null}
+                );
+              });
+            })()}
+          {posInitStart ? (
+            <>
+              <LogEntry>
+                <DateText>
+                  <ReactTimeago date={getFormattedTimestamp(posInitStart)} />
+                </DateText>
+                <LogText>Started creating PoS data</LogText>
+              </LogEntry>
+            </>
+          ) : null}
 
-        {smeshingStart ? (
-          <>
-            <LogEntry>
-              <DateText>
-                <ReactTimeago date={getFormattedTimestamp(smeshingStart)} />
-              </DateText>
-              <LogText>Started smeshing</LogText>
-            </LogEntry>
-          </>
-        ) : null}
+          {smeshingStart ? (
+            <>
+              <LogEntry>
+                <DateText>
+                  <ReactTimeago date={getFormattedTimestamp(smeshingStart)} />
+                </DateText>
+                <LogText>Started smeshing</LogText>
+              </LogEntry>
+            </>
+          ) : null}
+        </InnerWrapper>
       </Wrapper>
     </CorneredContainer>
   );
