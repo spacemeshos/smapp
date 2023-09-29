@@ -29,14 +29,16 @@ import Logger from '../../logger';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
-export const fromNetworkConfig = (net: Network) =>
-  from(fetchNodeConfig(net.conf)).pipe(
+export const fromNetworkConfig = (net: Network) => {
+  logger.log('fromNetworkConfig', { net });
+  return from(fetchNodeConfig(net.conf)).pipe(
     retry(3),
     delay(200),
     catchError(() => {
       return of([]);
     })
   );
+};
 
 export const withGenesisID = () =>
   switchMap((networks: Network[]) =>
