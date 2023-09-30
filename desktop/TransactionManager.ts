@@ -544,7 +544,7 @@ class TransactionManager extends AbstractManager {
     tplPayload: any,
     accountIndex: number
   ) => {
-    const { publicKey } = this.keychain[accountIndex];
+    const { publicKey, secretKey } = this.keychain[accountIndex];
     const tpl = TemplateRegistry.get(tplAddress, tplMethod);
 
     const spawnArgs = { PublicKey: fromHexString(publicKey) };
@@ -583,8 +583,11 @@ class TransactionManager extends AbstractManager {
     };
 
     const txEncoded = tpl.encode(principal, getSingleSigPayload());
+    const genesisID = await this.meshService.getGenesisID();
+    const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
+    const signed = tpl.sign(txEncoded, sig);
 
-    return this.getMaxGasFromEncodedTx(txEncoded);
+    return this.getMaxGasFromEncodedTx(signed);
   };
 
   // TODO: Replace with generic `publishTx`
@@ -602,10 +605,10 @@ class TransactionManager extends AbstractManager {
         Arguments: spawnArgs,
       };
       const txEncoded = tpl.encode(principal, payload);
-      const maxGas = await this.getMaxGasFromEncodedTx(txEncoded);
       const genesisID = await this.meshService.getGenesisID();
       const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
+      const maxGas = await this.getMaxGasFromEncodedTx(signed);
       const response = await this.txService.submitTransaction({
         transaction: signed,
       });
@@ -699,10 +702,10 @@ class TransactionManager extends AbstractManager {
         GasPrice: BigInt(fee),
       };
       const txEncoded = tpl.encode(principal, payload);
-      const maxGas = await this.getMaxGasFromEncodedTx(txEncoded);
       const genesisID = await this.meshService.getGenesisID();
       const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
+      const maxGas = await this.getMaxGasFromEncodedTx(signed);
       const response = await this.txService.submitTransaction({
         transaction: signed,
       });
