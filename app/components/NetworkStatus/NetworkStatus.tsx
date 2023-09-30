@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NodeStatus } from '../../../shared/types';
+import { NodeStartupState, NodeStatus } from '../../../shared/types';
 import { ProgressBar, ColorStatusIndicator } from '../../basicComponents';
 import { constrain } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -18,6 +18,7 @@ const Progress = styled.div`
 `;
 
 type Props = {
+  startupStatus: NodeStartupState;
   status: NodeStatus | null;
   error: any;
   isGenesis: boolean;
@@ -26,7 +27,26 @@ type Props = {
   isShowMissingLibsMessage: boolean;
 };
 
+const getStartupStatusText = (startupStatus: NodeStartupState) => {
+  switch (startupStatus) {
+    case NodeStartupState.Starting:
+      return 'Starting node...';
+    case NodeStartupState.Compacting:
+      return 'Compacting database...';
+    case NodeStartupState.Vacuuming:
+      return 'Vacuuming database...';
+    case NodeStartupState.StartingGRPC:
+      return 'Starting GRPC server...';
+    case NodeStartupState.VerifyingLayers:
+      return 'Tortoise verifying layers...';
+    default:
+    case NodeStartupState.Ready:
+      return 'Connecting to Node...';
+  }
+};
+
 const NetworkStatus = ({
+  startupStatus,
   status,
   error,
   isGenesis,
@@ -47,7 +67,9 @@ const NetworkStatus = ({
 
   const getSyncProgress = () => {
     if (!status || status.topLayer === 0) {
-      return <ProgressLabel>Connecting...</ProgressLabel>;
+      return (
+        <ProgressLabel>{getStartupStatusText(startupStatus)}</ProgressLabel>
+      );
     }
 
     const verifiedLayer = status.verifiedLayer || 0;

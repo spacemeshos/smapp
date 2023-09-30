@@ -94,6 +94,9 @@ const Network = ({ history }) => {
   const isWindows = useSelector(isWindowsSelector);
   const isLinux = useSelector(isLinuxSelector);
   const isWalletMode = useSelector(isWalletOnly);
+  const startupStatus = useSelector(
+    (state: RootState) => state.node.startupStatus
+  );
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
   const genesisID = useSelector(
@@ -196,6 +199,7 @@ const Network = ({ history }) => {
         </DetailsTextWrap>
         <GrayText>
           <NetworkStatus
+            startupStatus={startupStatus}
             status={status}
             error={nodeError}
             isGenesis={isGenesis}
