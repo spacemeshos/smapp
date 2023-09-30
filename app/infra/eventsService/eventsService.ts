@@ -6,6 +6,7 @@ import { setReactTags } from '../../sentry';
 import { ipcConsts } from '../../vars';
 import {
   setNodeError,
+  setNodeStartupStatus,
   setNodeStatus,
   setVersionAndBuild,
 } from '../../redux/node/actions';
@@ -25,6 +26,7 @@ import {
   HexString,
   IPCSmesherStartupData,
   NodeError,
+  NodeStartupState,
   NodeStatus,
   NodeVersionAndBuild,
   PostProvingOpts,
@@ -394,5 +396,12 @@ ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
 ipcRenderer.on(ipcConsts.SMESHER_METADATA_INFO, (_, data) => {
   store.dispatch({ type: SET_METADATA, payload: data });
 });
+
+ipcRenderer.on(
+  ipcConsts.N_M_NODE_STARTUP_STATUS,
+  (_, status: NodeStartupState) => {
+    store.dispatch(setNodeStartupStatus(status));
+  }
+);
 
 export default EventsService;

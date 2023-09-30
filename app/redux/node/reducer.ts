@@ -1,3 +1,4 @@
+import { NodeStartupState } from '../../../shared/types';
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import { IPC_BATCH_SYNC, reduceChunkList } from '../ipcBatchSync';
@@ -5,9 +6,11 @@ import {
   SET_NODE_ERROR,
   SET_NODE_STATUS,
   SET_NODE_VERSION_AND_BUILD,
+  SET_STARTUP_STATUS,
 } from './actions';
 
 const initialState = {
+  startupStatus: NodeStartupState.Starting,
   status: null,
   version: '',
   build: '',
@@ -26,6 +29,8 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
         error: null,
       };
     }
+    case SET_STARTUP_STATUS:
+      return { ...state, startupStatus: action.payload };
     case SET_NODE_ERROR: {
       const error = action.payload;
       return { ...state, error };

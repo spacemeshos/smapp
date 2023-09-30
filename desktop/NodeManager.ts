@@ -1,6 +1,7 @@
 import path from 'path';
 import { ChildProcess } from 'node:child_process';
-import { Writable } from 'stream';
+import { PassThrough, Writable } from 'stream';
+import { createInterface } from 'readline';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { BrowserWindow, dialog, ipcMain } from 'electron';
@@ -18,6 +19,7 @@ import {
   NodeError,
   NodeErrorLevel,
   NodeErrorType,
+  NodeStartupState,
   NodeStatus,
   PostProvingOpts,
   PostSetupOpts,
@@ -402,6 +404,48 @@ class NodeManager extends AbstractManager {
     return SmeshingSetupState.ViaRestart;
   };
 
+  private watchForStartupStatus = () => {
+    if (!this.nodeProcess) {
+      throw new Error(
+        "Cannot watch for Node's startup status: Node process is not started"
+      );
+    }
+    if (!this.nodeProcess.stdout) {
+      throw new Error("Cannot watch for Node's startup status: no stdout");
+    }
+
+    const sendStatus = (status: NodeStartupState) =>
+      this.mainWindow.webContents.send(
+        ipcConsts.N_M_NODE_STARTUP_STATUS,
+        status
+      );
+    sendStatus(NodeStartupState.Starting);
+
+    const passsThrough = new PassThrough();
+    this.nodeProcess.stdout.pipe(passsThrough, { end: false });
+
+    const rl = createInterface({
+      input: passsThrough,
+      terminal: false,
+    });
+
+    rl.on('line', (line) => {
+      if (line.includes('Welcome to Spacemesh')) {
+        sendStatus(NodeStartupState.Compacting);
+      } else if (line.includes('vacuuming db')) {
+        sendStatus(NodeStartupState.Vacuuming);
+      } else if (line.includes('candidate layer is verified')) {
+        sendStatus(NodeStartupState.VerifyingLayers);
+      } else if (line.includes('Server created')) {
+        sendStatus(NodeStartupState.StartingGRPC);
+      } else if (line.includes('app started')) {
+        sendStatus(NodeStartupState.Ready);
+        rl.close();
+        passsThrough.end();
+      }
+    });
+  };
+
   private spawnNode = async () => {
     if (this.isNodeRunning()) return;
     const nodeDir = getBinaryPath();
@@ -522,6 +566,8 @@ class NodeManager extends AbstractManager {
 
     this.nodeProcess.stdout?.pipe(this.nodeLogStream, { end: false });
     this.nodeProcess.stderr?.pipe(this.nodeLogStream, { end: false });
+
+    this.watchForStartupStatus();
 
     this.nodeProcess.on('error', (err) => {
       const error = transformNodeError(err);

@@ -19,6 +19,7 @@ import {
   Account,
   NodeEvent,
   PostProvingOpts,
+  NodeStartupState,
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
@@ -26,6 +27,7 @@ import { UpdaterState } from '../redux/updater/slice';
 export { NetworkState } from '../../shared/types';
 
 export interface NodeState {
+  startupStatus: NodeStartupState;
   status: NodeStatus | null;
   version: string;
   build: string;
