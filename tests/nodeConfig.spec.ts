@@ -52,9 +52,9 @@ describe('NodeConfig.ts', () => {
       const fsPromise = require('fs/promises');
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
-      const resultConfig = await downloadNodeConfig(
-        'https://testnet-5.spacemesh.io'
-      );
+      const resultConfig = (
+        await downloadNodeConfig('https://testnet-5.spacemesh.io')
+      ).mergedConfig;
 
       const smeshingOptsResult = {
         smeshing: {
@@ -109,9 +109,9 @@ describe('NodeConfig.ts', () => {
       const fsPromise = require('fs/promises');
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
-      const resultConfig = await downloadNodeConfig(
-        'https://testnet-5.spacemesh.io'
-      );
+      const resultConfig = (
+        await downloadNodeConfig('https://testnet-5.spacemesh.io')
+      ).mergedConfig;
 
       // check config after download
       expect(resultConfig).toEqual({
@@ -162,9 +162,9 @@ describe('NodeConfig.ts', () => {
       const fsPromise = require('fs/promises');
       const { downloadNodeConfig } = require('../desktop/main/NodeConfig');
 
-      const resultConfigTestNet = await downloadNodeConfig(
-        'https://testnet-5.spacemesh.io'
-      );
+      const resultConfigTestNet = (
+        await downloadNodeConfig('https://testnet-5.spacemesh.io')
+      ).mergedConfig;
 
       const smeshingOptsResultTestNet = {
         smeshing: {
@@ -183,9 +183,9 @@ describe('NodeConfig.ts', () => {
         ...smeshingOptsResultTestNet,
       });
 
-      const resultConfigDevnet = await downloadNodeConfig(
-        'https://devent-000.spacemesh.io'
-      );
+      const resultConfigDevnet = (
+        await downloadNodeConfig('https://devent-000.spacemesh.io')
+      ).mergedConfig;
 
       const smeshingOptsResultDevnet = {
         smeshing: {
@@ -430,9 +430,11 @@ describe('NodeConfig.ts', () => {
         .mockImplementation(() => customConfigWithNoSpecifiedLogging);
 
       // eslint-disable-next-line import/no-named-as-default-member
-      const resultConfig = await nodeConfigHelpers.downloadNodeConfig(
-        'https://testnet-5.spacemesh.io'
-      );
+      const resultConfig = (
+        await nodeConfigHelpers.downloadNodeConfig(
+          'https://testnet-5.spacemesh.io'
+        )
+      ).mergedConfig;
 
       // check config after download
       expect(resultConfig).toEqual({
