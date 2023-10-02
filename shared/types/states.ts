@@ -9,3 +9,12 @@ export interface NetworkState {
   genesisID: string;
   tapBotDiscordURL: string;
 }
+
+export enum NodeStartupState {
+  Starting,
+  Compacting,
+  Vacuuming,
+  VerifyingLayers,
+  StartingGRPC,
+  Ready,
+}
