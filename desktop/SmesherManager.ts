@@ -3,6 +3,7 @@ import path from 'path';
 import * as R from 'ramda';
 import { Subject } from 'rxjs';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import checkDiskSpace from 'check-disk-space';
 import { ipcConsts } from '../app/vars';
 import {
   HexString,
@@ -32,8 +33,6 @@ import {
 import AdminService from './AdminService';
 
 import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
-
-const checkDiskSpace = require('check-disk-space').default;
 
 const logger = Logger({ className: 'SmesherService' });
 
