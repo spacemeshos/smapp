@@ -412,7 +412,7 @@ const Node = ({ history, location }: Props) => {
   const isNodeConnecting =
     (!status || status?.topLayer === 0) && isSmesherActive; // to make it possible to set up smeshing asap
   const isActionButtonDisabled =
-    !!nodeError || isNodeConnecting || isActionButtonLoading;
+    !status || !!nodeError || isNodeConnecting || isActionButtonLoading;
 
   const dispatch = useDispatch();
 
