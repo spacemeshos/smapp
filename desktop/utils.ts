@@ -51,10 +51,18 @@ export const fetch = async (url: string, options?: RequestInit) => {
 export const fetchJSON = async (url: string) =>
   fetch(url).then((res) => res.json());
 
-export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
+export const fetchNodeConfig = async (
+  url: string,
+  prevHash?: string
+): Promise<NodeConfig> =>
   isTestMode() && url === STANDALONE_GENESIS_EXTRA
     ? getTestModeNodeConfig()
-    : fetch(patchQueryString(url, await getEnvInfo()))
+    : fetch(
+        patchQueryString(url, {
+          ...(await getEnvInfo()),
+          ...(prevHash ? { hash: prevHash } : {}),
+        })
+      )
         .then((res) => res.text())
         .then((res) => configCodecByFirstChar(res).parse(res));
 

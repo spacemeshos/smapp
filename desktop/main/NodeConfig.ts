@@ -4,6 +4,8 @@ import path from 'path';
 import * as TOML from '@iarna/toml';
 import 'json-bigint-patch';
 import * as R from 'ramda';
+import { hash } from '@spacemesh/sm-codec';
+
 import { NodeConfig } from '../../shared/types';
 import Warning, {
   WarningType,
@@ -11,10 +13,13 @@ import Warning, {
 } from '../../shared/warning';
 import { fetchNodeConfig } from '../utils';
 import StoreService from '../storeService';
-import { getShortGenesisId } from '../../shared/utils';
+import { getShortGenesisId, toHexString } from '../../shared/utils';
+import Logger from '../logger';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { generateGenesisIDFromConfig } from './Networks';
 import { safeSmeshingOpts } from './smeshingOpts';
+
+const logger = Logger({ className: 'NodeConfig' });
 
 export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
@@ -138,8 +143,15 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const downloadNodeConfig = async (networkConfigUrl: string) => {
-  const discoveryConfig = await fetchNodeConfig(networkConfigUrl);
+export const downloadNodeConfig = async (
+  networkConfigUrl: string,
+  prevHash?: string
+) => {
+  const discoveryConfig = await fetchNodeConfig(networkConfigUrl, prevHash);
+  const discoveryConfigHash = toHexString(
+    hash(JSON.stringify(discoveryConfig))
+  );
+
   const customNodeConfig = await loadOrCreateCustomConfig(
     generateGenesisIDFromConfig(discoveryConfig)
   );
@@ -147,7 +159,19 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
 
   await writeNodeConfig(mergedConfig);
 
-  return mergedConfig;
+  logger.log('downloadNodeConfig', {
+    networkConfigUrl,
+    prevHash,
+    nextHash: discoveryConfigHash,
+  });
+
+  return {
+    mergedConfig,
+    discoveryConfig,
+    discoveryConfigHash,
+    discoveryConfigPrevHash: prevHash,
+    discoveryConfigHashChanged: prevHash !== discoveryConfigHash,
+  };
 };
 
 export default {
