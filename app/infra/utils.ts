@@ -56,7 +56,12 @@ export const validateAddress = (address: string): address is HexString => {
   return r;
 };
 
-export const formatBytes = (bytes: number) => {
+export const formatBytes = (bytes: number | undefined) => {
+  console.log(bytes);
+  if (bytes === undefined || Number.isNaN(bytes)) {
+    return 'Invalid input';
+  }
+
   if (bytes === 0) {
     return '0';
   } else if (bytes > 0 && bytes < 1048576) {

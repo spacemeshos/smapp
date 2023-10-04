@@ -391,6 +391,7 @@ const Node = ({ history, location }: Props) => {
   const commitmentSize = useSelector(
     (state: RootState) => state.smesher.commitmentSize
   );
+  console.log({ commitmentSize });
   const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
