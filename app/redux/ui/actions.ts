@@ -11,10 +11,12 @@ export const OMIT_WARNING = 'OMIT_WARNING';
 
 export const SHOW_CLOSING_APP_MODAL = 'SHOW_CLOSING_APP_MODAL';
 
-export const switchSkin = (type: string | null) => ({
-  type: SKIN_SWITCHER,
-  payload: type,
-});
+export function switchSkin(type: string | null) {
+  return {
+    type: SKIN_SWITCHER,
+    payload: type,
+  };
+}
 
 export const setUiError = (err: Error) => ({
   type: SET_UI_ERROR,
