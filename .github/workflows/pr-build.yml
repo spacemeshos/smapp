@@ -63,7 +63,7 @@ jobs:
           path: |
             **/node_modules
           # Add node version as a cache key to avoid yarn recompilation for particular node as it doesn't change often
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ steps.setup-node.outputs.node-version }}
+          key: ${{ matrix.arch }}-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ steps.setup-node.outputs.node-version }}
 
       - name: Get Smapp version
         id: cur-package-version
@@ -200,7 +200,7 @@ jobs:
       - name: get-smapp-version
         id: package-version
         uses: tyankatsu0105/read-package-version-actions@v1
-      
+
       - name: Smapp version
         run: |
           echo "Version: ${{ steps.package-version.outputs.version }}"
