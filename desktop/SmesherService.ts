@@ -208,8 +208,8 @@ class SmesherService extends NetServiceFactory<
 
   private postSetupStatusStream = (
     handler: (error: any, status: Partial<PostSetupStatus>) => void
-  ) =>
-    this.runStream(
+  ) => {
+    const unsub = this.runStream(
       'PostSetupStatusStream',
       {},
       memoDebounce(
@@ -222,16 +222,27 @@ class SmesherService extends NetServiceFactory<
             state,
             numLabelsWritten,
           });
-          handler(null, {
+          const result = {
             postSetupState: state,
             numLabelsWritten: numLabelsWritten
               ? parseInt(numLabelsWritten.toString())
               : 0,
             opts: opts as PostSetupOpts | null,
-          });
+          };
+          handler(null, result);
+          this.logger.log('PostSetupStatusStream', result);
+          if (state === PostSetupState.STATE_COMPLETE) {
+            this.logger.log(
+              'PostSetupStatusStream',
+              'Status complete -> closing stream'
+            );
+            unsub();
+          }
         }
       )
     );
+    return unsub;
+  };
 }
 
 export default SmesherService;
