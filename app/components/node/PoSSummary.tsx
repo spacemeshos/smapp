@@ -100,7 +100,6 @@ const PoSSummary = ({
 
   return (
     <>
-      <Row></Row>
       <Row>
         <Text>data directory</Text>
         <Link
