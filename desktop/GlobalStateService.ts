@@ -66,25 +66,32 @@ class GlobalStateService extends NetServiceFactory<
         return { layer: 0, rootHash: '' };
       });
 
-  sendAccountDataQuery = <F extends AccountDataValidFlags>({
-    filter,
-    offset,
-  }: {
-    filter: {
-      accountId: { address: string };
-      accountDataFlags: F;
-    };
-    offset: number;
-  }): Promise<{
+  sendAccountDataQuery = <F extends AccountDataValidFlags>(
+    {
+      filter,
+      offset,
+    }: {
+      filter: {
+        accountId: { address: string };
+        accountDataFlags: F;
+      };
+      offset: number;
+    },
+    retries = 300
+  ): Promise<{
     totalResults: number;
     data: AccountDataStreamHandlerArg[F][];
     error: null | Error;
   }> =>
-    this.callServiceWithRetries('AccountDataQuery', {
-      filter,
-      maxResults: GRPC_QUERY_BATCH_SIZE,
-      offset,
-    })
+    this.callServiceWithRetries(
+      'AccountDataQuery',
+      {
+        filter,
+        maxResults: GRPC_QUERY_BATCH_SIZE,
+        offset,
+      },
+      retries
+    )
       .then((response) => ({
         totalResults: response?.totalResults || 0,
         data: (response?.accountItem || [])
@@ -92,12 +99,12 @@ class GlobalStateService extends NetServiceFactory<
           .filter(Boolean) as AccountDataStreamHandlerArg[F][],
       }))
       .then(this.normalizeServiceResponse)
-      .catch((err) => {
-        return this.normalizeServiceError({
+      .catch(
+        this.normalizeServiceError({
           totalResults: 0,
           data: <AccountDataStreamHandlerArg[F][]>[],
-        })(err);
-      });
+        })
+      );
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
     address: string,

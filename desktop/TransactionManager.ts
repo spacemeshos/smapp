@@ -38,7 +38,7 @@ import GlobalStateService, {
 } from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
-import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
+import { GRPC_QUERY_BATCH_SIZE, MINUTE } from './main/constants';
 import { sign } from './ed25519';
 import AbstractManager from './AbstractManager';
 
@@ -414,13 +414,21 @@ class TransactionManager extends AbstractManager {
     };
     handler: (data: AccountDataStreamHandlerArg[F]) => void;
   }) => {
-    const { data, error } = await this.glStateService.sendAccountDataQuery({
-      filter,
-      offset: 0,
-    });
-    data?.length > 0 && handler(data[0]);
+    const { data, error } = await this.glStateService.sendAccountDataQuery(
+      {
+        filter,
+        offset: 0,
+      },
+      30
+    );
+    if (data?.length > 0) {
+      handler(data[0]);
+      this.logger.log('retrieveAccountData', data);
+    }
     if (error) {
       this.logger.error('retrieveAccountData', error, filter);
+      await delay(MINUTE);
+      await this.retrieveAccountData({ filter, handler });
     }
   };
 
