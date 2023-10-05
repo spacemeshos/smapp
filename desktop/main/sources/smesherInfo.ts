@@ -194,9 +194,12 @@ const syncSmesherInfo = (
     shareReplay(1),
     distinctUntilChanged((prev, next) => prev.length === next.length),
     map((rewards) => rewards.sort((a, b) => a.layer - b.layer)),
-    debounceTime(5000),
-    tap((r) => logger.log('$rewards updated:', r.length))
+    debounceTime(5000)
   );
+
+  $rewards.subscribe((r) => {
+    logger.log('$rewards updated:', r.length);
+  });
 
   combineLatest([$isSmeshing, $managers, $isLocalNode]).subscribe(
     ([_, managers, isLocalNode]) => {
