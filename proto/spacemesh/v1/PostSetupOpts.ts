@@ -7,7 +7,6 @@ export interface PostSetupOpts {
   'numUnits'?: (number);
   'maxFileSize'?: (number | string | Long);
   'providerId'?: (number);
-  'throttle'?: (boolean);
 }
 
 export interface PostSetupOpts__Output {
@@ -15,5 +14,4 @@ export interface PostSetupOpts__Output {
   'numUnits': (number);
   'maxFileSize': (Long);
   'providerId': (number);
-  'throttle': (boolean);
 }

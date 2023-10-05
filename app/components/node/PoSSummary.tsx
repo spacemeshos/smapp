@@ -69,7 +69,6 @@ type Props = {
   dataDir: string;
   commitmentSize: string;
   provider: PostSetupProvider | undefined;
-  throttle: boolean;
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
   status: NodeStatus | null;
@@ -80,7 +79,6 @@ const PoSSummary = ({
   dataDir,
   commitmentSize,
   provider,
-  throttle,
   nextAction,
   switchMode,
   status,
@@ -102,6 +100,7 @@ const PoSSummary = ({
 
   return (
     <>
+      <Row></Row>
       <Row>
         <Text>data directory</Text>
         <Link
@@ -140,12 +139,6 @@ const PoSSummary = ({
         </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>
           {`${provider?.performance} hashes per second`}
-        </Link>
-      </Row>
-      <Row>
-        <Text>pause when pc is in use</Text>
-        <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>
-          {throttle ? 'on' : 'off'}
         </Link>
       </Row>
       <PoSFooter

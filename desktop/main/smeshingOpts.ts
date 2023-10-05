@@ -23,7 +23,6 @@ export type SmeshingOpts = {
     'smeshing-opts-maxfilesize': number;
     'smeshing-opts-numunits': number;
     'smeshing-opts-provider': number;
-    'smeshing-opts-throttle': boolean;
     'smeshing-opts-compute-batch-size': number;
   };
   'smeshing-proving-opts'?: Partial<SmeshingProvingOpts>;
@@ -44,7 +43,6 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
   typeof a['smeshing-opts']['smeshing-opts-maxfilesize'] === 'number' &&
   typeof a['smeshing-opts']['smeshing-opts-numunits'] === 'number' &&
   typeof a['smeshing-opts']['smeshing-opts-provider'] === 'number' &&
-  typeof a['smeshing-opts']['smeshing-opts-throttle'] === 'boolean' &&
   a['smeshing-coinbase'].length > 0 &&
   a['smeshing-opts']['smeshing-opts-maxfilesize'] >= 1 &&
   a['smeshing-opts']['smeshing-opts-numunits'] >= 1 &&

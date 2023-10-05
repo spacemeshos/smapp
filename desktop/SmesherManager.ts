@@ -176,7 +176,6 @@ class SmesherManager extends AbstractManager {
         maxFileSize: opts['smeshing-opts-maxfilesize'],
         numUnits: opts['smeshing-opts-numunits'],
         provider: opts['smeshing-opts-provider'],
-        throttle: opts['smeshing-opts-throttle'],
       };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, {
         smeshingConfig,
@@ -283,7 +282,6 @@ class SmesherManager extends AbstractManager {
       dataDir,
       numUnits,
       provider,
-      throttle,
       maxFileSize,
     } = postSetupOpts;
     const { nonces, threads } = provingOpts;
@@ -296,7 +294,6 @@ class SmesherManager extends AbstractManager {
           'smeshing-opts-maxfilesize': maxFileSize,
           'smeshing-opts-numunits': numUnits,
           'smeshing-opts-provider': provider,
-          'smeshing-opts-throttle': throttle,
           'smeshing-opts-compute-batch-size': R.pathOr(
             DEFAULT_SMESHING_BATCH_SIZE,
             ['smeshing-opts', 'smeshing-opts-compute-batch-size'],

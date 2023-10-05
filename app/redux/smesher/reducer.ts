@@ -27,7 +27,6 @@ const initialState = {
   dataDir: '',
   freeSpace: 0,
   numUnits: 0,
-  throttle: false,
   provider: null,
   maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
   commitmentSize: 0,
@@ -107,7 +106,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
           dataDir,
           numUnits,
           provider,
-          throttle,
           maxFileSize,
         },
       } = action;
@@ -121,7 +119,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         dataDir,
         numUnits,
         maxFileSize,
-        throttle,
         provider,
         commitmentSize,
       };
@@ -133,7 +130,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         dataDir: '',
         numUnits: 0,
         maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
-        throttle: false,
         provider: null,
         commitmentSize: 0,
         numLabelsWritten: 0,

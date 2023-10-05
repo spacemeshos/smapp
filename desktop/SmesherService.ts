@@ -99,7 +99,6 @@ class SmesherService extends NetServiceFactory<
     numUnits,
     maxFileSize,
     provider: providerId,
-    throttle,
     handler,
   }: PostSetupOpts & {
     handler: (error: Error, status: Partial<PostSetupStatus>) => void;
@@ -111,7 +110,6 @@ class SmesherService extends NetServiceFactory<
         numUnits,
         maxFileSize,
         providerId,
-        throttle,
       },
     }).then((response) => {
       this.postSetupStatusStream(handler);

@@ -208,7 +208,6 @@ export const smeshingOptsFromStoreService = {
       'smeshing-opts-maxfilesize': 2147483648,
       'smeshing-opts-numunits': 4,
       'smeshing-opts-provider': 0,
-      'smeshing-opts-throttle': false,
       'smeshing-opts-compute-batch-size': 1048576,
     },
     'smeshing-coinbase': 'stest1qqqqqqpx76g4dg297uqu6jaxaz0d4yfxjy5ufacpztqwf',
