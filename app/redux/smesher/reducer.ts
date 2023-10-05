@@ -101,13 +101,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case STARTED_SMESHING: {
       const {
-        payload: {
-          coinbase,
-          dataDir,
-          numUnits,
-          provider,
-          maxFileSize,
-        },
+        payload: { coinbase, dataDir, numUnits, provider, maxFileSize },
       } = action;
       const commitmentSize = state.config
         ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) /

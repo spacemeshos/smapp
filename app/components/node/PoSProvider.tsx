@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { PostSetupProvider, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import Carousel from './Carousel';
-import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
-
-const PauseSelector = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-top: 20px;
-`;
 
 const Text = styled.div`
   font-size: 15px;
