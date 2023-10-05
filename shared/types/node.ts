@@ -78,7 +78,6 @@ export interface NodeConfig {
       'smeshing-opts-maxfilesize'?: number;
       'smeshing-opts-numunits'?: number;
       'smeshing-opts-provider'?: number;
-      'smeshing-opts-throttle'?: boolean;
     };
     'smeshing-proving-opts'?: {
       'smeshing-opts-proving-nonces'?: number;

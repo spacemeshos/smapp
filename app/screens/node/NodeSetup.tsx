@@ -100,7 +100,6 @@ const NodeSetup = ({ history, location }: Props) => {
   const [numUnits, setNumUnits] = useState(0);
   const [posSize, setPoSSize] = useState(0);
   const [provider, setProvider] = useState<PostSetupProvider>();
-  const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
   const [rewardAddress, setRewardAddress] = useState(accounts[0].address);
   const [nonces, setNonces] = useState(16);
@@ -187,7 +186,6 @@ const NodeSetup = ({ history, location }: Props) => {
         dataDir,
         numUnits,
         provider: provider?.id || 0,
-        throttle,
         maxFileSize,
         nonces,
         threads,
@@ -299,8 +297,6 @@ const NodeSetup = ({ history, location }: Props) => {
             providers={postSetupProviders}
             provider={provider}
             setProvider={setProvider}
-            throttle={throttle}
-            setThrottle={setThrottle}
             status={status}
           />
         );
@@ -332,7 +328,6 @@ const NodeSetup = ({ history, location }: Props) => {
                 : '0'
             }
             provider={provider}
-            throttle={throttle}
             nextAction={handleNextAction}
             switchMode={({ mode }) => setMode(mode)}
             status={status}
