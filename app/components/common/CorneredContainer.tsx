@@ -67,7 +67,7 @@ export const Header = styled.div<{ color?: string }>`
 
 export const SubHeader = styled.div`
   margin-bottom: auto;
-  padding-bottom: 20px;
+  padding-bottom: 30px;
   font-size: 16px;
   line-height: 20px;
   color: ${({
