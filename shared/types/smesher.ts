@@ -20,7 +20,6 @@ export interface SmeshingOpts {
   dataDir: string;
   numUnits: number;
   provider: number;
-  throttle: boolean;
   maxFileSize: number;
   nonces: number;
   threads: number;
@@ -45,7 +44,6 @@ export interface PostSetupOpts {
   numUnits: number;
   maxFileSize: number;
   provider: number;
-  throttle: boolean;
 }
 
 export interface PostProvingOpts {

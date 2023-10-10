@@ -62,7 +62,6 @@ export interface SmesherState {
   freeSpace: number;
   numUnits: number;
   maxFileSize: number;
-  throttle: boolean;
   provider: number | null;
   commitmentSize: number;
   numLabelsWritten: any;

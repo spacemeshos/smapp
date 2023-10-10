@@ -27,7 +27,6 @@ const initialState = {
   dataDir: '',
   freeSpace: 0,
   numUnits: 0,
-  throttle: false,
   provider: null,
   maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
   commitmentSize: 0,
@@ -102,14 +101,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case STARTED_SMESHING: {
       const {
-        payload: {
-          coinbase,
-          dataDir,
-          numUnits,
-          provider,
-          throttle,
-          maxFileSize,
-        },
+        payload: { coinbase, dataDir, numUnits, provider, maxFileSize },
       } = action;
       const commitmentSize = state.config
         ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) /
@@ -121,7 +113,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         dataDir,
         numUnits,
         maxFileSize,
-        throttle,
         provider,
         commitmentSize,
       };
@@ -133,7 +124,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         dataDir: '',
         numUnits: 0,
         maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
-        throttle: false,
         provider: null,
         commitmentSize: 0,
         numLabelsWritten: 0,

@@ -26,7 +26,6 @@ export const startSmeshing = ({
   dataDir,
   numUnits,
   provider,
-  throttle,
   maxFileSize,
   nonces,
   threads,
@@ -39,7 +38,6 @@ export const startSmeshing = ({
         numUnits,
         maxFileSize,
         provider,
-        throttle,
       },
       { nonces, threads },
     ]);
@@ -50,7 +48,6 @@ export const startSmeshing = ({
         dataDir,
         numUnits,
         provider,
-        throttle,
         maxFileSize,
         nonces,
         threads,
