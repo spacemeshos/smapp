@@ -12,7 +12,7 @@ import {
 import { shallowEq } from '../../shared/utils';
 import Warning from '../../shared/warning';
 import StoreService from '../storeService';
-import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
+import AutoStartManager from '../AutoStartManager';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
@@ -148,7 +148,7 @@ const startApp = (): AppStore => {
   const $warnings = new $.Subject<Warning>();
   const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    StoreService.get(IS_AUTO_START_ENABLED) || startNodeAfterUpdate
+    AutoStartManager.isEnabled() || startNodeAfterUpdate
   );
 
   const {

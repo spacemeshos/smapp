@@ -56,12 +56,11 @@ if (
   );
   process.exit(1);
 }
-
 // Run
 app
   .whenReady()
   .then(installDevTools)
-  .then(() => new AutoStartManager())
+  .then(() => AutoStartManager.init())
   .then(() => subscribeIPC(context))
   .then(() => Wallet.subscribe())
   .then(() => {
