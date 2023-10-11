@@ -2,7 +2,6 @@ import { ipcMain } from 'electron';
 import AutoLaunch from 'auto-launch';
 import { ipcConsts } from '../app/vars';
 import { isLinuxAppImage } from '../shared/utils';
-import StoreService from './storeService';
 import { isMacOS } from './osSystem';
 import Logger from './logger';
 import { captureMainException } from './sentry';
@@ -38,11 +37,6 @@ const handleFailure = (err: unknown): ToggleResult => {
 
 // Utils
 
-const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
-const storeValue = (val: boolean) =>
-  StoreService.set(IS_AUTO_START_ENABLED, val);
-const loadValue = () => StoreService.get(IS_AUTO_START_ENABLED);
-
 const logger = Logger({ className: 'AutoStartManager' });
 
 // Singletone class
@@ -66,17 +60,12 @@ class AutoStartManager {
     ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, () =>
       AutoStartManager.isEnabled()
     );
-
-    // Syncronise value from persistent store with system auto-launch
-    AutoStartManager.isEnabled()
-      ? AutoStartManager.enable()
-      : AutoStartManager.disable();
   }
 
-  static isEnabled = () => loadValue();
+  static isEnabled = () => AutoStartManager.service.isEnabled();
 
-  static toggleAutoStart = () =>
-    AutoStartManager.isEnabled()
+  static toggleAutoStart = async () =>
+    (await AutoStartManager.isEnabled())
       ? AutoStartManager.disable()
       : AutoStartManager.enable();
 
@@ -89,7 +78,6 @@ class AutoStartManager {
       } else if (isEnabled) {
         throw new Error('Cannot disable auto-launch for unknown reason');
       } else {
-        storeValue(false);
         return {
           status: false,
         };
@@ -111,7 +99,6 @@ class AutoStartManager {
           'Cannot enable auto-launch. Probably you already have another Spacemesh application in auto-launch'
         );
       } else {
-        storeValue(true);
         return { status: true };
       }
     } catch (err) {
