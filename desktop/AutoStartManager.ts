@@ -3,6 +3,7 @@ import AutoLaunch from 'auto-launch';
 import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
 import { isLinuxAppImage } from '../shared/utils';
+import StoreService from './storeService';
 
 import { isMacOS } from './osSystem';
 
@@ -28,7 +29,10 @@ class AutoStartManager {
     }
 
     this.manager = new AutoLaunch(options);
-    this.checkStatusAndEnable();
+
+    if (this.isEnabled()) {
+      this.enable();
+    }
 
     ipcMain.removeAllListeners(ipcConsts.TOGGLE_AUTO_START);
     ipcMain.handle(ipcConsts.TOGGLE_AUTO_START, async () =>
@@ -37,14 +41,18 @@ class AutoStartManager {
 
     ipcMain.removeHandler(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
     ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, () =>
-      this.manager.isEnabled()
+      this.isEnabled()
     );
   }
 
   toggleAutoStart = async () => {
-    const status = await this.manager.isEnabled();
+    return StoreService.get(IS_AUTO_START_ENABLED)
+      ? this.disable()
+      : this.enable();
+  };
 
-    return status ? this.disable() : this.enable();
+  isEnabled = () => {
+    return StoreService.get(IS_AUTO_START_ENABLED);
   };
 
   disable = async (): Promise<ToggleResult> => {
@@ -54,11 +62,13 @@ class AutoStartManager {
         await this.manager.disable();
         return await this.disable();
       } else {
+        StoreService.set(IS_AUTO_START_ENABLED, false);
         return {
           status: false,
         };
       }
     } catch (err) {
+      StoreService.set(IS_AUTO_START_ENABLED, false);
       if (
         isMacOS() &&
         err instanceof Error &&
@@ -78,14 +88,6 @@ class AutoStartManager {
     }
   };
 
-  checkStatusAndEnable = async () => {
-    const status = await this.manager.isEnabled();
-
-    if (status) {
-      await this.manager.enable();
-    }
-  };
-
   enable = async (): Promise<ToggleResult> => {
     try {
       const isEnabled = await this.manager.isEnabled();
@@ -93,6 +95,7 @@ class AutoStartManager {
         await this.manager.enable();
         return await this.enable();
       } else {
+        StoreService.set(IS_AUTO_START_ENABLED, true);
         return { status: true };
       }
     } catch (err) {
