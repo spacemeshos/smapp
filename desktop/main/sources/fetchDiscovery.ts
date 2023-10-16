@@ -1,6 +1,5 @@
 import {
   catchError,
-  delay,
   first,
   forkJoin,
   from,
@@ -13,6 +12,8 @@ import {
   Subject,
   switchMap,
   withLatestFrom,
+  of as ofRx,
+  RetryConfig,
 } from 'rxjs';
 import { dissocPath, equals, of } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
@@ -29,12 +30,18 @@ import Logger from '../../logger';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
+const RETRY_CONFIG: RetryConfig = {
+  count: Infinity,
+  delay: 10000, // Every 10 seconds
+};
+
 export const fromNetworkConfig = (net: Network) => {
   logger.log('fromNetworkConfig', { net });
-  return from(fetchNodeConfig(net.conf)).pipe(
-    retry(3),
-    delay(200),
-    catchError(() => {
+  return ofRx(null).pipe(
+    switchMap(() => from(fetchNodeConfig(net.conf))),
+    retry(RETRY_CONFIG),
+    catchError((err) => {
+      logger.error('fromNetworkConfig', err);
       return of([]);
     })
   );
@@ -59,13 +66,16 @@ export const withGenesisID = () =>
   );
 
 const fromDiscovery = () =>
-  from(fetchNetworksFromDiscovery())
-    .pipe(
-      retry(3),
-      delay(200),
-      catchError(() => of([]))
-    )
-    .pipe(withGenesisID());
+  ofRx(null).pipe(
+    switchMap(() => from(fetchNetworksFromDiscovery())),
+    retry(RETRY_CONFIG),
+    catchError((err) => {
+      logger.error('fromDiscovery()', err);
+      return ofRx([]);
+    }),
+    withGenesisID()
+  );
+
 export const fetchDiscovery = ($networks: Subject<Network[]>) =>
   makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
 
