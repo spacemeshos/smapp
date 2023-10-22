@@ -14,7 +14,7 @@ export const validationWalletName = (walletName: string) => {
   const isEmpty = walletName.replaceAll(' ', '').length === 0;
 
   if (!nameCheck.test(walletName) || isEmpty) {
-    return 'Must contain at least latin letter or number, space, _ or -';
+    return 'Only latin letters, numbers, space, _ and - are accepted';
   }
 
   return '';

@@ -244,7 +244,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                 <Input
                   value={convenientWalletName}
                   type="text"
-                  placeholder="CONVENIENT NAME"
+                  placeholder="MAX 31 CHARACTERS"
                   onChange={handleNameTyping}
                 />
               </InputSection>
