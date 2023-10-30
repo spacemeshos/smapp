@@ -233,9 +233,10 @@ class TransactionManager extends AbstractManager {
       this.subscribeTransactions(address);
     }
 
+    const putReward = this.updateReward(address);
     const addReward = this.addReward(address);
     this.retrieveRewards(address, 0)
-      .then((value) => value.forEach(addReward))
+      .then((value) => value.forEach(putReward))
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
       });
@@ -432,22 +433,55 @@ class TransactionManager extends AbstractManager {
     }
   };
 
-  addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
+  private parseReward = (reward: RewardHandlerArg): Reward => {
     if (!reward || !hasRequiredRewardFields(reward)) {
       this.logger.error(
-        'addReward',
+        'parseReward',
         'Object is not a valid Reward type',
         reward
       );
-      return;
+      throw new Error(
+        `Object is not a valid Reward type: ${JSON.stringify(reward)}`
+      );
     }
-    const parsedReward: Reward = {
+    return {
       layer: reward.layer.number,
       amount: longToNumber(reward.total.value),
       layerReward: longToNumber(reward.layerReward.value),
       coinbase: reward.coinbase.address,
     };
-    this.storeReward(accountId, parsedReward);
+  };
+
+  updateReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
+    try {
+      const parsedReward = this.parseReward(reward);
+      this.storeReward(accountId, parsedReward);
+    } catch (err) {
+      this.logger.error('updateReward', err, { accountId, reward });
+    }
+  };
+
+  addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
+    try {
+      const parsedReward = this.parseReward(reward);
+      const prevReward = this.accountStates[accountId].getRewardByLayer(
+        parsedReward.layer
+      );
+      if (prevReward) {
+        // Sum the reward amount and update
+        const nextReward: Reward = {
+          ...prevReward,
+          amount: prevReward.amount + parsedReward.amount,
+          layerReward: prevReward.layerReward + parsedReward.layerReward,
+        };
+        this.storeReward(accountId, nextReward);
+      } else {
+        // Store reward as is
+        this.storeReward(accountId, parsedReward);
+      }
+    } catch (err) {
+      this.logger.error('addReward', err, { accountId, reward });
+    }
   };
 
   retrieveRewards = async (
