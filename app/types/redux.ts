@@ -15,7 +15,6 @@ import {
   Activation,
   AccountBalance,
   KeyPair,
-  RewardsInfo,
   Account,
   NodeEvent,
   PostProvingOpts,
@@ -67,8 +66,6 @@ export interface SmesherState {
   numLabelsWritten: any;
   postSetupState: PostSetupState;
   postProvingOpts: PostProvingOpts;
-  rewards: Reward[];
-  rewardsInfo?: RewardsInfo;
   activations: Activation[];
   events: NodeEvent[];
   config: SmesherConfig;

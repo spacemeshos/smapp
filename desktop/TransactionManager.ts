@@ -144,7 +144,6 @@ class TransactionManager extends AbstractManager {
       .storeReward(reward)
       .then((isNew) => isNew && this.updateAppStateRewards(publicKey))
       .catch((err) => {
-        console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeReward', err);
       });
 
@@ -246,7 +245,37 @@ class TransactionManager extends AbstractManager {
     );
   };
 
-  addAccount = (keypair: KeyPair) => {
+  watchForAddress = (address: Bech32Address) => {
+    // Postponing it for the next tick to avoid race condition
+    // and subscribing twice for the same address (in some cases)
+    setImmediate(() => {
+      if (this.accountStates[address]) {
+        this.logger.log(
+          'watchForAccount',
+          'already watching, skipping function call',
+          address
+        );
+        return;
+      }
+      this.logger.log('watchForAccount', 'started', address);
+
+      this.accountStates[address] = new AccountStateManager(
+        address,
+        this.genesisID
+      );
+      this.logger.log('addAccount', address, this.genesisID);
+
+      // Send stored Tx & Rewards
+      this.updateAppStateTxs(address);
+      this.updateAppStateRewards(address);
+
+      this.unsubs[address] = [];
+      // Resubscribe
+      this.subscribeAccount(address);
+    });
+  };
+
+  watchForKeyPair = (keypair: KeyPair) => {
     const { publicKey } = keypair;
     const pkBytes = fromHexString(publicKey);
     const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
@@ -262,26 +291,15 @@ class TransactionManager extends AbstractManager {
         : this.keychain),
       keypair,
     ];
-    this.accountStates[address] = new AccountStateManager(
-      address,
-      this.genesisID
-    );
-    this.logger.log('addAccount', address, this.genesisID);
 
-    // Send stored Tx & Rewards
-    this.updateAppStateTxs(address);
-    this.updateAppStateRewards(address);
-
-    this.unsubs[address] = [];
-    // Resubscribe
-    this.subscribeAccount(address);
+    this.watchForAddress(address);
   };
 
   setAccounts = (accounts: KeyPair[]) => {
     this.unsubscribeAllStreams();
     this.keychain = [];
     this.accountStates = {};
-    accounts.forEach(this.addAccount);
+    accounts.forEach(this.watchForKeyPair);
   };
 
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(

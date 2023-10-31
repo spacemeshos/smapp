@@ -3,7 +3,6 @@ import { BrowserWindow } from 'electron';
 import * as R from 'ramda';
 import {
   buffer,
-  combineLatest,
   debounceTime,
   distinct,
   distinctUntilChanged,
@@ -18,21 +17,17 @@ import {
   Subject,
   withLatestFrom,
 } from 'rxjs';
-import parse from 'parse-duration';
 
 import { getEventType } from '../../../shared/utils';
-import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Network,
   NodeConfig,
   NodeVersionAndBuild,
-  RewardsInfo,
-  Reward,
   Wallet,
   NodeEvent,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
-import { HOUR, MINUTE } from '../constants';
+import { MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
 import storeView from './views/storeView';
@@ -110,53 +105,6 @@ const sync = (
   return () => subs.forEach((sub) => sub.unsubscribe());
 };
 
-const getRewardsInfo = (
-  cfg: NodeConfig,
-  curLayer: number,
-  rewards: Reward[]
-): RewardsInfo => {
-  const getLayerTime = timestampByLayer(
-    cfg.genesis['genesis-time'],
-    parse(cfg.main['layer-duration'])
-  );
-  const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
-  const curEpoch = getEpoch(curLayer);
-
-  const sums = rewards.reduce(
-    (acc, next) => ({
-      total: acc.total + next.amount,
-      layers: new Set(acc.layers).add(next.layer),
-      epochs: new Set(acc.epochs).add(getEpoch(next.layer)),
-    }),
-    {
-      total: 0,
-      layers: new Set(),
-      epochs: new Set(),
-    }
-  );
-
-  const lastEpoch = R.compose(
-    R.reduce((acc, next: Reward) => acc + next.amount, 0),
-    R.filter((reward: Reward) => getEpoch(reward.layer) === curEpoch)
-  )(rewards);
-
-  const dailyAverage =
-    rewards.length > 2
-      ? (sums.total /
-          (getLayerTime(rewards[rewards.length - 1].layer) -
-            getLayerTime(rewards[0].layer))) *
-        (24 * HOUR)
-      : 0;
-
-  return {
-    total: sums.total,
-    lastEpoch,
-    layers: sums.layers.size,
-    epochs: sums.epochs.size,
-    dailyAverage,
-  };
-};
-
 const getNodeEventKey = (e: NodeEvent) => `${e.timestamp}_${getEventType(e)}`;
 
 export default (
@@ -171,7 +119,6 @@ export default (
   $rootHash: Observable<string>,
   $nodeVersion: Observable<NodeVersionAndBuild>,
   $smesherId: Observable<string>,
-  $rewards: Observable<Reward[]>,
   $nodeEvents: Observable<NodeEvent>,
   $hrp: Observable<string>
 ) => {
@@ -187,16 +134,11 @@ export default (
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
     $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
-    $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
     $nodeEvents.pipe(
       distinct(getNodeEventKey),
       scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),
       distinctUntilChanged(),
       map((events) => ({ smesher: { events } }))
-    ),
-    combineLatest([$rewards, $currentNodeConfig, $currentLayer]).pipe(
-      map(([rewards, cfg, layer]) => getRewardsInfo(cfg, layer, rewards)),
-      map((rewardsInfo) => ({ smesher: { rewardsInfo } }))
     ),
     $currentNodeConfig.pipe(
       map((nodeConfig) => {

@@ -23,12 +23,7 @@ import {
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
-import {
-  HexString,
-  NodeStatus,
-  PostSetupState,
-  RewardsInfo,
-} from '../../../shared/types';
+import { HexString, NodeStatus, PostSetupState } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
@@ -360,12 +355,8 @@ const Node = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.maxFileSize
   );
 
-  const rewards = useSelector((state: RootState) =>
-    state.smesher.rewards.slice(0).reverse()
-  );
-  const rewardsInfo = useSelector(
-    (state: RootState) => state.smesher.rewardsInfo
-  );
+  const rewards = useSelector(SmesherSelectors.getRewards);
+  const rewardsInfo = useSelector(SmesherSelectors.getRewardsInfo);
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
   );
@@ -696,7 +687,7 @@ const Node = ({ history, location }: Props) => {
       </WrapperWith2SideBars>
       <SmesherLog
         rewards={rewards}
-        rewardsInfo={rewardsInfo as RewardsInfo}
+        rewardsInfo={rewardsInfo}
         epochByLayer={getEpochByLayer}
         timestampByLayer={getTimestampByLayer}
       />
