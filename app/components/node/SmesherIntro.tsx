@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Link, Button, BoldText } from '../../basicComponents';
 import {
   posIcon,
@@ -88,10 +89,38 @@ type Props = {
 };
 
 const SmesherIntro = ({ hideIntro }: Props) => {
-  const navigateToMiningGuide = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToMiningGuide = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Smesher intro',
+      data: {
+        action: 'Navigate to mini guide',
+      },
+      level: 'info',
+    });
+  };
 
-  const navigateToPreventComputerSleep = () =>
+  const navigateToPreventComputerSleep = () => {
     window.open(ExternalLinks.NoSleepGuide);
+    captureReactBreadcrumb({
+      category: 'Smesher intro',
+      data: {
+        action: 'Prevent computer to sleep',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleHideIntro = () => {
+    hideIntro();
+    captureReactBreadcrumb({
+      category: 'Smesher intro',
+      data: {
+        action: 'Click on hide intro',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <>
@@ -129,7 +158,7 @@ const SmesherIntro = ({ hideIntro }: Props) => {
       </TextWrapper>
       <Footer>
         <Link onClick={navigateToMiningGuide} text="SMESHING GUIDE" />
-        <Button onClick={hideIntro} text="GOT IT" width={175} />
+        <Button onClick={handleHideIntro} text="GOT IT" width={175} />
       </Footer>
     </>
   );

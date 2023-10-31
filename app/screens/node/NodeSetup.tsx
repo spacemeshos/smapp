@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { captureReactBreadcrumb } from '../../sentry';
 import { deletePosData, startSmeshing } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import {
@@ -191,17 +192,44 @@ const NodeSetup = ({ history, location }: Props) => {
         threads,
       })
     );
+    captureReactBreadcrumb({
+      category: 'Node Setup',
+      data: {
+        action: 'Render setup and init mining',
+      },
+      level: 'info',
+    });
 
     if ((done as unknown) as boolean) {
       history.push(MainPath.Smeshing, { showIntro: true });
+      captureReactBreadcrumb({
+        category: 'Node Setup',
+        data: {
+          action: 'Done setup and init mining',
+        },
+        level: 'info',
+      });
     }
   };
-
   const handleNextAction = () => {
     if (mode !== SetupMode.Summary) {
       setMode(mode + 1);
+      captureReactBreadcrumb({
+        category: 'Node Setup',
+        data: {
+          action: 'Navigate to next action mode',
+        },
+        level: 'info',
+      });
     } else {
       setupAndInitMining();
+      captureReactBreadcrumb({
+        category: 'Node Setup',
+        data: {
+          action: 'Navigate to next action when done setup and init mining',
+        },
+        level: 'info',
+      });
     }
   };
 
@@ -220,14 +248,45 @@ const NodeSetup = ({ history, location }: Props) => {
     await dispatch(deletePosData());
     setIsDeleting(false);
     history.push('/main/wallet/');
+    captureReactBreadcrumb({
+      category: 'Node Setup',
+      data: {
+        action: 'Delete Pos Data',
+      },
+      level: 'info',
+    });
   };
 
   const handlePrevAction = () => {
     if (mode === SetupMode.Modify) {
       history.replace(MainPath.Smeshing);
+      captureReactBreadcrumb({
+        category: 'Node Setup',
+        data: {
+          action: 'Navigate back to smeshing',
+        },
+        level: 'info',
+      });
     } else {
       setMode(mode - 1);
+      captureReactBreadcrumb({
+        category: 'Node Setup',
+        data: {
+          action: 'Navigate back button mode',
+        },
+        level: 'info',
+      });
     }
+  };
+  const handleSkipAction = () => {
+    history.push(MainPath.Wallet);
+    captureReactBreadcrumb({
+      category: 'Node Setup',
+      data: {
+        action: 'Skip action',
+      },
+      level: 'info',
+    });
   };
 
   const renderRightSection = () => {
@@ -249,7 +308,7 @@ const NodeSetup = ({ history, location }: Props) => {
             freeSpace={freeSpace}
             setFreeSpace={setFreeSpace}
             status={status}
-            skipAction={() => history.push(MainPath.Smeshing)}
+            skipAction={handleSkipAction}
           />
         );
       case SetupMode.Profiler: {

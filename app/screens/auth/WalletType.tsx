@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
@@ -99,7 +100,38 @@ const BottomPart = styled.div`
 `;
 
 const WalletType = ({ history, location }: AuthRouterParams) => {
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Wallet type',
+      data: {
+        action: 'Navigate to setup guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToBackButton = () => {
+    history.push(AuthPath.ConnectionType);
+    captureReactBreadcrumb({
+      category: 'Wallet type',
+      data: {
+        action: 'Navigate to back button',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToRestoreWallet = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Wallet type',
+      data: {
+        action: 'Navigate to restore wallet',
+      },
+      level: 'info',
+    });
+  };
 
   const navigateToCreateWallet = async () => {
     const { isWalletOnly } = location.state;
@@ -108,6 +140,13 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         ? { isWalletOnly }
         : { redirect: AuthPath.CreateWallet }),
       creatingWallet: true,
+    });
+    captureReactBreadcrumb({
+      category: 'Wallet type',
+      data: {
+        action: 'Click button create wallet',
+      },
+      level: 'info',
     });
   };
 
@@ -120,7 +159,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         header="WALLET SETUP"
         subHeader="Select which features you`d like to setup"
       >
-        <BackButton action={history.goBack} />
+        <BackButton action={navigateToBackButton} />
         <RowJust>
           <RowColumn>
             <Row>
@@ -157,10 +196,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
           <Row>
-            <Link
-              onClick={() => history.push(AuthPath.Recover)}
-              text="RESTORE  WALLET"
-            />{' '}
+            <Link onClick={navigateToRestoreWallet} text="RESTORE  WALLET" />{' '}
             <Tooltip
               width={120}
               text="Locate a file or restore from 12/24 words"

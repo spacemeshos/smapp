@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { addToContacts, removeFromContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup } from '../../basicComponents';
@@ -60,9 +61,22 @@ const EditContact = ({
     const error = validate(nickname, address, contacts, oldAddress);
     if (error) {
       setError(error);
-    } else {
-      setShouldShowPasswordModal(true);
+      captureReactBreadcrumb({
+        category: 'Edit Contact',
+        data: {
+          action: `Save when editing contacts error: ${error}`,
+        },
+        level: 'info',
+      });
     }
+    setShouldShowPasswordModal(true);
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Click onSave for editing contacts',
+      },
+      level: 'info',
+    });
   };
 
   const onValidPassword = async ({ password }: { password: string }) => {
@@ -79,6 +93,47 @@ const EditContact = ({
       );
       onCompleteAction();
     }, 1000);
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Check valid password',
+      },
+      level: 'info',
+    });
+  };
+
+  const submitInputNickname = ({ value }) => {
+    setNickname(value);
+    setError(null);
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Input nickname',
+      },
+      level: 'info',
+    });
+  };
+  const submitInputAccountAddress = ({ value }) => {
+    setAddress(value);
+    setError(null);
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Input account address',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleOnCancel = () => {
+    onCancel();
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Click on cancel button',
+      },
+      level: 'info',
+    });
   };
 
   return (
@@ -87,10 +142,7 @@ const EditContact = ({
         <Input
           value={nickname}
           placeholder="Nickname"
-          onChange={({ value }) => {
-            setNickname(value);
-            setError(null);
-          }}
+          onChange={submitInputNickname}
           maxLength="50"
           style={nicknameStyle}
           autofocus
@@ -98,10 +150,7 @@ const EditContact = ({
         <Input
           value={address}
           placeholder="Account address"
-          onChange={({ value }) => {
-            setAddress(value);
-            setError(null);
-          }}
+          onChange={submitInputAccountAddress}
           maxLength="90"
           style={addressStyle}
           onFocus={handleInputFocus}
@@ -125,7 +174,7 @@ const EditContact = ({
             style={{ color: smColors.green, marginRight: 15 }}
           />
           <Link
-            onClick={onCancel}
+            onClick={handleOnCancel}
             text="CANCEL"
             style={{ color: smColors.orange }}
           />

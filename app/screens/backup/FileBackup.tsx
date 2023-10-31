@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { StaticContext } from 'react-router';
+import { captureReactBreadcrumb } from '../../sentry';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { MainPath } from '../../routerPaths';
@@ -37,13 +38,36 @@ const FileBackup = ({
 >) => {
   const showBackupFile = () => {
     eventsService.showFileInFolder({ filePath: location.state.filePath });
+    captureReactBreadcrumb({
+      category: 'File Backup',
+      data: {
+        action: 'Show backup file',
+      },
+      level: 'info',
+    });
   };
 
   const backToWalletRoot = () => {
     history.push(MainPath.Wallet);
+    captureReactBreadcrumb({
+      category: 'File Backup',
+      data: {
+        action: 'Back to wallet root',
+      },
+      level: 'info',
+    });
   };
 
-  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
+  const openBackupGuide = () => {
+    window.open(ExternalLinks.BackupGuide);
+    captureReactBreadcrumb({
+      category: 'File Backup',
+      data: {
+        action: 'Open backup guide',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <WrapperWith2SideBars

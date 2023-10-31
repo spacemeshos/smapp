@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, JSX } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
+import { captureReactBreadcrumb } from '../../sentry';
 import { BackButton } from '../../components/common';
 import {
   WrapperWith2SideBars,
@@ -83,6 +84,13 @@ const WordsRestore = () => {
       (acc, val, idx) => R.adjust(index + idx, R.always(val), acc),
       words
     );
+    captureReactBreadcrumb({
+      category: 'Words Restore',
+      data: {
+        action: 'Input change',
+      },
+      level: 'info',
+    });
 
     setWords(newWords);
     setHasError(false);
@@ -110,7 +118,21 @@ const WordsRestore = () => {
       });
     } else {
       setHasError(true);
+      captureReactBreadcrumb({
+        category: 'Words Restore',
+        data: {
+          action: 'Restore with words with error',
+        },
+        level: 'info',
+      });
     }
+    captureReactBreadcrumb({
+      category: 'Words Restore',
+      data: {
+        action: 'Restore with words with validate state',
+      },
+      level: 'info',
+    });
   }, [words, history, setHasError]);
 
   const handleKeyUp = useCallback(
@@ -125,6 +147,13 @@ const WordsRestore = () => {
   const nextInput = (index: number) => {
     const next = Math.max(0, Math.min(WORDS_AMOUNT, index + 1));
     inputRefs.current[next]?.focus();
+    captureReactBreadcrumb({
+      category: 'Words Restore',
+      data: {
+        action: 'Next input',
+      },
+      level: 'info',
+    });
   };
 
   useEffect(() => {
@@ -134,8 +163,16 @@ const WordsRestore = () => {
     };
   }, [handleKeyUp]);
 
-  const navigateTo12WordRestoreGuide = () =>
+  const navigateToWordRestoreGuide = () => {
     window.open(ExternalLinks.RestoreMnemoGuide);
+    captureReactBreadcrumb({
+      category: 'Words Restore',
+      data: {
+        action: 'Navigate to words restore guide',
+      },
+      level: 'info',
+    });
+  };
 
   const renderInputs = () => {
     const is24WordsMode = WORDS_AMOUNT !== DEFAULT_RESTORE_WORDS_AMOUNT;
@@ -163,6 +200,16 @@ const WordsRestore = () => {
 
   const isDoneDisabled = !isDoneEnabled();
 
+  const resetErrorWords = () => {
+    setHasError(false);
+    captureReactBreadcrumb({
+      category: 'Words Restore',
+      data: {
+        action: 'Reset error Words',
+      },
+      level: 'info',
+    });
+  };
   return (
     <WrapperWith2SideBars
       width={800}
@@ -174,7 +221,7 @@ const WordsRestore = () => {
       {renderInputs()}
       <BottomSection>
         <Link
-          onClick={navigateTo12WordRestoreGuide}
+          onClick={navigateToWordRestoreGuide}
           text={'WORDS BACKUP GUIDE'}
         />
         <Button
@@ -185,9 +232,7 @@ const WordsRestore = () => {
       </BottomSection>
       {hasError && (
         <ErrorPopup
-          onClick={() => {
-            setHasError(false);
-          }}
+          onClick={resetErrorWords}
           text={`this ${WORDS_AMOUNT} words phrase in incorrect, please try again`}
           style={{ bottom: 15, left: 185 }}
         />

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-
+import { captureReactBreadcrumb } from '../../sentry';
 import { SmesherIntro, SmesherLog } from '../../components/node';
 import {
   WrapperWith2SideBars,
@@ -428,6 +428,18 @@ const Node = ({ history, location }: Props) => {
         </LineWrap>
       );
     });
+
+  const navigateDataDirectory = () => {
+    eventsService.showFileInFolder({ filePath: posDataPath });
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Navigate to data directory',
+      },
+      level: 'info',
+    });
+  };
+
   const getTableDataB = (): RowData[] => {
     const progress =
       ((numLabelsWritten * smesherConfig.bitsPerLabel) /
@@ -471,11 +483,7 @@ const Node = ({ history, location }: Props) => {
       ],
       [
         'Data Directory',
-        <PosDirLink
-          onClick={() =>
-            eventsService.showFileInFolder({ filePath: posDataPath })
-          }
-        >
+        <PosDirLink onClick={navigateDataDirectory}>
           <PosFolderIcon />
           <PathDir>{posDataPath}</PathDir>
         </PosDirLink>,
@@ -500,14 +508,46 @@ const Node = ({ history, location }: Props) => {
 
   const handlePauseSmeshing = async () => {
     setIsActionButtonLoading(true);
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Button pause POST data generation is active',
+      },
+      level: 'info',
+    });
     await dispatch(pauseSmeshing());
     setIsActionButtonLoading(false);
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Button pause POST data generation is not active',
+      },
+      level: 'info',
+    });
   };
-  const handleResumeSmeshing = async () => {
-    setIsActionButtonLoading(true);
-    await dispatch(resumeSmeshing());
-    setIsActionButtonLoading(false);
+
+  const handleResumeSmeshing = () => {
+    dispatch(resumeSmeshing());
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Click button resume smeshing',
+      },
+      level: 'info',
+    });
   };
+
+  const handleEdit = () => {
+    history.push(MainPath.SmeshingSetup, { modifyPostData: true });
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Click button edit',
+      },
+      level: 'info',
+    });
+  };
+
   const renderNodeDashboard = () => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
@@ -539,11 +579,7 @@ const Node = ({ history, location }: Props) => {
             <ButtonWrapper>
               <Button
                 isDisabled={isActionButtonDisabled}
-                onClick={() => {
-                  history.push(MainPath.SmeshingSetup, {
-                    modifyPostData: true,
-                  });
-                }}
+                onClick={handleEdit}
                 img={posDirectoryWhite}
                 text="EDIT"
                 isPrimary={false}
@@ -607,7 +643,16 @@ const Node = ({ history, location }: Props) => {
   };
 
   const buttonHandler = () => {
-    history.push(MainPath.SmeshingSetup);
+    history.push(MainPath.SmeshingSetup, {
+      modifyPostData: true,
+    });
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Click button setup proof of space',
+      },
+      level: 'info',
+    });
   };
 
   const renderMainSection = () => {
@@ -650,15 +695,38 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Navigate to smesher guide',
+      },
+      level: 'info',
+    });
+  };
 
   const handleSetupSmesher = () => {
     eventsService.switchApiProvider(curNet).catch((err) => {
       console.error(err); // eslint-disable-line no-console
       dispatch(setUiError(err));
+      captureReactBreadcrumb({
+        category: 'Node',
+        data: {
+          action: `Click button setup smesher error: ${err}`,
+        },
+        level: 'info',
+      });
     });
 
     history.push(AuthPath.Unlock, { redirect: MainPath.Smeshing });
+    captureReactBreadcrumb({
+      category: 'Node',
+      data: {
+        action: 'Click button setup smesher',
+      },
+      level: 'info',
+    });
   };
 
   const renderWalletOnlyMode = () => {
@@ -673,7 +741,7 @@ const Node = ({ history, location }: Props) => {
         <Row>
           <RowText color={smColors.darkOrange} weight={400}>
             <IconSmesher src={posSmesherOrange} />
-            Click on the setup semsher button below to start using a local
+            Click on the setup smesher button below to start using a local
             managed full Spacemesh p2p node and to smesh.
           </RowText>
         </Row>

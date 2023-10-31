@@ -2,6 +2,7 @@ import React from 'react';
 import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import routes from '../../routes';
 import { MainPath } from '../../routerPaths';
 import { AccountsOverview } from '../../components/wallet';
@@ -80,13 +81,28 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
   const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
   const dispatch = useDispatch();
 
+  throw Error('test');
   const navigateToBackup = () => {
     history.push(MainPath.BackupWallet);
+    captureReactBreadcrumb({
+      category: 'Wallet',
+      data: {
+        action: 'Navigate to backup',
+      },
+      level: 'info',
+    });
   };
 
   const handleModeBack = () => {
     if (vaultMode === 0) history.goBack();
     else dispatch(setCurrentMode(vaultMode - 1));
+    captureReactBreadcrumb({
+      category: 'Wallet',
+      data: {
+        action: 'Navigate to back button',
+      },
+      level: 'info',
+    });
   };
 
   const hasBackButton = location.pathname.includes('vault');

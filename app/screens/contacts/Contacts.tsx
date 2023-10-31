@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { captureReactBreadcrumb } from '../../sentry';
 import {
   CreateNewContact,
   CreatedNewContact,
@@ -309,6 +310,13 @@ const Contacts = ({ history }: RouteComponentProps) => {
     e.stopPropagation();
     setAddressToAdd(contact.address);
     setShowCreateNewContactModal(true);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Add new contact modal',
+      },
+      level: 'info',
+    });
   };
 
   const createdNewContact = () => {
@@ -318,20 +326,48 @@ const Contacts = ({ history }: RouteComponentProps) => {
     newContactCreatedTimeOut = setTimeout(() => {
       setIsNewContactCreated(false);
     }, 10000);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Create new contact',
+      },
+      level: 'info',
+    });
   };
 
   const cancelCreateNewContact = () => {
     setAddressToAdd('');
     setShowCreateNewContactModal(false);
     setIsNewContactCreated(false);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Cancel create new contact',
+      },
+      level: 'info',
+    });
   };
 
   const navigateToSendCoins = ({ contact }: { contact: Contact }) => {
     history.push(WalletPath.SendCoins, { contact });
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Navigate to Send Coins',
+      },
+      level: 'info',
+    });
   };
 
   const handleEditButton = (contact: Contact) => {
     setContactEditing(contact);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Edit button',
+      },
+      level: 'info',
+    });
   };
 
   const deleteContact = async ({
@@ -343,6 +379,13 @@ const Contacts = ({ history }: RouteComponentProps) => {
   }) => {
     await dispatch(removeFromContacts({ password, contact }));
     setContactToDelete(null);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Delete contact',
+      },
+      level: 'info',
+    });
   };
 
   const renderLastUsedContacts = () => {
@@ -431,6 +474,14 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const renderContacts = () => {
     const filteredContacts = contacts.filter(contactFilter);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Render contacts',
+      },
+      level: 'info',
+    });
+
     if (filteredContacts.length === 0) {
       return (
         <ContactText>{`No contacts matching criteria "${searchTerm}" found`}</ContactText>
@@ -491,6 +542,17 @@ const Contacts = ({ history }: RouteComponentProps) => {
     );
   };
 
+  const searchContacts = ({ value }) => {
+    setTmpSearchTerm(value);
+    captureReactBreadcrumb({
+      category: 'Contacts',
+      data: {
+        action: 'Search contacts',
+      },
+      level: 'info',
+    });
+  };
+
   return (
     <WrapperWith2SideBars width={1000} height={520} header="CONTACTS">
       <SearchWrapper>
@@ -500,9 +562,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
           value={tmpSearchTerm}
           type="text"
           placeholder="Search contacts"
-          onChange={({ value }) => {
-            setTmpSearchTerm(value);
-          }}
+          onChange={searchContacts}
           onChangeDebounced={({ value }) => {
             setSearchTerm(value.toString());
           }}

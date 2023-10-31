@@ -5,6 +5,7 @@ import {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../../../shared/warning';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Button } from '../../basicComponents';
 import Modal from '../../components/common/Modal';
 import { eventsService } from '../../infra/eventsService';
@@ -62,6 +63,13 @@ const WriteFilePermissionError = () => {
     eventsService.showFileInFolder({
       filePath: filePermissionError.payload.filePath,
     });
+    captureReactBreadcrumb({
+      category: 'Write File Permission Error',
+      data: {
+        action: 'Click button show file',
+      },
+      level: 'info',
+    });
   };
 
   const isCriticalError =
@@ -72,6 +80,13 @@ const WriteFilePermissionError = () => {
 
   const handleDismiss = () => {
     dispatch(omitWarning(filePermissionError));
+    captureReactBreadcrumb({
+      category: 'Write File Permission Error',
+      data: {
+        action: 'Dismiss file',
+      },
+      level: 'info',
+    });
   };
 
   const subheader = getSubheader(filePermissionError.payload.kind);

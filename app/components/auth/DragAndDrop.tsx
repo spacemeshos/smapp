@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Link } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { incorrectFile } from '../../assets/images';
@@ -76,12 +77,30 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+
+    captureReactBreadcrumb({
+      category: 'Drug and drop',
+      data: {
+        action:
+          'Default drop when the dragged content is released on the element',
+      },
+      level: 'info',
+    });
+
     if (e.dataTransfer?.files) {
       onFilesAdded({
         fileName: e.dataTransfer.files[0].name,
         filePath: e.dataTransfer.files[0].path,
       });
       setIsDragging(false);
+
+      captureReactBreadcrumb({
+        category: 'Drug and drop',
+        data: {
+          action: 'On drop when the dragged content is released on the element',
+        },
+        level: 'info',
+      });
     }
   };
 
@@ -91,22 +110,52 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
         target: { files },
       } = e;
       onFilesAdded({ fileName: files[0].name, filePath: files[0].path });
+      captureReactBreadcrumb({
+        category: 'Drug and drop',
+        data: {
+          action: 'On files added',
+        },
+        level: 'info',
+      });
     }
   };
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
+    captureReactBreadcrumb({
+      category: 'Drug and drop',
+      data: {
+        action:
+          'On drag over when element where the dragged content will be dropped',
+      },
+      level: 'info',
+    });
   };
 
   const onDragLeave = () => {
     setIsDragging(false);
+    captureReactBreadcrumb({
+      category: 'Drug and drop',
+      data: {
+        action:
+          'On drag leave when the element is out of the allowed wrapping zone',
+      },
+      level: 'info',
+    });
   };
 
   const openFileDialog = () => {
     if (fileInputRef && fileInputRef.current) {
       fileInputRef.current.click();
     }
+    captureReactBreadcrumb({
+      category: 'Drug and drop',
+      data: {
+        action: 'Open file dialog',
+      },
+      level: 'info',
+    });
   };
 
   let preLinkText;

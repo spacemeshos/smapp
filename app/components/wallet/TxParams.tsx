@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import {
   Link,
   Input,
@@ -139,15 +140,32 @@ const TxParams = ({
     setSelectedFeeIndex(index);
   };
 
-  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const navigateToGuide = () => {
+    window.open(ExternalLinks.SendCoinGuide);
+    captureReactBreadcrumb({
+      category: 'TX params',
+      data: {
+        action: 'Navigate to coin guide',
+      },
+      level: 'info',
+    });
+  };
 
   const handleAmountChange = useCallback(
     (value) => updateTxAmount(parseFloat(value)),
     [updateTxAmount]
   );
   const history = useHistory();
+
   const cancelButton = () => {
     history.replace(backButtonRoute);
+    captureReactBreadcrumb({
+      category: 'TX params',
+      data: {
+        action: 'Click cancel transaction link',
+      },
+      level: 'info',
+    });
   };
 
   return (

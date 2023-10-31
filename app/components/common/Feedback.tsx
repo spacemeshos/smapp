@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { captureReactMessage, captureReactUserFeedback } from '../../sentry';
+import {
+  captureReactBreadcrumb,
+  captureReactMessage,
+  captureReactUserFeedback,
+} from '../../sentry';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
 import CopyButton from '../../basicComponents/CopyButton';
@@ -272,6 +276,14 @@ const FeedbackButton = () => {
 
   const handleReport = () => {
     if (!validate()) {
+      captureReactBreadcrumb({
+        category: 'Feedback',
+        data: {
+          action: 'Send a feedback report',
+        },
+        level: 'info',
+      });
+
       return;
     }
 
@@ -290,9 +302,37 @@ const FeedbackButton = () => {
 
   const handleCloseSuccessMessageModal = () => {
     setUniqIdentifierForSuccessDialog('');
+    captureReactBreadcrumb({
+      category: 'Feedback',
+      data: {
+        action: 'Close success message',
+      },
+      level: 'info',
+    });
   };
 
-  const openDiscord = () => window.open(ExternalLinks.Discord);
+  const openDiscord = () => {
+    window.open(ExternalLinks.Discord);
+    captureReactBreadcrumb({
+      category: 'Feedback',
+      data: {
+        action: 'Open discord',
+      },
+      level: 'info',
+    });
+  };
+
+  const reportButtonHandler = () => {
+    resetForm();
+    setShowReportDialog(true);
+    captureReactBreadcrumb({
+      category: 'Feedback',
+      data: {
+        action: 'Button report an issue',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <Container>
@@ -403,12 +443,7 @@ const FeedbackButton = () => {
         </Modal>
       )}
 
-      <ReportButton
-        onClick={() => {
-          resetForm();
-          setShowReportDialog(true);
-        }}
-      >
+      <ReportButton onClick={reportButtonHandler}>
         Report an issue!
       </ReportButton>
     </Container>

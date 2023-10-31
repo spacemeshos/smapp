@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar } from '../../assets/images';
@@ -69,7 +70,49 @@ const Leaving = ({ history }: AuthRouterParams) => {
     (state: RootState) => state.wallet.walletFiles.length > 0
   );
 
-  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToSetupGuide = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Leaving Setup',
+      data: {
+        action: 'Navigate to setup guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToBackButton = () => {
+    history.push(AuthPath.ConnectionType);
+    captureReactBreadcrumb({
+      category: 'Leaving Setup',
+      data: {
+        action: 'Navigate to back button',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToRecoverIt = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Leaving Setup',
+      data: {
+        action: 'Navigate to recover it',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToLeaveSetup = () => {
+    history.push(hasWalletFiles ? AuthPath.Unlock : AuthPath.Welcome);
+    captureReactBreadcrumb({
+      category: 'Leaving Setup',
+      data: {
+        action: 'Navigate to leave setup',
+      },
+      level: 'info',
+    });
+  };
 
   const header = 'LEAVING SETUP';
 
@@ -83,28 +126,20 @@ const Leaving = ({ history }: AuthRouterParams) => {
       >
         <SideBar src={bigInnerSideBar} />
         <Indicator />
-        <BackButton action={history.goBack} />
+        <BackButton action={navigateToBackButton} />
         <BottomPart>
           <ComplexLink>
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
             <Row>
               <Text>ALREADY HAVE A WALLET? &nbsp;</Text>
-              <Link
-                onClick={() => history.push(AuthPath.Recover)}
-                text="RECOVER IT"
-              />
+              <Link onClick={navigateToRecoverIt} text="RECOVER IT" />
               <Tooltip
                 width={140}
                 text="You can recover your wallet from file or mnemonics"
               />
             </Row>
           </ComplexLink>
-          <Button
-            text="LEAVE SETUP"
-            onClick={() =>
-              history.push(hasWalletFiles ? AuthPath.Unlock : AuthPath.Welcome)
-            }
-          />
+          <Button text="LEAVE SETUP" onClick={navigateToLeaveSetup} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

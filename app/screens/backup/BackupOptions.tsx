@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { backupWallet } from '../../redux/wallet/actions';
 import {
   WrapperWith2SideBars,
@@ -76,6 +77,13 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
 
   const navigateTo12WordsBackup = () => {
     history.push(BackupPath.Mnemonics);
+    captureReactBreadcrumb({
+      category: 'Backup Options',
+      data: {
+        action: 'Navigate to FILE BACKUP',
+      },
+      level: 'info',
+    });
   };
 
   const handleBackupWallet = async () => {
@@ -83,9 +91,25 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
     if (filePath) {
       history.push(BackupPath.File, { filePath });
     }
+    captureReactBreadcrumb({
+      category: 'Backup Options',
+      data: {
+        action: 'Click file backup navigate to 12 words',
+      },
+      level: 'info',
+    });
   };
 
-  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
+  const openBackupGuide = () => {
+    window.open(ExternalLinks.BackupGuide);
+    captureReactBreadcrumb({
+      category: 'Backup Options',
+      data: {
+        action: 'Navigate backup guide',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <Wrapper>

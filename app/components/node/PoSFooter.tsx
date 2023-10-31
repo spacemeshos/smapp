@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { ExternalLinks } from '../../../shared/constants';
 import { Link, Button } from '../../basicComponents';
 
@@ -34,7 +35,16 @@ const PoSFooter = ({
   skipLabel,
   nextLabel,
 }: PoSFooterProps) => {
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'PoS Footer',
+      data: {
+        action: 'Open post setup guide',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <Footer>

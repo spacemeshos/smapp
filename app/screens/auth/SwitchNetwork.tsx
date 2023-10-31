@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
@@ -69,9 +70,23 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       const { payload } = await eventsService.listNetworks();
       setNetworks(payload || []);
       setNetworksLoading(false);
+      captureReactBreadcrumb({
+        category: 'Switch network',
+        data: {
+          action: 'Update wallet network list',
+        },
+        level: 'info',
+      });
     } catch (err) {
       setNetworksLoading(false);
       console.error(err); // eslint-disable-line no-console
+      captureReactBreadcrumb({
+        category: 'Switch network',
+        data: {
+          action: `Update wallet network list error: ${err}`,
+        },
+        level: 'info',
+      });
     }
   };
 
@@ -84,9 +99,38 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Switch network',
+      data: {
+        action: 'Navigate to setup guide',
+      },
+      level: 'info',
+    });
+  };
 
-  const selectItem = ({ index }) => setSelectedItemIndex(index);
+  const selectItem = ({ index }) => {
+    setSelectedItemIndex(index);
+    captureReactBreadcrumb({
+      category: 'Switch network',
+      data: {
+        action: 'Select a public Spacemesh network for your wallet',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToCancelButton = () => {
+    history.push(MainPath.Settings);
+    captureReactBreadcrumb({
+      category: 'Switch network',
+      data: {
+        action: 'Navigate to cancel button',
+      },
+      level: 'info',
+    });
+  };
 
   const hasAvailableNetworks = networks.length > 0;
   const getDropDownData = () => {
@@ -104,7 +148,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         description: genesisID?.length ? `(ID ${genesisID})` : '',
       }));
     }
-
     return [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
   };
 
@@ -145,6 +188,13 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     if (redirect === AuthPath.Unlock) {
       return history.push(redirect, { withLoader: true });
     }
+    captureReactBreadcrumb({
+      category: 'Switch network',
+      data: {
+        action: 'Navigate to next action',
+      },
+      level: 'info',
+    });
 
     return history.push(redirect || AuthPath.Unlock);
   };
@@ -163,6 +213,13 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         if (err instanceof Error) {
           dispatch(setUiError(err));
         }
+        captureReactBreadcrumb({
+          category: 'Switch network',
+          data: {
+            action: `Next button error: ${err}`,
+          },
+          level: 'info',
+        });
       }
     }
 
@@ -212,7 +269,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
           <RightSide>
             {location?.state?.showBackButton && (
               <Button
-                onClick={() => history.push(MainPath.Settings)}
+                onClick={navigateToCancelButton}
                 isPrimary={false}
                 text="CANCEL"
               />

@@ -4,6 +4,7 @@ import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RewardView } from '../../redux/wallet/selectors';
 import { Bech32Address } from '../../../shared/types';
+import { captureReactBreadcrumb } from '../../sentry';
 import Address from '../common/Address';
 
 const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
@@ -135,9 +136,15 @@ type Props = {
 const RewardRow = ({ tx, address, isHidden = false }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
   const { layer, layerReward, amount } = tx;
-
   const toggleTxDetails = () => {
     setIsDetailed(!isDetailed);
+    captureReactBreadcrumb({
+      category: 'Reward Row',
+      data: {
+        action: 'Toggle tx details',
+      },
+      level: 'info',
+    });
   };
 
   const renderDetails = () => (

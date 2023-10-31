@@ -19,11 +19,13 @@ export const init = (history) =>
     dsn: process.env.SENTRY_DSN,
     environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
     enabled: true,
+    dist: 'production',
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
     attachStacktrace: true,
     maxValueLength: 25000,
     tracesSampleRate: parseFloat(process.env.TRACES_SAMPLE_RATE || '1.0'),
     integrations: [
+      // @ts-ignore
       new BrowserTracing({
         routingInstrumentation: reactRouterV5Instrumentation(
           history,

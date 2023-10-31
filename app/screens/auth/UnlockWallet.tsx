@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
@@ -130,6 +131,13 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       );
     };
     ipcRenderer.on(ipcConsts.WALLET_ACTIVATED, goNext);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Select item a wallet',
+      },
+      level: 'info',
+    });
     return () => {
       ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
     };
@@ -148,11 +156,25 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
     updateSelectedWalletIndex(index);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Select item a wallet',
+      },
+      level: 'info',
+    });
   };
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
     setWrongPassword(false);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Handle password typing',
+      },
+      level: 'info',
+    });
   };
 
   const decryptWallet = async () => {
@@ -169,11 +191,64 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       if (!status.success) {
         setShowLoader(false);
         setWrongPassword(true);
+        captureReactBreadcrumb({
+          category: 'Unlock wallet',
+          data: {
+            action: 'Decrypt wallet',
+          },
+          level: 'info',
+        });
       }
     }
   };
-  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
+
+  const resetErrorPassword = () => {
+    setPassword('');
+    setWrongPassword(false);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Reset password error',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToOpenAnExistingWallet = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Navigate to open an existing wallet',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToCreateWallet = () => {
+    history.push(AuthPath.ConnectionType);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Navigate to create wallet',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToSetupGuide = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Unlock wallet',
+      data: {
+        action: 'Navigate to setup guide',
+      },
+      level: 'info',
+    });
+  };
+
   const showWalletFileSelection = walletFiles.length > 1;
+
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
@@ -226,10 +301,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           <ErrorSection>
             {isWrongPassword && (
               <ErrorPopup
-                onClick={() => {
-                  setPassword('');
-                  setWrongPassword(false);
-                }}
+                onClick={resetErrorPassword}
                 text="Sorry, this password doesn't ring a bell, please try again."
               />
             )}
@@ -239,12 +311,12 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           <LinksWrapper>
             <GrayText>FORGOT YOUR PASSWORD?</GrayText>
             <Link
-              onClick={() => history.push(AuthPath.Recover)}
+              onClick={navigateToOpenAnExistingWallet}
               text="OPEN AN EXISTING WALLET"
               style={{ marginRight: 'auto' }}
             />
             <Link
-              onClick={() => history.push(AuthPath.ConnectionType)}
+              onClick={navigateToCreateWallet}
               text="CREATE"
               style={{ marginRight: 'auto' }}
             />

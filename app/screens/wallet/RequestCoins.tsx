@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import CopyButton from '../../basicComponents/CopyButton';
 import { Link, Button, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -92,14 +93,60 @@ const RequestCoins = ({ history, location }: Props) => {
   } = location;
   const netowrkTabBotUrl = useSelector(getNetworkTapBotDiscordURL);
   const [isCopied, setIsCopied] = useState<boolean>(false);
-
   const navigateToNodeSetup = () => {
     history.push(MainPath.SmeshingSetup);
+    captureReactBreadcrumb({
+      category: 'Request Coins',
+      data: {
+        action: 'Click link set up smeshing',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToGuide = () => window.open(ExternalLinks.GetCoinGuide);
+  const navigateToGuide = () => {
+    window.open(ExternalLinks.GetCoinGuide);
+    captureReactBreadcrumb({
+      category: 'Request Coins',
+      data: {
+        action: 'Click link request SMH guide',
+      },
+      level: 'info',
+    });
+  };
 
-  const navigateToTap = () => window.open(netowrkTabBotUrl);
+  const navigateToTap = () => {
+    window.open(netowrkTabBotUrl);
+    captureReactBreadcrumb({
+      category: 'Request Coins',
+      data: {
+        action: 'Click link testnet tap',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToCopy = (val) => {
+    setIsCopied(Boolean(val));
+    captureReactBreadcrumb({
+      category: 'Request Coins',
+      data: {
+        action: 'Click copy button',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToDone = () => {
+    history.replace(MainPath.Wallet);
+    captureReactBreadcrumb({
+      category: 'Request Coins',
+      data: {
+        action: 'Click done button',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <Wrapper>
@@ -114,7 +161,7 @@ const RequestCoins = ({ history, location }: Props) => {
         <CopyButton
           value={account.address}
           hideCopyIcon={isCopied}
-          onClick={(val) => setIsCopied(Boolean(val))}
+          onClick={navigateToCopy}
         >
           <AddressWrapper>
             <AddressText>{account.address}</AddressText>
@@ -149,7 +196,7 @@ const RequestCoins = ({ history, location }: Props) => {
       )}
       <Footer>
         <Link onClick={navigateToGuide} text="REQUEST SMH GUIDE" />
-        <Button onClick={() => history.replace(MainPath.Wallet)} text="DONE" />
+        <Button onClick={navigateToDone} text="DONE" />
       </Footer>
     </Wrapper>
   );

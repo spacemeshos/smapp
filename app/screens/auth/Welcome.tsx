@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer } from '../../components/common';
 import { SubHeader } from '../../components/common/CorneredContainer';
 import { Button, Link, Tooltip } from '../../basicComponents';
@@ -91,7 +92,38 @@ const SubHeaderExt = styled(SubHeader)`
 `;
 
 const Welcome = ({ history }: AuthRouterParams) => {
-  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToSetupGuide = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Welcome',
+      data: {
+        action: 'Navigate to setup guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToExistingWallet = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Welcome',
+      data: {
+        action: 'Navigate to open an existing wallet',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToSetupWallet = () => {
+    history.push(AuthPath.ConnectionType);
+    captureReactBreadcrumb({
+      category: 'Welcome',
+      data: {
+        action: 'Navigate to setup wallet',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH">
@@ -128,7 +160,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
         <ComplexLink>
           <Link
-            onClick={() => history.push(AuthPath.Recover)}
+            onClick={navigateToExistingWallet}
             text="OPEN AN EXISTING WALLET"
           />
           <Tooltip
@@ -136,10 +168,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
             text="Locate a file or restore from 12/24 words"
           />
           <ButtonMargin>
-            <Button
-              text="SETUP"
-              onClick={() => history.push(AuthPath.ConnectionType)}
-            />
+            <Button text="SETUP" onClick={navigateToSetupWallet} />
           </ButtonMargin>
         </ComplexLink>
       </BottomPart>

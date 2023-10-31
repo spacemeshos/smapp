@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { eventsService } from '../../infra/eventsService';
 import { Modal } from '../common';
 import { Input, Button } from '../../basicComponents';
@@ -81,6 +82,24 @@ const SignMessage = ({ index, close }: Props) => {
     await navigator.clipboard.writeText(result);
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
+    captureReactBreadcrumb({
+      category: 'Sign Message',
+      data: {
+        action: 'Sign text message',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleClose = () => {
+    close();
+    captureReactBreadcrumb({
+      category: 'Sign Message',
+      data: {
+        action: 'Click cancel button',
+      },
+      level: 'info',
+    });
   };
 
   return (
@@ -112,7 +131,7 @@ const SignMessage = ({ index, close }: Props) => {
           width={150}
           isDisabled={!message}
         />
-        <Button onClick={close} isPrimary={false} text="Cancel" />
+        <Button onClick={handleClose} isPrimary={false} text="Cancel" />
       </ButtonsWrapper>
     </Modal>
   );

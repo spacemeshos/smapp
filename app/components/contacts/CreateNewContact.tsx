@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
@@ -96,14 +97,69 @@ const CreateNewContact = ({
     const error = validate(nickname, address, contacts);
     if (error) {
       setError(error);
-    } else {
-      setShouldShowPasswordModal(true);
+      captureReactBreadcrumb({
+        category: 'Create New Contact',
+        data: {
+          action: `Save contact error: ${error}`,
+        },
+        level: 'info',
+      });
     }
+    setShouldShowPasswordModal(true);
+    captureReactBreadcrumb({
+      category: 'Create New Contact',
+      data: {
+        action: 'Click onSave for create new contact',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleOnCancel = () => {
+    onCancel();
+    captureReactBreadcrumb({
+      category: 'Create New Contact',
+      data: {
+        action: 'Click cancel save contact',
+      },
+      level: 'info',
+    });
   };
 
   const onValidPassword = async ({ password }: { password: string }) => {
     dispatch(addToContacts({ password, contact: { address, nickname } }));
     onCompleteAction();
+    captureReactBreadcrumb({
+      category: 'Create New Contact',
+      data: {
+        action: 'Check valid password',
+      },
+      level: 'info',
+    });
+  };
+
+  const submitInputNickname = ({ value }) => {
+    setNickname(value);
+    setError(null);
+    captureReactBreadcrumb({
+      category: 'Create New Contact',
+      data: {
+        action: 'Input nickname',
+      },
+      level: 'info',
+    });
+  };
+
+  const submitInputAccountAddress = ({ value }) => {
+    setAddress(value);
+    setError(null);
+    captureReactBreadcrumb({
+      category: 'Create New Contact',
+      data: {
+        action: 'Input account address',
+      },
+      level: 'info',
+    });
   };
 
   return (
@@ -119,10 +175,7 @@ const CreateNewContact = ({
           <Input
             value={nickname}
             placeholder="Nickname"
-            onChange={({ value }) => {
-              setNickname(value);
-              setError(null);
-            }}
+            onChange={submitInputNickname}
             maxLength="50"
             style={isStandalone ? inputStyle2 : inputStyle1}
             autofocus
@@ -130,10 +183,7 @@ const CreateNewContact = ({
           <Input
             value={address}
             placeholder="Account address"
-            onChange={({ value }) => {
-              setAddress(value);
-              setError(null);
-            }}
+            onChange={submitInputAccountAddress}
             maxLength="90"
             style={isStandalone ? inputStyle3 : inputStyle1}
             onFocus={handleInputFocus}
@@ -161,7 +211,7 @@ const CreateNewContact = ({
           style={{ color: smColors.green, marginRight: 15 }}
         />
         <Link
-          onClick={onCancel}
+          onClick={handleOnCancel}
           text="CANCEL"
           style={{ color: smColors.orange }}
         />

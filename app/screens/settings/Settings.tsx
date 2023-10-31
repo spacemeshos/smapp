@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { Element, scroller } from 'react-scroll';
+import { captureReactBreadcrumb } from '../../sentry';
 import {
   updateWalletName,
   createNewAccount,
@@ -196,6 +197,17 @@ class Settings extends Component<Props, State> {
       nameWalletError,
     } = this.state;
 
+    const switchNetwork = () => {
+      goToSwitchNetwork(history, isWalletOnly, true);
+      captureReactBreadcrumb({
+        category: 'Settings',
+        data: {
+          action: 'Click button remove API',
+        },
+        level: 'info',
+      });
+    };
+
     return (
       <Wrapper>
         <SideMenu items={categories} />
@@ -236,9 +248,7 @@ class Settings extends Component<Props, State> {
                 upperPart={[
                   <Text key={1}>Read our&nbsp;</Text>,
                   <Link
-                    onClick={() =>
-                      this.externalNavigation(ExternalLinks.Disclaimer)
-                    }
+                    onClick={this.navigateToDisclaimer}
                     text="disclaimer"
                     key={2}
                   />,
@@ -250,9 +260,7 @@ class Settings extends Component<Props, State> {
                 isUpperPartLeftText
                 upperPartRight={
                   <Button
-                    onClick={() =>
-                      this.externalNavigation(ExternalLinks.UserGuide)
-                    }
+                    onClick={this.navigateToUserGuide}
                     text="GUIDE"
                     width={180}
                   />
@@ -294,9 +302,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={`${netName} (${genesisID})`}
                 upperPartRight={
                   <Button
-                    onClick={() =>
-                      goToSwitchNetwork(history, isWalletOnly, true)
-                    }
+                    onClick={switchNetwork}
                     text="SWITCH NETWORK"
                     width={180}
                   />
@@ -592,11 +598,7 @@ class Settings extends Component<Props, State> {
         {showModal && (
           <Modal header="Error" subHeader={'number must be >= 1024'}>
             <ButtonsWrapper>
-              <Button
-                onClick={() => this.setState({ showModal: false })}
-                isPrimary
-                text="OK"
-              />
+              <Button onClick={this.closeErrorMsg} isPrimary text="OK" />
             </ButtonsWrapper>
           </Modal>
         )}
@@ -640,12 +642,36 @@ class Settings extends Component<Props, State> {
     setClientSettingsTheme(index.toString());
     // @ts-ignore
     switchSkin(index.toString());
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Set skin',
+      },
+      level: 'info',
+    });
   };
 
-  restoreFrom12Mnemonic = () => this.goTo(AuthPath.RecoverFromMnemonics);
+  restoreFrom12Mnemonic = () => {
+    this.goTo(AuthPath.RecoverFromMnemonics);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Navigate to restore from 12 mnemonics',
+      },
+      level: 'info',
+    });
+  };
 
-  restoreFrom24Mnemonic = () =>
+  restoreFrom24Mnemonic = () => {
     this.goTo(AuthPath.RecoverFromMnemonics, { wordsAmount: 24 });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Navigate to restore from 24 mnemonics',
+      },
+      level: 'info',
+    });
+  };
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { accounts } = this.props;
@@ -656,6 +682,13 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames: updatedAccountDisplayNames,
     });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Cancel editing display name',
+      },
+      level: 'info',
+    });
   };
 
   startEditingAccountDisplayName = ({ index }: { index: number }) => {
@@ -664,26 +697,92 @@ class Settings extends Component<Props, State> {
       this.cancelEditingAccountDisplayName({ index: editedAccountIndex });
     }
     this.setState({ editedAccountIndex: index });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Start editing display name',
+      },
+      level: 'info',
+    });
   };
 
   openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button view logs',
+      },
+      level: 'info',
+    });
   };
 
   toggleSignMessageModal = ({ index }: { index: number }) => {
     this.setState({ signMessageModalAccountIndex: index });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Sign message modal',
+      },
+      level: 'info',
+    });
+  };
+
+  closeErrorMsg = () => {
+    this.setState({ showModal: false });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Close error msg',
+      },
+      level: 'info',
+    });
   };
 
   lockWallet = (redirect: AuthPath) => {
     eventsService.closeWallet();
     this.goTo(redirect);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Local Wallet',
+      },
+      level: 'info',
+    });
   };
 
-  closeWallet = () => this.lockWallet(AuthPath.Unlock);
+  closeWallet = () => {
+    this.lockWallet(AuthPath.Unlock);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button log out',
+      },
+      level: 'info',
+    });
+  };
 
-  createNewWallet = () => this.lockWallet(AuthPath.ConnectionType);
+  createNewWallet = () => {
+    this.lockWallet(AuthPath.ConnectionType);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button Create new wallet',
+      },
+      level: 'info',
+    });
+  };
 
-  openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
+  openWalletFile = () => {
+    this.goTo(AuthPath.RecoverFromFile);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button open wallet file',
+      },
+      level: 'info',
+    });
+  };
 
   saveEditedAccountDisplayName = ({ index }: { index: number }) => {
     const { accountDisplayNames } = this.state;
@@ -700,6 +799,13 @@ class Settings extends Component<Props, State> {
         });
       },
     });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Save edited account display name',
+      },
+      level: 'info',
+    });
   };
 
   editAccountDisplayName = ({
@@ -713,6 +819,13 @@ class Settings extends Component<Props, State> {
     const updatedAccountDisplayNames = [...accountDisplayNames];
     updatedAccountDisplayNames[index] = value;
     this.setState({ accountDisplayNames: updatedAccountDisplayNames });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Edit account display name',
+      },
+      level: 'info',
+    });
   };
 
   toggleAutoStart = async () => {
@@ -722,24 +835,92 @@ class Settings extends Component<Props, State> {
       const { setUiError } = this.props;
       // @ts-ignore
       setUiError(new Error(res.error));
+      captureReactBreadcrumb({
+        category: 'Settings',
+        data: {
+          action: `Click button toggle auto start / error: ${res.error}`,
+        },
+        level: 'info',
+      });
     }
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button toggle auto start',
+      },
+      level: 'info',
+    });
   };
 
   externalNavigation = (to: ExternalLinks) => window.open(to);
 
-  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
+  navigateToDisclaimer = () => {
+    this.externalNavigation(ExternalLinks.Disclaimer);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click disclaimer link',
+      },
+      level: 'info',
+    });
+  };
 
-  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
+  navigateToUserGuide = () => {
+    this.externalNavigation(ExternalLinks.UserGuide);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button navigate to user guide',
+      },
+      level: 'info',
+    });
+  };
+
+  navigateToWalletBackup = () => {
+    this.goTo(MainPath.BackupWallet);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button navigate to wallet backup',
+      },
+      level: 'info',
+    });
+  };
+
+  navigateToWalletRestore = () => {
+    this.goTo(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Navigate to wallet restore',
+      },
+      level: 'info',
+    });
+  };
 
   cleanAllAppDataAndSettings = async () => {
     localStorage.clear();
     eventsService.wipeOut();
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button wipe out',
+      },
+      level: 'info',
+    });
   };
 
   deleteWallet = async () => {
     const { currentWalletPath } = this.props;
     localStorage.clear();
     await eventsService.deleteWalletFile(currentWalletPath);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button delete wallet',
+      },
+      level: 'info',
+    });
   };
 
   cancelEditingWalletDisplayName = () => {
@@ -747,6 +928,13 @@ class Settings extends Component<Props, State> {
     this.setState({
       walletDisplayName: displayName,
       canEditDisplayName: false,
+    });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click link cancel edit wallet display name',
+      },
+      level: 'info',
     });
   };
 
@@ -775,17 +963,39 @@ class Settings extends Component<Props, State> {
       // @ts-ignore
       updateWalletName({ displayName: walletDisplayName });
     }
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click link save edit wallet display name',
+      },
+      level: 'info',
+    });
   };
 
-  startEditingWalletDisplayName = () =>
+  startEditingWalletDisplayName = () => {
     this.setState({ canEditDisplayName: true });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button edit wallet display name',
+      },
+      level: 'info',
+    });
+  };
 
-  editWalletDisplayName = ({ value }: { value: string }) =>
+  editWalletDisplayName = ({ value }: { value: string }) => {
     this.setState({ walletDisplayName: value });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Edit wallet display name',
+      },
+      level: 'info',
+    });
+  };
 
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
-
     this.setState({
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
@@ -795,6 +1005,13 @@ class Settings extends Component<Props, State> {
         this.goTo(MainPath.Wallet);
       },
     });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button add account',
+      },
+      level: 'info',
+    });
   };
 
   switchToLocalNode = () => {
@@ -803,18 +1020,46 @@ class Settings extends Component<Props, State> {
     switchApiProvider().catch((err) => {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
+      captureReactBreadcrumb({
+        category: 'Settings',
+        data: {
+          action: `Switch to local node error: ${err}`,
+        },
+        level: 'info',
+      });
     });
     this.goTo(AuthPath.Unlock);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Unlocked local node',
+      },
+      level: 'info',
+    });
   };
 
   switchToRemoteApi = () => {
     const { genesisID } = this.props;
     this.goTo(AuthPath.ConnectToAPI, { genesisID });
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Click button switch to wallet only',
+      },
+      level: 'info',
+    });
   };
 
   goTo = (redirect: RouterPath, state?: unknown) => {
     const { history } = this.props;
     history.push(redirect, state);
+    captureReactBreadcrumb({
+      category: 'Settings',
+      data: {
+        action: 'Navigate to state smeshing',
+      },
+      level: 'info',
+    });
   };
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
@@ -73,6 +74,14 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
             },
           })),
         };
+        captureReactBreadcrumb({
+          category: 'Connect to API',
+          data: {
+            action: 'Update API public services',
+          },
+          level: 'info',
+        });
+
         return setPublicServices(state);
       })
       .catch((err) => {
@@ -81,14 +90,39 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
           services: [],
         });
         console.error(err); // eslint-disable-line no-console
+        captureReactBreadcrumb({
+          category: 'Connect to API',
+          data: {
+            action: `Update API public services error: ${err}`,
+          },
+          level: 'info',
+        });
       });
   };
 
   useEffect(updatePublicServices, [genesisID]);
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Connect to API',
+      data: {
+        action: 'Navigate to explanation setup',
+      },
+      level: 'info',
+    });
+  };
 
-  const selectItem = ({ index }) => setSelectedItemIndex(index);
+  const selectItem = ({ index }) => {
+    setSelectedItemIndex(index);
+    captureReactBreadcrumb({
+      category: 'Connect to API',
+      data: {
+        action: 'Select item',
+      },
+      level: 'info',
+    });
+  };
 
   const hasPublicServices = publicServices.services.length > 0;
 
@@ -107,11 +141,26 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
         : undefined;
+    captureReactBreadcrumb({
+      category: 'Connect to API',
+      data: {
+        action: 'Click next button',
+      },
+      level: 'info',
+    });
 
     value &&
       dispatch(switchApiProvider(value, genesisID)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
+
+        captureReactBreadcrumb({
+          category: 'Connect to API',
+          data: {
+            action: `Click next button with error: ${err}`,
+          },
+          level: 'info',
+        });
       });
 
     history.push(location?.state?.redirect || AuthPath.Unlock, {

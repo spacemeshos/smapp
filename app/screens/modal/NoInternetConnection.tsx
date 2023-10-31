@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Button } from '../../basicComponents';
 import Modal from '../../components/common/Modal';
 import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
@@ -30,6 +31,16 @@ const NoInternetConnection = () => {
   if (isOnline || isIgnore) {
     return null;
   }
+  const handleSetIgnore = () => {
+    setIgnore(true);
+    captureReactBreadcrumb({
+      category: 'No Internet Connection',
+      data: {
+        action: 'Click button set ignore',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <ReactPortal modalId="no-internet-connection">
@@ -46,7 +57,7 @@ const NoInternetConnection = () => {
           Just click &quot;Ignore&quot; and proceed.
         </ErrorMessage>
         <ButtonsWrapper>
-          <Button onClick={() => setIgnore(true)} text="IGNORE" />
+          <Button onClick={handleSetIgnore} text="IGNORE" />
         </ButtonsWrapper>
       </Modal>
     </ReactPortal>

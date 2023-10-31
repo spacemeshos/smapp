@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { eventsService } from '../../infra/eventsService';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
@@ -126,11 +127,26 @@ const Network = ({ history }) => {
     // In case if Node restarts earlier the component will be
     // re-rendered and Restart button will disappear
     setRestarting(false);
+    captureReactBreadcrumb({
+      category: 'Network',
+      data: {
+        action: 'Click button node restart',
+      },
+      level: 'info',
+    });
   }, []);
 
   const requestSwitchApiProvider = () => {
     history.push(AuthPath.ConnectToAPI);
+    captureReactBreadcrumb({
+      category: 'Network',
+      data: {
+        action: 'Click button switch API provider',
+      },
+      level: 'info',
+    });
   };
+
   const isShowMissingLibsMessage = [
     NodeErrorType.OPEN_CL_NOT_INSTALLED,
     NodeErrorType.REDIST_NOT_INSTALLED,
@@ -267,6 +283,17 @@ const Network = ({ history }) => {
     </DetailsWrap>
   );
 
+  const navigateChooseNetwork = () => {
+    goToSwitchNetwork(history, isWalletMode);
+    captureReactBreadcrumb({
+      category: 'Network',
+      data: {
+        action: 'Click button choose the network',
+      },
+      level: 'info',
+    });
+  };
+
   const renderNoNetwork = () => (
     <DetailsWrap>
       <DetailsRow>
@@ -274,7 +301,7 @@ const Network = ({ history }) => {
           text="CHOOSE THE NETWORK"
           width={180}
           isPrimary
-          onClick={() => goToSwitchNetwork(history, isWalletMode)}
+          onClick={navigateChooseNetwork}
         />
       </DetailsRow>
     </DetailsWrap>
@@ -282,6 +309,13 @@ const Network = ({ history }) => {
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
+    captureReactBreadcrumb({
+      category: 'Network',
+      data: {
+        action: 'Click button browse log file',
+      },
+      level: 'info',
+    });
   };
 
   return (

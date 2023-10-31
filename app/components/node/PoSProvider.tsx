@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { PostSetupProvider, NodeStatus } from '../../../shared/types';
+import { captureReactBreadcrumb } from '../../sentry';
 import { eventsService } from '../../infra/eventsService';
 import Carousel from './Carousel';
 import PoSFooter from './PoSFooter';
@@ -72,9 +73,27 @@ const PoSProvider = ({
       setProvider(providers[selectedProviderIndex]);
     }
   }, [provider, providers, selectedProviderIndex, setProvider]);
-
-  const handleSetProcessor = ({ index }: { index: number }) =>
+  const handleSetProcessor = ({ index }: { index: number }) => {
     setSelectedProviderIndex(index);
+    captureReactBreadcrumb({
+      category: 'PoS Provider',
+      data: {
+        action: 'Calculating PoS processor',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleNextAction = () => {
+    nextAction();
+    captureReactBreadcrumb({
+      category: 'PoS Provider',
+      data: {
+        action: 'Click on next action button',
+      },
+      level: 'info',
+    });
+  };
 
   const hasProviders = providers && providers.length > 0;
 
@@ -94,7 +113,7 @@ const PoSProvider = ({
       )}
       {/* eslint-enable no-nested-ternary */}
       <PoSFooter
-        action={nextAction}
+        action={handleNextAction}
         skipAction={providers.length === 0 ? skipAction : undefined}
         isDisabled={selectedProviderIndex === -1 || !status}
       />

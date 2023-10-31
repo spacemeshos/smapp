@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { Route, Switch, useLocation, useHistory } from 'react-router-dom';
 import styled, { DefaultTheme, useTheme } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
 import {
@@ -186,6 +187,13 @@ const Main = () => {
   const handleLogOut = () => {
     history.push(AuthPath.Unlock, { isLoggedOut: true });
     dispatch(logout());
+    captureReactBreadcrumb({
+      category: 'Main',
+      data: {
+        action: 'Navigate to logout',
+      },
+      level: 'info',
+    });
   };
 
   const isActive = (route: string) => {
@@ -222,6 +230,39 @@ const Main = () => {
 
   const bgColor = theme.color.primary;
   const bntStyle = { marginRight: 15, marginTop: 10 };
+
+  const navigateToSettings = () => {
+    handleNavRoute(MainPath.Settings);
+    captureReactBreadcrumb({
+      category: 'Main',
+      data: {
+        action: 'Navigate to settings',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToGetSmesh = () => {
+    handleOpenLink(ExternalLinks.GetCoinGuide);
+    captureReactBreadcrumb({
+      category: 'Main',
+      data: {
+        action: 'Navigate to GET SMESH',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToHelp = () => {
+    handleOpenLink(ExternalLinks.Help);
+    captureReactBreadcrumb({
+      category: 'Main',
+      data: {
+        action: 'Navigate to Help',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <Wrapper>
@@ -279,7 +320,7 @@ const Main = () => {
           <NavBarPart>
             <TooltipWrapper>
               <SecondaryButton
-                onClick={() => handleNavRoute(MainPath.Settings)}
+                onClick={navigateToSettings}
                 img={settings}
                 imgHeight={25}
                 imgWidth={25}
@@ -293,7 +334,7 @@ const Main = () => {
             </TooltipWrapper>
             <TooltipWrapper>
               <SecondaryButton
-                onClick={() => handleOpenLink(ExternalLinks.GetCoinGuide)}
+                onClick={navigateToGetSmesh}
                 img={getCoins}
                 imgHeight={25}
                 imgWidth={25}
@@ -307,7 +348,7 @@ const Main = () => {
             </TooltipWrapper>
             <TooltipWrapper>
               <SecondaryButton
-                onClick={() => handleOpenLink(ExternalLinks.Help)}
+                onClick={navigateToHelp}
                 img={help}
                 imgHeight={25}
                 imgWidth={25}

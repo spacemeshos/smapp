@@ -1,6 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -129,8 +130,39 @@ const TxConfirmation = ({
   backButtonRoute,
 }: Props) => {
   const history = useHistory();
+  const handleSend = () => {
+    captureReactBreadcrumb({
+      category: 'Tx Confirmation',
+      data: {
+        action: 'Click send button',
+      },
+      level: 'info',
+    });
+    editTx();
+  };
 
-  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const handleEditTx = () => {
+    doneAction();
+    captureReactBreadcrumb({
+      category: 'Tx Confirmation',
+      data: {
+        action: 'Navigate to edit transaction',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToGuide = () => {
+    window.open(ExternalLinks.SendCoinGuide);
+    captureReactBreadcrumb({
+      category: 'Tx Confirmation',
+      data: {
+        action: 'Navigate to send coin guide',
+      },
+      level: 'info',
+    });
+  };
+
   const renderFieldValue = (field: TxConfirmationField) => {
     switch (field.type) {
       case TxConfirmationFieldType.Total:
@@ -142,7 +174,15 @@ const TxConfirmation = ({
   };
   const cancelButton = () => {
     history.replace(backButtonRoute);
+    captureReactBreadcrumb({
+      category: 'Tx Confirmation',
+      data: {
+        action: 'Click cancel transaction button',
+      },
+      level: 'info',
+    });
   };
+
   return (
     <Wrapper>
       <Header>
@@ -168,7 +208,7 @@ const TxConfirmation = ({
       <Footer>
         <ComplexButton>
           <SecondaryButton
-            onClick={editTx}
+            onClick={handleEditTx}
             img={chevronLeftWhite}
             imgWidth={10}
             imgHeight={15}
@@ -177,7 +217,7 @@ const TxConfirmation = ({
         </ComplexButton>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
         <Button
-          onClick={doneAction}
+          onClick={handleSend}
           text="SEND"
           style={{ marginLeft: 'auto' }}
           isDisabled={isDisabled}

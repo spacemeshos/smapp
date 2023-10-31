@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
@@ -112,11 +113,47 @@ const PoSDirectory = ({
     } = await eventsService.selectPostFolder();
     if (error) {
       setHasPermissionError(true);
+      captureReactBreadcrumb({
+        category: 'PoS Directory',
+        data: {
+          action: `Opening folder select dialog error: ${error}`,
+        },
+        level: 'info',
+      });
     } else {
       setDataDir(dataDir);
       setFreeSpace(calculatedFreeSpace);
       setHasPermissionError(false);
     }
+    captureReactBreadcrumb({
+      category: 'PoS Directory',
+      data: {
+        action: 'Select directory',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleNextAction = () => {
+    nextAction();
+    captureReactBreadcrumb({
+      category: 'PoS Directory',
+      data: {
+        action: 'Click on Next Action',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleSkipAction = () => {
+    skipAction();
+    captureReactBreadcrumb({
+      category: 'Edit Contact',
+      data: {
+        action: 'Click on Skip Action',
+      },
+      level: 'info',
+    });
   };
 
   return (
@@ -143,8 +180,8 @@ const PoSDirectory = ({
       </Wrapper>
       <PoSFooter
         skipLabel="CANCEL"
-        action={nextAction}
-        skipAction={skipAction}
+        action={handleNextAction}
+        skipAction={handleSkipAction}
         isDisabled={!dataDir || hasPermissionError || !status}
       />
     </>

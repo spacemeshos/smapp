@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { eventsService } from '../../infra/eventsService';
 import { ErrorPopup, Input, Link, Loader, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -60,20 +61,49 @@ const ChangePassword = () => {
     (state: RootState) => state.wallet.currentWalletPath
   );
   const dispatch: AppThDispatch = useDispatch();
-
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setNewPassword(value);
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Type new password',
+      },
+      level: 'info',
+    });
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
     setVerifiedPassword(value);
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Type verify password',
+      },
+      level: 'info',
+    });
   };
 
   const handleCurrentPassword = ({ value }: { value: string }) => {
     setCurrentPassword(value);
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Type current password',
+      },
+      level: 'info',
+    });
   };
 
-  const startUpdatingPassword = () => setIsEditMode(true);
+  const startUpdatingPassword = () => {
+    setIsEditMode(true);
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Start updating password',
+      },
+      level: 'info',
+    });
+  };
 
   const isCurrentPasswordValid = async () => {
     const { success } = await dispatch(unlockCurrentWallet(currentPassword));
@@ -87,6 +117,13 @@ const ChangePassword = () => {
     setIsEditMode(false);
     setNewPasswordError(null);
     setIsLoaderVisible(false);
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Close modal updating password',
+      },
+      level: 'info',
+    });
   };
 
   const updatePassword = (prevPassword: string) => {
@@ -101,6 +138,13 @@ const ChangePassword = () => {
 
       setTimeout(cancel, 500);
     }
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Check process updating password',
+      },
+      level: 'info',
+    });
   };
 
   if (isLoaderVisible) {
@@ -127,6 +171,13 @@ const ChangePassword = () => {
 
   const savePassword = async () => {
     const isCurrentPasswordValidStatus = await isCurrentPasswordValid();
+    captureReactBreadcrumb({
+      category: 'Change password',
+      data: {
+        action: 'Click button save password',
+      },
+      level: 'info',
+    });
 
     if (!isCurrentPasswordValidStatus) {
       setNewPasswordError({

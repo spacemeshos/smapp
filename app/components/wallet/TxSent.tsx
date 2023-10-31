@@ -7,6 +7,8 @@ import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks } from '../../../shared/constants';
 import { safeReactKey } from '../../infra/utils';
+// eslint-disable-next-line import/no-cycle
+import { captureReactBreadcrumb } from '../../sentry';
 
 const Wrapper = styled.div`
   display: flex;
@@ -108,11 +110,41 @@ type Props = {
 };
 
 const TxSent = ({ fields, txId, navigateToTxList, doneButtonRoute }: Props) => {
-  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const navigateToGuide = () => {
+    window.open(ExternalLinks.SendCoinGuide);
+    captureReactBreadcrumb({
+      category: 'TX Sent',
+      data: {
+        action: 'Click to send SMH guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleNavigateToTxList = () => {
+    navigateToTxList();
+    captureReactBreadcrumb({
+      category: 'TX Sent',
+      data: {
+        action: 'Navigate to view transaction',
+      },
+      level: 'info',
+    });
+  };
+
   const history = useHistory();
+
   const doneButton = () => {
     history.replace(doneButtonRoute);
+    captureReactBreadcrumb({
+      category: 'TX Sent',
+      data: {
+        action: 'Click done button',
+      },
+      level: 'info',
+    });
   };
+
   return (
     <Wrapper>
       <Header>
@@ -143,7 +175,7 @@ const TxSent = ({ fields, txId, navigateToTxList, doneButtonRoute }: Props) => {
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
         <ButtonsBlock>
           <Button
-            onClick={navigateToTxList}
+            onClick={handleNavigateToTxList}
             text="VIEW TRANSACTION"
             isPrimary={false}
             width={170}

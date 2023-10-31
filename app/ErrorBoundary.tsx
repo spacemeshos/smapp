@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { captureException } from '@sentry/react';
 import { connect } from 'react-redux';
+import { captureReactBreadcrumb } from './sentry';
 import { Modal } from './components/common';
 import { Button } from './basicComponents';
 import { RootState } from './types';
@@ -101,6 +102,13 @@ class ErrorBoundary extends Component<Props, State> {
     const { setUiError } = this.props;
     setUiError(null);
     this.setState({ isRenderingError: false });
+    captureReactBreadcrumb({
+      category: 'Error Boundary',
+      data: {
+        action: 'Click close button (reset error)',
+      },
+      level: 'info',
+    });
   };
 }
 

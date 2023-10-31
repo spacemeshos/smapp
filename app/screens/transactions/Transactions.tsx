@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import useVirtual from 'react-cool-virtual';
+import { captureReactBreadcrumb } from '../../sentry';
 import { MainPath } from '../../routerPaths';
 import { BackButton } from '../../components/common';
 import {
@@ -226,13 +227,37 @@ const Transactions = ({ history }: RouteComponentProps) => {
       totalReceived: totalCoins.received,
     };
   };
-
   const handleCompleteAction = () => {
     setAddressToAdd('');
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'Complete actions when create new contact',
+      },
+      level: 'info',
+    });
   };
 
   const handlePress = ({ index }: { index: number }) => {
     setSelectedTimeSpan(index);
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'View time spans',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleTxFilter = ({ index }) => {
+    setTxFilter(index);
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'View transaction Filter',
+      },
+      level: 'info',
+    });
   };
 
   const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
@@ -242,12 +267,38 @@ const Transactions = ({ history }: RouteComponentProps) => {
       (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
     );
   };
-
   const cancelCreatingNewContact = () => {
     setAddressToAdd('');
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'Cancel create new contact',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
+  const navigateToGuide = () => {
+    window.open(ExternalLinks.WalletGuide);
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'Navigate to transaction guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToBackup = () => {
+    history.replace(MainPath.Wallet);
+    captureReactBreadcrumb({
+      category: 'Transactions',
+      data: {
+        action: 'Navigate to backup',
+      },
+      level: 'info',
+    });
+  };
 
   const filteredTransactions = filterLastDays(
     transactions,
@@ -266,11 +317,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   return (
     <Wrapper>
-      <BackButton
-        action={() => history.replace(MainPath.Wallet)}
-        width={7}
-        height={10}
-      />
+      <BackButton action={navigateToBackup} />
       <WrapperWith2SideBars
         width={680}
         header="TRANSACTION LOG"
@@ -279,7 +326,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
         <FilterDropDownWrapper>
           <DropDown
             data={TX_FILTERS}
-            onClick={({ index }) => setTxFilter(index)}
+            onClick={handleTxFilter}
             selectedItemIndex={txFilter}
             rowHeight={40}
             bold

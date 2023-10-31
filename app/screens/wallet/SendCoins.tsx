@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SingleSigTemplate } from '@spacemesh/sm-codec';
+import { captureReactBreadcrumb } from '../../sentry';
 import { sendTransaction } from '../../redux/wallet/actions';
 import {
   TxParams,
@@ -108,14 +109,27 @@ const SendCoins = ({ history, location }: Props) => {
       setMode(2);
     }
   };
-
   const handleSendTransaction = async () => {
     const result = await dispatch(
       sendTransaction({ receiver: address, amount, fee, note })
     );
+    captureReactBreadcrumb({
+      category: 'Send coins',
+      data: {
+        action: 'Send transaction',
+      },
+      level: 'info',
+    });
     if (result?.id) {
       setMode(3);
       setTxId(result.id);
+      captureReactBreadcrumb({
+        category: 'Send coins',
+        data: {
+          action: 'Navigate to transaction send',
+        },
+        level: 'info',
+      });
     }
   };
 

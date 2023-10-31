@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import {
   NewVault,
   VaultType,
@@ -66,29 +67,71 @@ const Vault = ({ history }: RouteComponentProps) => {
     }));
     setAccountsOption(objOption);
   }, [accounts, balances, setAccountsOption]);
-
   const handleChangeVaultName = ({ value }: { value: string }) => {
     setName(value);
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Change vault name',
+      },
+      level: 'info',
+    });
   };
 
   const handleChangeType = ({ value }: { value: string }) => {
     setType(value);
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Change vault type',
+      },
+      level: 'info',
+    });
   };
 
   const saveAndFinish = () => {
     dispatch(setCurrentMode(0));
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Click link save and finish later',
+      },
+      level: 'info',
+    });
   };
 
   const handleModeUp = () => {
     dispatch(setCurrentMode(vaultMode + 1));
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Click button mode up',
+      },
+      level: 'info',
+    });
   };
 
   const selectAccountIndex = ({ index }: { index: number }) => {
     setMasterAccountIndex(index);
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Select account index',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToVaultSetup = () =>
+  const navigateToVaultSetup = () => {
     window.open('https://product.spacemesh.io/#/smapp_vaults');
+    captureReactBreadcrumb({
+      category: 'Vault',
+      data: {
+        action: 'Navigate to vault setup guide',
+      },
+      level: 'info',
+    });
+  };
 
   const Steps = new Map();
 

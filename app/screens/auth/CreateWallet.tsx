@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer, PasswordInput } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
@@ -148,15 +149,36 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
+    captureReactBreadcrumb({
+      category: 'Create Wallet',
+      data: {
+        action: 'Input password typing',
+      },
+      level: 'info',
+    });
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
     setVerifiedPassword(value);
     setVerifyPasswordError('');
+    captureReactBreadcrumb({
+      category: 'Create Wallet',
+      data: {
+        action: 'Input password verify typing',
+      },
+      level: 'info',
+    });
   };
 
   const handleNameTyping = ({ value }: { value: string }) => {
     setConvenientWalletName(value);
+    captureReactBreadcrumb({
+      category: 'Create Wallet',
+      data: {
+        action: 'Input convenient name typing',
+      },
+      level: 'info',
+    });
   };
 
   const nextAction = () => {
@@ -171,9 +193,25 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
       history.push(AuthPath.ProtectWallet);
     }
+    captureReactBreadcrumb({
+      category: 'Create Wallet',
+      data: {
+        action: 'Click button next',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Create Wallet',
+      data: {
+        action: 'Navigate to explanation setup guide',
+      },
+      level: 'info',
+    });
+  };
 
   if (isLoaderVisible) {
     return (

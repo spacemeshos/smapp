@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { AuthPath } from '../../routerPaths';
@@ -86,8 +87,41 @@ const BottomPart = styled.div`
 `;
 
 const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
+  const navigateToExplanation = () => {
+    window.open(ExternalLinks.SetupGuide);
+    captureReactBreadcrumb({
+      category: 'Wallet connection type',
+      data: {
+        action: 'Navigate to explanation setup',
+      },
+      level: 'info',
+    });
+  };
+
   const isRecoveryMode = isMnemonicExisting(location?.state?.mnemonic);
+
+  const navigateToBackButton = () => {
+    history.push(AuthPath.Leaving);
+    captureReactBreadcrumb({
+      category: 'Wallet connection type',
+      data: {
+        action: 'Navigate to back button',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToRestoreExistingWallet = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'Wallet connection type',
+      data: {
+        action: 'Navigate to restore existing wallet',
+      },
+      level: 'info',
+    });
+  };
+
   const handleNextStep = (walletOnly: boolean) => () => {
     if (location?.state?.mnemonic) {
       history.push(AuthPath.SwitchNetwork, {
@@ -95,8 +129,22 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
         mnemonic: location.state.mnemonic,
         creatingWallet: true,
       });
+      captureReactBreadcrumb({
+        category: 'Wallet connection type',
+        data: {
+          action: 'Click next wallet step',
+        },
+        level: 'info',
+      });
     } else {
       history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+      captureReactBreadcrumb({
+        category: 'Wallet connection type',
+        data: {
+          action: 'Click next wallet only step',
+        },
+        level: 'info',
+      });
     }
   };
 
@@ -109,7 +157,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
         header="NEW WALLET"
         subHeader="Configure your new wallet"
       >
-        <BackButton action={() => history.push(AuthPath.Leaving)} />
+        <BackButton action={navigateToBackButton} />
         <RowJust>
           <RowColumn>
             <Row>
@@ -154,7 +202,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
           <Row>
             {!isRecoveryMode && (
               <Link
-                onClick={() => history.push(AuthPath.Recover)}
+                onClick={navigateToRestoreExistingWallet}
                 text="RESTORE EXISTING WALLET"
               />
             )}

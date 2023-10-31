@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { captureReactBreadcrumb } from '../../sentry';
 import { Modal } from '../common';
 import {
   Button,
@@ -273,19 +274,62 @@ const TxRow = ({
 
   const isSent = tx.principal === address;
   const color = getStatusColor(tx.status, isSent);
-
   const save = async () => {
     await eventsService.updateTransactionNote(address, tx.id, noteInput);
     setIsDetailed(false);
     setShowNoteModal(false);
+    captureReactBreadcrumb({
+      category: 'Tx Row',
+      data: {
+        action: 'Type save button',
+      },
+      level: 'info',
+    });
   };
+
   const cancel = () => {
     setNoteInput(note);
     setShowNoteModal(false);
+    captureReactBreadcrumb({
+      category: 'Tx Row',
+      data: {
+        action: 'Click cancel link',
+      },
+      level: 'info',
+    });
   };
 
   const toggleTxDetails = () => {
     setIsDetailed(!isDetailed);
+    captureReactBreadcrumb({
+      category: 'Tx Row',
+      data: {
+        action: 'Open transaction details',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToSendCoinGuide = () => {
+    window.open(ExternalLinks.SendCoinGuide);
+    captureReactBreadcrumb({
+      category: 'Tx Row',
+      data: {
+        action: 'Navigate to send coin guide',
+      },
+      level: 'info',
+    });
+  };
+
+  const handleEdit = () => {
+    setShowNoteModal(true);
+    captureReactBreadcrumb({
+      category: 'Tx Row',
+      data: {
+        action: 'Click edit button',
+      },
+      level: 'info',
+    });
   };
 
   const txFrom = isSent ? address : tx.principal;
@@ -329,7 +373,7 @@ const TxRow = ({
       <Row title="FEE">{formatSmidge(tx.gas.fee)}</Row>
       <Row title="NOTE">
         {note ? `${note}` : 'NO NOTE'}
-        <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
+        <LinkEdit onClick={handleEdit}>EDIT</LinkEdit>
       </Row>
     </DetailsSection>
   );
@@ -393,10 +437,7 @@ const TxRow = ({
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link
-              onClick={() => window.open(ExternalLinks.SendCoinGuide)}
-              text="TRANSACTION GUIDE"
-            />
+            <Link onClick={navigateToSendCoinGuide} text="TRANSACTION GUIDE" />
             <RightButton>
               <Link
                 style={{ color: smColors.orange, marginRight: '10px' }}

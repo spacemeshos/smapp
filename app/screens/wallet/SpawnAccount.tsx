@@ -21,6 +21,7 @@ import { TxSentFieldType } from '../../components/wallet/TxSent';
 import Address from '../../components/common/Address';
 import { SingleSigMethods } from '../../../shared/templateConsts';
 import getFees from '../../components/wallet/getFees';
+import { captureReactBreadcrumb } from '../../sentry';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -136,17 +137,55 @@ const SpawnAccount = ({ history }: Props) => {
   const selectFee = ({ index }: { index: number }) => {
     updateFee(fees[index].fee);
     setSelectedFeeIndex(index);
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Select fee',
+      },
+      level: 'info',
+    });
   };
-  const resetAmountError = () => setHasAmountError(false);
+
+  const resetAmountError = () => {
+    setHasAmountError(false);
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Reset Amount error',
+      },
+      level: 'info',
+    });
+  };
 
   const validateAmount = () => {
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Check validate amount',
+      },
+      level: 'info',
+    });
     return fee * maxGas < (currentBalance?.projectedState?.balance || 0);
   };
 
   const proceedToConfirmation = () => {
     const amountValid = validateAmount();
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Click button next',
+      },
+      level: 'info',
+    });
     if (!amountValid) {
       setHasAmountError(true);
+      captureReactBreadcrumb({
+        category: 'Spawn Account',
+        data: {
+          action: 'button Next without amount valid',
+        },
+        level: 'info',
+      });
       return;
     }
     setMode(2);
@@ -154,11 +193,36 @@ const SpawnAccount = ({ history }: Props) => {
 
   const handleSendTransaction = async () => {
     const result = await eventsService.spawnTx(fee, currentAccountIndex);
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Send Transaction',
+      },
+      level: 'info',
+    });
     if (result.tx?.id) {
       setMode(3);
       setTxId(result.tx.id);
       setRealFee(result.tx.gas.fee);
+      captureReactBreadcrumb({
+        category: 'Spawn Account',
+        data: {
+          action: 'Navigate to transaction send',
+        },
+        level: 'info',
+      });
     }
+  };
+
+  const navigateToCancelTransaction = () => {
+    history.replace(MainPath.Wallet);
+    captureReactBreadcrumb({
+      category: 'Spawn Account',
+      data: {
+        action: 'Click link cancel transaction',
+      },
+      level: 'info',
+    });
   };
 
   const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
@@ -167,7 +231,7 @@ const SpawnAccount = ({ history }: Props) => {
       <Header>
         <HeaderText>Send SMH</HeaderText>
         <Link
-          onClick={() => history.goBack()}
+          onClick={navigateToCancelTransaction}
           text="CANCEL TRANSACTION"
           style={{ color: smColors.orange }}
         />

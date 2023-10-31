@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { captureReactBreadcrumb } from '../../sentry';
 import { LatestTransactions } from '../../components/transactions';
 import { BoldText, Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
@@ -66,13 +67,26 @@ const Overview = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS
   );
-
   const navigateToSpawnAccount = async () => {
     history.push(WalletPath.SpawnAccount);
+    captureReactBreadcrumb({
+      category: 'Overview',
+      data: {
+        action: 'Navigate to spawn account',
+      },
+      level: 'info',
+    });
   };
 
   const navigateToSendCoins = () => {
     history.push(WalletPath.SendCoins);
+    captureReactBreadcrumb({
+      category: 'Overview',
+      data: {
+        action: 'Navigate to send coins',
+      },
+      level: 'info',
+    });
   };
 
   const navigateToRequestCoins = () => {
@@ -80,13 +94,36 @@ const Overview = ({ history }: RouteComponentProps) => {
       account,
       isSmesherActive: isCreatingPosData || isSmeshing,
     });
+    captureReactBreadcrumb({
+      category: 'Overview',
+      data: {
+        action: 'Navigate to request coins',
+      },
+      level: 'info',
+    });
   };
 
   const navigateToAllTransactions = () => {
     history.push(MainPath.Transactions);
+    captureReactBreadcrumb({
+      category: 'Overview',
+      data: {
+        action: 'Navigate to all transactions',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
+  const navigateToWalletGuide = () => {
+    window.open(ExternalLinks.WalletGuide);
+    captureReactBreadcrumb({
+      category: 'Overview',
+      data: {
+        action: 'Navigate to WALLET GUIDE',
+      },
+      level: 'info',
+    });
+  };
 
   const pendingSpawnTx = txs.find(
     (tx) =>

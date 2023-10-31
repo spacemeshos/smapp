@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import ExplorerButton from '../../basicComponents/ExplorerButton';
 import CopyButton from '../../basicComponents/CopyButton';
 import { setCurrentAccount } from '../../redux/wallet/actions';
@@ -140,6 +141,13 @@ const AccountsOverview = () => {
 
   const handleSetCurrentAccount = ({ index }: { index: number }) => {
     dispatch(setCurrentAccount(index));
+    captureReactBreadcrumb({
+      category: 'Accounts Overview',
+      data: {
+        action: 'Set Current Account',
+      },
+      level: 'info',
+    });
   };
 
   const renderAccountRow = ({

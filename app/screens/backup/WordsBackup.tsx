@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
+import { captureReactBreadcrumb } from '../../sentry';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
@@ -111,9 +112,23 @@ const WordsBackup = ({
   const navigateToTestMe = () => {
     if (nextButtonHandler) {
       nextButtonHandler(mnemonic);
+      captureReactBreadcrumb({
+        category: 'Twelve Words Backup',
+        data: {
+          action: 'Navigate to wallet step',
+        },
+        level: 'info',
+      });
       return;
     }
     history.push(BackupPath.TestMnemonics, { mnemonic });
+    captureReactBreadcrumb({
+      category: 'Twelve Words Backup',
+      data: {
+        action: 'Navigate to test mnemonic',
+      },
+      level: 'info',
+    });
   };
 
   const copyWords = async () => {
@@ -125,13 +140,36 @@ const WordsBackup = ({
 
     await navigator.clipboard.writeText(mnemonicWithNumbers);
     setIsCopied(true);
+    captureReactBreadcrumb({
+      category: 'Twelve Words Backup',
+      data: {
+        action: 'Copy 12 words',
+      },
+      level: 'info',
+    });
   };
 
   const printWords = () => {
     eventsService.print({ content: wordsPrint });
+    captureReactBreadcrumb({
+      category: 'Twelve Words Backup',
+      data: {
+        action: 'Print 12 words',
+      },
+      level: 'info',
+    });
   };
 
-  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
+  const openBackupGuide = () => {
+    window.open(ExternalLinks.BackupGuide);
+    captureReactBreadcrumb({
+      category: 'Twelve Words Backup',
+      data: {
+        action: 'Open Backup Guide',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <WrapperWith2SideBars

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { captureReactBreadcrumb } from '../../sentry';
 import { restoreFile } from '../../redux/wallet/actions';
 import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
@@ -43,11 +44,25 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   }) => {
     if (fileName.split('.').pop() !== 'json') {
       setHasError(true);
+      captureReactBreadcrumb({
+        category: 'File Restore',
+        data: {
+          action: 'Add restore wallet file with error',
+        },
+        level: 'info',
+      });
     } else {
       setFileName(fileName);
       setFilePath(filePath);
       setHasError(false);
     }
+    captureReactBreadcrumb({
+      category: 'File Restore',
+      data: {
+        action: 'Add restore wallet file',
+      },
+      level: 'info',
+    });
   };
 
   const openWalletFile = async () => {
@@ -56,10 +71,36 @@ const FileRestore = ({ history }: AuthRouterParams) => {
       setLastSelectedWalletPath(filePath);
       history.push(AuthPath.Unlock);
     }
+    captureReactBreadcrumb({
+      category: 'File Restore',
+      data: {
+        action: 'Open wallet file for restore',
+      },
+      level: 'info',
+    });
   };
 
-  const navigateToBackupGuide = () =>
+  const navigateToBackButton = () => {
+    history.push(AuthPath.Recover);
+    captureReactBreadcrumb({
+      category: 'File Restore',
+      data: {
+        action: 'Navigate to back button',
+      },
+      level: 'info',
+    });
+  };
+
+  const navigateToBackupGuide = () => {
     window.open(ExternalLinks.RestoreFileGuide);
+    captureReactBreadcrumb({
+      category: 'File Restore',
+      data: {
+        action: 'Navigate to backup guide',
+      },
+      level: 'info',
+    });
+  };
 
   return (
     <WrapperWith2SideBars
@@ -68,7 +109,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
       header="OPEN WALLET"
       subHeader="Open a wallet from a wallet file"
     >
-      <BackButton action={history.goBack} />
+      <BackButton action={navigateToBackButton} />
       <DdArea>
         <DragAndDrop
           onFilesAdded={addFile}

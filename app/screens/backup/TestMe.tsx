@@ -8,6 +8,8 @@ import {
 } from 'react-beautiful-dnd';
 import { useLocation } from 'react-router-dom';
 import { useHistory } from 'react-router';
+
+import { captureReactBreadcrumb } from '../../sentry';
 import {
   WrapperWith2SideBars,
   Button,
@@ -230,12 +232,38 @@ const TestMe = (props: Props) => {
     getTestWords(mnemonic, TEST_WORDS_AMOUNT, MNEMONIC_LENGTH)
   );
 
-  const resetTest = () =>
+  const resetTest = () => {
     setTestWords(getTestWords(mnemonic, TEST_WORDS_AMOUNT, MNEMONIC_LENGTH));
+    captureReactBreadcrumb({
+      category: 'Test me',
+      data: {
+        action: 'Reset test',
+      },
+      level: 'info',
+    });
+  };
 
-  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
+  const openBackupGuide = () => {
+    window.open(ExternalLinks.BackupGuide);
+    captureReactBreadcrumb({
+      category: 'Test me',
+      data: {
+        action: 'Open backup guide',
+      },
+      level: 'info',
+    });
+  };
 
-  const navigateToWallet = () => history.push(WalletPath.Overview);
+  const navigateToWallet = () => {
+    history.push(WalletPath.Overview);
+    captureReactBreadcrumb({
+      category: 'Test me',
+      data: {
+        action: 'Click navigate to wallet',
+      },
+      level: 'info',
+    });
+  };
 
   const getWordByIndex = (i: number) =>
     Object.entries(testWords).find(([_, { index }]) => index === i)?.[0];
@@ -261,6 +289,13 @@ const TestMe = (props: Props) => {
         ...testWords[draggableId],
         index: newIndex,
       },
+    });
+    captureReactBreadcrumb({
+      category: 'Test me',
+      data: {
+        action: 'Render drag and drop area',
+      },
+      level: 'info',
     });
   };
 
