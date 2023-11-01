@@ -5,6 +5,8 @@ import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionSt
 import { NodeError } from './node';
 import { Tx, Reward, Activation } from './tx';
 import {
+  WalletFile,
+  WalletMeta,
   WalletSecrets,
   WalletSecretsEncrypted,
   WalletSecretsEncryptedGCM,
@@ -38,7 +40,7 @@ export const hasRequiredRewardFields = (
 
 // Own Type guards
 export const isTx = (a: any): a is Tx =>
-  a && a.id && a.principal && a.template && a.method && a.payload;
+  Boolean(a && a.id && a.principal && a.template && a.method && a.payload);
 
 export const isReward = (a: any): a is Reward =>
   a &&
@@ -47,16 +49,23 @@ export const isReward = (a: any): a is Reward =>
   typeof a.amount === 'number';
 
 export const isActivation = (a: any): a is Activation =>
-  a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits;
+  Boolean(a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits);
 
 export const isNodeError = (a: any): a is NodeError =>
-  a && a.msg && a.module && a.level;
+  Boolean(a && a.msg && a.module && a.level);
 
 export const isWalletSecretsEncrypted = (a: any): a is WalletSecretsEncrypted =>
-  a && a.cipher && a.cipherText;
+  Boolean(a && a.cipher && a.cipherText);
 
 export const isWalletGCMEncrypted = (a: any): a is WalletSecretsEncryptedGCM =>
-  isWalletSecretsEncrypted(a) && a.cipher === 'AES-GCM';
+  isWalletSecretsEncrypted(a) &&
+  a.cipher === 'AES-GCM' &&
+  typeof a.cipherParams?.iv === 'string' &&
+  a.kdf === 'PBKDF2' &&
+  typeof a.kdfparams?.dklen === 'number' &&
+  a.kdfparams?.hash === 'SHA-512' &&
+  typeof a.kdfparams?.iterations === 'number' &&
+  typeof a.kdfparams?.salt === 'string';
 
 export const isWalletLegacyEncrypted = (
   a: any
@@ -64,4 +73,17 @@ export const isWalletLegacyEncrypted = (
   isWalletSecretsEncrypted(a) && a.cipher === 'AES-128-CTR';
 
 export const isWalletSecrets = (a: any): a is WalletSecrets =>
-  a && a.mnemonic && a.accounts && a.contacts;
+  Boolean(a && a.mnemonic && a.accounts && a.contacts);
+
+export const isWalletMeta = (meta: WalletMeta) =>
+  typeof meta.displayName === 'string' &&
+  typeof meta.created === 'string' &&
+  typeof meta.remoteApi === 'string' &&
+  typeof meta.type === 'string';
+
+export const isWalletFile = (wallet: any): wallet is WalletFile =>
+  wallet &&
+  isWalletMeta(wallet.meta) &&
+  isWalletSecretsEncrypted(wallet.crypto) &&
+  (isWalletGCMEncrypted(wallet.crypto) ||
+    isWalletLegacyEncrypted(wallet.crypto));

@@ -274,18 +274,18 @@ export const removeFromContacts = ({
 export const restoreFile = ({ filePath }: { filePath: string }) => async (
   dispatch: AppThDispatch
 ) => {
-  try {
-    await eventsService.addWalletPath(filePath);
-    return true;
-  } catch (error) {
-    console.log(error); // eslint-disable-line no-console
-    dispatch(
-      setUiError(
-        addErrorPrefix('Can not restore wallet file\n', error as Error)
-      )
+  const { error } = await eventsService.addWalletPath(filePath);
+
+  if (error) {
+    const errorMessage = addErrorPrefix(
+      'Cannot restore wallet file\n',
+      new Error(error.message)
     );
+    dispatch(setUiError(errorMessage));
     return false;
   }
+
+  return true;
 };
 
 export const backupWallet = () => async (
