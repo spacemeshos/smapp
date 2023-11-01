@@ -58,14 +58,13 @@ const LinkWrapper = styled.div`
   flex-direction: row;
 `;
 
+export type FilesAddedHandler = (file: {
+  fileName: string;
+  filePath: string;
+}) => void;
+
 type Props = {
-  onFilesAdded: ({
-    fileName,
-    filePath,
-  }: {
-    fileName: string;
-    filePath: string;
-  }) => void;
+  onFilesAdded: FilesAddedHandler;
   fileName: string;
   hasError: boolean;
 };
@@ -73,24 +72,21 @@ type Props = {
 const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (e.dataTransfer?.files) {
-      onFilesAdded({
-        fileName: e.dataTransfer.files[0].name,
-        filePath: e.dataTransfer.files[0].path,
-      });
+    const files = e.dataTransfer?.files;
+    if (files?.length) {
+      const { name, path } = files[0];
+      onFilesAdded({ fileName: name, filePath: path });
       setIsDragging(false);
     }
   };
 
-  const onFilesAddedHandler = (e: any) => {
-    if (e.target && e.target.files) {
-      const {
-        target: { files },
-      } = e;
-      onFilesAdded({ fileName: files[0].name, filePath: files[0].path });
+  const onFilesAddedHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target?.files;
+    if (files?.length) {
+      const { name, path } = files[0];
+      onFilesAdded({ fileName: name, filePath: path });
     }
   };
 
@@ -104,22 +100,27 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
   };
 
   const openFileDialog = () => {
-    if (fileInputRef && fileInputRef.current) {
+    if (fileInputRef?.current) {
       fileInputRef.current.click();
     }
   };
 
   let preLinkText;
   let linkText;
+  let message;
+
   if (hasError) {
     preLinkText = 'click to';
     linkText = 'browse again';
+    message = fileName ? `Incorrect file ${fileName}` : 'Incorrect file';
   } else if (fileName) {
     preLinkText = 'or browse for';
     linkText = 'another file';
+    message = fileName;
   } else {
     preLinkText = 'or';
     linkText = 'locate on your computer';
+    message = 'Drop a wallet file here,';
   }
 
   return (
@@ -137,10 +138,8 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
         style={{ display: 'none' }}
       />
       <MsgWrapper>
-        {!fileName && <Image hasError={hasError} />}
-        <Text>
-          {hasError ? 'incorrect file' : fileName || 'Drop a wallet file here,'}
-        </Text>
+        {hasError && <Image hasError={hasError} />}
+        <Text>{message}</Text>
         <LinkWrapper>
           <Text>{preLinkText}&nbsp;</Text>
           <Link onClick={openFileDialog} text={linkText} />
