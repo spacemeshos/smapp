@@ -7,7 +7,7 @@ import { createMemoryHistory } from 'history';
 import routes from './routes';
 import GlobalStyle, { fontsCss } from './globalStyle';
 import { RootState } from './types';
-import { setOsTheme } from './redux/ui/actions';
+import { setOsTheme, setUiError } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
@@ -17,6 +17,7 @@ import { init } from './sentry';
 import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
 import NoInternetConnection from './screens/modal/NoInternetConnection';
 import PoSProvingOptsUpdateWarningModal from './screens/modal/PoSProvingOptsUpdateWarningModal';
+import { eventsService } from './infra/eventsService';
 
 const history = createMemoryHistory();
 
@@ -50,6 +51,13 @@ const StyledApp = () => {
 
   useEffect(() => {
     dispatch(setOsTheme());
+  }, [dispatch]);
+
+  useEffect(() => {
+    eventsService
+      .syncAutoStartConfig()
+      .then(({ error }) => error && dispatch(setUiError(new Error(error))))
+      .catch((error) => dispatch(setUiError(error)));
   }, [dispatch]);
 
   return (

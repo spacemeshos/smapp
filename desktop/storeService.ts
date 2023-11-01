@@ -9,8 +9,9 @@ import { ValidSmeshingOpts } from './main/smeshingOpts';
 import { getGrpcPublicPort } from './main/utils';
 
 export interface ConfigStore {
-  isAutoStartEnabled: boolean;
+  isAutoStartEnabled?: boolean;
   startNodeOnNextLaunch: boolean;
+  isAutoStartOnSystemLaunchEnabled: boolean;
   node: {
     dataPath: string;
     port: string;
@@ -20,8 +21,8 @@ export interface ConfigStore {
 }
 
 const CONFIG_STORE_DEFAULTS = {
-  isAutoStartEnabled: false,
   startNodeOnNextLaunch: false,
+  isAutoStartOnSystemLaunchEnabled: false,
   node: {
     dataPath: path.resolve(USERDATA_DIR, 'node-data'),
     port: getGrpcPublicPort(),
@@ -52,6 +53,12 @@ class StoreService {
     key: AutoPath<O, P>
   ): Object.Path<O, Split<P, '.'>> => {
     return StoreService.store.get(key);
+  };
+
+  static has = <O extends ConfigStore, P extends string>(
+    key: AutoPath<O, P>
+  ) => {
+    return StoreService.store.has(key);
   };
 
   static remove = <O extends ConfigStore, P extends string>(
