@@ -17,6 +17,7 @@ import {
   WalletType,
 } from '../../shared/types';
 import {
+  isWalletFile,
   isWalletGCMEncrypted,
   isWalletLegacyEncrypted,
 } from '../../shared/types/guards';
@@ -153,7 +154,12 @@ export const encryptWallet = async (
 
 export const loadRawWallet = async (path: string): Promise<WalletFile> => {
   const fileContent = await fs.readFile(path, { encoding: 'utf8' });
-  return JSON.parse(fileContent) as WalletFile;
+  const content = JSON.parse(fileContent);
+  if (!isWalletFile(content)) {
+    throw new Error(`File ${path} is not a valid wallet file`);
+  }
+
+  return content;
 };
 
 export const loadWallet = async (

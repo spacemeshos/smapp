@@ -137,7 +137,7 @@ class EventsService {
   static backupWallet = (filePath: string) =>
     ipcRenderer.invoke(ipcConsts.W_M_BACKUP_WALLET, filePath);
 
-  static addWalletPath = (filePath: string) =>
+  static addWalletPath = (filePath: string): Promise<IpcResponse<string[]>> =>
     ipcRenderer.invoke(ipcConsts.W_M_ADD_WALLET_PATH, filePath);
 
   static showFileInFolder = ({

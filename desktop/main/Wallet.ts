@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import path from 'path';
 import * as R from 'ramda';
 import { ipcMain } from 'electron';
@@ -15,11 +14,15 @@ import {
 import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
-import { CreateWalletRequest } from '../../shared/ipcMessages';
+import {
+  createIpcResponse,
+  CreateWalletRequest,
+  IpcResponse,
+} from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
-import { copyWalletFile, listWallets } from './walletFile';
+import { copyWalletFile, listWallets, loadRawWallet } from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
 
 const list = async () => {
@@ -160,12 +163,20 @@ const subscribe = () => {
       .catch((error) => ({ error, filePath: null }))
   );
 
-  ipcMain.handle(ipcConsts.W_M_ADD_WALLET_PATH, (_, filePath: string) => {
-    const oldWalletFiles = StoreService.get('walletFiles');
-    const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
-    StoreService.set('walletFiles', newWalletFiles);
-    return newWalletFiles;
-  });
+  ipcMain.handle(
+    ipcConsts.W_M_ADD_WALLET_PATH,
+    async (_, filePath: string): Promise<IpcResponse<string[] | null>> => {
+      try {
+        await loadRawWallet(filePath);
+        const oldWalletFiles = StoreService.get('walletFiles');
+        const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
+        StoreService.set('walletFiles', newWalletFiles);
+        return createIpcResponse(null, newWalletFiles);
+      } catch (err: any) {
+        return createIpcResponse(err, null);
+      }
+    }
+  );
 };
 
 export default { subscribe };
