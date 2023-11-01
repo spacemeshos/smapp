@@ -10,6 +10,7 @@ import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
+import { FilesAddedHandler } from '../../components/auth/DragAndDrop';
 import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
@@ -33,28 +34,20 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const [hasError, setHasError] = useState(false);
 
   const dispatch: AppThDispatch = useDispatch();
-
-  const addFile = ({
-    fileName,
-    filePath,
-  }: {
-    fileName: string;
-    filePath: string;
-  }) => {
-    if (fileName.split('.').pop() !== 'json') {
-      setHasError(true);
-    } else {
-      setFileName(fileName);
-      setFilePath(filePath);
-      setHasError(false);
-    }
+  const addFile: FilesAddedHandler = ({ fileName, filePath }) => {
+    setFileName(fileName);
+    setFilePath(filePath);
+    const hasError = fileName.split('.').pop() !== 'json';
+    setHasError(hasError);
   };
 
   const openWalletFile = async () => {
-    const success = await dispatch(restoreFile({ filePath }));
-    if (success) {
+    const isSuccessStatus = await dispatch(restoreFile({ filePath }));
+    if (isSuccessStatus) {
       setLastSelectedWalletPath(filePath);
       history.push(AuthPath.Unlock);
+    } else {
+      setHasError(true);
     }
   };
 
