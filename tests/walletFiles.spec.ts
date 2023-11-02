@@ -8,6 +8,7 @@ import {
   listWallets,
   listWalletsByPaths,
   listWalletsInDirectory,
+  loadRawWallet,
   loadWallet,
   saveWallet,
   updateWalletMeta,
@@ -29,6 +30,15 @@ const LEGACY_WALLET_PATH = path.resolve(
 const GCM_WALLET_PATH = path.resolve(
   FIXTURES_DIRECTORY,
   './my_wallet_gcm.json'
+);
+
+const LEGACY_NOT_VALID_WALLET_PATH = path.resolve(
+  FIXTURES_DIRECTORY,
+  './my_wallet_legacy_not_valid.json'
+);
+const GCM_NOT_VALID_WALLET_PATH = path.resolve(
+  FIXTURES_DIRECTORY,
+  './my_wallet_gcm_not_valid.json'
 );
 
 // For update wallet test
@@ -251,5 +261,21 @@ describe('copyWalletFile', () => {
 
     const files = await fs.readdir(tmpDir);
     expect(files).toHaveLength(3);
+  });
+});
+
+describe('Load and validate wallet', () => {
+  it('load and validate a valid wallets', async () => {
+    await expect(loadRawWallet(LEGACY_WALLET_PATH)).resolves.not.toThrow();
+    await expect(loadRawWallet(GCM_WALLET_PATH)).resolves.not.toThrow();
+  });
+
+  it('load and validate a not valid wallets', async () => {
+    await expect(
+      loadRawWallet(LEGACY_NOT_VALID_WALLET_PATH)
+    ).rejects.toThrowError(/not a valid wallet file/);
+    await expect(loadRawWallet(GCM_NOT_VALID_WALLET_PATH)).rejects.toThrowError(
+      /not a valid wallet file/
+    );
   });
 });
