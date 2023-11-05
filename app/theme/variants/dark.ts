@@ -37,6 +37,7 @@ import {
   chevronRightPurple,
   chevronLeftPurple,
   chevronBottomPurple,
+  infoPopup,
 } from '../../assets/images';
 
 export default {
@@ -256,5 +257,6 @@ export default {
     getCoins: getCoinsIconBlack,
     help: helpIconBlack,
     signOut: signOutIconBlack,
+    infoPopup,
   },
 };

@@ -110,3 +110,5 @@ export { default as modernErrorPopupContact } from './modern_error_popup_contact
 export { default as modernInfoTooltip } from './modern_info_tooltip.svg';
 export { default as darkPageLeftSidePanel } from './dark_page_left_side_panel.svg';
 export { default as modernCheck } from './modern_check.svg';
+export { default as infoPopup } from './info_popup.svg';
+export { default as modernInfoPopup } from './modern_info_popup.svg';

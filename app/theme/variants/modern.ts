@@ -37,6 +37,7 @@ import {
   helpIconBlack,
   signOutIconBlack,
   copyBlack,
+  modernInfoPopup,
 } from '../../assets/images';
 
 export default {
@@ -256,5 +257,6 @@ export default {
     getCoins: getCoinsIconBlack,
     help: helpIconBlack,
     signOut: signOutIconBlack,
+    infoPopup: modernInfoPopup,
   },
 };
