@@ -1,7 +1,6 @@
 import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
-import * as TOML from '@iarna/toml';
 import 'json-bigint-patch';
 import * as R from 'ramda';
 import { hash } from '@spacemesh/sm-codec';
@@ -25,9 +24,7 @@ export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
     ? fs
         .readFile(NODE_CONFIG_FILE, { encoding: 'utf8' })
-        .then((res) =>
-          res.startsWith('{') ? JSON.parse(res) : TOML.parse(res)
-        )
+        .then((res) => JSON.parse(res))
     : {};
 
 export const writeNodeConfig = async (config: NodeConfig): Promise<void> => {

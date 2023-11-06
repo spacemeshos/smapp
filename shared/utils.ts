@@ -1,5 +1,4 @@
 import os from 'os';
-import TOML from '@iarna/toml';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
 import { Event } from '../proto/spacemesh/v1/Event';
 import { Duration } from '../proto/google/protobuf/Duration';
@@ -57,13 +56,6 @@ export const isLocalNodeType = (walletType: WalletType) =>
 
 export const isObject = (o: any): o is Record<string, any> =>
   typeof o === 'object' && !Array.isArray(o) && o !== null;
-
-//
-//
-export const configCodecByPath = (path: string) =>
-  /\.toml$/.test(path) ? TOML : JSON;
-export const configCodecByFirstChar = (data: string) =>
-  data.trim().startsWith('{') ? JSON : TOML;
 
 // --------------------------------------------------------
 // HexString conversion

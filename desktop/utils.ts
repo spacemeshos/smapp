@@ -3,7 +3,6 @@ import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
 import electronFetch, { RequestInit } from 'electron-fetch';
-import { configCodecByFirstChar } from '../shared/utils';
 import { NodeConfig } from '../shared/types';
 import {
   getTestModeNodeConfig,
@@ -64,7 +63,7 @@ export const fetchNodeConfig = async (
         })
       )
         .then((res) => res.text())
-        .then((res) => configCodecByFirstChar(res).parse(res));
+        .then((res) => JSON.parse(res));
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 
