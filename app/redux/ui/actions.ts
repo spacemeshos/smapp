@@ -18,11 +18,12 @@ export function switchSkin(type: string | null) {
   };
 }
 
-export const setUiError = (err: Error) => ({
-  type: SET_UI_ERROR,
-  payload: err,
-});
-
+export function setUiError(err) {
+  return {
+    type: SET_UI_ERROR,
+    payload: err,
+  };
+}
 export const addWarning = (warning: AnyWarningObject) => ({
   type: ADD_WARNING,
   payload: warning,
