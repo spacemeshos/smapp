@@ -30,7 +30,7 @@ import {
 } from '../../redux/wallet/selectors';
 import { TxState, Bech32Address } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
-import { ExternalLinks } from '../../../shared/constants';
+import { DAY, ExternalLinks } from '../../../shared/constants';
 import { SingleSigMethods } from '../../../shared/templateConsts';
 import { setRef } from '../../infra/utils';
 
@@ -236,8 +236,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   };
 
   const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
-    const oneDayInMs = 1000 * 60 * 60 * 24;
-    const startDate = Date.now() - days * oneDayInMs;
+    const startDate = Date.now() - days * DAY;
     return txs.filter(
       (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
     );

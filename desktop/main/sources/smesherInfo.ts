@@ -25,7 +25,7 @@ import {
 import { isObject, parseTimestamp } from '../../../shared/utils';
 import { SmeshingSetupState } from '../../NodeManager';
 import { Managers } from '../app.types';
-import { MINUTE } from '../constants';
+import { MINUTE } from '../../../shared/constants';
 import { Event } from '../../../proto/spacemesh/v1/Event';
 import { isSmeshingOpts, safeSmeshingOpts } from '../smeshingOpts';
 import Logger from '../../logger';

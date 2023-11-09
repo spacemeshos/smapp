@@ -3,8 +3,6 @@ import { app } from 'electron';
 
 export const GPG_PUBLIC_KEY_URL = 'https://discover.spacemesh.io/public.key';
 
-export const MINUTE = 60 * 1000;
-
 // Linux: ~/.config/<App Name>
 // Mac OS: ~/Library/Application Support/<App Name>
 // Windows: C:\Users\<user>\AppData\Roaming\<App Name>

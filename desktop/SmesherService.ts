@@ -9,12 +9,11 @@ import {
   PostSetupStatus,
 } from '../shared/types';
 import memoDebounce from '../shared/memoDebounce';
-import { BITS_PER_LABEL } from '../shared/constants';
+import { BITS_PER_LABEL, MINUTE } from '../shared/constants';
 import { toHexString } from '../shared/utils';
 
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
-import { MINUTE } from './main/constants';
 import { getPrivateNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'proto/smesher.proto';

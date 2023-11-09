@@ -29,6 +29,7 @@ import {
 } from '../shared/utils';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { SingleSigMethods } from '../shared/templateConsts';
+import { MINUTE } from '../shared/constants';
 import { toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -38,7 +39,7 @@ import GlobalStateService, {
 } from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
-import { GRPC_QUERY_BATCH_SIZE, MINUTE } from './main/constants';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
 import AbstractManager from './AbstractManager';
 
@@ -55,6 +56,10 @@ class TransactionManager extends AbstractManager {
   private readonly glStateService: GlobalStateService;
 
   private readonly txService: TransactionService;
+
+  subscribeIPCEvents(): () => void {
+    return () => {};
+  }
 
   keychain: KeyPair[] = [];
 

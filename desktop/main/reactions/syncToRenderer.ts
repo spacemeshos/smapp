@@ -27,7 +27,7 @@ import {
   NodeEvent,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
-import { MINUTE } from '../constants';
+import { MINUTE } from '../../../shared/constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
 import storeView from './views/storeView';

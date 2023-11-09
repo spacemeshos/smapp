@@ -6,7 +6,7 @@ import { remove } from 'fs-extra';
 import pkg from '../package.json';
 import { Network, NodeConfig } from '../shared/types';
 import HRP from '../shared/hrp';
-import { MINUTE } from './main/constants';
+import { MINUTE } from '../shared/constants';
 
 export const STANDALONE_GENESIS_EXTRA = 'standalone';
 
