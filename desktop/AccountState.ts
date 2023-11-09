@@ -131,7 +131,7 @@ export class AccountStateManager {
     Object.values((this.state[this.genesisID] as StateType).rewards);
 
   getRewardByLayer = (layer: number) =>
-    (this.state[this.genesisID] as StateType)?.rewards?.[layer];
+    (this.state[this.genesisID] as StateType).rewards?.[layer];
 
   // Setters. Might be impure if autosave is turned on.
   storeState = (state: Required<AccountBalance>) => {

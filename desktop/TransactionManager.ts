@@ -485,18 +485,17 @@ class TransactionManager extends AbstractManager {
       const prevReward = this.accountStates[accountId].getRewardByLayer(
         parsedReward.layer
       );
-      if (prevReward) {
-        // Sum the reward amount and update
-        const nextReward: Reward = {
-          ...prevReward,
-          amount: prevReward.amount + parsedReward.amount,
-          layerReward: prevReward.layerReward + parsedReward.layerReward,
-        };
-        this.storeReward(accountId, nextReward);
-      } else {
-        // Store reward as is
-        this.storeReward(accountId, parsedReward);
-      }
+
+      // If there's a previous reward, update it; otherwise, store the new reward
+      const nextReward = prevReward
+        ? {
+            ...prevReward,
+            amount: prevReward.amount + parsedReward.amount,
+            layerReward: prevReward.layerReward + parsedReward.layerReward,
+          }
+        : parsedReward;
+
+      this.storeReward(accountId, nextReward);
     } catch (err) {
       this.logger.error('addReward', err, { accountId, reward });
     }
