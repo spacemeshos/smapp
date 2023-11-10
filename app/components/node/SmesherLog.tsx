@@ -210,7 +210,7 @@ const SmesherLog = ({
           </Total>
           <Total epoch>
             <small>Within current epoch:</small>
-            {formatSmidge(rewardsInfo.lastEpoch)}
+            {formatSmidge(rewardsInfo.lastEpochRewards)}
           </Total>
         </>
       )}

@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { Bech32Address, KeyPair, Reward, Wallet } from '../shared/types';
+import { Bech32Address, KeyPair, Wallet } from '../shared/types';
 import { isLocalNodeType, isRemoteNodeApi, toHexString } from '../shared/utils';
 import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
@@ -169,9 +169,6 @@ class WalletManager extends AbstractManager {
   activateAccounts = (accounts: KeyPair[]) => {
     this.txManager.setAccounts(accounts);
   };
-
-  requestRewardsByCoinbase = async (coinbase: string): Promise<Reward[]> =>
-    this.txManager.retrieveNewRewards(coinbase);
 
   subscribeForAddressData = (coinbase: Bech32Address) =>
     this.txManager.watchForAddress(coinbase);

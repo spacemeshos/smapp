@@ -8,6 +8,7 @@ import {
   WalletType,
   Account,
   MnemonicOpts,
+  Bech32Address,
 } from '../../../shared/types';
 import {
   delay,
@@ -30,6 +31,7 @@ export const SET_CURRENT_MODE = 'SET_CURRENT_MODE';
 
 export const SET_REMOTE_API = 'SET_REMOTE_API';
 export const SET_MNEMONIC = 'SET_MNEMONIC';
+export const ADD_TRANSACTION = 'ADD_TRANSACTION';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_CONTACTS = 'SET_CONTACTS';
 
@@ -73,6 +75,11 @@ export const updateAccountData = ({
   account: any;
   accountId: string;
 }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account, accountId } });
+
+export const addTransaction = (address: Bech32Address, tx: Tx<any>) => ({
+  type: ADD_TRANSACTION,
+  payload: { address, tx },
+});
 
 export const setTransactions = ({
   txs,

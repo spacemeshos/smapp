@@ -1,5 +1,4 @@
-import * as R from 'ramda';
-import { epochByLayer } from '../../../shared/layerUtils';
+import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   PostSetupState,
   Reward,
@@ -7,7 +6,7 @@ import {
   SmeshingOpts,
 } from '../../../shared/types';
 import { RootState } from '../../types';
-import { getTimestampByLayerFn } from '../network/selectors';
+import { DAY } from '../../../shared/constants';
 
 export const getPostSetupState = (state: RootState) =>
   state.smesher.postSetupState;
@@ -42,48 +41,87 @@ export const getRewards = (state: RootState): Reward[] => {
   return state.wallet.rewards[coinbase] || [];
 };
 
-export const getRewardsInfo = (state: RootState): RewardsInfo => {
-  const getLayerTime = getTimestampByLayerFn(state);
-  const layerPerEpoch = state.network.layersPerEpoch;
-  const curLayer = state.node.status?.syncedLayer || 0;
-  const getEpoch = epochByLayer(layerPerEpoch);
-  const curEpoch = getEpoch(curLayer);
-  const rewards = getRewards(state);
-
-  const sums = rewards.reduce(
-    (acc, next) => ({
-      total: acc.total + next.amount,
-      layers: new Set(acc.layers).add(next.layer),
-      epochs: new Set(acc.epochs).add(getEpoch(next.layer)),
-    }),
-    {
-      total: 0,
-      layers: new Set(),
-      epochs: new Set(),
-    }
-  );
-
-  const lastEpoch = R.compose(
-    R.reduce((acc, next: Reward) => acc + next.amount, 0),
-    R.filter((reward: Reward) => getEpoch(reward.layer) === curEpoch)
-  )(rewards);
-
-  const dailyAverage =
-    rewards.length > 2
-      ? (sums.total /
-          (getLayerTime(rewards[rewards.length - 1].layer) -
-            getLayerTime(rewards[0].layer))) *
-        (24 * 1000 * 60 * 60)
-      : 0;
-
-  return {
-    total: sums.total,
-    lastEpoch,
-    layers: sums.layers.size,
-    epochs: sums.epochs.size,
-    dailyAverage,
-  };
+export const calculateDailyAverage = (
+  rewards: Reward[],
+  total: number,
+  genesisTime: string,
+  layerDurationSec: number
+): number => {
+  if (rewards.length === 0) return 0;
+  if (rewards.length === 1) return rewards[0].amount;
+  const getLayerTime = timestampByLayer(genesisTime, layerDurationSec);
+  const lastRewardTime = getLayerTime(rewards[rewards.length - 1].layer);
+  const firstRewardTime = getLayerTime(rewards[0].layer);
+  return (total / (lastRewardTime - firstRewardTime)) * DAY;
 };
+
+const EMPTY_REWARDS_INFO: RewardsInfo = {
+  total: 0,
+  layers: 0,
+  epochs: 0,
+  lastLayer: 0,
+  lastEpoch: 0,
+  dailyAverage: 0,
+  lastEpochRewards: 0,
+};
+
+export const getRewardsInfo = (() => {
+  // Global memoization
+  let lastRewards: Reward[] = [];
+  let lastResult: RewardsInfo = {
+    ...EMPTY_REWARDS_INFO,
+  };
+
+  return (state: RootState): RewardsInfo => {
+    const layerPerEpoch = state.network.layersPerEpoch;
+    const getEpoch = epochByLayer(layerPerEpoch);
+    const rewards = getRewards(state);
+
+    if (rewards.length === lastRewards.length) {
+      return lastResult;
+    }
+    if (rewards.length === 0) {
+      lastRewards = [];
+      lastResult = { ...EMPTY_REWARDS_INFO };
+      return lastResult;
+    }
+
+    const newRewards = rewards.slice(lastRewards.length - rewards.length);
+    const calc = newRewards.reduce((acc, next): RewardsInfo => {
+      const epoch = getEpoch(next.layer);
+      return {
+        total: acc.total + next.amount,
+        lastLayer: next.layer,
+        lastEpoch: epoch,
+        layers: acc.lastLayer < next.layer ? acc.layers + 1 : acc.layers,
+        epochs: acc.lastEpoch < epoch ? acc.epochs + 1 : acc.epochs,
+        lastEpochRewards:
+          acc.lastEpoch === epoch
+            ? acc.lastEpochRewards + next.amount
+            : next.amount,
+        dailyAverage: acc.dailyAverage,
+      };
+    }, lastResult);
+
+    const dailyAverage = calculateDailyAverage(
+      rewards,
+      calc.total,
+      state.network.genesisTime,
+      state.network.layerDurationSec
+    );
+
+    const result: RewardsInfo = {
+      ...calc,
+      dailyAverage,
+    };
+
+    // Update memoized values
+    lastRewards = rewards;
+    lastResult = result;
+
+    return lastResult;
+  };
+})();
 
 export const isValidSmeshingOpts = (
   opts: ReturnType<typeof getSmeshingOpts>

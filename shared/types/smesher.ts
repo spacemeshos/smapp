@@ -71,10 +71,12 @@ export interface IPCSmesherStartupData {
 
 export interface RewardsInfo {
   total: number;
-  lastEpoch: number;
-  dailyAverage: number;
   layers: number;
   epochs: number;
+  lastLayer: number;
+  lastEpoch: number;
+  lastEpochRewards: number;
+  dailyAverage: number;
 }
 
 export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB

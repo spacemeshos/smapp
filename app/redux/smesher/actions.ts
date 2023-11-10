@@ -1,6 +1,6 @@
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, GetState } from '../../types';
-import { SmeshingOpts } from '../../../shared/types';
+import { Bech32Address, Reward, SmeshingOpts } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
 import { setUiError } from '../ui/actions';
 import {
@@ -18,8 +18,14 @@ export const DELETED_POS_DATA = 'DELETED_POST_DATA';
 export const PAUSED_SMESHING = 'PAUSED_SMESHING';
 export const RESUMED_SMESHING = 'RESUMED_SMESHING';
 export const SET_POST_DATA_CREATION_STATUS = 'SET_POST_DATA_CREATION_STATUS';
+export const ADD_ACCOUNT_REWARD = 'ADD_ACCOUNT_REWARD';
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
 export const SET_METADATA = 'SET_METADATA';
+
+export const addReward = (address: Bech32Address, reward: Reward) => ({
+  type: ADD_ACCOUNT_REWARD,
+  payload: { address, reward },
+});
 
 export const startSmeshing = ({
   coinbase,

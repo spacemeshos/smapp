@@ -10,7 +10,11 @@ import {
   setNodeStatus,
   setVersionAndBuild,
 } from '../../redux/node/actions';
-import { setTransactions, updateAccountData } from '../../redux/wallet/actions';
+import {
+  addTransaction,
+  setTransactions,
+  updateAccountData,
+} from '../../redux/wallet/actions';
 import {
   SET_ACCOUNT_REWARDS,
   SET_METADATA,
@@ -18,6 +22,7 @@ import {
   SET_SETUP_COMPUTE_PROVIDERS,
   SET_SMESHER_CONFIG,
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+  addReward,
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import {
@@ -314,12 +319,20 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
   );
 });
 
+ipcRenderer.on(ipcConsts.T_M_ADD_TX, (_, { address, tx }) => {
+  store.dispatch(addTransaction(address, tx));
+});
+
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
   const { rewards, publicKey } = request;
   store.dispatch({
     type: SET_ACCOUNT_REWARDS,
     payload: { rewards, publicKey },
   });
+});
+
+ipcRenderer.on(ipcConsts.T_M_ADD_REWARD, (_, { address, reward }) => {
+  store.dispatch(addReward(address, reward));
 });
 
 ipcRenderer.on(

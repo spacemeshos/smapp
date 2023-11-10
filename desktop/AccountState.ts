@@ -3,7 +3,7 @@ import fs from 'fs';
 import { equals } from 'ramda';
 import { app } from 'electron';
 import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
-import { delay, shallowEq } from '../shared/utils';
+import { delay } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
@@ -12,7 +12,7 @@ type GenesisID = HexString;
 interface StateType {
   state: Required<AccountBalance>;
   txs: { [txId: Tx['id']]: Tx };
-  rewards: { [layer: number]: Reward };
+  rewards: Reward[];
 }
 
 // Types
@@ -30,7 +30,7 @@ const getDefaultAccountState = (
       projectedState: { balance: 0, counter: 0 },
     },
     txs: {},
-    rewards: {},
+    rewards: [],
   },
 });
 
@@ -52,6 +52,10 @@ const load = (
       encoding: 'utf8',
     });
     const parsed = JSON.parse(raw);
+    if (!parsed.rewards.length) {
+      // Migrate Map<Layer, Reward> -> Reward[]
+      parsed.rewards = Object.values(parsed.rewards);
+    }
     return {
       ...getDefaultAccountState(publicKey, genesisID),
       ...parsed,
@@ -153,36 +157,15 @@ export class AccountStateManager {
     return true;
   };
 
-  // Returns `true` if it is a new reward
-  // otherwise returns `false`
   storeReward = async (reward: Reward) => {
-    if (
-      shallowEq(
-        (this.state[this.genesisID] as StateType).rewards[reward.layer],
-        reward
-      )
-    ) {
-      return false;
-    }
-
-    (this.state[this.genesisID] as StateType).rewards[reward.layer] = reward;
+    (this.state[this.genesisID] as StateType).rewards.push(reward);
     await this.autosave();
     return true;
   };
 
-  lastSyncedTxLayer = () =>
-    Math.max.apply(null, [
-      ...Object.values((this.state[this.genesisID] as StateType).txs)
-        .slice(-10)
-        .map((tx) => tx.layer || 0),
-      0,
-    ]);
-
-  lastSyncedRewardsLayer = () =>
-    Math.max.apply(null, [
-      ...Object.keys((this.state[this.genesisID] as StateType).rewards).map(
-        (k) => parseInt(k, 10) || 0
-      ),
-      0,
-    ]);
+  overwriteRewards = async (rewards: Reward[]) => {
+    (this.state[this.genesisID] as StateType).rewards = rewards;
+    await this.autosave();
+    return true;
+  };
 }
