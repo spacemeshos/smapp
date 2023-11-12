@@ -230,12 +230,6 @@ class EventsService {
   static toggleAutoStart = (): Promise<{ status: boolean; error?: string }> =>
     ipcRenderer.invoke(ipcConsts.TOGGLE_AUTO_START_ON_SYSTEM_LAUNCH);
 
-  static syncAutoStartConfig = (): Promise<{
-    status: boolean;
-    error?: string;
-  }> =>
-    ipcRenderer.invoke(ipcConsts.SYNC_IS_AUTO_START_ON_SYSTEM_LAUNCH_REQUEST);
-
   /** **************************************   MISC   ***************************************** */
 
   static print = ({ content }: { content: string }) =>
