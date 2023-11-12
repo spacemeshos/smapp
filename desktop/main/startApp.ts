@@ -150,7 +150,7 @@ const startApp = (): AppStore => {
   const $warnings = new $.Subject<Warning>();
   const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    AutoStartManager.isEnabled() || startNodeAfterUpdate
+    AutoStartManager.isEnabledFromConfig() || startNodeAfterUpdate
   );
 
   const {

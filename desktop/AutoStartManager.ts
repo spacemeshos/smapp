@@ -23,6 +23,7 @@ type ToggleResult = {
 
 const handleFailure = (err: unknown) => {
   logger.error('AutoStartManager:handleFailure', err);
+
   if (
     isMacOS() &&
     err instanceof Error &&
@@ -32,31 +33,33 @@ const handleFailure = (err: unknown) => {
     return {
       status: false,
       error:
-        'Can not setup auto start: you need to provide permissions.\n\nGo to Settings -> Security & Privacy -> Privacy -> Automation and mark the checkbox next to "System Events" for the Spacemesh app.\n\nAnd then relaunch app or try again.',
+        'Can not setup auto start: you need to provide permissions.\n\nGo to Settings -> Security & Privacy -> Privacy -> Automation and mark the checkbox next to "System Events" for the Spacemesh app.\nAnd then relaunch app or try again.',
     };
   }
 
   if (
     isLinux() &&
     err instanceof Error &&
-    err.message.includes('Permission denied')
+    err.message &&
+    /\.config\/autostart/.test(err.message)
   ) {
     return {
       status: false,
       error:
-        "Failed to write to the autostart file in the user configuration directory. Please check the file permissions for '~/.config/autostart/' and ensure that the necessary write permissions are granted.",
+        "Failed to write to the autostart file in the user configuration directory. \n Please check the file permissions for '~/.config/autostart/' and ensure that the necessary write permissions are granted.",
     };
   }
 
   if (
     isWindows() &&
     err instanceof Error &&
-    err.message.includes('Access is denied')
+    err.message &&
+    /Registry/.test(err.message)
   ) {
     return {
       status: false,
       error:
-        'Failed to write the registry key for auto-start. Please ensure that you have the necessary permissions to modify the registry. You may need to run the application as an administrator or contact your system administrator for assistance.',
+        'Failed to write the registry key for auto-start. \n Please ensure that you have the necessary permissions to modify the registry. \n You may need to run the application as an administrator or contact your system administrator for assistance.',
     };
   }
 
@@ -99,9 +102,18 @@ class AutoStartManager {
     });
   }
 
-  static isEnabled = () =>
+  static isEnabledFromConfig = () =>
     StoreService.get(IS_AUTO_START_ENABLED) ??
     StoreService.get(IS_AUTO_START_ON_SYSTEM_LAUNCH_ENABLED);
+
+  static isEnabled = async () => {
+    try {
+      return { status: await AutoStartManager.service.isEnabled() };
+    } catch (err: any) {
+      logger.error('isEnabled()', err);
+      return handleFailure(err);
+    }
+  };
 
   static syncIsAutoStartOnLoginEnabled = async () => {
     try {
@@ -113,7 +125,7 @@ class AutoStartManager {
       AutoStartManager.isSyncFinished = true;
 
       const isEnabled = await AutoStartManager.service.isEnabled();
-      logger.log('syncIsAutoStartOnLoginEnabled:isEnabled', isEnabled);
+
       // migration process with auto deletion the flag from
       if (StoreService.has(IS_AUTO_START_ENABLED)) {
         // sync migration var
@@ -135,8 +147,6 @@ class AutoStartManager {
         }
       }
 
-      logger.log('syncIsAutoStartOnLoginEnabled:result', { status: true });
-
       return { status: true };
     } catch (err: any) {
       logger.error('syncIsAutoStartOnLoginEnabled()', err);
@@ -147,14 +157,21 @@ class AutoStartManager {
     }
   };
 
-  static toggleAutoStart = async () =>
-    AutoStartManager.isEnabled()
-      ? AutoStartManager.disable()
-      : AutoStartManager.enable();
+  static toggleAutoStart = async () => {
+    try {
+      return (await AutoStartManager.service.isEnabled())
+        ? await AutoStartManager.disable()
+        : await AutoStartManager.enable();
+    } catch (err: any) {
+      logger.error('toggleAutoStart()', err);
+      return handleFailure(err);
+    }
+  };
 
   static disable = async (n = 0): Promise<ToggleResult> => {
+    let isEnabled: null | boolean = null;
     try {
-      const isEnabled = await AutoStartManager.service.isEnabled();
+      isEnabled = await AutoStartManager.service.isEnabled();
       if (isEnabled && n === 0) {
         await AutoStartManager.service.disable();
         StoreService.set(
@@ -171,13 +188,14 @@ class AutoStartManager {
       }
     } catch (err) {
       logger.error('disable()', err);
-      return handleFailure(err);
+      throw err;
     }
   };
 
   static enable = async (n = 0): Promise<ToggleResult> => {
+    let isEnabled: null | boolean = null;
     try {
-      const isEnabled = await AutoStartManager.service.isEnabled();
+      isEnabled = await AutoStartManager.service.isEnabled();
       if (!isEnabled && n === 0) {
         await AutoStartManager.service.enable();
         StoreService.set(
@@ -194,7 +212,7 @@ class AutoStartManager {
       }
     } catch (err) {
       logger.error('enable()', err);
-      return handleFailure(err);
+      throw err;
     }
   };
 }
