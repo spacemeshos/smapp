@@ -1,4 +1,3 @@
-import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   PostSetupState,
   Reward,
@@ -6,7 +5,7 @@ import {
   SmeshingOpts,
 } from '../../../shared/types';
 import { RootState } from '../../types';
-import { DAY } from '../../../shared/constants';
+import { EMPTY_REWARDS_INFO, calculateRewardsInfo } from './rewardsInfo';
 
 export const getPostSetupState = (state: RootState) =>
   state.smesher.postSetupState;
@@ -41,30 +40,6 @@ export const getRewards = (state: RootState): Reward[] => {
   return state.wallet.rewards[coinbase] || [];
 };
 
-export const calculateDailyAverage = (
-  rewards: Reward[],
-  total: number,
-  genesisTime: string,
-  layerDurationSec: number
-): number => {
-  if (rewards.length === 0) return 0;
-  if (rewards.length === 1) return rewards[0].amount;
-  const getLayerTime = timestampByLayer(genesisTime, layerDurationSec);
-  const lastRewardTime = getLayerTime(rewards[rewards.length - 1].layer);
-  const firstRewardTime = getLayerTime(rewards[0].layer);
-  return (total / (lastRewardTime - firstRewardTime)) * DAY;
-};
-
-const EMPTY_REWARDS_INFO: RewardsInfo = {
-  total: 0,
-  layers: 0,
-  epochs: 0,
-  lastLayer: 0,
-  lastEpoch: 0,
-  dailyAverage: 0,
-  lastEpochRewards: 0,
-};
-
 export const getRewardsInfo = (() => {
   // Global memoization
   let lastRewards: Reward[] = [];
@@ -73,8 +48,6 @@ export const getRewardsInfo = (() => {
   };
 
   return (state: RootState): RewardsInfo => {
-    const layerPerEpoch = state.network.layersPerEpoch;
-    const getEpoch = epochByLayer(layerPerEpoch);
     const rewards = getRewards(state);
 
     if (rewards.length === lastRewards.length) {
@@ -86,34 +59,9 @@ export const getRewardsInfo = (() => {
       return lastResult;
     }
 
+    const { layersPerEpoch } = state.network;
     const newRewards = rewards.slice(lastRewards.length - rewards.length);
-    const calc = newRewards.reduce((acc, next): RewardsInfo => {
-      const epoch = getEpoch(next.layer);
-      return {
-        total: acc.total + next.amount,
-        lastLayer: next.layer,
-        lastEpoch: epoch,
-        layers: acc.lastLayer < next.layer ? acc.layers + 1 : acc.layers,
-        epochs: acc.lastEpoch < epoch ? acc.epochs + 1 : acc.epochs,
-        lastEpochRewards:
-          acc.lastEpoch === epoch
-            ? acc.lastEpochRewards + next.amount
-            : next.amount,
-        dailyAverage: acc.dailyAverage,
-      };
-    }, lastResult);
-
-    const dailyAverage = calculateDailyAverage(
-      rewards,
-      calc.total,
-      state.network.genesisTime,
-      state.network.layerDurationSec
-    );
-
-    const result: RewardsInfo = {
-      ...calc,
-      dailyAverage,
-    };
+    const result = calculateRewardsInfo(lastResult, layersPerEpoch, newRewards);
 
     // Update memoized values
     lastRewards = rewards;

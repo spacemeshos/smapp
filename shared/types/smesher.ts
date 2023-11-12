@@ -76,7 +76,6 @@ export interface RewardsInfo {
   lastLayer: number;
   lastEpoch: number;
   lastEpochRewards: number;
-  dailyAverage: number;
 }
 
 export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB
