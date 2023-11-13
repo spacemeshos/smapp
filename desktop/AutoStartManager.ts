@@ -46,7 +46,7 @@ const handleFailure = (err: unknown) => {
     return {
       status: false,
       error:
-        "Failed to write to the autostart file in the user configuration directory. \n Please check the file permissions for '~/.config/autostart/' and ensure that the necessary write permissions are granted.",
+        "Failed to write to the autostart file in the user configuration directory.\n\nPlease check the file permissions for '~/.config/autostart/' and ensure that the necessary write permissions are granted.",
     };
   }
 
@@ -59,7 +59,7 @@ const handleFailure = (err: unknown) => {
     return {
       status: false,
       error:
-        'Failed to write the registry key for auto-start. \n Please ensure that you have the necessary permissions to modify the registry. \n You may need to run the application as an administrator or contact your system administrator for assistance.',
+        'Failed to write the registry key for auto-start.\n\nPlease ensure that you have the necessary permissions to modify the registry.\n\nYou may need to run the application as an administrator or contact your system administrator for assistance.',
     };
   }
 
