@@ -129,7 +129,13 @@ class AutoStartManager {
       // migration process with auto deletion the flag from
       if (StoreService.has(IS_AUTO_START_ENABLED)) {
         // sync migration var
-        StoreService.set(IS_AUTO_START_ON_SYSTEM_LAUNCH_ENABLED, isEnabled);
+        StoreService.set(
+          IS_AUTO_START_ON_SYSTEM_LAUNCH_ENABLED,
+          // for AppImage, isEnabled() on start always false
+          isLinuxAppImage()
+            ? Boolean(StoreService.get(IS_AUTO_START_ENABLED))
+            : isEnabled
+        );
 
         // finish migration
         StoreService.remove(IS_AUTO_START_ENABLED);

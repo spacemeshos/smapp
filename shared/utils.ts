@@ -148,4 +148,4 @@ export const isDebPackage = () =>
   os.platform() === 'linux' && !process.env.APPIMAGE;
 
 export const isLinuxAppImage = () =>
-  os.platform() === 'linux' && process.env.APPIMAGE;
+  os.platform() === 'linux' && !!process.env.APPIMAGE;
