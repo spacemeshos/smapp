@@ -13,7 +13,6 @@ import { shallowEq } from '../../shared/utils';
 import Warning from '../../shared/warning';
 import StoreService from '../storeService';
 import AutoStartManager from '../AutoStartManager';
-import Logger from '../logger';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
@@ -46,8 +45,7 @@ import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
 import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherProvingOptsIpc';
 import ensureProvingOpts from './reactions/ensureProvingOpts';
-
-const logger = Logger({ className: 'startApp ' });
+import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -133,6 +131,7 @@ const startApp = (): AppStore => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
+    $isWindowReady,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
@@ -151,19 +150,8 @@ const startApp = (): AppStore => {
   const $warnings = new $.Subject<Warning>();
   const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    startNodeAfterUpdate
+    AutoStartManager.isEnabledFromConfig() || startNodeAfterUpdate
   );
-
-  AutoStartManager.isEnabled()
-    .then((res) => {
-      if (res && !startNodeAfterUpdate) {
-        $runNodeBeforeLogin.next(res);
-      }
-      return res;
-    })
-    .catch((err) => {
-      logger.error('AutoStartManager.isEnabled()', err);
-    });
 
   const {
     $managers,
@@ -284,10 +272,11 @@ const startApp = (): AppStore => {
       $currentNetwork
     ),
     handleOpenDashboard($mainWindow, $currentNetwork),
+    sendWarningsToRenderer($warnings, $mainWindow, $isWindowReady),
     collectWarnings($managers, $warnings),
-    sendWarningsToRenderer($warnings, $mainWindow),
     listenNodeConfigAndRestartNode($nodeConfig, $managers),
     handleBenchmarksIpc($mainWindow, $nodeConfig),
+    syncAutoStartAndConfig($warnings),
   ];
 
   return {

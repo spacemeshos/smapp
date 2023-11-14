@@ -617,8 +617,15 @@ class Settings extends Component<Props, State> {
         }
       );
     }
-    const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
-    this.setState({ isAutoStartEnabled });
+    const isAutoStartEnabledResult = await eventsService.isAutoStartEnabled();
+
+    if (isAutoStartEnabledResult?.error) {
+      const { setUiError } = this.props;
+      // @ts-ignore
+      setUiError(new Error(isAutoStartEnabledResult.error));
+    }
+
+    this.setState({ isAutoStartEnabled: isAutoStartEnabledResult.status });
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -717,11 +724,12 @@ class Settings extends Component<Props, State> {
 
   toggleAutoStart = async () => {
     const res = await eventsService.toggleAutoStart();
-    this.setState({ isAutoStartEnabled: res.status });
     if (res.error) {
       const { setUiError } = this.props;
       // @ts-ignore
       setUiError(new Error(res.error));
+    } else {
+      this.setState({ isAutoStartEnabled: res.status });
     }
   };
 

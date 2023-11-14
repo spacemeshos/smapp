@@ -223,10 +223,12 @@ class EventsService {
   /** ************************************   AUTOSTART   ************************************** */
 
   static isAutoStartEnabled = () =>
-    ipcRenderer.invoke(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
+    ipcRenderer.invoke(
+      ipcConsts.IS_AUTO_START_ON_SYSTEM_LAUNCH_ENABLED_REQUEST
+    );
 
   static toggleAutoStart = (): Promise<{ status: boolean; error?: string }> =>
-    ipcRenderer.invoke(ipcConsts.TOGGLE_AUTO_START);
+    ipcRenderer.invoke(ipcConsts.TOGGLE_AUTO_START_ON_SYSTEM_LAUNCH);
 
   /** **************************************   MISC   ***************************************** */
 

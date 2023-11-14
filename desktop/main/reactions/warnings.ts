@@ -3,7 +3,8 @@ import {
   ReplaySubject,
   Subject,
   switchMap,
-  withLatestFrom,
+  take,
+  combineLatestWith,
 } from 'rxjs';
 import { BrowserWindow } from 'electron';
 import { ipcConsts } from '../../../app/vars';
@@ -16,14 +17,18 @@ import { Managers } from '../app.types';
  */
 export const sendWarningsToRenderer = (
   $warnings: Subject<Warning>,
-  $mainWindow: ReplaySubject<BrowserWindow>
-) =>
+  $mainWindow: ReplaySubject<BrowserWindow>,
+  $isWindowReady: Subject<void>
+) => {
   makeSubscription(
-    $warnings.pipe(withLatestFrom($mainWindow)),
-    ([warning, mainWindow]) => {
+    $warnings.pipe(
+      combineLatestWith($mainWindow, $isWindowReady.pipe(take(1)))
+    ),
+    ([warning, mainWindow, _]) => {
       mainWindow.webContents.send(ipcConsts.NEW_WARNING, warning.toObject());
     }
   );
+};
 
 /**
  * Merges warnings from other sources into $warnings

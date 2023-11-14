@@ -17,6 +17,7 @@ import { init } from './sentry';
 import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
 import NoInternetConnection from './screens/modal/NoInternetConnection';
 import PoSProvingOptsUpdateWarningModal from './screens/modal/PoSProvingOptsUpdateWarningModal';
+import AutoLaunchErrorModal from './screens/modal/AutoLaunchErrorModal';
 
 const history = createMemoryHistory();
 
@@ -73,6 +74,7 @@ const StyledApp = () => {
           <NoInternetConnection />
           <CloseAppModal />
           <PoSProvingOptsUpdateWarningModal />
+          <AutoLaunchErrorModal />
         </Router>
       </ErrorBoundary>
     </ThemeProvider>

@@ -4,6 +4,7 @@ export enum WarningType {
   Unknown = 'Unknown',
   WriteFilePermission = 'WriteFilePermission',
   UpdateSmeshingProvingOpts = 'UpdateSmeshingProvingOpts',
+  SyncAutoStartAndConfig = 'SyncAutoStartAndConfig',
 }
 
 export enum WriteFilePermissionWarningKind {
@@ -20,6 +21,7 @@ interface WarningTypeOptions {
     filePath: string;
   }>;
   [WarningType.UpdateSmeshingProvingOpts]: WarningOptions<boolean>;
+  [WarningType.SyncAutoStartAndConfig]: WarningOptions<string>;
 }
 
 export type AnyWarningType = keyof WarningTypeOptions;
