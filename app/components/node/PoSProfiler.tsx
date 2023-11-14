@@ -6,10 +6,12 @@ import {
   Input,
   Button,
   ColorStatusIndicator,
+  Link,
 } from '../../basicComponents';
 import { constrain, formatBytes } from '../../infra/utils';
 import { ipcConsts, smColors } from '../../vars';
 import { BenchmarkRequest, BenchmarkResponse } from '../../../shared/types';
+import { ExternalLinks } from '../../../shared/constants';
 import { eventsService } from '../../infra/eventsService';
 import PoSFooter, { PoSFooterProps } from './PoSFooter';
 
@@ -186,6 +188,9 @@ const getStatusColor = (status: BenchmarkStatus) => {
   }
 };
 
+const navigateToExplanation = () =>
+  window.open(ExternalLinks.PosProvingDocumentation);
+
 const PoSProfiler = ({
   nextAction,
   numUnitSize,
@@ -286,7 +291,13 @@ const PoSProfiler = ({
       <Row>
         <Text>
           Smesher should be able to generate PoS proof in time. To choose proper
-          options for proof generation — run the benchmark and follow the hints.
+          options for proof generation —&nbsp;
+          <Link
+            onClick={navigateToExplanation}
+            text="read the documentation"
+            style={{ display: 'inline' }}
+          />
+          &nbsp;and run the benchmark.
         </Text>
       </Row>
       <Row>

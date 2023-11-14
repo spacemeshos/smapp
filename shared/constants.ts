@@ -43,6 +43,7 @@ export enum ExternalLinks {
   OpenCLWindowsInstallGuide = 'https://sasview.org/docs/old_docs/4.1.2/user/opencl_installation.html',
   OpenCLUbuntuInstallGuide = 'https://saturncloud.io/blog/how-to-install-cudaopencl-on-ubuntu-installed-on-a-usb-drive/#installing-opencl',
   GithubSMAppIssuePage = 'https://github.com/spacemeshos/smapp/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=',
+  PosProvingDocumentation = 'https://github.com/spacemeshos/wiki/wiki/Smesher-Guide#fine-tuning-proving',
 }
 
 export const BITS_PER_LABEL = 128;
