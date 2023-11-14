@@ -95,7 +95,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   const latestTransactions = useSelector(getLatestTransactions(address));
   const contacts = useSelector(getContacts);
 
-  const renderTransaction = (tx: TxView) => {
+  const renderTransaction = (tx: TxView, i: number) => {
     const { id, status, timestamp, meta } = tx;
     // TODO: Temporary solution until we don't support other account types
     const isSent =
@@ -103,7 +103,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     const isSpawn = tx.method === SingleSigMethods.Spawn;
     const color = getStatusColor(status, isSent);
     return (
-      <TxWrapper key={`tx_${id}`}>
+      <TxWrapper key={`tx_${id}_${i}`}>
         <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
@@ -132,10 +132,10 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     );
   };
 
-  const renderReward = (tx: RewardView) => {
+  const renderReward = (tx: RewardView, i: number) => {
     const { amount, timestamp, layer, coinbase } = tx;
     return (
-      <TxWrapper key={`${coinbase}_reward_${layer}`}>
+      <TxWrapper key={`${coinbase}_reward_${layer}_${i}`}>
         <Icon chevronRight={false} />
         <MainWrapper>
           <Section>
@@ -152,8 +152,8 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     );
   };
 
-  const renderedLatestTransactions = latestTransactions.map((tx) =>
-    isReward(tx) ? renderReward(tx) : renderTransaction(tx)
+  const renderedLatestTransactions = latestTransactions.map((tx, i) =>
+    isReward(tx) ? renderReward(tx, i) : renderTransaction(tx, i)
   );
 
   return (

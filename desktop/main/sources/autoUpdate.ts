@@ -31,7 +31,7 @@ import {
   unsubscribe,
   UpdateInfoStatus,
 } from '../autoUpdater';
-import { MINUTE } from '../constants';
+import { MINUTE } from '../../../shared/constants';
 import { fromIPC } from '../rx.utils';
 
 const logger = Logger({ className: 'autoUpdate' });

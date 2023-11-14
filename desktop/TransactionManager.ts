@@ -29,6 +29,7 @@ import {
 } from '../shared/utils';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { SingleSigMethods } from '../shared/templateConsts';
+import { MINUTE } from '../shared/constants';
 import { toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -38,7 +39,7 @@ import GlobalStateService, {
 } from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
-import { GRPC_QUERY_BATCH_SIZE, MINUTE } from './main/constants';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
 import AbstractManager from './AbstractManager';
 
@@ -55,6 +56,10 @@ class TransactionManager extends AbstractManager {
   private readonly glStateService: GlobalStateService;
 
   private readonly txService: TransactionService;
+
+  subscribeIPCEvents(): () => void {
+    return () => {};
+  }
 
   keychain: KeyPair[] = [];
 
@@ -127,11 +132,19 @@ class TransactionManager extends AbstractManager {
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
   };
 
+  sendTxToRenderer = (address: Bech32Address, tx: Tx<any>) => {
+    this.appStateUpdater(ipcConsts.T_M_ADD_TX, { address, tx });
+  };
+
+  sendRewardToRenderer = (address: Bech32Address, reward: Reward) => {
+    this.appStateUpdater(ipcConsts.T_M_ADD_REWARD, { address, reward });
+  };
+
   private storeTx = (publicKey: string, tx: Tx): Promise<boolean> =>
     this.accountStates[publicKey]
       .storeTransaction(tx)
       .then((isNew) => {
-        isNew && this.updateAppStateTxs(publicKey);
+        isNew && this.sendTxToRenderer(publicKey, tx);
         return true;
       })
       .catch((err) => {
@@ -142,10 +155,17 @@ class TransactionManager extends AbstractManager {
   private storeReward = (publicKey: string, reward: Reward) =>
     this.accountStates[publicKey]
       .storeReward(reward)
-      .then((isNew) => isNew && this.updateAppStateRewards(publicKey))
+      .then((isNew) => isNew && this.sendRewardToRenderer(publicKey, reward))
       .catch((err) => {
-        console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeReward', err);
+      });
+
+  private overwriteRewards = (address: Bech32Address, rewards: Reward[]) =>
+    this.accountStates[address]
+      .overwriteRewards(rewards)
+      .then(() => this.updateAppStateRewards(address))
+      .catch((err) => {
+        this.logger.error('TransactionManager.overwriteRewards', err);
       });
 
   private handleNewTx = (publicKey: string) => async (tx: {
@@ -235,7 +255,7 @@ class TransactionManager extends AbstractManager {
 
     const addReward = this.addReward(address);
     this.retrieveRewards(address, 0)
-      .then((value) => value.forEach(addReward))
+      .then((rewards) => this.replaceRewards(address, rewards))
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
       });
@@ -245,7 +265,37 @@ class TransactionManager extends AbstractManager {
     );
   };
 
-  addAccount = (keypair: KeyPair) => {
+  watchForAddress = (address: Bech32Address) => {
+    // Postponing it for the next tick to avoid race condition
+    // and subscribing twice for the same address (in some cases)
+    setImmediate(() => {
+      if (this.accountStates[address]) {
+        this.logger.log(
+          'watchForAccount',
+          'already watching, skipping function call',
+          address
+        );
+        return;
+      }
+      this.logger.log('watchForAccount', 'started', address);
+
+      this.accountStates[address] = new AccountStateManager(
+        address,
+        this.genesisID
+      );
+      this.logger.log('addAccount', address, this.genesisID);
+
+      // Send stored Tx & Rewards
+      this.updateAppStateTxs(address);
+      this.updateAppStateRewards(address);
+
+      this.unsubs[address] = [];
+      // Resubscribe
+      this.subscribeAccount(address);
+    });
+  };
+
+  watchForKeyPair = (keypair: KeyPair) => {
     const { publicKey } = keypair;
     const pkBytes = fromHexString(publicKey);
     const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
@@ -261,26 +311,15 @@ class TransactionManager extends AbstractManager {
         : this.keychain),
       keypair,
     ];
-    this.accountStates[address] = new AccountStateManager(
-      address,
-      this.genesisID
-    );
-    this.logger.log('addAccount', address, this.genesisID);
 
-    // Send stored Tx & Rewards
-    this.updateAppStateTxs(address);
-    this.updateAppStateRewards(address);
-
-    this.unsubs[address] = [];
-    // Resubscribe
-    this.subscribeAccount(address);
+    this.watchForAddress(address);
   };
 
   setAccounts = (accounts: KeyPair[]) => {
     this.unsubscribeAllStreams();
     this.keychain = [];
     this.accountStates = {};
-    accounts.forEach(this.addAccount);
+    accounts.forEach(this.watchForKeyPair);
   };
 
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
@@ -432,22 +471,44 @@ class TransactionManager extends AbstractManager {
     }
   };
 
-  addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
+  private parseReward = (reward: RewardHandlerArg): Reward => {
     if (!reward || !hasRequiredRewardFields(reward)) {
       this.logger.error(
-        'addReward',
+        'parseReward',
         'Object is not a valid Reward type',
         reward
       );
-      return;
+      throw new Error(
+        `Object is not a valid Reward type: ${JSON.stringify(reward)}`
+      );
     }
-    const parsedReward: Reward = {
+    return {
       layer: reward.layer.number,
       amount: longToNumber(reward.total.value),
       layerReward: longToNumber(reward.layerReward.value),
       coinbase: reward.coinbase.address,
     };
-    this.storeReward(accountId, parsedReward);
+  };
+
+  replaceRewards = (address: Bech32Address, rewards: Reward__Output[]) => {
+    try {
+      const parsedRewards = rewards.map(this.parseReward);
+      this.overwriteRewards(address, parsedRewards);
+    } catch (err) {
+      this.logger.error('replaceRewards', err, {
+        address,
+        rewardsAmount: rewards.length,
+      });
+    }
+  };
+
+  addReward = (address: HexString) => (reward: RewardHandlerArg) => {
+    try {
+      const parsedReward = this.parseReward(reward);
+      this.storeReward(address, parsedReward);
+    } catch (err) {
+      this.logger.error('addReward', err, { address, reward });
+    }
   };
 
   retrieveRewards = async (
@@ -490,52 +551,6 @@ class TransactionManager extends AbstractManager {
       );
       return data ? [...data, ...nextRewards] : nextRewards;
     }
-  };
-
-  getStoredRewards = (coinbase: HexString) =>
-    this.accountStates[coinbase]?.getRewards() || [];
-
-  retrieveNewRewards = async (coinbase: string) => {
-    this.logger.log('retrieveNewRewards() called', coinbase);
-    const oldRewards = this.getStoredRewards(coinbase);
-    this.logger.log(
-      'retrieveNewRewards',
-      `Found ${oldRewards.length} stored rewards`
-    );
-    const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
-      (acc, reward) => {
-        if (!reward || !hasRequiredRewardFields(reward)) {
-          this.logger.error(
-            'retrieveRewards',
-            'Object is not a valid Reward type',
-            reward
-          );
-          return acc;
-        }
-        const parsedReward: Reward = {
-          layer: reward.layer.number,
-          amount: longToNumber(reward.total.value),
-          layerReward: longToNumber(reward.layerReward.value),
-          coinbase: reward.coinbase.address,
-        };
-        return [...acc, parsedReward];
-      },
-      <Reward[]>[]
-    );
-    this.logger.log(
-      'retrieveNewRewards',
-      `Got ${newRewards.length} rewards from API`
-    );
-    const uniq = [...oldRewards, ...newRewards].reduce(
-      (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
-      <Record<string, Reward>>{}
-    );
-    const uniqRewards = Object.values(uniq);
-    this.logger.log(
-      'retrieveNewRewards',
-      `${uniqRewards.length} unique rewards`
-    );
-    return uniqRewards;
   };
 
   getMaxGasFromEncodedTx = async (transaction: Uint8Array) => {

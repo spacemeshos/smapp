@@ -46,3 +46,9 @@ export enum ExternalLinks {
 }
 
 export const BITS_PER_LABEL = 128;
+
+export const MINUTE = 60 * 1000;
+
+export const HOUR = MINUTE * 60;
+
+export const DAY = HOUR * 24;

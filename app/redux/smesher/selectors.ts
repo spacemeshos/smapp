@@ -1,5 +1,11 @@
-import { PostSetupState, SmeshingOpts } from '../../../shared/types';
+import {
+  PostSetupState,
+  Reward,
+  RewardsInfo,
+  SmeshingOpts,
+} from '../../../shared/types';
 import { RootState } from '../../types';
+import { EMPTY_REWARDS_INFO, calculateRewardsInfo } from './rewardsInfo';
 
 export const getPostSetupState = (state: RootState) =>
   state.smesher.postSetupState;
@@ -28,6 +34,42 @@ export const getSmeshingOpts = (state: RootState): SmeshingOpts => {
     nonces,
   };
 };
+
+export const getRewards = (state: RootState): Reward[] => {
+  const { coinbase } = state.smesher;
+  return state.wallet.rewards[coinbase] || [];
+};
+
+export const getRewardsInfo = (() => {
+  // Global memoization
+  let lastRewards: Reward[] = [];
+  let lastResult: RewardsInfo = {
+    ...EMPTY_REWARDS_INFO,
+  };
+
+  return (state: RootState): RewardsInfo => {
+    const rewards = getRewards(state);
+
+    if (rewards.length === lastRewards.length) {
+      return lastResult;
+    }
+    if (rewards.length === 0) {
+      lastRewards = [];
+      lastResult = { ...EMPTY_REWARDS_INFO };
+      return lastResult;
+    }
+
+    const { layersPerEpoch } = state.network;
+    const newRewards = rewards.slice(lastRewards.length - rewards.length);
+    const result = calculateRewardsInfo(lastResult, layersPerEpoch, newRewards);
+
+    // Update memoized values
+    lastRewards = rewards;
+    lastResult = result;
+
+    return lastResult;
+  };
+})();
 
 export const isValidSmeshingOpts = (
   opts: ReturnType<typeof getSmeshingOpts>

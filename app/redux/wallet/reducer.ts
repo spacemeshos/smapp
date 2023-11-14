@@ -2,7 +2,7 @@ import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
-import { SET_ACCOUNT_REWARDS } from '../smesher/actions';
+import { ADD_ACCOUNT_REWARD, SET_ACCOUNT_REWARDS } from '../smesher/actions';
 import {
   SAVE_WALLET_FILES,
   SET_TRANSACTIONS,
@@ -11,6 +11,7 @@ import {
   SET_CURRENT_MODE,
   SET_REMOTE_API,
   UPDATE_ACCOUNT_DATA,
+  ADD_TRANSACTION,
 } from './actions';
 
 const initialState = {
@@ -83,11 +84,34 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
         },
       };
     }
+    case ADD_TRANSACTION: {
+      const { address, tx } = action.payload;
+      return {
+        ...state,
+        transactions: {
+          ...state.transactions,
+          [address]: {
+            ...state.transactions[address],
+            [tx.id]: tx,
+          },
+        },
+      };
+    }
     case SET_TRANSACTIONS: {
       const { publicKey, txs } = action.payload;
       return {
         ...state,
         transactions: { ...state.transactions, [publicKey]: txs },
+      };
+    }
+    case ADD_ACCOUNT_REWARD: {
+      const { reward, address } = action.payload;
+      return {
+        ...state,
+        rewards: {
+          ...state.rewards,
+          [address]: [...(state.rewards[address] ?? []), reward],
+        },
       };
     }
     case SET_ACCOUNT_REWARDS: {

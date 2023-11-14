@@ -1,8 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { KeyPair, Reward, Wallet } from '../shared/types';
+import { Bech32Address, KeyPair, Wallet } from '../shared/types';
 import { isLocalNodeType, isRemoteNodeApi, toHexString } from '../shared/utils';
-import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
@@ -171,13 +170,8 @@ class WalletManager extends AbstractManager {
     this.txManager.setAccounts(accounts);
   };
 
-  requestRewardsByCoinbase = async (coinbase: string): Promise<Reward[]> =>
-    this.txManager.retrieveNewRewards(coinbase);
-
-  listenRewardsByCoinbase = (
-    coinbase: string,
-    handler: (reward: Reward__Output) => void
-  ) => this.glStateService.listenRewardsByCoinbase(coinbase, handler);
+  subscribeForAddressData = (coinbase: Bech32Address) =>
+    this.txManager.watchForAddress(coinbase);
 }
 
 export default WalletManager;

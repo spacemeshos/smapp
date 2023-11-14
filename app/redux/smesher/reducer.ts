@@ -33,7 +33,6 @@ const initialState = {
   numLabelsWritten: 0,
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
-  rewards: [],
   postProvingOpts: {
     threads: 0,
     nonces: 0,
@@ -41,13 +40,6 @@ const initialState = {
   metadata: {
     smeshingStart: null,
     posInitStart: null,
-  },
-  rewardsInfo: {
-    total: 0,
-    dailyAverage: 0,
-    epochs: 0,
-    lastEpoch: 0,
-    layers: 0,
   },
   activations: [],
   events: [],

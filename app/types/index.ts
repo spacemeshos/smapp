@@ -8,5 +8,5 @@ export type {
   GetState,
   AppThDispatch,
 } from './redux';
-export type { Reward } from './smesher';
-export { BITS } from './smesher';
+
+export const BITS = 8;

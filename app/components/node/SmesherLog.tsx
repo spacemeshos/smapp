@@ -185,6 +185,7 @@ const SmesherLog = ({
     itemCount: rewards.length, // Provide the total number for the list items
     itemSize: 25,
   });
+  const rewardsCount = rewards.length;
 
   return (
     <CorneredContainer
@@ -209,7 +210,7 @@ const SmesherLog = ({
           </Total>
           <Total epoch>
             <small>Within current epoch:</small>
-            {formatSmidge(rewardsInfo.lastEpoch)}
+            {formatSmidge(rewardsInfo.lastEpochRewards)}
           </Total>
         </>
       )}
@@ -219,9 +220,10 @@ const SmesherLog = ({
           {rewards &&
             (() => {
               return items.map(({ index, measureRef }) => {
-                const reward = rewards[index];
+                const i = rewardsCount - 1 - index;
+                const reward = rewards[i];
                 const curEpoch = epochByLayer(reward.layer);
-                const prevLayer = rewards[index - 1]?.layer ?? null;
+                const prevLayer = rewards[i + 1]?.layer ?? null;
                 const prevEpoch = prevLayer ? epochByLayer(prevLayer) : null;
                 const showEpoch = curEpoch !== prevEpoch;
                 return (
