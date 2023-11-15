@@ -261,34 +261,6 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection title={categories[1]} name={categories[1]}>
-              {isWalletOnly ? (
-                <SettingRow
-                  rowName="Application mode"
-                  upperPartLeft="Wallet only"
-                  upperPartRight={
-                    <Button
-                      onClick={this.switchToLocalNode}
-                      text="SWITCH TO LOCAL NODE"
-                      width={180}
-                    />
-                  }
-                />
-              ) : (
-                <SettingRow
-                  rowName="Application mode"
-                  upperPartLeft="Local node"
-                  upperPartRight={
-                    <div title="Temporarily unavailable">
-                      <Button
-                        onClick={this.switchToRemoteApi}
-                        text="SWITCH TO WALLET ONLY"
-                        width={190}
-                        isDisabled
-                      />
-                    </div>
-                  }
-                />
-              )}
               <SettingRow
                 rowName="Current network"
                 upperPartLeft={`${netName} (${genesisID})`}
@@ -803,21 +775,6 @@ class Settings extends Component<Props, State> {
         this.goTo(MainPath.Wallet);
       },
     });
-  };
-
-  switchToLocalNode = () => {
-    const { setUiError, switchApiProvider } = this.props;
-    // @ts-ignore
-    switchApiProvider().catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      setUiError(err);
-    });
-    this.goTo(AuthPath.Unlock);
-  };
-
-  switchToRemoteApi = () => {
-    const { genesisID } = this.props;
-    this.goTo(AuthPath.ConnectToAPI, { genesisID });
   };
 
   goTo = (redirect: RouterPath, state?: unknown) => {
