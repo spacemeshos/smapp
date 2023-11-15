@@ -217,37 +217,43 @@ const SmesherLog = ({
 
       <Wrapper ref={setRef(outerRef)}>
         <InnerWrapper ref={setRef(innerRef)}>
-          {rewards &&
-            (() => {
-              return items.map(({ index, measureRef }) => {
-                const i = rewardsCount - 1 - index;
-                const reward = rewards[i];
-                const curEpoch = epochByLayer(reward.layer);
-                const prevLayer = rewards[i + 1]?.layer ?? null;
-                const prevEpoch = prevLayer ? epochByLayer(prevLayer) : null;
-                const showEpoch = curEpoch !== prevEpoch;
-                return (
-                  <div key={`reward_${reward.layer}_${index}`} ref={measureRef}>
-                    {showEpoch && (
-                      <EpochText>Epoch {epochByLayer(reward.layer)}</EpochText>
-                    )}
-                    <LogEntry>
-                      <LayerReward>
-                        <LayerNumber>{reward.layer}</LayerNumber>
-                        <DateText>
-                          <ReactTimeago
-                            date={getFormattedTimestamp(
-                              timestampByLayer(reward.layer)
-                            )}
-                          />
-                        </DateText>
-                        <AwardText>+{formatSmidge(reward.amount)}</AwardText>
-                      </LayerReward>
-                    </LogEntry>
-                  </div>
-                );
-              });
-            })()}
+          {rewardsCount
+            ? (() => {
+                return items.map(({ index, measureRef }) => {
+                  const i = rewardsCount - 1 - index;
+                  const reward = rewards[i];
+                  const curEpoch = epochByLayer(reward.layer);
+                  const prevLayer = rewards[i + 1]?.layer ?? null;
+                  const prevEpoch = prevLayer ? epochByLayer(prevLayer) : null;
+                  const showEpoch = curEpoch !== prevEpoch;
+                  return (
+                    <div
+                      key={`reward_${reward.layer}_${index}`}
+                      ref={measureRef}
+                    >
+                      {showEpoch && (
+                        <EpochText>
+                          Epoch {epochByLayer(reward.layer)}
+                        </EpochText>
+                      )}
+                      <LogEntry>
+                        <LayerReward>
+                          <LayerNumber>{reward.layer}</LayerNumber>
+                          <DateText>
+                            <ReactTimeago
+                              date={getFormattedTimestamp(
+                                timestampByLayer(reward.layer)
+                              )}
+                            />
+                          </DateText>
+                          <AwardText>+{formatSmidge(reward.amount)}</AwardText>
+                        </LayerReward>
+                      </LogEntry>
+                    </div>
+                  );
+                });
+              })()
+            : null}
           {posInitStart ? (
             <>
               <LogEntry>
