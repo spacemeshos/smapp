@@ -10,7 +10,6 @@ import {
   Link,
   ColorStatusIndicator,
 } from '../../basicComponents';
-import { setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
   posIcon,
@@ -18,22 +17,17 @@ import {
   posDirectoryWhite,
   pauseIcon,
   playIcon,
-  walletSecond,
-  posSmesherOrange,
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
 import { HexString, NodeStatus, PostSetupState } from '../../../shared/types';
-import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 import SubHeader from '../../basicComponents/SubHeader';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { eventsService } from '../../infra/eventsService';
-import { ExternalLinks } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
-import { AuthPath, MainPath } from '../../routerPaths';
-import { getGenesisID } from '../../redux/network/selectors';
+import { MainPath } from '../../routerPaths';
 import {
   timestampByLayer,
   epochByLayer,
@@ -196,44 +190,6 @@ interface Props extends RouteComponentProps {
   };
 }
 
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 25px;
-`;
-
-const Icon = styled.img`
-  display: flex;
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
-`;
-
-const IconSmesher = styled.img`
-  display: flex;
-  width: 40px;
-  height: 25px;
-  margin-right: 5px;
-  color: ${smColors.darkOrange};
-`;
-
-const RowText = styled.div<{ weight: number }>`
-  display: flex;
-  font-size: 16px;
-  font-weight: ${({ weight }) => weight};
-  line-height: 20px;
-  color: ${({ color }) => color};
-`;
-
-const BottomPart = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-`;
-
 const BottomActionSection = styled.div`
   position: relative;
   display: flex;
@@ -344,7 +300,6 @@ const ActionHelperTooltips = ({
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
   const nodeError = useSelector((state: RootState) => state.node.error);
-  const curNet = useSelector(getGenesisID);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
   const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
@@ -397,7 +352,6 @@ const Node = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.numLabelsWritten
   );
   const [isActionButtonLoading, setIsActionButtonLoading] = useState(false);
-  const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
   const isNodeConnecting =
@@ -641,49 +595,10 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
-
-  const handleSetupSmesher = () => {
-    eventsService.switchApiProvider(curNet).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      dispatch(setUiError(err));
-    });
-
-    history.push(AuthPath.Unlock, { redirect: MainPath.Smeshing });
-  };
-
-  const renderWalletOnlyMode = () => {
-    return (
-      <>
-        <Row>
-          <RowText color={smColors.purple} weight={700}>
-            <Icon src={walletSecond} /> Your app is currently in wallet-only
-            mode and smeshing is not set up.
-          </RowText>
-        </Row>
-        <Row>
-          <RowText color={smColors.darkOrange} weight={400}>
-            <IconSmesher src={posSmesherOrange} />
-            Click on the setup semsher button below to start using a local
-            managed full Spacemesh p2p node and to smesh.
-          </RowText>
-        </Row>
-        <BottomPart>
-          <Link onClick={navigateToExplanation} text="SMESHER GUIDE" />
-          <Button
-            width={120}
-            onClick={handleSetupSmesher}
-            text="SETUP SMESHER"
-          />
-        </BottomPart>
-      </>
-    );
-  };
-
   return (
     <Wrapper>
       <WrapperWith2SideBars width={682} header="SMESHER" headerIcon={posIcon}>
-        {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
+        {renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog
         rewards={rewards}
