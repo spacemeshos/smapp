@@ -84,7 +84,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         header="WALLET SETUP"
         subHeader="Smapp currently supports only Standard Wallets. For Hardware Wallet, please use SMCLI."
       >
-        <br></br>
+        <br />
         <BackButton action={history.goBack} />
         <RowJust>
           <RowColumn>
