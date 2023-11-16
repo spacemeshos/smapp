@@ -98,13 +98,15 @@ class WalletManager extends AbstractManager {
       async (
         _event,
         { message, accountIndex }: { message: string; accountIndex: number }
-      ) =>
-        toHexString(
-          sign(
-            enc.encode(message),
-            this.txManager.keychain[accountIndex].secretKey
-          )
-        )
+      ) => {
+        const account = this.txManager.keychain[accountIndex];
+        if (!account.secretKey) {
+          throw new Error(
+            `No secret key found for account "${account.displayName}"`
+          );
+        }
+        return toHexString(sign(enc.encode(message), account.secretKey));
+      }
     );
 
     return () => {
@@ -166,9 +168,11 @@ class WalletManager extends AbstractManager {
     return res;
   };
 
-  activateAccounts = (accounts: KeyPair[]) => {
+  setAccounts = (accounts: KeyPair[]) => {
     this.txManager.setAccounts(accounts);
   };
+
+  subscribeAccounts = () => this.txManager.subscribeForKeypairs();
 
   subscribeForAddressData = (coinbase: Bech32Address) =>
     this.txManager.watchForAddress(coinbase);

@@ -295,13 +295,21 @@ class TransactionManager extends AbstractManager {
     });
   };
 
-  watchForKeyPair = (keypair: KeyPair) => {
-    const { publicKey } = keypair;
-    const pkBytes = fromHexString(publicKey);
-    const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
-    const principal = tpl.principal({ PublicKey: pkBytes });
-    const address = Bech32.generateAddress(principal);
+  subscribeForKeypairs = () => {
+    this.unsubscribeAllStreams();
 
+    this.keychain.forEach(({ publicKey }) => {
+      const pkBytes = fromHexString(publicKey);
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
+      const principal = tpl.principal({ PublicKey: pkBytes });
+      const address = Bech32.generateAddress(principal);
+
+      this.watchForAddress(address);
+    });
+  };
+
+  addKeypair = (keypair: KeyPair) => {
+    const { publicKey } = keypair;
     const idx = this.keychain.findIndex((kp) => kp.publicKey === publicKey);
     this.keychain = [
       ...(idx > -1
@@ -311,15 +319,12 @@ class TransactionManager extends AbstractManager {
         : this.keychain),
       keypair,
     ];
-
-    this.watchForAddress(address);
   };
 
   setAccounts = (accounts: KeyPair[]) => {
-    this.unsubscribeAllStreams();
     this.keychain = [];
     this.accountStates = {};
-    accounts.forEach(this.watchForKeyPair);
+    accounts.forEach(this.addKeypair);
   };
 
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(

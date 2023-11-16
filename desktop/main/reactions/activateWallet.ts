@@ -40,13 +40,13 @@ export default (
 
       const res = await managers.wallet.activate(wallet);
       if (res) {
+        managers.wallet.setAccounts(wallet.crypto.accounts);
         managers.node
           .isNodeAlive()
-          .then(() => managers.wallet.activateAccounts(wallet.crypto.accounts))
-          .catch(() =>
-            managers.wallet.activateAccounts(wallet.crypto.accounts)
-          );
-
+          .then(() => managers.wallet.subscribeAccounts())
+          .catch((err) => {
+            logger.error('activateWallet', err);
+          });
         $isWalletActivated.next();
       }
       // Renderer waits for WALLET_ACTIVATED event
