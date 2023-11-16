@@ -84,7 +84,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
         width={650}
         height={400}
         header="NEW WALLET"
-        subHeader='Currently the Wallet+Node mode is the only option. Full wallet functionality requires first synchronizing the node.'
+        subHeader="Currently the Wallet+Node mode is the only option. Full wallet functionality requires first synchronizing the node."
       >
         <BackButton action={() => history.push(AuthPath.Leaving)} />
         <RowJust>
