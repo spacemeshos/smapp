@@ -80,10 +80,11 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
       <Steps step={Step.NEW_WALLET_TYPE} />
       <CorneredContainer
         width={650}
-        height={400}
+        height={340}
         header="WALLET SETUP"
         subHeader="Smapp currently supports only Standard Wallets. For Hardware Wallet, please use SMCLI."
       >
+        <br></br>
         <BackButton action={history.goBack} />
         <RowJust>
           <RowColumn>

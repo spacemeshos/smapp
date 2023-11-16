@@ -179,7 +179,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       {creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
-        height={400}
+        height={340}
         header="SPACEMESH NETWORK"
         subHeader="Select a public Spacemesh network for your wallet."
         tooltipMessage="Check explorer.spacemesh.io for the stats"

@@ -57,7 +57,7 @@ const WalletCreated = ({ history, location }: AuthRouterParams) => {
   return (
     <Wrapper>
       <Steps step={Step.WALLET_CREATED} />
-      <CorneredContainer width={650} height={400} header={'WALLET CREATED'}>
+      <CorneredContainer width={650} height={340} header={'WALLET CREATED'}>
         <SubHeader>
           Your wallet was created and saved in a password-protected file
           <br />
