@@ -16,23 +16,11 @@ const Wrapper = styled.div`
   align-items: flex-start;
 `;
 
-const RowText = styled.span`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${({ theme: { color } }) => color.primary};
-`;
-
 const PurpleText = styled.span`
   font-size: 16px;
   line-height: 20px;
   font-weight: 800;
   color: ${smColors.purple};
-`;
-const GreenText = styled.span`
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 800;
-  color: ${smColors.green};
 `;
 
 const RowTitle = styled.h3`
@@ -54,36 +42,12 @@ const RowJust = styled.div`
   justify-content: space-between;
 `;
 
-const RowSecond = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-top: 60px;
-  position: relative;
-  &:after {
-    content: '';
-    position: absolute;
-    background-color: ${({ theme }) =>
-      theme.isDarkMode ? smColors.darkerGray : smColors.black};
-    width: 100%;
-    top: -29px;
-    left: 0;
-    height: 1px;
-  }
-`;
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
 const Icon = styled.img`
-  display: block;
-  width: 20px;
-  height: 20px;
-  margin-right: 3px;
-`;
-const IconWallet = styled.img`
   display: block;
   width: 20px;
   height: 20px;
@@ -118,7 +82,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         width={650}
         height={400}
         header="WALLET SETUP"
-        subHeader="Select which features you`d like to setup"
+        subHeader="Smapp currently supports only Standard Wallets. For Hardware Wallet, please use SMCLI."
       >
         <BackButton action={history.goBack} />
         <RowJust>
@@ -137,23 +101,6 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             onClick={navigateToCreateWallet}
           />
         </RowJust>
-        <RowSecond>
-          <RowColumn>
-            <Row>
-              <IconWallet src={walletSecondWhite} />
-              <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip width={140} text="Stored offline on a physical device" />
-            </Row>
-            <RowText>Using a Ledger device</RowText>
-            <GreenText>(ENHANCED SECURITY)</GreenText>
-          </RowColumn>
-          <Button
-            text="HARDWARE WALLET"
-            onClick={() => {}}
-            width={150}
-            isDisabled
-          />
-        </RowSecond>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
           <Row>
