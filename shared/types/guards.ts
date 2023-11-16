@@ -63,7 +63,7 @@ export const isWalletGCMEncrypted = (a: any): a is WalletSecretsEncryptedGCM =>
   typeof a.cipherParams?.iv === 'string' &&
   a.kdf === 'PBKDF2' &&
   typeof a.kdfparams?.dklen === 'number' &&
-  a.kdfparams?.hash === 'SHA-512' &&
+  typeof a.kdfparams?.hash === 'string' &&
   typeof a.kdfparams?.iterations === 'number' &&
   typeof a.kdfparams?.salt === 'string';
 
@@ -76,14 +76,10 @@ export const isWalletSecrets = (a: any): a is WalletSecrets =>
   Boolean(a && a.mnemonic && a.accounts && a.contacts);
 
 export const isWalletMeta = (meta: WalletMeta) =>
-  typeof meta.displayName === 'string' &&
-  typeof meta.created === 'string' &&
-  typeof meta.remoteApi === 'string' &&
-  typeof meta.type === 'string';
+  typeof meta.displayName === 'string' && typeof meta.created === 'string';
 
 export const isWalletFile = (wallet: any): wallet is WalletFile =>
   wallet &&
   isWalletMeta(wallet.meta) &&
-  isWalletSecretsEncrypted(wallet.crypto) &&
   (isWalletGCMEncrypted(wallet.crypto) ||
     isWalletLegacyEncrypted(wallet.crypto));
