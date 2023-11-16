@@ -24,10 +24,8 @@ const history = createMemoryHistory();
 init(history);
 
 const EventRouter = () => {
-  const onSwitchNet = (_, { isWalletOnly }) =>
-    goToSwitchNetwork(history, isWalletOnly);
-  const onSwitchApi = (_, { isWalletOnly }) =>
-    goToSwitchAPI(history, isWalletOnly);
+  const onSwitchNet = () => goToSwitchNetwork(history);
+  const onSwitchApi = (_) => goToSwitchAPI(history);
 
   useEffect(() => {
     ipcRenderer.send('BROWSER_READY');

@@ -4,10 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer, PasswordInput } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
-import {
-  getCurrentWalletFile,
-  isWalletOnly,
-} from '../../redux/wallet/selectors';
+import { getCurrentWalletFile } from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
 import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
@@ -96,7 +93,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
-  const isWalletOnlyMode = useSelector(isWalletOnly);
   const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
   const [convenientWalletName, setConvenientWalletName] = useState('');
@@ -134,9 +130,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
         createNewWallet({
           mnemonic: location?.state?.mnemonic,
           password,
-          type: location?.state?.isWalletOnly
-            ? WalletType.RemoteApi
-            : WalletType.LocalNode,
+          type: WalletType.LocalNode,
           genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
           name: convenientWalletName,
@@ -180,11 +174,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       <LoaderWrapper>
         <Loader
           size={Loader.sizes.BIG}
-          note={
-            isWalletOnlyMode
-              ? 'Please wait, connecting to Spacemesh api...'
-              : 'Please wait, starting up Spacemesh node...'
-          }
+          note="Please wait, starting up Spacemesh node..."
         />
       </LoaderWrapper>
     );

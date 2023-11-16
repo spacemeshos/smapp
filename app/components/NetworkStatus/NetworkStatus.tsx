@@ -23,7 +23,6 @@ type Props = {
   error: any;
   isGenesis: boolean;
   isRestarting: boolean;
-  isWalletMode: boolean;
   isShowMissingLibsMessage: boolean;
 };
 
@@ -51,7 +50,6 @@ const NetworkStatus = ({
   error,
   isGenesis,
   isRestarting,
-  isWalletMode,
   isShowMissingLibsMessage,
 }: Props) => {
   const getSyncLabelPercentage = (): number => {
@@ -125,20 +123,16 @@ const NetworkStatus = ({
   const renderError = () => (
     <>
       <ColorStatusIndicator color={smColors.red} />
-      {isWalletMode ? (
-        <ProgressLabel>Connection error</ProgressLabel>
-      ) : (
-        <ProgressLabel>
-          {
-            // eslint-disable-next-line no-nested-ternary
-            isRestarting
-              ? 'Restarting node...'
-              : isShowMissingLibsMessage
-              ? 'Please install required libraries and restart node'
-              : 'Please restart node'
-          }
-        </ProgressLabel>
-      )}
+      <ProgressLabel>
+        {
+          // eslint-disable-next-line no-nested-ternary
+          isRestarting
+            ? 'Restarting node...'
+            : isShowMissingLibsMessage
+            ? 'Please install required libraries and restart node'
+            : 'Please restart node'
+        }
+      </ProgressLabel>
     </>
   );
 

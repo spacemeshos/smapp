@@ -53,12 +53,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     curIndex > -1 ? curIndex : 0
   );
 
-  const {
-    creatingWallet,
-    isWalletOnly,
-    mnemonic,
-    redirect,
-  }: AuthLocationState = location?.state || {};
+  const { creatingWallet, mnemonic, redirect }: AuthLocationState =
+    location?.state || {};
 
   const updateNetworks = async () => {
     if (networksLoading) return;
@@ -110,38 +106,18 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
 
   const goNext = (genesisID: string | undefined) => {
     if (creatingWallet) {
-      if (isWalletOnly && genesisID?.length) {
-        return history.push(AuthPath.ConnectToAPI, {
-          redirect: AuthPath.ProtectWalletMnemonicStrength,
-          genesisID,
-          isWalletOnly,
-          creatingWallet,
-          mnemonic,
-        });
-      }
-
-      // recovery wallet flow
       if (isMnemonicExisting(mnemonic)) {
         return history.push(AuthPath.CreateWallet, {
           genesisID,
-          isWalletOnly,
           mnemonic,
         });
       }
 
       return history.push(AuthPath.ProtectWalletMnemonicStrength, {
         genesisID,
-        isWalletOnly,
       });
     }
-    if (genesisID?.length && isWalletOnly) {
-      return history.push(AuthPath.ConnectToAPI, {
-        redirect,
-        genesisID,
-        isWalletOnly,
-        creatingWallet,
-      });
-    }
+
     if (redirect === AuthPath.Unlock) {
       return history.push(redirect, { withLoader: true });
     }

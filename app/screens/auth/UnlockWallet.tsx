@@ -16,7 +16,7 @@ import {
 import { ipcConsts, smColors } from '../../vars';
 import { smallInnerSideBar } from '../../assets/images';
 import { AppThDispatch } from '../../types';
-import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
+import { listWalletFiles } from '../../redux/wallet/selectors';
 import {
   setLastSelectedWalletPath,
   getIndexOfLastSelectedWalletPath,
@@ -113,7 +113,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
 
   const walletFiles = useSelector(listWalletFiles);
 
-  const isWalletOnlyMode = useSelector(isWalletOnly);
   const dispatch: AppThDispatch = useDispatch();
 
   const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
@@ -177,11 +176,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
-      note={
-        isWalletOnlyMode
-          ? 'Please wait, connecting to Spacemesh api...'
-          : 'Please wait, starting up Spacemesh node...'
-      }
+      note="Please wait, starting up Spacemesh node..."
     />
   ) : (
     <Wrapper>

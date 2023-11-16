@@ -19,7 +19,6 @@ import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { eventsService } from '../../infra/eventsService';
 import { ExternalLinks } from '../../../shared/constants';
-import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -148,7 +147,6 @@ const getNetworkIndicatorColor = (nodeError, genesisID, isSynced) => {
 };
 
 const Main = () => {
-  const isWalletOnlyMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
   const genesisID = useSelector((state: RootState) => state.network.genesisID);
@@ -177,8 +175,8 @@ const Main = () => {
   }, [location]);
 
   useEffect(() => {
-    !isWalletOnlyMode && eventsService.requestVersionAndBuild();
-  }, [isWalletOnlyMode]);
+    eventsService.requestVersionAndBuild();
+  }, []);
 
   const getRouteIndex = (route: string) =>
     navRoutes.findIndex((navRoute) => navRoute.startsWith(route));

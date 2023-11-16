@@ -13,11 +13,9 @@ import {
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
-import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
-import { AuthPath } from '../../routerPaths';
 import { delay } from '../../../shared/utils';
 import Address from '../../components/common/Address';
 import {
@@ -93,7 +91,6 @@ const DetailsTextWrap = styled.div`
 const Network = ({ history }) => {
   const isWindows = useSelector(isWindowsSelector);
   const isLinux = useSelector(isLinuxSelector);
-  const isWalletMode = useSelector(isWalletOnly);
   const startupStatus = useSelector(
     (state: RootState) => state.node.startupStatus
   );
@@ -116,7 +113,6 @@ const Network = ({ history }) => {
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
   );
-  const remoteApi = useSelector(getRemoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
   const requestNodeRestart = useCallback(async () => {
@@ -128,9 +124,6 @@ const Network = ({ history }) => {
     setRestarting(false);
   }, []);
 
-  const requestSwitchApiProvider = () => {
-    history.push(AuthPath.ConnectToAPI);
-  };
   const isShowMissingLibsMessage = [
     NodeErrorType.OPEN_CL_NOT_INSTALLED,
     NodeErrorType.REDIST_NOT_INSTALLED,
@@ -142,29 +135,6 @@ const Network = ({ history }) => {
     window.open(ExternalLinks.OpenCLUbuntuInstallGuide);
   const navigateToRedistInstallationGuide = () =>
     window.open(ExternalLinks.RedistWindowsInstallOfficialSite);
-
-  const renderActionButton = () => {
-    if (!nodeError) return null;
-
-    return isWalletMode ? (
-      <Button
-        text="SWITCH API PROVIDER"
-        width={200}
-        isPrimary
-        onClick={requestSwitchApiProvider}
-        style={{ marginLeft: 'auto' }}
-      />
-    ) : (
-      <Button
-        text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
-        width={150}
-        isPrimary
-        onClick={requestNodeRestart}
-        style={{ marginLeft: 'auto' }}
-        isDisabled={isRestarting}
-      />
-    );
-  };
 
   const renderNetworkDetails = () => (
     <DetailsWrap>
@@ -204,7 +174,6 @@ const Network = ({ history }) => {
             error={nodeError}
             isGenesis={isGenesis}
             isRestarting={isRestarting}
-            isWalletMode={isWalletMode}
             isShowMissingLibsMessage={isShowMissingLibsMessage}
           />
         </GrayText>
@@ -246,24 +215,18 @@ const Network = ({ history }) => {
             text="Managed p2p if running a local node. Otherwise Remote API provider details"
           />
         </DetailsTextWrap>
-        <GrayText>
-          {isWalletMode
-            ? `Remote API provider: ${remoteApi}`
-            : 'Managed p2p node'}
-        </GrayText>
+        <GrayText>Managed p2p node</GrayText>
       </DetailsRow>
-      {!isWalletMode && (
-        <DetailsRow>
-          <DetailsTextWrap>
-            <DetailsText>Connected neighbors</DetailsText>
-            <Tooltip
-              width={250}
-              text="Spacemesh syncs database and participates in the network by communicating with other connected peers"
-            />
-          </DetailsTextWrap>
-          <GrayText>{status?.connectedPeers || 0}</GrayText>
-        </DetailsRow>
-      )}
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Connected neighbors</DetailsText>
+          <Tooltip
+            width={250}
+            text="Spacemesh syncs database and participates in the network by communicating with other connected peers"
+          />
+        </DetailsTextWrap>
+        <GrayText>{status?.connectedPeers || 0}</GrayText>
+      </DetailsRow>
     </DetailsWrap>
   );
 
@@ -274,7 +237,7 @@ const Network = ({ history }) => {
           text="CHOOSE THE NETWORK"
           width={180}
           isPrimary
-          onClick={() => goToSwitchNetwork(history, isWalletMode)}
+          onClick={() => goToSwitchNetwork(history)}
         />
       </DetailsRow>
     </DetailsWrap>
@@ -341,17 +304,22 @@ const Network = ({ history }) => {
         <Container>
           {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
           <FooterWrap>
-            {!isWalletMode && (
-              <>
-                <Link onClick={openLogFile} text="BROWSE LOG FILE" />
-                <Tooltip
-                  width={250}
-                  text="Locate the go-spacemesh and app log files on your computer"
-                />
-              </>
-            )}
+            <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+            <Tooltip
+              width={250}
+              text="Locate the go-spacemesh and app log files on your computer"
+            />
 
-            {renderActionButton()}
+            {nodeError ? null : (
+              <Button
+                text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
+                width={150}
+                isPrimary
+                onClick={requestNodeRestart}
+                style={{ marginLeft: 'auto' }}
+                isDisabled={isRestarting}
+              />
+            )}
           </FooterWrap>
         </Container>
       </WrapperWith2SideBars>

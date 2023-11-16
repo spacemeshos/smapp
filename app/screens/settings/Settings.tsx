@@ -294,9 +294,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={`${netName} (${genesisID})`}
                 upperPartRight={
                   <Button
-                    onClick={() =>
-                      goToSwitchNetwork(history, isWalletOnly, true)
-                    }
+                    onClick={() => goToSwitchNetwork(history, true)}
                     text="SWITCH NETWORK"
                     width={180}
                   />

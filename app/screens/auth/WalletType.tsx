@@ -98,18 +98,14 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const WalletType = ({ history, location }: AuthRouterParams) => {
+const WalletType = ({ history }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
-  const navigateToCreateWallet = async () => {
-    const { isWalletOnly } = location.state;
+  const navigateToCreateWallet = async () =>
     history.push(AuthPath.SwitchNetwork, {
-      ...(isWalletOnly
-        ? { isWalletOnly }
-        : { redirect: AuthPath.CreateWallet }),
+      redirect: AuthPath.CreateWallet,
       creatingWallet: true,
     });
-  };
 
   return (
     <Wrapper>

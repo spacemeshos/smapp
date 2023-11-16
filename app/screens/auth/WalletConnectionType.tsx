@@ -40,14 +40,6 @@ const RowJust = styled.div`
   justify-content: space-between;
 `;
 
-const RowSecond = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-top: 50px;
-`;
-
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,21 +48,6 @@ const RowColumn = styled.div`
 const Icon = styled.img.attrs(({ theme: { icons: { posSmesher } } }) => ({
   src: posSmesher,
 }))`
-  display: block;
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
-`;
-
-const IconWallet = styled.img.attrs(
-  ({
-    theme: {
-      icons: { walletSecond },
-    },
-  }) => ({
-    src: walletSecond,
-  })
-)`
   display: block;
   width: 20px;
   height: 20px;
@@ -88,15 +65,14 @@ const BottomPart = styled.div`
 const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
   const isRecoveryMode = isMnemonicExisting(location?.state?.mnemonic);
-  const handleNextStep = (walletOnly: boolean) => () => {
+  const handleNextStep = () => () => {
     if (location?.state?.mnemonic) {
       history.push(AuthPath.SwitchNetwork, {
-        isWalletOnly: walletOnly,
         mnemonic: location.state.mnemonic,
         creatingWallet: true,
       });
     } else {
-      history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+      history.push(AuthPath.WalletType);
     }
   };
 
@@ -127,25 +103,6 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             onClick={handleNextStep(false)}
           />
         </RowJust>
-        <RowSecond>
-          <RowColumn>
-            <Row>
-              <IconWallet />
-              <RowTitle>WALLET ONLY</RowTitle>
-              <Tooltip width={120} text="To send and receive SMH" />
-            </Row>
-            <RowText>Setup a wallet that uses a public</RowText>
-            <RowText>Spacemesh web service</RowText>
-          </RowColumn>
-          <div title="Temporarily unavailable">
-            <Button
-              text="WALLET ONLY"
-              width={150}
-              onClick={handleNextStep(true)}
-              isDisabled
-            />
-          </div>
-        </RowSecond>
         <BottomPart>
           <Link
             onClick={navigateToExplanation}

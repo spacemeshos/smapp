@@ -1,12 +1,9 @@
 import { curry } from 'ramda';
 import { HexString, Tx, Reward } from '../../../shared/types';
-import { isWalletOnlyType } from '../../../shared/utils';
 import { RootState } from '../../types';
 import { getNetworkInfo } from '../network/selectors';
 
 export const getRemoteApi = (state: RootState) => state.wallet.meta.remoteApi;
-export const isWalletOnly = (state: RootState) =>
-  isWalletOnlyType(state.wallet.meta.type);
 
 // ======================
 // Types

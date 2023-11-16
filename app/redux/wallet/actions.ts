@@ -14,7 +14,6 @@ import {
   delay,
   isLocalNodeApi,
   isRemoteNodeApi,
-  isWalletOnlyType,
   stringifySocketAddress,
 } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
@@ -159,12 +158,10 @@ export const unlockWallet = (path: string, password: string) => async (
     return { success: false };
   }
   dispatch(setCurrentAccount(0));
-  const isWalletOnly = isWalletOnlyType(payload.meta.type);
   await waitForWalletData(getState);
   return {
     success: true,
     forceNetworkSelection: payload.forceNetworkSelection,
-    isWalletOnly,
   };
 };
 export const unlockCurrentWallet = (password: string) => async (

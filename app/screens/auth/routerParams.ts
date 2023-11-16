@@ -14,7 +14,6 @@ export type AuthLocationState = Partial<{
     | AuthPath.CreateWallet;
   apiUrl: SocketAddress | null;
   genesisID: string;
-  isWalletOnly: boolean;
 }>;
 
 export type AuthRouterParams = RouteComponentProps<

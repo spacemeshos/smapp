@@ -24,7 +24,6 @@ import {
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
 import { HexString, NodeStatus, PostSetupState } from '../../../shared/types';
-import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 import SubHeader from '../../basicComponents/SubHeader';
@@ -397,7 +396,6 @@ const Node = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.numLabelsWritten
   );
   const [isActionButtonLoading, setIsActionButtonLoading] = useState(false);
-  const isWalletMode = useSelector(isWalletOnly);
   const events = useSelector((state: RootState) => state.smesher.events);
   const lastEvent = events[events.length - 1];
   const isNodeConnecting =
@@ -641,49 +639,10 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
-  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
-
-  const handleSetupSmesher = () => {
-    eventsService.switchApiProvider(curNet).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      dispatch(setUiError(err));
-    });
-
-    history.push(AuthPath.Unlock, { redirect: MainPath.Smeshing });
-  };
-
-  const renderWalletOnlyMode = () => {
-    return (
-      <>
-        <Row>
-          <RowText color={smColors.purple} weight={700}>
-            <Icon src={walletSecond} /> Your app is currently in wallet-only
-            mode and smeshing is not set up.
-          </RowText>
-        </Row>
-        <Row>
-          <RowText color={smColors.darkOrange} weight={400}>
-            <IconSmesher src={posSmesherOrange} />
-            Click on the setup semsher button below to start using a local
-            managed full Spacemesh p2p node and to smesh.
-          </RowText>
-        </Row>
-        <BottomPart>
-          <Link onClick={navigateToExplanation} text="SMESHER GUIDE" />
-          <Button
-            width={120}
-            onClick={handleSetupSmesher}
-            text="SETUP SMESHER"
-          />
-        </BottomPart>
-      </>
-    );
-  };
-
   return (
     <Wrapper>
       <WrapperWith2SideBars width={682} header="SMESHER" headerIcon={posIcon}>
-        {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
+        {renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog
         rewards={rewards}
