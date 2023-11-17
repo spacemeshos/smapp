@@ -12,7 +12,7 @@ import { tap } from 'ramda';
 
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId } from '../shared/utils';
-import { DEFAULT_NODE_STATUS } from '../shared/constants';
+import { DEFAULT_NODE_STATUS, MINUTE } from '../shared/constants';
 import {
   HexString,
   NodeConfig,
@@ -414,13 +414,6 @@ class NodeManager extends AbstractManager {
       throw new Error("Cannot watch for Node's startup status: no stdout");
     }
 
-    const sendStatus = (status: NodeStartupState) =>
-      this.mainWindow.webContents.send(
-        ipcConsts.N_M_NODE_STARTUP_STATUS,
-        status
-      );
-    sendStatus(NodeStartupState.Starting);
-
     const passsThrough = new PassThrough();
     this.nodeProcess.stdout.pipe(passsThrough, { end: false });
 
@@ -428,6 +421,30 @@ class NodeManager extends AbstractManager {
       input: passsThrough,
       terminal: false,
     });
+
+    let timer;
+    const sendStatus = (status: NodeStartupState) => {
+      this.mainWindow.webContents.send(
+        ipcConsts.N_M_NODE_STARTUP_STATUS,
+        status
+      );
+      if (status !== NodeStartupState.Ready && timer) {
+        // If we got any new non "Ready" state — drop the timer
+        // to avoid stop reading logs before we got "Ready" state again
+        clearTimeout(timer);
+      }
+      if (status === NodeStartupState.Ready) {
+        // Once we switched into Ready state start the timer
+        // which will stop reading logs. However, we need the timer
+        // to make it possible to switch for some other optional statuses
+        timer = setTimeout(() => {
+          rl.close();
+          passsThrough.end();
+        }, 3 * MINUTE);
+      }
+    };
+
+    sendStatus(NodeStartupState.Starting);
 
     rl.on('line', (line) => {
       if (line.includes('Welcome to Spacemesh')) {
@@ -438,10 +455,16 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.VerifyingLayers);
       } else if (line.includes('Server created')) {
         sendStatus(NodeStartupState.StartingGRPC);
-      } else if (line.includes('app started')) {
+      } else if (line.includes('syncing malicious proofs')) {
+        sendStatus(NodeStartupState.SyncingMaliciousProofs);
+      } else if (line.includes('syncing atx')) {
+        sendStatus(NodeStartupState.SyncingAtxs);
+      } else if (
+        line.includes('app started') ||
+        line.includes('atxs synced') ||
+        line.includes('malicious IDs synced')
+      ) {
         sendStatus(NodeStartupState.Ready);
-        rl.close();
-        passsThrough.end();
       }
     });
   };
