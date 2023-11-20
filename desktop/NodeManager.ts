@@ -85,6 +85,7 @@ export enum SmeshingSetupState {
   ViaRestart = 2,
 }
 
+const NEW_APP_SESSION_REGEXP = /App version:/gm;
 const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\sFATAL\s/gm;
 
 class NodeManager extends AbstractManager {
@@ -143,7 +144,16 @@ class NodeManager extends AbstractManager {
         100
       );
 
-      const fatalErrorLine = lastLines.find((line) => FATAL_REGEXP.test(line));
+      const sessionStartLineIndex = lastLines.findIndex((line) =>
+        NEW_APP_SESSION_REGEXP.test(line)
+      );
+      const lastLinesFromSession = lastLines.slice(
+        0,
+        sessionStartLineIndex > 0 ? sessionStartLineIndex : Infinity
+      );
+      const fatalErrorLine = lastLinesFromSession.find((line) =>
+        FATAL_REGEXP.test(line)
+      );
 
       if (!fatalErrorLine) {
         const installedLibs = await checkRequiredLibs();
