@@ -323,16 +323,12 @@ const Network = ({ history }) => {
                     text="REDIST INSTALLATION GUIDE."
                   />
                 )}
-                {(isShowMissingLibsMessage ||
-                  nodeError?.type === NodeErrorType.NOT_SPECIFIED) && (
-                  <ErrorMessage compact>
-                    WE HAVE A CHECKLIST THAT CAN HELP YOU DETECT THE ISSUE.{' '}
-                    <Link
-                      style={{ display: 'inline-block' }}
-                      onClick={() => setOpenCheckListModal(true)}
-                      text="OPEN CHECKLIST."
-                    />
-                  </ErrorMessage>
+                {nodeError?.type === NodeErrorType.NOT_SPECIFIED && (
+                  <Link
+                    style={{ display: 'inline-block' }}
+                    onClick={() => setOpenCheckListModal(true)}
+                    text="OPEN CHECKLIST."
+                  />
                 )}
               </ErrorMessage>
             </>
