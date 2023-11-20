@@ -611,6 +611,7 @@ class NodeManager extends AbstractManager {
       logger.error('Node Process close', code, signal);
       this.nodeLogStream?.end();
       this.pushToErrorPool({ type: 'Exit', code, signal });
+      this.nodeProcess = null;
     });
   };
 
