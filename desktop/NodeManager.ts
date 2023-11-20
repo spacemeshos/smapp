@@ -86,7 +86,7 @@ export enum SmeshingSetupState {
 }
 
 const NEW_APP_SESSION_REGEXP = /App version:/gm;
-const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\sFATAL\s/gm;
+const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\s(FATAL|PANIC)\s/gm;
 
 class NodeManager extends AbstractManager {
   private nodeService: NodeService;
