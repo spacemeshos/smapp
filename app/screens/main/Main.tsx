@@ -20,6 +20,7 @@ import Version from '../../components/common/Version';
 import { eventsService } from '../../infra/eventsService';
 import { ExternalLinks } from '../../../shared/constants';
 import { isWalletOnly } from '../../redux/wallet/selectors';
+import { getNetworkTapBotDiscordURL } from '../../redux/network/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -156,6 +157,7 @@ const Main = () => {
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isSmeshingPaused = useSelector(SmesherSelectors.isSmeshingPaused);
   const isErrorState = useSelector(SmesherSelectors.isErrorState);
+  const tapBotURL = useSelector(getNetworkTapBotDiscordURL);
 
   const history = useHistory();
 
@@ -291,20 +293,22 @@ const Main = () => {
               />
               <CustomTooltip text="SETTINGS" closePosition />
             </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => handleOpenLink(ExternalLinks.GetCoinGuide)}
-                img={getCoins}
-                imgHeight={25}
-                imgWidth={25}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-                bgColor={bgColor}
-              />
-              <CustomTooltip text="GET SMESH" closePosition />
-            </TooltipWrapper>
+            {tapBotURL && (
+              <TooltipWrapper>
+                <SecondaryButton
+                  onClick={() => handleOpenLink(ExternalLinks.GetCoinGuide)}
+                  img={getCoins}
+                  imgHeight={25}
+                  imgWidth={25}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                  bgColor={bgColor}
+                />
+                <CustomTooltip text="GET SMESH" closePosition />
+              </TooltipWrapper>
+            )}
             <TooltipWrapper>
               <SecondaryButton
                 onClick={() => handleOpenLink(ExternalLinks.Help)}
