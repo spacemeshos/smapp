@@ -90,7 +90,7 @@ const RequestCoins = ({ history, location }: Props) => {
   const {
     state: { account, isSmesherActive },
   } = location;
-  const netowrkTabBotUrl = useSelector(getNetworkTapBotDiscordURL);
+  const tapBotURL = useSelector(getNetworkTapBotDiscordURL);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const navigateToNodeSetup = () => {
@@ -99,7 +99,7 @@ const RequestCoins = ({ history, location }: Props) => {
 
   const navigateToGuide = () => window.open(ExternalLinks.GetCoinGuide);
 
-  const navigateToTap = () => window.open(netowrkTabBotUrl);
+  const navigateToTap = () => window.open(tapBotURL);
 
   return (
     <Wrapper>
@@ -124,7 +124,7 @@ const RequestCoins = ({ history, location }: Props) => {
       </SubHeader>
       <Text>* This address is public and safe to share.</Text>
       <Text>* Send it to anyone you want to request SMH from.</Text>
-      {netowrkTabBotUrl && (
+      {tapBotURL && (
         <ComplexText>
           <Text>* You may also paste this address in the&nbsp;</Text>
           <Link
@@ -148,7 +148,9 @@ const RequestCoins = ({ history, location }: Props) => {
         </ComplexText>
       )}
       <Footer>
-        <Link onClick={navigateToGuide} text="REQUEST SMH GUIDE" />
+        {tapBotURL && (
+          <Link onClick={navigateToGuide} text="REQUEST SMH GUIDE" />
+        )}
         <Button onClick={() => history.replace(MainPath.Wallet)} text="DONE" />
       </Footer>
     </Wrapper>
