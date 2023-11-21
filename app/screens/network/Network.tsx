@@ -297,7 +297,7 @@ const Network = ({ history }) => {
           {nodeError && (
             <>
               <ErrorMessage compact>
-                {nodeError.msg || nodeError.stackTrace}
+                {nodeError.msg || nodeError.stackTrace}{' '}
                 {nodeError?.type === NodeErrorType.OPEN_CL_NOT_INSTALLED && (
                   <>
                     {isWindows && (
@@ -311,7 +311,7 @@ const Network = ({ history }) => {
                       <Link
                         style={{ display: 'inline-block' }}
                         onClick={navigateToUbuntuOpenCLInstallationGuide}
-                        text="OPEN CL INSTALLATION GUIDE."
+                        text="OPEN CL INSTALLATION GUIDE"
                       />
                     )}
                   </>
@@ -320,14 +320,14 @@ const Network = ({ history }) => {
                   <Link
                     style={{ display: 'inline-block' }}
                     onClick={navigateToRedistInstallationGuide}
-                    text="REDIST INSTALLATION GUIDE."
+                    text="REDIST INSTALLATION GUIDE"
                   />
                 )}
                 {nodeError?.type === NodeErrorType.NOT_SPECIFIED && (
                   <Link
                     style={{ display: 'inline-block' }}
                     onClick={() => setOpenCheckListModal(true)}
-                    text="OPEN CHECKLIST."
+                    text="OPEN CHECKLIST"
                   />
                 )}
               </ErrorMessage>
