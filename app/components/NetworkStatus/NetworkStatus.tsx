@@ -50,7 +50,7 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
           <Tooltip
             width={200}
             marginTop={-2}
-            text="This process may take hours and consume CPU. Please, wait for it."
+            text="This process is expected to take up to a few hours and you will see CPU usage increase during this time. Please be patient."
           />
         </>
       );
