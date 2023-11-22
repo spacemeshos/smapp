@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { unlockWallet } from '../../redux/wallet/actions';
@@ -12,6 +12,8 @@ import {
   ErrorPopup,
   Loader,
   DropDown,
+  OverlayTooltipList,
+  NoticeIcon,
 } from '../../basicComponents';
 import { ipcConsts, smColors } from '../../vars';
 import { smallInnerSideBar } from '../../assets/images';
@@ -24,6 +26,7 @@ import {
 import { AuthPath, MainPath } from '../../routerPaths';
 import { formatISOAsUS } from '../../../shared/datetime';
 import { ExternalLinks } from '../../../shared/constants';
+import { ddItemKey } from '../../basicComponents/DropDown';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -135,15 +138,40 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     };
   }, [history, location]);
 
-  const getDropDownData = () =>
-    walletFiles.length === 0
-      ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }]
-      : walletFiles.map(({ meta }) => ({
-          label: meta.displayName,
-          description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
-            meta.genesisID
-          }`,
-        }));
+  const { dropDownData, tooltipData } = useMemo(() => {
+    if (walletFiles.length === 0) {
+      return {
+        dropDownData: [{ label: 'NO WALLET FILES FOUND', isDisabled: true }],
+        tooltipData: [],
+      };
+    }
+
+    const computedDropDownData = walletFiles.map(
+      ({ meta, path, duplicateReason, isDuplicate }, index) => ({
+        label: meta.displayName,
+        description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
+          meta.genesisID
+        }`,
+        tooltipContent: isDuplicate ? `${duplicateReason}\nPath:${path}` : '',
+        endAdornment: isDuplicate ? <NoticeIcon /> : null,
+        key: `tooltip-${index}-${meta.displayName
+          .replace(/\s+/g, '-')
+          .toLowerCase()}`,
+      })
+    );
+
+    const computedTooltipData = computedDropDownData
+      .filter(({ tooltipContent }) => tooltipContent)
+      .map(({ tooltipContent, key }) => ({
+        anchorClassName: ddItemKey(selectedWalletIndex, key),
+        content: tooltipContent,
+      }));
+
+    return {
+      dropDownData: computedDropDownData,
+      tooltipData: computedTooltipData,
+    };
+  }, [walletFiles, selectedWalletIndex]);
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
@@ -154,7 +182,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     setPassword(value);
     setWrongPassword(false);
   };
-
+  console.log({ dropDownData, tooltipData });
   const decryptWallet = async () => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
@@ -195,12 +223,17 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       >
         {showWalletFileSelection ? (
           <>
+            <OverlayTooltipList
+              list={tooltipData}
+              variant="error"
+              place="left"
+            />
             <Text>Select a wallet:</Text>
             <InputSection>
               <Chevron />
               <DropDown
                 maxHeight={220}
-                data={getDropDownData()}
+                data={dropDownData}
                 onClick={selectItem}
                 selectedItemIndex={selectedWalletIndex}
                 rowHeight={60}
