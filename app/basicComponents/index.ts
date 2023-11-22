@@ -20,3 +20,5 @@ export { default as ColorStatusIndicator } from './ColorStatusIndicator';
 export { default as AutocompleteDropdown } from './AutocompleteDropdown';
 export { default as CustomTimeAgo } from './CustomTimeAgo';
 export { default as BoldText } from './BoldTextDiv';
+export { OverlayTooltip, OverlayTooltipList } from './OverlayTooltip';
+export { default as NoticeIcon } from './Icons/NoticeIcon';
