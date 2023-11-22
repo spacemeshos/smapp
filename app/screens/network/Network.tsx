@@ -297,7 +297,7 @@ const Network = ({ history }) => {
           {nodeError && (
             <>
               <ErrorMessage compact>
-                {nodeError.msg || nodeError.stackTrace}
+                {nodeError.msg || nodeError.stackTrace}{' '}
                 {nodeError?.type === NodeErrorType.OPEN_CL_NOT_INSTALLED && (
                   <>
                     {isWindows && (
@@ -311,7 +311,7 @@ const Network = ({ history }) => {
                       <Link
                         style={{ display: 'inline-block' }}
                         onClick={navigateToUbuntuOpenCLInstallationGuide}
-                        text="OPEN CL INSTALLATION GUIDE."
+                        text="OPEN CL INSTALLATION GUIDE"
                       />
                     )}
                   </>
@@ -320,19 +320,15 @@ const Network = ({ history }) => {
                   <Link
                     style={{ display: 'inline-block' }}
                     onClick={navigateToRedistInstallationGuide}
-                    text="REDIST INSTALLATION GUIDE."
+                    text="REDIST INSTALLATION GUIDE"
                   />
                 )}
-                {(isShowMissingLibsMessage ||
-                  nodeError?.type === NodeErrorType.NOT_SPECIFIED) && (
-                  <ErrorMessage compact>
-                    WE HAVE A CHECKLIST THAT CAN HELP YOU DETECT THE ISSUE.{' '}
-                    <Link
-                      style={{ display: 'inline-block' }}
-                      onClick={() => setOpenCheckListModal(true)}
-                      text="OPEN CHECKLIST."
-                    />
-                  </ErrorMessage>
+                {nodeError?.type === NodeErrorType.NOT_SPECIFIED && (
+                  <Link
+                    style={{ display: 'inline-block' }}
+                    onClick={() => setOpenCheckListModal(true)}
+                    text="OPEN CHECKLIST"
+                  />
                 )}
               </ErrorMessage>
             </>

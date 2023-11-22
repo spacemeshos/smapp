@@ -1,6 +1,5 @@
 import { NodeStartupState } from '../../../shared/types';
 import type { NodeState, CustomAction } from '../../types';
-import { LOGOUT } from '../auth/actions';
 import { IPC_BATCH_SYNC, reduceChunkList } from '../ipcBatchSync';
 import {
   SET_NODE_ERROR,
@@ -41,8 +40,6 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
       } = action;
       return { ...state, version, build };
     }
-    case LOGOUT:
-      return initialState;
     case IPC_BATCH_SYNC:
       return reduceChunkList(['store', 'node'], action.payload, state);
     default:

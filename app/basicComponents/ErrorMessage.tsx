@@ -16,7 +16,7 @@ const ErrorMessage = styled.span<ErrorMessageProps>`
   overflow: hidden;
   text-align: ${({ align }) => align || 'left'};
   ${({ compact }) =>
-    compact && '-webkit-line-clamp: 2; -webkit-box-orient: vertical;'}
+    compact && '-webkit-line-clamp: 5; -webkit-box-orient: vertical;'}
 `;
 
 ErrorMessage.defaultProps = {

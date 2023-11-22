@@ -85,7 +85,8 @@ export enum SmeshingSetupState {
   ViaRestart = 2,
 }
 
-const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\sFATAL\s/gm;
+const NEW_APP_SESSION_REGEXP = /App version:/gm;
+const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\s(FATAL|PANIC)\s/gm;
 
 class NodeManager extends AbstractManager {
   private nodeService: NodeService;
@@ -110,7 +111,7 @@ class NodeManager extends AbstractManager {
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
-    async (poolList) => {
+    async (poolList, resetPool) => {
       const exitError = poolList.find((e) => e.type === 'Exit') as
         | PoolExitCode
         | undefined;
@@ -118,7 +119,10 @@ class NodeManager extends AbstractManager {
       // In case if Node exited with 0 code count that
       // there was no errors and do not notify client about any of
       // possible errors caused by exiting
-      if (exitError && exitError.code === 0) return;
+      if (exitError && exitError.code === 0) {
+        resetPool();
+        return;
+      }
       // If pool have some errors, but Node is not closed —
       // find a most critical within the pool and notify the client about it
       // Checking for `!exitError` is needed to avoid showing some fatal errors
@@ -143,7 +147,16 @@ class NodeManager extends AbstractManager {
         100
       );
 
-      const fatalErrorLine = lastLines.find((line) => FATAL_REGEXP.test(line));
+      const sessionStartLineIndex = lastLines.findIndex((line) =>
+        NEW_APP_SESSION_REGEXP.test(line)
+      );
+      const lastLinesFromSession = lastLines.slice(
+        0,
+        sessionStartLineIndex > 0 ? sessionStartLineIndex : Infinity
+      );
+      const fatalErrorLine = lastLinesFromSession.find((line) =>
+        FATAL_REGEXP.test(line)
+      );
 
       if (!fatalErrorLine) {
         const installedLibs = await checkRequiredLibs();
@@ -359,6 +372,7 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.$_nodeStatus.reset();
     await this.spawnNode();
+    this.isRestarting = false;
     this.startGRPCClient();
     return true;
   };
@@ -601,6 +615,7 @@ class NodeManager extends AbstractManager {
       logger.error('Node Process close', code, signal);
       this.nodeLogStream?.end();
       this.pushToErrorPool({ type: 'Exit', code, signal });
+      this.nodeProcess = null;
     });
   };
 
@@ -669,13 +684,10 @@ class NodeManager extends AbstractManager {
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
     this.isRestarting = true;
+    await this.nodeService.cancelStreams();
     await this.stopNode();
-    const res = await this.startNode();
-    const setRestarting = (val) => () => {
-      this.isRestarting = val;
-    };
-    this.isNodeAlive().then(setRestarting(false)).catch(setRestarting(false));
-    return res;
+    this.sendNodeStatus(DEFAULT_NODE_STATUS);
+    return this.startNode();
   };
 
   getVersionAndBuild = async () => {

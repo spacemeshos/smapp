@@ -114,16 +114,20 @@ export const isEmptyDir = async (path: string) => {
  */
 export const createDebouncePool = <T extends unknown>(
   delay: number,
-  callback: (errors: T[]) => void
+  callback: (errors: T[], resetPool: () => void) => void
 ) => {
   let bucket: T[] = [];
   let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const resetPool = () => {
+    bucket = [];
+  };
 
   return (error: T) => {
     bucket = [...bucket, error];
     timer && clearTimeout(timer);
     timer = setTimeout(() => {
-      callback(bucket);
+      callback(bucket, resetPool);
       bucket = [];
     }, delay);
   };
