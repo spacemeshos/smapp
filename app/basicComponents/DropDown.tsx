@@ -321,6 +321,25 @@ const DropDownLabelDescription = styled.p<{
   margin-top: 6px;
 `;
 
+const HeaderInfoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+`;
+
+const HeaderInfoSectionEndAdornment = styled.div`
+  position: absolute;
+  top: 15px;
+  right: 14px;
+`;
+
+const HeaderInfoSectionIconContainer = styled.div`
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+`;
+
 type ADataItem = {
   [k: string]: any;
   isDisabled?: boolean;
@@ -331,7 +350,6 @@ type ADataItem = {
 interface DropDownItemProps extends ADataItem {
   label: string;
   description: string;
-  key: string;
   isDarkMode: boolean;
   isBold?: boolean;
 }
@@ -367,7 +385,7 @@ type Props<T extends ADataItem> = {
   maxHeight?: number;
 };
 
-const ddItemKey = (index: number, key?: string) =>
+export const ddItemKey = (index: number, key?: string) =>
   `ddItem_${key || String(index)}`;
 
 const DropDown = <T extends ADataItem>({
@@ -412,7 +430,7 @@ const DropDown = <T extends ADataItem>({
     <DropdownRow
       isDisabled={item.isDisabled || false}
       isDarkMode={isLightTheme}
-      key={`${item?.label}${index}`}
+      key={ddItemKey(index, item?.key)}
       onClick={
         item.isDisabled
           ? () => {}
@@ -424,10 +442,10 @@ const DropDown = <T extends ADataItem>({
             }
       }
       height={rowHeight}
+      className={ddItemKey(index, item?.key)}
     >
       <DropDownItem
         isDarkMode={isLightTheme}
-        key={ddItemKey(index, item?.key)}
         isMain={item?.isMain}
         isDisabled={item?.isDisabled}
         label={item?.label as string}
@@ -464,17 +482,24 @@ const DropDown = <T extends ADataItem>({
           isDarkMode={isLightTheme}
           onClick={isDisabledComputed ? () => {} : handleToggle}
           rowHeight={rowHeight}
+          className={ddItemKey(selectedItemIndex, data[selectedItemIndex]?.key)}
         >
           <DropDownItem
             isDarkMode={isLightTheme}
-            key={ddItemKey(selectedItemIndex, data[selectedItemIndex]?.key)}
             isMain={data[selectedItemIndex]?.isMain}
             isDisabled={data[selectedItemIndex]?.isDisabled}
             label={data[selectedItemIndex]?.label as string}
             description={data[selectedItemIndex]?.description as string}
             isBold={bold}
           />
-          <Icon isOpened={isOpened} isDark={dark} />
+          <HeaderInfoSection>
+            <HeaderInfoSectionEndAdornment>
+              {data[selectedItemIndex]?.endAdornment}
+            </HeaderInfoSectionEndAdornment>
+            <HeaderInfoSectionIconContainer>
+              <Icon isOpened={isOpened} isDark={dark} />
+            </HeaderInfoSectionIconContainer>
+          </HeaderInfoSection>
         </HeaderWrapper>
       )}
       {isOpened && data && (
