@@ -217,6 +217,7 @@
     "react-router-dom": "5.2.0",
     "react-scroll": "^1.8.9",
     "react-timeago": "^6.2.1",
+    "react-tooltip": "^5.24.0",
     "redux": "4.0.5",
     "redux-thunk": "2.3.0",
     "regenerator-runtime": "0.13.7",
