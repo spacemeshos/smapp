@@ -16,5 +16,7 @@ export enum NodeStartupState {
   Vacuuming,
   VerifyingLayers,
   StartingGRPC,
+  SyncingAtxs,
+  SyncingMaliciousProofs,
   Ready,
 }

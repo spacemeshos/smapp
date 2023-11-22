@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NodeStartupState, NodeStatus } from '../../../shared/types';
-import { ProgressBar, ColorStatusIndicator } from '../../basicComponents';
+import {
+  ProgressBar,
+  ColorStatusIndicator,
+  Tooltip,
+} from '../../basicComponents';
 import { constrain } from '../../infra/utils';
 import { smColors } from '../../vars';
 
@@ -39,6 +43,19 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
       return 'Starting GRPC server...';
     case NodeStartupState.VerifyingLayers:
       return 'Tortoise verifying layers...';
+    case NodeStartupState.SyncingAtxs:
+      return (
+        <>
+          Syncing Activations...
+          <Tooltip
+            width={200}
+            marginTop={-2}
+            text="This process is expected to take up to a few hours and you will see CPU usage increase during this time. Please be patient."
+          />
+        </>
+      );
+    case NodeStartupState.SyncingMaliciousProofs:
+      return 'Syncing Malicious Proofs...';
     default:
     case NodeStartupState.Ready:
       return 'Connecting to Node...';
@@ -66,7 +83,11 @@ const NetworkStatus = ({
   };
 
   const getSyncProgress = () => {
-    if (!status || status.topLayer === 0) {
+    if (
+      !status ||
+      status.topLayer === 0 ||
+      startupStatus !== NodeStartupState.Ready
+    ) {
       return (
         <ProgressLabel>{getStartupStatusText(startupStatus)}</ProgressLabel>
       );
