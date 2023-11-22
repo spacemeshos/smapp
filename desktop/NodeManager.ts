@@ -111,7 +111,7 @@ class NodeManager extends AbstractManager {
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
-    async (poolList) => {
+    async (poolList, resetPool) => {
       const exitError = poolList.find((e) => e.type === 'Exit') as
         | PoolExitCode
         | undefined;
@@ -119,7 +119,10 @@ class NodeManager extends AbstractManager {
       // In case if Node exited with 0 code count that
       // there was no errors and do not notify client about any of
       // possible errors caused by exiting
-      if (exitError && exitError.code === 0) return;
+      if (exitError && exitError.code === 0) {
+        resetPool();
+        return;
+      }
       // If pool have some errors, but Node is not closed —
       // find a most critical within the pool and notify the client about it
       // Checking for `!exitError` is needed to avoid showing some fatal errors
@@ -369,6 +372,7 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.$_nodeStatus.reset();
     await this.spawnNode();
+    this.isRestarting = false;
     this.startGRPCClient();
     return true;
   };
@@ -680,13 +684,10 @@ class NodeManager extends AbstractManager {
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
     this.isRestarting = true;
+    await this.nodeService.cancelStreams();
     await this.stopNode();
-    const res = await this.startNode();
-    const setRestarting = (val) => () => {
-      this.isRestarting = val;
-    };
-    this.isNodeAlive().then(setRestarting(false)).catch(setRestarting(false));
-    return res;
+    this.sendNodeStatus(DEFAULT_NODE_STATUS);
+    return this.startNode();
   };
 
   getVersionAndBuild = async () => {
