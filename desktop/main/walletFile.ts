@@ -276,20 +276,70 @@ export const copyWalletFile = async (filePath: string, outputDir: string) => {
   return newFilePath;
 };
 
-export const listWalletsByPaths = (files: string[]) => {
-  return Promise.all(
+const findWalletFilesDuplicates = (
+  wallets: { path: string; wallet: WalletFile }[]
+): Map<string, boolean> => {
+  const seen = new Set<string>();
+  const duplicatesMap = new Map<string, boolean>();
+
+  wallets.forEach((item) => {
+    if (seen.has(item.wallet.meta.displayName)) {
+      duplicatesMap.set(item.wallet.meta.displayName, true);
+    } else {
+      seen.add(item.wallet.meta.displayName);
+    }
+
+    if (seen.has(item.wallet.crypto.cipherText)) {
+      duplicatesMap.set(item.wallet.crypto.cipherText, true);
+    } else {
+      seen.add(item.wallet.crypto.cipherText);
+    }
+  });
+
+  return duplicatesMap;
+};
+
+export const listWalletsByPaths = async (files: string[]) => {
+  const loadedWallets = await Promise.all(
     files.map(async (filePath) => {
       try {
         const wallet = await loadRawWallet(filePath);
-        return { path: filePath, meta: wallet.meta };
+        return { path: filePath, wallet };
       } catch (err) {
         return { path: filePath, error: err };
       }
     })
   ).then(
     // TODO: Show error to the user?
-    (res) => R.filter(R.has('meta'), res)
+    (res) => R.filter(R.has('wallet'), res)
   );
+
+  const duplicatesMap = findWalletFilesDuplicates(loadedWallets);
+  const result = loadedWallets.map((item) => {
+    const isNameDuplicate = duplicatesMap.has(item.wallet.meta.displayName);
+    const isCipherTextDuplicate = duplicatesMap.has(
+      item.wallet.crypto.cipherText
+    );
+
+    let duplicateReason = '';
+
+    if (isCipherTextDuplicate) {
+      duplicateReason = 'This wallet is already imported.';
+    }
+
+    if (isNameDuplicate) {
+      duplicateReason =
+        'This wallet has the same name as an already imported wallet.';
+    }
+
+    return {
+      path: item.path,
+      meta: item.wallet.meta,
+      isDuplicate: isNameDuplicate || isCipherTextDuplicate,
+      duplicateReason,
+    };
+  });
+  return result;
 };
 
 export const listWalletsInDirectory = async (walletsDir: string) => {
