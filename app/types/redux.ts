@@ -35,8 +35,15 @@ export interface NodeState {
   dataPath: string;
 }
 
+interface WalletFiles {
+  path: string;
+  meta: WalletMeta;
+  isDuplicate: boolean;
+  duplicateReason: string;
+}
+
 export interface WalletState {
-  walletFiles: Array<{ path: string; meta: WalletMeta }>;
+  walletFiles: WalletFiles[];
   currentWalletPath: string | null;
   meta: WalletMeta;
   mnemonic: string;
