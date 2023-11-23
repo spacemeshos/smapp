@@ -11,7 +11,10 @@ import {
   isReward,
   isActivation,
   isNodeError,
+  validateWalletsForList,
+  validationWalletCipherTextDuplication,
 } from '../../../shared/types/guards';
+import { WalletWithPath } from '../../../shared/types';
 
 describe('Type Guards', () => {
   describe('hasRequiredTxFields', () => {
@@ -316,6 +319,90 @@ describe('Type Guards for Wallet', () => {
 
       // ignore WalletMeta type for test
       expect(isWalletMeta(invalidMeta as any)).toBe(false);
+    });
+  });
+
+  describe('validationWalletCipherTextDuplication', () => {
+    it('should return a message if a duplicate wallet is found', () => {
+      const loadedWallets = [
+        { path: '/wallet1', wallet: { crypto: { cipherText: 'cipher123' } } },
+        { path: '/wallet2', wallet: { crypto: { cipherText: 'cipherABC' } } },
+      ];
+      const cipherText = 'cipher123';
+      const result = validationWalletCipherTextDuplication(
+        loadedWallets as WalletWithPath[],
+        cipherText
+      );
+      expect(result).toBe(
+        "Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'/wallet1'."
+      );
+    });
+
+    it('should return an empty string if no duplicate wallet is found', () => {
+      const loadedWallets = [
+        { path: '/wallet1', wallet: { crypto: { cipherText: 'cipher123' } } },
+        { path: '/wallet2', wallet: { crypto: { cipherText: 'cipherABC' } } },
+      ];
+      const cipherText = 'cipherXYZ';
+      const result = validationWalletCipherTextDuplication(
+        loadedWallets as WalletWithPath[],
+        cipherText
+      );
+      expect(result).toBe('');
+    });
+  });
+
+  describe('validateWalletsForList', () => {
+    it('should identify duplicate names and cipher texts in wallets', () => {
+      const wallets = [
+        {
+          path: '/wallet1',
+          wallet: {
+            meta: { displayName: 'WalletA' },
+            crypto: { cipherText: 'cipher123' },
+          },
+        },
+        {
+          path: '/wallet2',
+          wallet: {
+            meta: { displayName: 'WalletB' },
+            crypto: { cipherText: 'cipher123' },
+          },
+        },
+        {
+          path: '/wallet3',
+          wallet: {
+            meta: { displayName: 'WalletA' },
+            crypto: { cipherText: 'cipherABC' },
+          },
+        },
+      ];
+      const result = validateWalletsForList(wallets as WalletWithPath[]);
+      expect(result[0].isDuplicate).toBeTruthy();
+      expect(result[0].duplicateReason).toContain('/wallet3');
+      expect(result[1].isDuplicate).toBeTruthy();
+      expect(result[1].duplicateReason).toContain('/wallet1');
+    });
+
+    it('should not identify duplicates when there are none', () => {
+      const wallets = [
+        {
+          path: '/wallet1',
+          wallet: {
+            meta: { displayName: 'WalletA' },
+            crypto: { cipherText: 'cipher123' },
+          },
+        },
+        {
+          path: '/wallet2',
+          wallet: {
+            meta: { displayName: 'WalletB' },
+            crypto: { cipherText: 'cipherABC' },
+          },
+        },
+      ];
+      const result = validateWalletsForList(wallets as WalletWithPath[]);
+      expect(result.every((wallet) => !wallet.isDuplicate)).toBeTruthy();
     });
   });
 });
