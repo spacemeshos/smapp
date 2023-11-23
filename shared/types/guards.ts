@@ -86,10 +86,16 @@ export const isWalletFile = (wallet: any): wallet is WalletFile =>
     isWalletLegacyEncrypted(wallet.crypto));
 
 export const validationWalletCipherTextDuplication = (
-  loadedWallets: WalletFile[],
+  loadedWallets: WalletWithPath[],
   cipherText: string
-) => loadedWallets.some((wallet) => wallet.crypto.cipherText === cipherText);
-
+): string => {
+  const duplicateWallet = loadedWallets.find(
+    (wallet) => wallet.wallet.crypto.cipherText === cipherText
+  );
+  return duplicateWallet
+    ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at ${duplicateWallet.path}.`
+    : '';
+};
 export interface WalletWithValidationDetails extends WalletWithPath {
   isDuplicate: boolean;
   duplicateReason: string;
@@ -98,12 +104,12 @@ export const validateWalletsForList = (
   wallets: WalletWithPath[]
 ): WalletWithValidationDetails[] =>
   wallets.map((walletWithPath, index) => {
-    const isNameDuplicate = wallets.some(
+    const nameDuplicateWallet = wallets.find(
       (w, i) =>
         i !== index &&
         w.wallet.meta.displayName === walletWithPath.wallet.meta.displayName
     );
-    const isCipherTextDuplicate = wallets.some(
+    const cipherTextDuplicateWallet = wallets.find(
       (w, i) =>
         i !== index &&
         w.wallet.crypto.cipherText === walletWithPath.wallet.crypto.cipherText
@@ -111,12 +117,12 @@ export const validateWalletsForList = (
 
     return {
       ...walletWithPath,
-      isDuplicate: isNameDuplicate || isCipherTextDuplicate,
+      isDuplicate: !!(nameDuplicateWallet || cipherTextDuplicateWallet),
       // eslint-disable-next-line no-nested-ternary
-      duplicateReason: isNameDuplicate
-        ? 'This wallet has the same name as an already imported wallet.'
-        : isCipherTextDuplicate
-        ? 'This wallet is already imported.'
+      duplicateReason: nameDuplicateWallet
+        ? `Duplicate wallet name detected: wallet has the same wallet name as the wallet at \n'${nameDuplicateWallet?.path}'.`
+        : cipherTextDuplicateWallet
+        ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at ${cipherTextDuplicateWallet.path}.`
         : '',
     };
   });

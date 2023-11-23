@@ -152,7 +152,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
           meta.genesisID
         }`,
-        tooltipContent: isDuplicate ? `${duplicateReason}\nPath:${path}` : '',
+        tooltipContent: isDuplicate ? `${duplicateReason}\n\nPath:${path}` : '',
         endAdornment: isDuplicate ? <NoticeIcon /> : null,
         key: `tooltip-${index}-${meta.displayName
           .replace(/\s+/g, '-')

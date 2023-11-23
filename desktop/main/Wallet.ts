@@ -66,17 +66,13 @@ const addWalletByPath = async (
 
     const oldWalletFiles = StoreService.get('walletFiles');
     const loadedWallets = await listWalletsByPaths(oldWalletFiles);
+    const duplicateReason = validationWalletCipherTextDuplication(
+      loadedWallets,
+      newWallet.crypto.cipherText
+    );
 
-    if (
-      validationWalletCipherTextDuplication(
-        loadedWallets.map((w) => w.wallet),
-        newWallet.crypto.cipherText
-      )
-    ) {
-      return createIpcResponse(
-        new Error(`This wallet is already imported. PATH: ${filePath}`),
-        null
-      );
+    if (duplicateReason) {
+      return createIpcResponse(new Error(duplicateReason), null);
     }
 
     const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
