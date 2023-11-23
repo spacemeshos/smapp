@@ -19,6 +19,7 @@ import {
   NodeEvent,
   PostProvingOpts,
   NodeStartupState,
+  WalletFile,
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
@@ -35,9 +36,9 @@ export interface NodeState {
   dataPath: string;
 }
 
-interface WalletFiles {
+export interface WalletFiles {
   path: string;
-  meta: WalletMeta;
+  wallet: WalletFile;
   isDuplicate: boolean;
   duplicateReason: string;
 }

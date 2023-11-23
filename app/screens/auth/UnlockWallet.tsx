@@ -147,7 +147,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     }
 
     const computedDropDownData = walletFiles.map(
-      ({ meta, path, duplicateReason, isDuplicate }, index) => ({
+      ({ wallet: { meta }, path, duplicateReason, isDuplicate }, index) => ({
         label: meta.displayName,
         description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
           meta.genesisID
@@ -182,7 +182,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     setPassword(value);
     setWrongPassword(false);
   };
-  console.log({ dropDownData, tooltipData });
   const decryptWallet = async () => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {

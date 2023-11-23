@@ -11,6 +11,7 @@ import {
   WalletSecretsEncrypted,
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
+  WalletWithPath,
 } from './wallet';
 
 // GRPC Type guards
@@ -83,3 +84,39 @@ export const isWalletFile = (wallet: any): wallet is WalletFile =>
   isWalletMeta(wallet.meta) &&
   (isWalletGCMEncrypted(wallet.crypto) ||
     isWalletLegacyEncrypted(wallet.crypto));
+
+export const validationWalletCipherTextDuplication = (
+  loadedWallets: WalletFile[],
+  cipherText: string
+) => loadedWallets.some((wallet) => wallet.crypto.cipherText === cipherText);
+
+export interface WalletWithValidationDetails extends WalletWithPath {
+  isDuplicate: boolean;
+  duplicateReason: string;
+}
+export const validateWalletsForList = (
+  wallets: WalletWithPath[]
+): WalletWithValidationDetails[] =>
+  wallets.map((walletWithPath, index) => {
+    const isNameDuplicate = wallets.some(
+      (w, i) =>
+        i !== index &&
+        w.wallet.meta.displayName === walletWithPath.wallet.meta.displayName
+    );
+    const isCipherTextDuplicate = wallets.some(
+      (w, i) =>
+        i !== index &&
+        w.wallet.crypto.cipherText === walletWithPath.wallet.crypto.cipherText
+    );
+
+    return {
+      ...walletWithPath,
+      isDuplicate: isNameDuplicate || isCipherTextDuplicate,
+      // eslint-disable-next-line no-nested-ternary
+      duplicateReason: isNameDuplicate
+        ? 'This wallet has the same name as an already imported wallet.'
+        : isCipherTextDuplicate
+        ? 'This wallet is already imported.'
+        : '',
+    };
+  });

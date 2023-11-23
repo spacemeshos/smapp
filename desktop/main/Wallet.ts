@@ -21,19 +21,69 @@ import {
 } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
+import {
+  validateWalletsForList,
+  validationWalletCipherTextDuplication,
+  WalletWithValidationDetails,
+} from '../../shared/types/guards';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
-import { copyWalletFile, listWallets, loadRawWallet } from './walletFile';
+import {
+  copyWalletFile,
+  listWalletsByPaths,
+  listWalletsInDirectory,
+  loadRawWallet,
+} from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
 
-const list = async () => {
+const list = async (): Promise<
+  IpcResponse<WalletWithValidationDetails[] | null>
+> => {
   try {
-    const files = await listWallets(
-      DEFAULT_WALLETS_DIRECTORY,
-      StoreService.get('walletFiles')
+    const walletPaths = StoreService.get('walletFiles');
+    const walletsInDirectory = await listWalletsInDirectory(
+      DEFAULT_WALLETS_DIRECTORY
     );
-    return { error: null, files };
-  } catch (error) {
-    return { error, files: null };
+    const storedWallets = await listWalletsByPaths(walletPaths);
+    const allWallets = R.uniqBy(R.prop('path'), [
+      ...walletsInDirectory,
+      ...storedWallets,
+    ]);
+
+    const walletsWithDetails = validateWalletsForList(allWallets);
+
+    return createIpcResponse(null, walletsWithDetails);
+  } catch (error: any) {
+    return createIpcResponse(error, null);
+  }
+};
+
+const addWalletByPath = async (
+  _,
+  filePath: string
+): Promise<IpcResponse<string[] | null>> => {
+  try {
+    const newWallet = await loadRawWallet(filePath);
+
+    const oldWalletFiles = StoreService.get('walletFiles');
+    const loadedWallets = await listWalletsByPaths(oldWalletFiles);
+
+    if (
+      validationWalletCipherTextDuplication(
+        loadedWallets.map((w) => w.wallet),
+        newWallet.crypto.cipherText
+      )
+    ) {
+      return createIpcResponse(
+        new Error(`This wallet is already imported. PATH: ${filePath}`),
+        null
+      );
+    }
+
+    const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
+    StoreService.set('walletFiles', newWalletFiles);
+    return createIpcResponse(null, newWalletFiles);
+  } catch (err: any) {
+    return createIpcResponse(err, null);
   }
 };
 
@@ -136,8 +186,8 @@ export const createWallet = async ({
   name,
   mnemonic,
 }: CreateWalletRequest) => {
-  const { files } = await list();
-  const wallet = create(files?.length || 0, mnemonic, name);
+  const { payload } = await list();
+  const wallet = create(payload?.length || 0, mnemonic, name);
 
   wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =
@@ -163,20 +213,7 @@ const subscribe = () => {
       .catch((error) => ({ error, filePath: null }))
   );
 
-  ipcMain.handle(
-    ipcConsts.W_M_ADD_WALLET_PATH,
-    async (_, filePath: string): Promise<IpcResponse<string[] | null>> => {
-      try {
-        await loadRawWallet(filePath);
-        const oldWalletFiles = StoreService.get('walletFiles');
-        const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
-        StoreService.set('walletFiles', newWalletFiles);
-        return createIpcResponse(null, newWalletFiles);
-      } catch (err: any) {
-        return createIpcResponse(err, null);
-      }
-    }
-  );
+  ipcMain.handle(ipcConsts.W_M_ADD_WALLET_PATH, addWalletByPath);
 };
 
 export default { subscribe };

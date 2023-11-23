@@ -100,14 +100,14 @@ export const setCurrentMode = (mode: number) => ({
 });
 
 export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
-  const { error, files } = await eventsService.readWalletFiles();
+  const { error, payload } = await eventsService.readWalletFiles();
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch({ type: SAVE_WALLET_FILES, payload: [] });
     return [];
   }
-  dispatch({ type: SAVE_WALLET_FILES, payload: files });
-  return files;
+  dispatch({ type: SAVE_WALLET_FILES, payload });
+  return payload;
 };
 
 export const createNewWallet = ({
