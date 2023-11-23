@@ -147,15 +147,13 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     }
 
     const computedDropDownData = walletFiles.map(
-      ({ wallet: { meta }, path, duplicateReason, isDuplicate }, index) => ({
+      ({ wallet: { meta }, path, error }, index) => ({
         label: meta.displayName,
         description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
           meta.genesisID
         }`,
-        tooltipContent: isDuplicate
-          ? `${duplicateReason}\n\nPath: '${path}'.`
-          : '',
-        endAdornment: isDuplicate ? <NoticeIcon /> : null,
+        tooltipContent: error ? `${error}\n\nPath: '${path}'.` : '',
+        endAdornment: error ? <NoticeIcon /> : null,
         key: `tooltip-${index}-${meta.displayName
           .replace(/\s+/g, '-')
           .toLowerCase()}`,

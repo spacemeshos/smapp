@@ -61,7 +61,7 @@ import {
   UnlockWalletRequest,
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
-import { WalletWithValidationDetails } from '../../../shared/types/guards';
+import { WalletByPathWithValidationError } from '../../../shared/types/guards';
 
 class EventsService {
   static createWallet = ({
@@ -82,7 +82,7 @@ class EventsService {
     });
 
   static readWalletFiles = (): Promise<
-    IpcResponse<WalletWithValidationDetails[] | null>
+    IpcResponse<WalletByPathWithValidationError[] | null>
   > => ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
 
   static getOsThemeColor = () =>

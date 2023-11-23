@@ -96,13 +96,10 @@ export const validationWalletCipherTextDuplication = (
     ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'${duplicateWallet.path}'.`
     : '';
 };
-export interface WalletWithValidationDetails extends WalletWithPath {
-  isDuplicate: boolean;
-  duplicateReason: string;
+export interface WalletByPathWithValidationError extends WalletWithPath {
+  error: string;
 }
-export const validateWalletsForList = (
-  wallets: WalletWithPath[]
-): WalletWithValidationDetails[] =>
+export const validateWalletsForList = (wallets: WalletWithPath[]): string[] =>
   wallets.map((walletWithPath, index) => {
     const nameDuplicateWallet = wallets.find(
       (w, i) =>
@@ -115,14 +112,13 @@ export const validateWalletsForList = (
         w.wallet.crypto.cipherText === walletWithPath.wallet.crypto.cipherText
     );
 
-    return {
-      ...walletWithPath,
-      isDuplicate: !!(nameDuplicateWallet || cipherTextDuplicateWallet),
-      // eslint-disable-next-line no-nested-ternary
-      duplicateReason: nameDuplicateWallet
-        ? `Duplicate wallet name detected: wallet has the same wallet name as the wallet at \n'${nameDuplicateWallet?.path}'.`
-        : cipherTextDuplicateWallet
-        ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'${cipherTextDuplicateWallet.path}'.`
-        : '',
-    };
+    if (cipherTextDuplicateWallet) {
+      return `Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'${cipherTextDuplicateWallet.path}'.`;
+    }
+
+    if (nameDuplicateWallet) {
+      return `Duplicate wallet name detected: wallet has the same wallet name as the wallet at \n'${nameDuplicateWallet.path}'.`;
+    }
+
+    return '';
   });

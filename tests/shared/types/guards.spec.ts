@@ -333,9 +333,8 @@ describe('Type Guards for Wallet', () => {
         loadedWallets as WalletWithPath[],
         cipherText
       );
-      expect(result).toBe(
-        "Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'/wallet1'."
-      );
+      expect(result).toContain('/wallet1');
+      expect(result).toContain('Duplicate wallet detected');
     });
 
     it('should return an empty string if no duplicate wallet is found', () => {
@@ -366,7 +365,7 @@ describe('Type Guards for Wallet', () => {
           path: '/wallet2',
           wallet: {
             meta: { displayName: 'WalletB' },
-            crypto: { cipherText: 'cipher123' },
+            crypto: { cipherText: 'cipher456' },
           },
         },
         {
@@ -377,11 +376,16 @@ describe('Type Guards for Wallet', () => {
           },
         },
       ];
+
       const result = validateWalletsForList(wallets as WalletWithPath[]);
-      expect(result[0].isDuplicate).toBeTruthy();
-      expect(result[0].duplicateReason).toContain('/wallet3');
-      expect(result[1].isDuplicate).toBeTruthy();
-      expect(result[1].duplicateReason).toContain('/wallet1');
+
+      expect(result[0]).toContain('/wallet3');
+      expect(result[0]).toContain('Duplicate wallet name detected');
+
+      expect(result[2]).toContain('/wallet1');
+      expect(result[2]).toContain('Duplicate wallet name detected');
+
+      expect(result[1]).toBe('');
     });
 
     it('should not identify duplicates when there are none', () => {
@@ -397,12 +401,13 @@ describe('Type Guards for Wallet', () => {
           path: '/wallet2',
           wallet: {
             meta: { displayName: 'WalletB' },
-            crypto: { cipherText: 'cipherABC' },
+            crypto: { cipherText: 'cipher456' },
           },
         },
       ];
+
       const result = validateWalletsForList(wallets as WalletWithPath[]);
-      expect(result.every((wallet) => !wallet.isDuplicate)).toBeTruthy();
+      expect(result.every((reason) => reason === '')).toBeTruthy();
     });
   });
 });

@@ -24,32 +24,30 @@ import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
 import {
   validateWalletsForList,
   validationWalletCipherTextDuplication,
-  WalletWithValidationDetails,
+  WalletByPathWithValidationError,
 } from '../../shared/types/guards';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import {
   copyWalletFile,
+  listWallets,
   listWalletsByPaths,
-  listWalletsInDirectory,
   loadRawWallet,
 } from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
 
 const list = async (): Promise<
-  IpcResponse<WalletWithValidationDetails[] | null>
+  IpcResponse<WalletByPathWithValidationError[] | null>
 > => {
   try {
-    const walletPaths = StoreService.get('walletFiles');
-    const walletsInDirectory = await listWalletsInDirectory(
-      DEFAULT_WALLETS_DIRECTORY
+    const wallets = await listWallets(
+      DEFAULT_WALLETS_DIRECTORY,
+      StoreService.get('walletFiles')
     );
-    const storedWallets = await listWalletsByPaths(walletPaths);
-    const allWallets = R.uniqBy(R.prop('path'), [
-      ...walletsInDirectory,
-      ...storedWallets,
-    ]);
-
-    const walletsWithDetails = validateWalletsForList(allWallets);
+    const validationErrors = validateWalletsForList(wallets);
+    const walletsWithDetails = wallets.map((wallet, index) => ({
+      ...wallet,
+      error: validationErrors[index],
+    }));
 
     return createIpcResponse(null, walletsWithDetails);
   } catch (error: any) {

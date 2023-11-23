@@ -19,10 +19,10 @@ import {
   NodeEvent,
   PostProvingOpts,
   NodeStartupState,
-  WalletFile,
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
+import { WalletByPathWithValidationError } from '../../shared/types/guards';
 
 export { NetworkState } from '../../shared/types';
 
@@ -36,15 +36,8 @@ export interface NodeState {
   dataPath: string;
 }
 
-export interface WalletFiles {
-  path: string;
-  wallet: WalletFile;
-  isDuplicate: boolean;
-  duplicateReason: string;
-}
-
 export interface WalletState {
-  walletFiles: WalletFiles[];
+  walletFiles: WalletByPathWithValidationError[];
   currentWalletPath: string | null;
   meta: WalletMeta;
   mnemonic: string;
