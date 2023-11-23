@@ -206,14 +206,18 @@ describe('List wallet files', () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: LEGACY_WALLET_PATH,
-          meta: expect.objectContaining({
-            displayName: 'Wallet Legacy',
+          wallet: expect.objectContaining({
+            meta: expect.objectContaining({
+              displayName: 'Wallet Legacy',
+            }),
           }),
         }),
         expect.objectContaining({
           path: GCM_WALLET_PATH,
-          meta: expect.objectContaining({
-            displayName: 'Wallet GCM',
+          wallet: expect.objectContaining({
+            meta: expect.objectContaining({
+              displayName: 'Wallet GCM',
+            }),
           }),
         }),
       ])
