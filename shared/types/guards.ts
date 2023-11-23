@@ -93,7 +93,7 @@ export const validationWalletCipherTextDuplication = (
     (wallet) => wallet.wallet.crypto.cipherText === cipherText
   );
   return duplicateWallet
-    ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at ${duplicateWallet.path}.`
+    ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'${duplicateWallet.path}'.`
     : '';
 };
 export interface WalletWithValidationDetails extends WalletWithPath {
@@ -122,7 +122,7 @@ export const validateWalletsForList = (
       duplicateReason: nameDuplicateWallet
         ? `Duplicate wallet name detected: wallet has the same wallet name as the wallet at \n'${nameDuplicateWallet?.path}'.`
         : cipherTextDuplicateWallet
-        ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at ${cipherTextDuplicateWallet.path}.`
+        ? `Duplicate wallet detected: it seems the wallet duplicates the wallet at \n'${cipherTextDuplicateWallet.path}'.`
         : '',
     };
   });
