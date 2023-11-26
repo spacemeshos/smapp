@@ -27,14 +27,15 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
-const FileBackup = ({
-  history,
-  location,
-}: RouteComponentProps<
-  Record<string, any>,
-  StaticContext,
-  { filePath: string }
->) => {
+interface FileBackupProps {
+  filePath: string;
+}
+
+const FileBackup: React.FC<
+  RouteComponentProps<Record<string, never>, StaticContext, FileBackupProps>
+> = (props) => {
+  const { history, location } = props;
+
   const showBackupFile = () => {
     eventsService.showFileInFolder({ filePath: location.state.filePath });
   };

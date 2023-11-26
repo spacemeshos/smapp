@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
+import { KeyPair } from 'shared/types';
 import {
   NewVault,
   VaultType,
@@ -45,10 +46,16 @@ const WrapperLink = styled.div`
   }
 `;
 
-const Vault = ({ history }: RouteComponentProps) => {
+interface AccountOption extends KeyPair {
+  account: number;
+  label: string;
+  text: string;
+}
+
+const Vault: React.FC<RouteComponentProps> = ({ history }) => {
   const [name, setName] = useState('My Vault');
   const [type, setType] = useState('single');
-  const [accountsOption, setAccountsOption] = useState<Array<any>>([]);
+  const [accountsOption, setAccountsOption] = useState<AccountOption[]>([]);
   const [masterAccountIndex, setMasterAccountIndex] = useState(0);
   const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
   const accounts: Account[] = useSelector(
@@ -59,10 +66,11 @@ const Vault = ({ history }: RouteComponentProps) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const objOption = accounts.map((elem, index: number) => ({
+    const objOption: AccountOption[] = accounts.map((elem, index: number) => ({
       account: index,
       label: elem.displayName,
       text: formatSmidge(balances[elem.publicKey]?.currentState?.balance || 0),
+      ...elem,
     }));
     setAccountsOption(objOption);
   }, [accounts, balances, setAccountsOption]);

@@ -70,8 +70,8 @@ const ActualInput = styled.input<{
   }) =>
     !isDisabled &&
     `&:hover, &:focus, &:active {
-            background-color: ${states.focus.backgroundColor}; 
-            color: ${states.focus.color}; 
+            background-color: ${states.focus.backgroundColor};
+            color: ${states.focus.color};
      } `}
   font-size: 14px;
   line-height: 16px;
@@ -155,22 +155,22 @@ const Input = ({
     };
   });
 
-  const handleEnterPress = (event: any) => {
+  const handleEnterPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !!onEnterPress) {
       onEnterPress();
       onPaste();
     }
   };
 
-  const handleOnBlur = ({ target }: { target: any }) => {
+  const handleOnBlur = ({ target }: { target: HTMLInputElement }) => {
     setIsFocused(false);
     const { value } = target;
 
     onBlur?.({ value });
   };
 
-  const handleChange = ({ target }: { target: any }) => {
-    const { value } = target;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.currentTarget;
     onChange?.({ value });
 
     if (onChangeDebounced) {

@@ -202,8 +202,10 @@ const Main = () => {
 
   const handleOpenLink = (url: string) => window.open(url);
 
+  type LabelType = string | ReactNode;
+
   const renderNavBarLink = (
-    label: string | ReactNode,
+    label: LabelType,
     tooltip: string,
     route: string
   ) => {
@@ -345,7 +347,7 @@ const Main = () => {
             {routes.main.map((route) => (
               <Route
                 key={route.path}
-                path={route.path}
+                path={route.path as MainPath.Main}
                 component={route.component}
               />
             ))}

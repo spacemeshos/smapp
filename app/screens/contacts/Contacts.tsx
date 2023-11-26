@@ -305,7 +305,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
     return 0;
   };
 
-  const openAddNewContactModal = (e: any, contact: Contact) => {
+  const openAddNewContactModal = (e: React.MouseEvent, contact: Contact) => {
     e.stopPropagation();
     setAddressToAdd(contact.address);
     setShowCreateNewContactModal(true);

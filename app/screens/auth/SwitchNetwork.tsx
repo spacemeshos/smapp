@@ -108,7 +108,9 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     return [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
   };
 
-  const goNext = (genesisID: string | undefined) => {
+  type GoNextType = string | undefined;
+
+  const goNext = (genesisID: GoNextType) => {
     if (creatingWallet) {
       if (isWalletOnly && genesisID?.length) {
         return history.push(AuthPath.ConnectToAPI, {
