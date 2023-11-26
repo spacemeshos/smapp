@@ -78,7 +78,7 @@ export const SubHeader = styled.div`
 `;
 
 type Props = {
-  children?: React.ReactNode;
+  children?: any[];
   width: number;
   height: number | string;
   header: string;
@@ -100,10 +100,12 @@ const CorneredContainer = ({
   subHeader = '',
   useEmptyWrap = false,
 }: Props) => {
-  type WrapperType = React.ElementType<{
-    width: number;
-    height: number | string;
-  }>;
+  type WrapperType = React.ElementType<
+    React.HTMLAttributes<HTMLDivElement> & {
+      width: number;
+      height: number | string;
+    }
+  >;
   const ResolvedWrapper: WrapperType = useEmptyWrap ? DivWrapper : Wrapper;
 
   const parsedHeight =
