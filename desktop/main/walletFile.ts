@@ -290,13 +290,15 @@ export const loadRawWallets = (files: string[]) =>
     })
   ).then(R.reject<WalletWithPath | null>(R.isNil)) as Promise<WalletWithPath[]>;
 
-export const listWalletsMetaByPaths = async (
+export const listWalletsMetaByPaths = (
   files: string[]
 ): Promise<WalletMetaWithPath[]> =>
-  (await loadRawWallets(files)).map(({ path, wallet: { meta } }) => ({
-    path,
-    meta,
-  }));
+  loadRawWallets(files).then((rawWallets) =>
+    rawWallets.map(({ path, wallet: { meta } }) => ({
+      path,
+      meta,
+    }))
+  );
 
 export const listWalletsInDirectory = async (walletsDir: string) => {
   const files = await fs.readdir(walletsDir);

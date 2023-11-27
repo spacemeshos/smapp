@@ -4,12 +4,13 @@ import { ipcConsts } from '../vars';
 import { ImportWalletWarningRequest } from '../../shared/ipcMessages';
 import { eventsService } from '../infra/eventsService';
 
-type UseImportFileWarningProps = [
-  boolean,
-  string,
-  (userResponse: boolean) => void
-];
-const useImportFileWarning = (): UseImportFileWarningProps => {
+type UseImportFileWarningReturn = {
+  isOpen: boolean;
+  message: string;
+  handleResponse: (userResponse: boolean) => void;
+};
+
+const useImportFileWarning = (): UseImportFileWarningReturn => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
 
@@ -20,18 +21,26 @@ const useImportFileWarning = (): UseImportFileWarningProps => {
     ) => {
       const { isDuplicateName, isDuplicateWallet, isDuplicatePath } = payload;
 
-      const msgParts: string[] = [];
+      const similarities: string[] = [];
       if (isDuplicatePath) {
-        msgParts.push('a wallet with this file path');
+        similarities.push('file path');
       }
       if (isDuplicateName) {
-        msgParts.push('a wallet with the same name');
+        similarities.push('name');
       }
       if (isDuplicateWallet) {
-        msgParts.push('a wallet with the same data');
+        similarities.push('data');
       }
 
-      setMessage(`A wallet with ${msgParts.join(' and ')} already exists.`);
+      let formattedMessage = 'A wallet with the same ';
+      if (similarities.length > 0) {
+        formattedMessage += similarities.join(', ');
+      } else {
+        formattedMessage = 'A wallet';
+      }
+      formattedMessage += ' already exists.';
+
+      setMessage(formattedMessage);
       setIsOpen(true);
     };
 
@@ -50,7 +59,7 @@ const useImportFileWarning = (): UseImportFileWarningProps => {
     setIsOpen(false);
   };
 
-  return [isOpen, message, handleResponse];
+  return { isOpen, message, handleResponse };
 };
 
 export default useImportFileWarning;

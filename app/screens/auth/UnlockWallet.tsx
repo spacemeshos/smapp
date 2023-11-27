@@ -24,7 +24,7 @@ import {
 import { AuthPath, MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import CopyButton from '../../basicComponents/CopyButton';
-import { formatISOAsYearMonthDay } from '../../../shared/datetime';
+import { convertISOToDate } from '../../../shared/datetime';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -118,6 +118,9 @@ const CopiedBanner = styled.div`
   z-index: 10;
   color: ${smColors.darkerGreen};
   animation: 3s ${fadeInOut} ease-out;
+  font-size: 11px;
+  text-transform: uppercase;
+  max-width: 50px;
 `;
 
 const CopiedButtonWrapper = styled.div`
@@ -174,16 +177,16 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     }
 
     return walletFiles.map(({ meta, path }) => {
-      const networkName = networksMapName[meta.genesisID] ?? 'N/A';
+      const networkName = networksMapName[meta.genesisID] ?? 'NOT SELECTED';
       return {
         label: meta.displayName,
-        description: `CREATED: ${formatISOAsYearMonthDay(
+        description: `CREATED: ${convertISOToDate(
           meta.created
         )} | NETWORK: ${networkName}`,
-        endAdorment: (
+        endAdornment: (
           <>
             {copiedPath === path ? (
-              <CopiedBanner>Copied</CopiedBanner>
+              <CopiedBanner>Wallet path copied</CopiedBanner>
             ) : (
               <CopiedButtonWrapper>
                 <CopyButton secondary value={path} onClick={setCopiedPath} />
