@@ -116,6 +116,19 @@ const HeaderWrapper = styled.div<{
         };
      }; `}
 `;
+
+const HeaderInnerContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  align-items: center;
+`;
+
+const EndAdornmentWrapper = styled.div`
+  margin-left: auto;
+  margin-right: 6px;
+`;
+
 const Icon = styled.img.attrs<{ isDark?: boolean }>(({ theme, isDark }) => ({
   src: !isDark
     ? theme.icons.chevronPrimaryDropDownBottom
@@ -325,7 +338,7 @@ type ADataItem = {
   [k: string]: any;
   isDisabled?: boolean;
   isMain?: boolean;
-  endAdorment?: React.ReactNode;
+  endAdornment?: React.ReactNode;
 };
 
 interface DropDownItemProps extends ADataItem {
@@ -434,7 +447,7 @@ const DropDown = <T extends ADataItem>({
         description={item?.description as string}
         isBold={isSelected || bold}
       />
-      {item.endAdorment}
+      {item.endAdornment}
     </DropdownRow>
   );
 
@@ -474,7 +487,12 @@ const DropDown = <T extends ADataItem>({
             description={data[selectedItemIndex]?.description as string}
             isBold={bold}
           />
-          <Icon isOpened={isOpened} isDark={dark} />
+          <HeaderInnerContainer>
+            <EndAdornmentWrapper>
+              {data[selectedItemIndex]?.endAdornment}
+            </EndAdornmentWrapper>
+            <Icon isOpened={isOpened} isDark={dark} />
+          </HeaderInnerContainer>
         </HeaderWrapper>
       )}
       {isOpened && data && (

@@ -180,7 +180,7 @@ const AccountsOverview = () => {
       ) : (
         getAbbreviatedAddress(item.address)
       ),
-    endAdorment: <AccountPostfix address={item.address} />,
+    endAdornment: <AccountPostfix address={item.address} />,
   }));
 
   return (

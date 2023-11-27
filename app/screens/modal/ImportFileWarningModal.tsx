@@ -4,11 +4,10 @@ import Modal from '../../components/common/Modal';
 import { Button } from '../../basicComponents';
 import useImportFileWarning from '../../hooks/useImportFileWarning';
 
-const ButtonsWrapper = styled.div<{ hasSingleButton?: boolean }>`
+const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: ${({ hasSingleButton }) =>
-    hasSingleButton ? 'center' : 'space-between'};
+  justify-content: space-between;
   margin: auto 0 15px 0;
   padding-top: 30px;
 `;
@@ -24,7 +23,7 @@ const Message = styled.pre`
 `;
 
 const ImportFileWarningModal = () => {
-  const [isOpen, message, handleResponse] = useImportFileWarning();
+  const { isOpen, message, handleResponse } = useImportFileWarning();
 
   if (!isOpen) return null;
 
