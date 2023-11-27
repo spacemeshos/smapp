@@ -80,3 +80,13 @@ export interface WalletFile {
   meta: WalletMeta;
   crypto: WalletSecretsEncrypted;
 }
+
+export interface WalletWithPath {
+  path: string;
+  wallet: WalletFile;
+}
+
+export interface WalletMetaWithPath {
+  path: string;
+  meta: WalletMeta;
+}

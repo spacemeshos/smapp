@@ -281,8 +281,7 @@ export const removeFromContacts = ({
 export const restoreFile = ({ filePath }: { filePath: string }) => async (
   dispatch: AppThDispatch
 ) => {
-  const { error } = await eventsService.addWalletPath(filePath);
-
+  const { error, payload } = await eventsService.addWalletPath(filePath);
   if (error) {
     const errorMessage = addErrorPrefix(
       'Cannot restore wallet file\n',
@@ -292,7 +291,7 @@ export const restoreFile = ({ filePath }: { filePath: string }) => async (
     return false;
   }
 
-  return true;
+  return !!payload?.status;
 };
 
 export const backupWallet = () => async (

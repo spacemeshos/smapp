@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useMemo, useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
@@ -15,15 +15,16 @@ import {
 } from '../../basicComponents';
 import { ipcConsts, smColors } from '../../vars';
 import { smallInnerSideBar } from '../../assets/images';
-import { AppThDispatch } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import {
   setLastSelectedWalletPath,
   getIndexOfLastSelectedWalletPath,
 } from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
-import { formatISOAsUS } from '../../../shared/datetime';
 import { ExternalLinks } from '../../../shared/constants';
+import CopyButton from '../../basicComponents/CopyButton';
+import { formatISOAsYearMonthDay } from '../../../shared/datetime';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -106,18 +107,50 @@ const GrayText = styled.div`
   color: ${smColors.disabledGray};
 `;
 
+const fadeInOut = keyframes`
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+`;
+
+const CopiedBanner = styled.div`
+  z-index: 10;
+  color: ${smColors.darkerGreen};
+  animation: 3s ${fadeInOut} ease-out;
+`;
+
+const CopiedButtonWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  width: 50px;
+  justify-content: end;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [isWrongPassword, setWrongPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(!!location?.state?.withLoader);
-
+  const [copiedPath, setCopiedPath] = useState('');
   const walletFiles = useSelector(listWalletFiles);
+  const networksList = useSelector((state: RootState) => state.networks);
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
   const dispatch: AppThDispatch = useDispatch();
 
   const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
     getIndexOfLastSelectedWalletPath(walletFiles)
+  );
+  const networksMapName = useMemo(
+    () =>
+      networksList.reduce((acc, network) => {
+        acc[network.genesisID] = network.netName;
+        return acc;
+      }, {}),
+    [networksList]
   );
 
   useEffect(() => {
@@ -135,15 +168,32 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     };
   }, [history, location]);
 
-  const getDropDownData = () =>
-    walletFiles.length === 0
-      ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }]
-      : walletFiles.map(({ meta }) => ({
-          label: meta.displayName,
-          description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
-            meta.genesisID
-          }`,
-        }));
+  const dropDownData = useMemo(() => {
+    if (walletFiles.length === 0) {
+      return [{ label: 'NO WALLET FILES FOUND', isDisabled: true }];
+    }
+
+    return walletFiles.map(({ meta, path }) => {
+      const networkName = networksMapName[meta.genesisID] ?? 'N/A';
+      return {
+        label: meta.displayName,
+        description: `CREATED: ${formatISOAsYearMonthDay(
+          meta.created
+        )} | NETWORK: ${networkName}`,
+        endAdorment: (
+          <>
+            {copiedPath === path ? (
+              <CopiedBanner>Copied</CopiedBanner>
+            ) : (
+              <CopiedButtonWrapper>
+                <CopyButton secondary value={path} onClick={setCopiedPath} />
+              </CopiedButtonWrapper>
+            )}
+          </>
+        ),
+      };
+    });
+  }, [walletFiles, copiedPath, networksMapName]);
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
@@ -200,7 +250,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
               <Chevron />
               <DropDown
                 maxHeight={220}
-                data={getDropDownData()}
+                data={dropDownData}
                 onClick={selectItem}
                 selectedItemIndex={selectedWalletIndex}
                 rowHeight={60}

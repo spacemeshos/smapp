@@ -107,3 +107,9 @@ export type AppLogs = {
 };
 
 export type ShowFileRequest = { filePath?: string; isLogFile?: boolean };
+
+export type ImportWalletWarningRequest = {
+  isDuplicateName: boolean;
+  isDuplicateWallet: boolean;
+  isDuplicatePath: boolean;
+};

@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import * as R from 'ramda';
 
 import {
+  WalletMetaWithPath,
   Wallet,
   WalletFile,
   WalletMeta,
@@ -15,6 +16,7 @@ import {
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
   WalletType,
+  WalletWithPath,
 } from '../../shared/types';
 import {
   isWalletFile,
@@ -276,21 +278,25 @@ export const copyWalletFile = async (filePath: string, outputDir: string) => {
   return newFilePath;
 };
 
-export const listWalletsByPaths = (files: string[]) => {
-  return Promise.all(
+export const loadRawWallets = (files: string[]) =>
+  Promise.all(
     files.map(async (filePath) => {
       try {
         const wallet = await loadRawWallet(filePath);
-        return { path: filePath, meta: wallet.meta };
+        return wallet.meta ? { path: filePath, wallet } : null;
       } catch (err) {
-        return { path: filePath, error: err };
+        return null;
       }
     })
-  ).then(
-    // TODO: Show error to the user?
-    (res) => R.filter(R.has('meta'), res)
-  );
-};
+  ).then(R.reject<WalletWithPath | null>(R.isNil)) as Promise<WalletWithPath[]>;
+
+export const listWalletsMetaByPaths = async (
+  files: string[]
+): Promise<WalletMetaWithPath[]> =>
+  (await loadRawWallets(files)).map(({ path, wallet: { meta } }) => ({
+    path,
+    meta,
+  }));
 
 export const listWalletsInDirectory = async (walletsDir: string) => {
   const files = await fs.readdir(walletsDir);
@@ -298,7 +304,7 @@ export const listWalletsInDirectory = async (walletsDir: string) => {
   const walletFiles = files
     .filter((filename) => filename.match(regex))
     .map((filename) => path.join(walletsDir, filename));
-  return listWalletsByPaths(walletFiles);
+  return listWalletsMetaByPaths(walletFiles);
 };
 
 export const listWallets = async (
@@ -307,7 +313,7 @@ export const listWallets = async (
 ) => {
   const storedWalletPaths = R.uniq(walletPaths);
   return R.uniqBy(R.prop('path'), [
-    ...(await listWalletsByPaths(storedWalletPaths)),
+    ...(await listWalletsMetaByPaths(storedWalletPaths)),
     ...(await listWalletsInDirectory(walletsDir)),
   ]);
 };

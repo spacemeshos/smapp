@@ -118,6 +118,9 @@ class EventsService {
       value,
     });
 
+  static sendApproveAddWalletResponse = (response: boolean) =>
+    ipcRenderer.send(ipcConsts.W_M_APPROVE_ADD_WALLET_RESPONSE, response);
+
   static renameAccount = (payload: RenameAccountRequest) =>
     ipcRenderer.send(ipcConsts.W_M_RENAME_ACCOUNT, payload);
 
@@ -142,7 +145,9 @@ class EventsService {
   static backupWallet = (filePath: string) =>
     ipcRenderer.invoke(ipcConsts.W_M_BACKUP_WALLET, filePath);
 
-  static addWalletPath = (filePath: string): Promise<IpcResponse<string[]>> =>
+  static addWalletPath = (
+    filePath: string
+  ): Promise<IpcResponse<{ status: boolean }>> =>
     ipcRenderer.invoke(ipcConsts.W_M_ADD_WALLET_PATH, filePath);
 
   static showFileInFolder = ({
