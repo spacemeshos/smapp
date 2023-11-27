@@ -6,8 +6,8 @@ import {
   decryptWallet,
   encryptWallet,
   listWallets,
-  listWalletsByPaths,
   listWalletsInDirectory,
+  listWalletsMetaByPaths,
   loadRawWallet,
   loadWallet,
   saveWallet,
@@ -221,7 +221,7 @@ describe('List wallet files', () => {
   };
 
   it('by paths', async () => {
-    const wallets = await listWalletsByPaths([
+    const wallets = await listWalletsMetaByPaths([
       LEGACY_WALLET_PATH,
       LEGACY_WALLET_PATH,
       GCM_WALLET_PATH,

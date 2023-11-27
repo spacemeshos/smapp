@@ -7,6 +7,7 @@ import {
   MnemonicOpts,
   MnemonicStrengthType,
   Wallet,
+  WalletFile,
   WalletMeta,
   WalletSecrets,
   WalletType,
@@ -17,12 +18,16 @@ import { getISODate } from '../../shared/datetime';
 import {
   createIpcResponse,
   CreateWalletRequest,
-  IpcResponse,
 } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
-import { copyWalletFile, listWallets, loadRawWallet } from './walletFile';
+import {
+  copyWalletFile,
+  listWallets,
+  loadRawWallet,
+  loadRawWallets,
+} from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
 
 const list = async () => {
@@ -123,6 +128,24 @@ export const createNewAccount = (wallet: Wallet): Wallet => {
 export const isGenesisIDMissing = (wallet: Wallet) =>
   !wallet?.meta?.genesisID?.length;
 export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
+function isDuplicateByName(
+  newWalletData: WalletFile,
+  existingWallets: { path: string; wallet: WalletFile }[]
+) {
+  const existingWalletNames = new Set(
+    existingWallets.map(({ wallet }) => wallet.meta.displayName)
+  );
+  return existingWalletNames.has(newWalletData.meta.displayName);
+}
+function isDuplicateByCipherText(
+  newWalletData: WalletFile,
+  existingWallets: { path: string; wallet: WalletFile }[]
+) {
+  const existingWalletCiphertexts = new Set(
+    existingWallets.map(({ wallet }) => wallet.crypto.cipherText)
+  );
+  return existingWalletCiphertexts.has(newWalletData.crypto.cipherText);
+}
 
 //
 // Subscribe on events
@@ -154,6 +177,22 @@ export const createWallet = async ({
   return { path: walletPath, wallet, password };
 };
 
+function sendApproveAddWalletRequest(
+  event: Electron.IpcMainInvokeEvent,
+  payload: {
+    isDuplicateName: boolean;
+    isDuplicateWallet: boolean;
+    isDuplicatePathInStore: boolean;
+  }
+) {
+  event.sender.send(ipcConsts.W_M_APPROVE_ADD_WALLET_REQUEST, payload);
+  return new Promise((resolve) =>
+    ipcMain.once(ipcConsts.W_M_APPROVE_ADD_WALLET_RESPONSE, (_, userResponse) =>
+      resolve(userResponse)
+    )
+  );
+}
+
 const subscribe = () => {
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 
@@ -163,20 +202,39 @@ const subscribe = () => {
       .catch((error) => ({ error, filePath: null }))
   );
 
-  ipcMain.handle(
-    ipcConsts.W_M_ADD_WALLET_PATH,
-    async (_, filePath: string): Promise<IpcResponse<string[] | null>> => {
-      try {
-        await loadRawWallet(filePath);
-        const oldWalletFiles = StoreService.get('walletFiles');
-        const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
-        StoreService.set('walletFiles', newWalletFiles);
-        return createIpcResponse(null, newWalletFiles);
-      } catch (err: any) {
-        return createIpcResponse(err, null);
+  ipcMain.handle(ipcConsts.W_M_ADD_WALLET_PATH, async (event, filePath) => {
+    try {
+      const oldWalletFiles = StoreService.get('walletFiles');
+      const newWalletData = await loadRawWallet(filePath);
+      const existingWallets = await loadRawWallets(oldWalletFiles);
+      const isDuplicateName = isDuplicateByName(newWalletData, existingWallets);
+      const isDuplicateWallet = isDuplicateByCipherText(
+        newWalletData,
+        existingWallets
+      );
+      const isDuplicatePathInStore = oldWalletFiles.includes(filePath);
+      const isDuplicate =
+        isDuplicateName || isDuplicateWallet || isDuplicatePathInStore;
+
+      if (isDuplicate) {
+        const approved = await sendApproveAddWalletRequest(event, {
+          isDuplicateName,
+          isDuplicateWallet,
+          isDuplicatePathInStore,
+        });
+
+        if (!approved) {
+          return createIpcResponse(null, { status: false });
+        }
       }
+
+      const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
+      StoreService.set('walletFiles', newWalletFiles);
+      return createIpcResponse(null, { status: true });
+    } catch (err: any) {
+      return createIpcResponse(err, null);
     }
-  );
+  });
 };
 
 export default { subscribe };

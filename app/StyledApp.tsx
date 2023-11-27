@@ -18,6 +18,7 @@ import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
 import NoInternetConnection from './screens/modal/NoInternetConnection';
 import PoSProvingOptsUpdateWarningModal from './screens/modal/PoSProvingOptsUpdateWarningModal';
 import AutoLaunchErrorModal from './screens/modal/AutoLaunchErrorModal';
+import ImportFileWarningModal from './screens/modal/ImportFileWarningModal';
 
 const history = createMemoryHistory();
 
@@ -75,6 +76,7 @@ const StyledApp = () => {
           <CloseAppModal />
           <PoSProvingOptsUpdateWarningModal />
           <AutoLaunchErrorModal />
+          <ImportFileWarningModal />
         </Router>
       </ErrorBoundary>
     </ThemeProvider>
