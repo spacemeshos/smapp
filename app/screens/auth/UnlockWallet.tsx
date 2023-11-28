@@ -123,6 +123,7 @@ const RevealInFolderIcon = styled.img.attrs(
   cursor: pointer;
 
   &:hover {
+    cursor: pointer;
     opacity: 0.5;
   }
   &:active {
@@ -132,6 +133,7 @@ const RevealInFolderIcon = styled.img.attrs(
 
 const handleRevealInFolder = curry((path, e) => {
   e.preventDefault();
+  e.stopPropagation();
   eventsService.showFileInFolder({ filePath: path });
 });
 
