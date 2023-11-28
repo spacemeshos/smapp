@@ -34,6 +34,7 @@ import {
   signOutIcon,
   uploadWhite,
   copyWhite,
+  posDirectoryWhite,
 } from '../../assets/images';
 
 export default {
@@ -243,6 +244,7 @@ export default {
       bottomRight: bottomRightCorner,
     },
     posDirectory: posDirectoryBlack,
+    posDirectoryContrast: posDirectoryWhite,
     fireworks,
     leftSideTIcon,
     copy: copyBlack,

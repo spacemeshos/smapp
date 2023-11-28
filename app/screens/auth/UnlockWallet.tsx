@@ -1,7 +1,8 @@
 import { ipcRenderer } from 'electron';
 import React, { useEffect, useMemo, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { curry } from 'ramda';
 import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
@@ -23,8 +24,8 @@ import {
 } from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
-import CopyButton from '../../basicComponents/CopyButton';
 import { convertISOToDate } from '../../../shared/datetime';
+import { eventsService } from '../../infra/eventsService';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -107,37 +108,37 @@ const GrayText = styled.div`
   color: ${smColors.disabledGray};
 `;
 
-const fadeInOut = keyframes`
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
-`;
+const RevealInFolderIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { posDirectoryContrast },
+    },
+  }) => ({
+    src: posDirectoryContrast,
+  })
+)`
+  width: 17px;
+  height: 17px;
+  margin-right: 5px;
+  cursor: pointer;
 
-const CopiedBanner = styled.div`
-  z-index: 10;
-  color: ${smColors.darkerGreen};
-  animation: 3s ${fadeInOut} ease-out;
-  font-size: 11px;
-  text-transform: uppercase;
-  max-width: 50px;
-`;
-
-const CopiedButtonWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  width: 50px;
-  justify-content: end;
   &:hover {
-    cursor: pointer;
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
   }
 `;
+
+const handleRevealInFolder = curry((path, e) => {
+  e.preventDefault();
+  eventsService.showFileInFolder({ filePath: path });
+});
 
 const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [isWrongPassword, setWrongPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(!!location?.state?.withLoader);
-  const [copiedPath, setCopiedPath] = useState('');
   const walletFiles = useSelector(listWalletFiles);
   const networksList = useSelector((state: RootState) => state.networks);
 
@@ -184,19 +185,11 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           meta.created
         )} | NETWORK: ${networkName}`,
         endAdornment: (
-          <>
-            {copiedPath === path ? (
-              <CopiedBanner>Wallet path copied</CopiedBanner>
-            ) : (
-              <CopiedButtonWrapper>
-                <CopyButton secondary value={path} onClick={setCopiedPath} />
-              </CopiedButtonWrapper>
-            )}
-          </>
+          <RevealInFolderIcon onClick={handleRevealInFolder(path)} />
         ),
       };
     });
-  }, [walletFiles, copiedPath, networksMapName]);
+  }, [walletFiles, networksMapName]);
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
