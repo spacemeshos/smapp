@@ -29,7 +29,7 @@ const useImportFileWarning = (): UseImportFileWarningReturn => {
         similarities.push('name');
       }
       if (isDuplicateWallet) {
-        similarities.push('data');
+        similarities.push('encrypted data');
       }
 
       let formattedMessage = 'A wallet with the same ';
