@@ -37,6 +37,7 @@ import {
   helpIconBlack,
   signOutIconBlack,
   copyBlack,
+  posDirectoryBlack,
 } from '../../assets/images';
 
 export default {
@@ -248,6 +249,7 @@ export default {
       bottomRight: bottomRightCornerWhite,
     },
     posDirectory: posDirectoryWhite,
+    posDirectoryContrast: posDirectoryBlack,
     fireworks: fireworksWhite,
     leftSideTIcon: leftSideTIconWhite,
     copy: copyWhite,
