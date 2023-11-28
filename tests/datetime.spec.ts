@@ -1,7 +1,9 @@
 import {
+  formatAsDate,
   formatDateAsISO,
   formatDateAsUS,
   formatISOAsUS,
+  parseISODate,
 } from '../shared/datetime';
 
 describe('datetime utils', () => {
@@ -28,6 +30,18 @@ describe('datetime utils', () => {
     );
     expect(formatISOAsUS('2009-01-03T18-15-00.000Z')).toEqual(
       'Saturday, January 3, 2009 at 18:15'
+    );
+  });
+
+  it('formatISOAsYearMonthDay', () => {
+    expect(formatAsDate(new Date('2023-11-28T12:00:00.000Z'))).toEqual(
+      'November 28, 2023'
+    );
+  });
+
+  it('parseISODate', () => {
+    expect(parseISODate('2023-11-28T12:00:00.000Z')).toEqual(
+      new Date('2023-11-28T12:00:00.000Z')
     );
   });
 });

@@ -11,6 +11,8 @@ import {
   isReward,
   isActivation,
   isNodeError,
+  isGenesisIDMissing,
+  isApiMissing,
 } from '../../../shared/types/guards';
 
 describe('Type Guards', () => {
@@ -316,6 +318,62 @@ describe('Type Guards for Wallet', () => {
 
       // ignore WalletMeta type for test
       expect(isWalletMeta(invalidMeta as any)).toBe(false);
+    });
+  });
+
+  describe('isGenesisIDMissing', () => {
+    it('should return false when genesisID is present', () => {
+      const walletWithGenesisID = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isGenesisIDMissing(walletWithGenesisID as any)).toBe(false);
+    });
+
+    it('should return true when genesisID is missing', () => {
+      const walletWithoutGenesisID = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: '',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isGenesisIDMissing(walletWithoutGenesisID as any)).toBe(true);
+    });
+  });
+
+  describe('isApiMissing', () => {
+    it('should return false when remoteApi is present', () => {
+      const walletWithApi = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isApiMissing(walletWithApi as any)).toBe(false);
+    });
+
+    it('should return true when remoteApi is missing', () => {
+      const walletWithoutApi = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: '',
+          type: 'type1',
+        },
+      };
+      expect(isApiMissing(walletWithoutApi as any)).toBe(true);
     });
   });
 });
