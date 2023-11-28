@@ -87,6 +87,10 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
     if (files?.length) {
       const { name, path } = files[0];
       onFilesAdded({ fileName: name, filePath: path });
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
