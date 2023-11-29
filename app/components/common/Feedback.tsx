@@ -277,7 +277,7 @@ const FeedbackButton = () => {
 
     const formData = {
       event_id: captureReactMessage(`
-           User has submitted an issue and asked to check it. Discord handle: ${userData.name} and email: ${userData.email}, 
+           User has submitted an issue and asked to check it. Discord handle: ${userData.name} and email: ${userData.email},
          `),
       ...userData,
     };
@@ -347,7 +347,7 @@ const FeedbackButton = () => {
                 type="text"
                 required
                 placeholder="nickname"
-                onChange={(e: any) =>
+                onChange={(e) =>
                   setUserData((userData) => ({
                     ...userData,
                     name: e.target.value,
@@ -364,7 +364,7 @@ const FeedbackButton = () => {
                 type="email"
                 required
                 placeholder="john.doe@gmail.com"
-                onChange={(e: any) =>
+                onChange={(e) =>
                   setUserData((userData) => ({
                     ...userData,
                     email: e.target.value,
@@ -380,7 +380,7 @@ const FeedbackButton = () => {
                 value={userData.comments}
                 required
                 placeholder={DESCRIPTION_PLACEHOLDER}
-                onChange={(e: any) =>
+                onChange={(e) =>
                   setUserData((userData) => ({
                     ...userData,
                     comments: e.target.value,

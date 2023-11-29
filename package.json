@@ -224,7 +224,7 @@
     "semver": "^7.3.5",
     "source-map-support": "0.5.19",
     "stream": "^0.0.2",
-    "styled-components": "^5.3.6",
+    "styled-components": "^6.1.1",
     "throttle-debounce": "^5.0.0",
     "ts-toolbelt": "^9.6.0",
     "zxcvbn": "^4.4.2"

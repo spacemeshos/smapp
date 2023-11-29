@@ -31,6 +31,8 @@ const CopyIcon = styled.img.attrs<{ secondary?: boolean }>(
   }
 `;
 
+type TimeoutOrNumber = NodeJS.Timeout | number;
+
 const CopyButton = ({
   secondary,
   children,
@@ -38,7 +40,7 @@ const CopyButton = ({
   value,
   onClick,
 }: Props) => {
-  let t: NodeJS.Timeout | number = 0;
+  let t: TimeoutOrNumber = 0;
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
