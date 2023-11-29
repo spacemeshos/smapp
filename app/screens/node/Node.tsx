@@ -251,13 +251,15 @@ const ERR_MESSAGE_ERR_STATE =
 const ERR_MESSAGE_NODE_ERROR =
   'The Node is not syncing. Please check the Network tab';
 
+type NodeOrNull = NodeStatus | null;
+
 const SmesherStatus = ({
   smesherId,
   status,
   networkName,
 }: {
   smesherId: HexString;
-  status: NodeStatus | null;
+  status: NodeOrNull;
   networkName: string;
 }) => (
   <SubHeader>
