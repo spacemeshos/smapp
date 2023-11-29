@@ -35,6 +35,7 @@ export default (
         return;
       }
       if (shallRestart) {
+        logger.log('activateWalletRX:shallRestart', shallRestart);
         await managers.node.stopNode();
       }
 

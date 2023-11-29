@@ -211,6 +211,7 @@ class NodeManager extends AbstractManager {
 
   // Before deleting
   unsubscribe = async () => {
+    logger.log('unsubscribe', null);
     await this.stopNode();
     await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
@@ -247,6 +248,7 @@ class NodeManager extends AbstractManager {
       if (prompt.canceled) return false;
       const newPath = prompt.filePaths[0];
       if (oldPath === newPath) return true;
+      logger.log('promptChangeDir', { oldPath, newPath: prompt.filePaths[0] });
       // Validate new dir
       await fse.ensureDir(newPath);
       if (!(await isEmptyDir(newPath))) {
@@ -320,6 +322,7 @@ class NodeManager extends AbstractManager {
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    logger.log('connectToRemoteNode', apiUrl);
     this.nodeService.cancelStreams();
     await this.stopNode();
     this.$_nodeStatus.reset();

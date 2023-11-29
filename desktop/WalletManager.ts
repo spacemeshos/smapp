@@ -131,6 +131,7 @@ class WalletManager extends AbstractManager {
   };
 
   activate = async (wallet: Wallet) => {
+    logger.log('activate', wallet.meta);
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
     let res = false;
     try {
