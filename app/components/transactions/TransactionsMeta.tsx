@@ -1,4 +1,10 @@
+import { RewardView, TxView } from 'app/redux/wallet/selectors';
+import { TIME_SPANS } from 'app/screens/transactions/Transactions';
 import React from 'react';
+import { DAY } from 'shared/constants';
+import { SingleSigMethods } from 'shared/templateConsts';
+import { Bech32Address, TxState } from 'shared/types';
+import { isReward, isTx } from 'shared/types/guards';
 import styled from 'styled-components';
 import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -69,25 +75,84 @@ const Progress = styled.div<{ total: number; coins: number }>`
 
 type Props = {
   filterName: string;
-  mined: number;
-  sent: number;
-  received: number;
-  totalMined: number;
-  totalSent: number;
-  totalReceived: number;
   nonce: number;
+  transactions: (TxView | RewardView)[];
+  address: Bech32Address;
+  selectedTimeSpan: number;
 };
 
 const TransactionsMeta = ({
-  mined,
-  sent,
-  received,
-  totalMined,
-  totalSent,
-  totalReceived,
   filterName,
   nonce,
+  transactions,
+  address,
+  selectedTimeSpan,
 }: Props) => {
+  const getNumOfCoinsFromTransactions = (
+    address: Bech32Address,
+    transactions: (TxView | RewardView)[]
+  ) => {
+    const coins = { mined: 0, sent: 0, received: 0 };
+    return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
+      if (isTx(txOrReward)) {
+        const { status, principal: sender, method, payload } = txOrReward;
+        const amount =
+          method === SingleSigMethods.Spend
+            ? parseInt(payload?.Arguments?.Amount || 0, 10)
+            : 0;
+        if (
+          status !== TxState.REJECTED &&
+          status !== TxState.INSUFFICIENT_FUNDS &&
+          status !== TxState.CONFLICTING &&
+          status !== TxState.FAILURE
+        ) {
+          return sender === address
+            ? { ...coins, sent: coins.sent + amount }
+            : { ...coins, received: coins.received + amount };
+        }
+      } else if (isReward(txOrReward)) {
+        const { amount } = txOrReward;
+        return { ...coins, mined: coins.mined + amount };
+      }
+      return coins;
+    }, coins);
+  };
+
+  const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
+    const startDate = Date.now() - days * DAY;
+    return txs.filter(
+      (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
+    );
+  };
+  const filteredTransactions = filterLastDays(
+    transactions,
+    TIME_SPANS[selectedTimeSpan].days
+  );
+  const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
+    const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
+    const totalCoins = getNumOfCoinsFromTransactions(
+      address,
+      transactions || []
+    );
+    return {
+      ...coins,
+      totalMined: totalCoins.mined,
+      totalSent: totalCoins.sent,
+      totalReceived: totalCoins.received,
+    };
+  };
+
+  const coinStats = getCoinStatistics(filteredTransactions);
+
+  const {
+    mined,
+    sent,
+    received,
+    totalMined,
+    totalSent,
+    totalReceived,
+  } = coinStats;
+
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
     { title: 'SMESHED', coins: mined },

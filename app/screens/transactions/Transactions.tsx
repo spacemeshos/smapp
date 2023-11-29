@@ -1,38 +1,37 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import useVirtual from 'react-cool-virtual';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import useVirtual from 'react-cool-virtual';
-import { MainPath } from '../../routerPaths';
-import { BackButton } from '../../components/common';
+import styled from 'styled-components';
+import { ExternalLinks } from '../../../shared/constants';
+import { Bech32Address } from '../../../shared/types';
+import { isReward } from '../../../shared/types/guards';
 import {
-  TxRow,
-  RewardRow,
-  TransactionsMeta,
-} from '../../components/transactions';
-import { CreateNewContact } from '../../components/contacts';
-import {
-  Link,
-  WrapperWith2SideBars,
   CorneredWrapper,
   DropDown,
+  Link,
+  WrapperWith2SideBars,
 } from '../../basicComponents';
-import { RootState } from '../../types';
+import { BackButton } from '../../components/common';
+import { CreateNewContact } from '../../components/contacts';
 import {
-  getContacts,
-  getRewards,
-  getTransactions,
-  getSentTransactions,
-  getReceivedTransactions,
-  getTxAndRewards,
+  RewardRow,
+  TransactionsMeta,
+  TxRow,
+} from '../../components/transactions';
+import { setRef } from '../../infra/utils';
+import {
   RewardView,
   TxView,
+  getContacts,
+  getReceivedTransactions,
+  getRewards,
+  getSentTransactions,
+  getTransactions,
+  getTxAndRewards,
 } from '../../redux/wallet/selectors';
-import { TxState, Bech32Address } from '../../../shared/types';
-import { isReward, isTx } from '../../../shared/types/guards';
-import { DAY, ExternalLinks } from '../../../shared/constants';
-import { SingleSigMethods } from '../../../shared/templateConsts';
-import { setRef } from '../../infra/utils';
+import { MainPath } from '../../routerPaths';
+import { RootState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -73,37 +72,7 @@ const FilterDropDownWrapper = styled(DropDownWrapper)`
   right: 30px;
 `;
 
-const getNumOfCoinsFromTransactions = (
-  address: Bech32Address,
-  transactions: (TxView | RewardView)[]
-) => {
-  const coins = { mined: 0, sent: 0, received: 0 };
-  return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
-    if (isTx(txOrReward)) {
-      const { status, principal: sender, method, payload } = txOrReward;
-      const amount =
-        method === SingleSigMethods.Spend
-          ? parseInt(payload?.Arguments?.Amount || 0, 10)
-          : 0;
-      if (
-        status !== TxState.REJECTED &&
-        status !== TxState.INSUFFICIENT_FUNDS &&
-        status !== TxState.CONFLICTING &&
-        status !== TxState.FAILURE
-      ) {
-        return sender === address
-          ? { ...coins, sent: coins.sent + amount }
-          : { ...coins, received: coins.received + amount };
-      }
-    } else if (isReward(txOrReward)) {
-      const { amount } = txOrReward;
-      return { ...coins, mined: coins.mined + amount };
-    }
-    return coins;
-  }, coins);
-};
-
-const TIME_SPANS = [
+export const TIME_SPANS = [
   { label: 'daily', days: 1 },
   { label: 'monthly', days: 30 },
   { label: 'yearly', days: 365 },
@@ -128,18 +97,17 @@ const TX_FILTERS = [
 const TransactionList = ({
   address,
   transactions,
-  contacts,
   setAddressToAdd,
 }: {
   address: Bech32Address;
   transactions: (TxView | RewardView)[];
-  contacts: Record<Bech32Address, string>;
   setAddressToAdd: (a: Bech32Address) => void;
 }) => {
   const { outerRef, innerRef, items } = useVirtual({
     itemCount: transactions.length,
     itemSize: 60,
   });
+  const contacts = useSelector(getContacts);
 
   return (
     <TransactionsListWrapper ref={setRef(outerRef)}>
@@ -211,22 +179,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
     }
   });
 
-  const contacts = useSelector(getContacts);
-
-  const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
-    const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
-    const totalCoins = getNumOfCoinsFromTransactions(
-      address,
-      transactions || []
-    );
-    return {
-      ...coins,
-      totalMined: totalCoins.mined,
-      totalSent: totalCoins.sent,
-      totalReceived: totalCoins.received,
-    };
-  };
-
   const handleCompleteAction = () => {
     setAddressToAdd('');
   };
@@ -235,41 +187,15 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setSelectedTimeSpan(index);
   };
 
-  const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
-    const startDate = Date.now() - days * DAY;
-    return txs.filter(
-      (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
-    );
-  };
-
   const cancelCreatingNewContact = () => {
     setAddressToAdd('');
   };
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
-  const filteredTransactions = filterLastDays(
-    transactions,
-    TIME_SPANS[selectedTimeSpan].days
-  );
-  const coinStats = getCoinStatistics(filteredTransactions);
-
-  const {
-    mined,
-    sent,
-    received,
-    totalMined,
-    totalSent,
-    totalReceived,
-  } = coinStats;
-
   return (
     <Wrapper>
-      <BackButton
-        action={() => history.replace(MainPath.Wallet)}
-        width={7}
-        height={10}
-      />
+      <BackButton action={() => history.replace(MainPath.Wallet)} />
       <WrapperWith2SideBars
         width={680}
         header="TRANSACTION LOG"
@@ -288,7 +214,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
         <TransactionList
           address={address}
           transactions={transactions}
-          contacts={contacts}
           setAddressToAdd={setAddressToAdd}
         />
         <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />
@@ -313,14 +238,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
             />
           </DropDownWrapper>
           <TransactionsMeta
-            mined={mined}
-            sent={sent}
-            received={received}
-            totalMined={totalMined}
-            totalSent={totalSent}
-            totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
             nonce={nonce}
+            transactions={transactions}
+            address={address}
+            selectedTimeSpan={selectedTimeSpan}
           />
         </RightPaneWrapper>
       )}
