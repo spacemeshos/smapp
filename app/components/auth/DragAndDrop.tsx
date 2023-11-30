@@ -1,4 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, {
+  useState,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from 'react';
 import styled from 'styled-components';
 import { Link } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -69,88 +74,100 @@ type Props = {
   hasError: boolean;
 };
 
-const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const files = e.dataTransfer?.files;
-    if (files?.length) {
-      const { name, path } = files[0];
-      onFilesAdded({ fileName: name, filePath: path });
-      setIsDragging(false);
-    }
-  };
+const DragAndDrop = forwardRef(
+  ({ onFilesAdded, fileName, hasError }: Props, ref) => {
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const onFilesAddedHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target?.files;
-    if (files?.length) {
-      const { name, path } = files[0];
-      onFilesAdded({ fileName: name, filePath: path });
-      // Reset the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    useImperativeHandle(ref, () => ({
+      resetFileInput: () => {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        onFilesAdded({ fileName: '', filePath: '' });
+      },
+    }));
+
+    const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const files = e.dataTransfer?.files;
+      if (files?.length) {
+        const { name, path } = files[0];
+        onFilesAdded({ fileName: name, filePath: path });
+        setIsDragging(false);
       }
+    };
+
+    const onFilesAddedHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target?.files;
+      if (files?.length) {
+        const { name, path } = files[0];
+        onFilesAdded({ fileName: name, filePath: path });
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    };
+
+    const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDragging(true);
+    };
+
+    const onDragLeave = () => {
+      setIsDragging(false);
+    };
+
+    const openFileDialog = () => {
+      if (fileInputRef?.current) {
+        fileInputRef.current.click();
+      }
+    };
+
+    let preLinkText;
+    let linkText;
+    let message;
+
+    if (hasError) {
+      preLinkText = 'click to';
+      linkText = 'browse again';
+      message = fileName ? `Incorrect file ${fileName}` : 'Incorrect file';
+    } else if (fileName) {
+      preLinkText = 'or browse for';
+      linkText = 'another file';
+      message = fileName;
+    } else {
+      preLinkText = 'or';
+      linkText = 'locate on your computer';
+      message = 'Drop a wallet file here,';
     }
-  };
 
-  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const onDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const openFileDialog = () => {
-    if (fileInputRef?.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  let preLinkText;
-  let linkText;
-  let message;
-
-  if (hasError) {
-    preLinkText = 'click to';
-    linkText = 'browse again';
-    message = fileName ? `Incorrect file ${fileName}` : 'Incorrect file';
-  } else if (fileName) {
-    preLinkText = 'or browse for';
-    linkText = 'another file';
-    message = fileName;
-  } else {
-    preLinkText = 'or';
-    linkText = 'locate on your computer';
-    message = 'Drop a wallet file here,';
+    return (
+      <Wrapper
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        isDragging={isDragging}
+        hasError={hasError}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={onFilesAddedHandler}
+          style={{ display: 'none' }}
+        />
+        <MsgWrapper>
+          {hasError && <Image hasError={hasError} />}
+          <Text>{message}</Text>
+          <LinkWrapper>
+            <Text>{preLinkText}&nbsp;</Text>
+            <Link onClick={openFileDialog} text={linkText} />
+          </LinkWrapper>
+        </MsgWrapper>
+      </Wrapper>
+    );
   }
-
-  return (
-    <Wrapper
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-      isDragging={isDragging}
-      hasError={hasError}
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        onChange={onFilesAddedHandler}
-        style={{ display: 'none' }}
-      />
-      <MsgWrapper>
-        {hasError && <Image hasError={hasError} />}
-        <Text>{message}</Text>
-        <LinkWrapper>
-          <Text>{preLinkText}&nbsp;</Text>
-          <Link onClick={openFileDialog} text={linkText} />
-        </LinkWrapper>
-      </MsgWrapper>
-    </Wrapper>
-  );
-};
+);
 
 export default DragAndDrop;

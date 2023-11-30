@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { restoreFile } from '../../redux/wallet/actions';
@@ -11,6 +11,7 @@ import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { FilesAddedHandler } from '../../components/auth/DragAndDrop';
+import { AddWalletResponseType } from '../../../shared/ipcMessages';
 import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
@@ -32,6 +33,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const [fileName, setFileName] = useState('');
   const [filePath, setFilePath] = useState('');
   const [hasError, setHasError] = useState(false);
+  const dragAndDropRef = useRef<{ resetFileInput: () => void }>(null);
 
   const dispatch: AppThDispatch = useDispatch();
   const addFile: FilesAddedHandler = ({ fileName, filePath }) => {
@@ -42,10 +44,13 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   };
 
   const openWalletFile = async () => {
-    const isSuccessStatus = await dispatch(restoreFile({ filePath }));
-    if (isSuccessStatus) {
+    const status = await dispatch(restoreFile({ filePath }));
+    if (AddWalletResponseType.WalletAdded === status) {
       setLastSelectedWalletPath(filePath);
       history.push(AuthPath.Unlock);
+    } else if (AddWalletResponseType.DuplicateNotAllowed === status) {
+      dragAndDropRef.current?.resetFileInput();
+      setHasError(false);
     } else {
       setHasError(true);
     }
@@ -64,6 +69,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
       <BackButton action={history.goBack} />
       <DdArea>
         <DragAndDrop
+          ref={dragAndDropRef}
           onFilesAdded={addFile}
           fileName={fileName}
           hasError={hasError}
