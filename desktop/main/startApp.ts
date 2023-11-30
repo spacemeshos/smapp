@@ -46,6 +46,7 @@ import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
 import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherProvingOptsIpc';
 import ensureProvingOpts from './reactions/ensureProvingOpts';
 import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
+import restartNode from './reactions/restartNode';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -188,14 +189,10 @@ const startApp = (): AppStore => {
       $smeshingSetupState,
       $warnings
     ),
+    // Restart the node & re-emit wallet if User requested restart
+    restartNode($nodeRestartRequest, $managers, $wallet),
     // Activate wallet and accounts
-    activateWallet(
-      $wallet,
-      $managers,
-      $isWalletActivated,
-      $mainWindow,
-      $nodeRestartRequest
-    ),
+    activateWallet($wallet, $managers, $mainWindow, $isWalletActivated),
     // When silent mode enabled, and smeshing-start: true in node-config
     handleNodeAutoStart($runNodeBeforeLogin, $wallet, $managers),
     // Each time when Smapp is activated (window reloaded and shown)...
