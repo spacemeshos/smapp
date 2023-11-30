@@ -48,6 +48,7 @@ import updaterSlice from '../../redux/updater/slice';
 import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
   AddContactRequest,
+  AddWalletResponseType,
   AppLogs,
   ChangePasswordRequest,
   CreateAccountResponse,
@@ -147,7 +148,7 @@ class EventsService {
 
   static addWalletPath = (
     filePath: string
-  ): Promise<IpcResponse<{ status: boolean }>> =>
+  ): Promise<IpcResponse<AddWalletResponseType>> =>
     ipcRenderer.invoke(ipcConsts.W_M_ADD_WALLET_PATH, filePath);
 
   static showFileInFolder = ({

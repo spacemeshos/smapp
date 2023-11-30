@@ -15,6 +15,7 @@ import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
 import {
+  AddWalletResponseType,
   createIpcResponse,
   CreateWalletRequest,
   ImportWalletWarningRequest,
@@ -79,13 +80,16 @@ const addWallet = async (
       });
 
       if (!approved) {
-        return createIpcResponse(null, { status: false });
+        return createIpcResponse(
+          null,
+          AddWalletResponseType.DuplicateNotAllowed
+        );
       }
     }
 
     const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
     StoreService.set('walletFiles', newWalletFiles);
-    return createIpcResponse(null, { status: true });
+    return createIpcResponse(null, AddWalletResponseType.WalletAdded);
   } catch (err: any) {
     return createIpcResponse(err, null);
   }

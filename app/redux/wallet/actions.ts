@@ -23,6 +23,7 @@ import { AppThDispatch, GetState } from '../../types';
 import { logout } from '../auth/actions';
 import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
+import { AddWalletResponseType } from '../../../shared/ipcMessages';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
@@ -288,10 +289,10 @@ export const restoreFile = ({ filePath }: { filePath: string }) => async (
       new Error(error.message)
     );
     dispatch(setUiError(errorMessage));
-    return false;
+    return AddWalletResponseType.Error;
   }
 
-  return !!payload?.status;
+  return payload;
 };
 
 export const backupWallet = () => async (
