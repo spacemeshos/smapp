@@ -28,18 +28,13 @@ const ImportFileWarningModal = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal
-      header="Import File Warning"
-      subHeader="Please Confirm File Import"
-      width={600}
-      height={300}
-    >
+    <Modal header="CONFIRM FILE IMPORT" subHeader=" " width={600} height={300}>
       <Message>{message}</Message>
       <ButtonsWrapper>
         <Button
           isPrimary={false}
           onClick={() => handleResponse(true)}
-          text="CONFIRM"
+          text="IMPORT"
         />
         <Button onClick={() => handleResponse(false)} text="CANCEL" />
       </ButtonsWrapper>
