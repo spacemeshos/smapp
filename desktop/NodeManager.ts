@@ -459,7 +459,7 @@ class NodeManager extends AbstractManager {
           logger.log('sendNodeStartupStatus', 'Stop reading logs');
           rl.close();
           passsThrough.end();
-        }, 3 * MINUTE);
+        }, 10 * MINUTE);
       }
     };
 
@@ -691,7 +691,6 @@ class NodeManager extends AbstractManager {
     this.isRestarting = true;
     await this.nodeService.cancelStreams();
     await this.stopNode();
-    this.sendNodeStatus(DEFAULT_NODE_STATUS);
     return this.startNode();
   };
 
