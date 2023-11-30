@@ -21,24 +21,17 @@ const useImportFileWarning = (): UseImportFileWarningReturn => {
     ) => {
       const { isDuplicateName, isDuplicateWallet, isDuplicatePath } = payload;
 
-      const similarities: string[] = [];
-      if (isDuplicatePath) {
-        similarities.push('file path');
-      }
-      if (isDuplicateName) {
-        similarities.push('name');
-      }
-      if (isDuplicateWallet) {
-        similarities.push('encrypted data');
-      }
+      let formattedMessage = '';
 
-      let formattedMessage = 'A wallet with the same ';
-      if (similarities.length > 0) {
-        formattedMessage += similarities.join(', ');
-      } else {
-        formattedMessage = 'A wallet';
+      if (isDuplicateWallet || isDuplicatePath) {
+        // If the wallet or/and path is duplicated, regardless of name duplication
+        formattedMessage =
+          'This wallet is already opened. Do you want to import it anyway?';
+      } else if (isDuplicateName) {
+        // If only the name is duplicated, the path or encrypted data different
+        formattedMessage =
+          'A different wallet with the same name is already opened in Smapp. Double-check which one you use and consider renaming one of them.';
       }
-      formattedMessage += ' already exists.';
 
       setMessage(formattedMessage);
       setIsOpen(true);
