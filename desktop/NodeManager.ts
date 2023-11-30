@@ -375,6 +375,7 @@ class NodeManager extends AbstractManager {
       }`
     );
     if (this.isNodeRunning()) return true;
+    this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
     await this.spawnNode();
     this.isRestarting = false;
