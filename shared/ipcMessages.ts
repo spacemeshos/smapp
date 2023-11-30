@@ -113,3 +113,9 @@ export type ImportWalletWarningRequest = {
   isDuplicateWallet: boolean;
   isDuplicatePath: boolean;
 };
+
+export enum AddWalletResponseType {
+  Error,
+  DuplicateNotAllowed,
+  WalletAdded,
+}
