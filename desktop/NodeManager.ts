@@ -441,6 +441,7 @@ class NodeManager extends AbstractManager {
 
     let timer;
     const sendStatus = (status: NodeStartupState) => {
+      logger.log('sendNodeStartupStatus', { status });
       this.mainWindow.webContents.send(
         ipcConsts.N_M_NODE_STARTUP_STATUS,
         status
@@ -455,6 +456,7 @@ class NodeManager extends AbstractManager {
         // which will stop reading logs. However, we need the timer
         // to make it possible to switch for some other optional statuses
         timer = setTimeout(() => {
+          logger.log('sendNodeStartupStatus', 'Stop reading logs');
           rl.close();
           passsThrough.end();
         }, 3 * MINUTE);
