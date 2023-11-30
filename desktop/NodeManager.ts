@@ -109,6 +109,8 @@ class NodeManager extends AbstractManager {
 
   private isRestarting = false;
 
+  private nodeStartupState: NodeStartupState = NodeStartupState.Starting;
+
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
     async (poolList, resetPool) => {
@@ -377,6 +379,7 @@ class NodeManager extends AbstractManager {
     await this.spawnNode();
     this.isRestarting = false;
     this.startGRPCClient();
+    this.sendNodeStartupState(NodeStartupState.Starting);
     return true;
   };
 
@@ -388,7 +391,6 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  //
   startSmeshing = async (
     postSetupOpts: PostSetupOpts,
     provingOpts: PostProvingOpts
@@ -421,6 +423,16 @@ class NodeManager extends AbstractManager {
     return SmeshingSetupState.ViaRestart;
   };
 
+  sendNodeStartupState = (status?: NodeStartupState) => {
+    if (status) {
+      this.nodeStartupState = status;
+    }
+    this.mainWindow.webContents.send(
+      ipcConsts.N_M_NODE_STARTUP_STATUS,
+      this.nodeStartupState
+    );
+  };
+
   private watchForStartupStatus = () => {
     if (!this.nodeProcess) {
       throw new Error(
@@ -442,10 +454,8 @@ class NodeManager extends AbstractManager {
     let timer;
     const sendStatus = (status: NodeStartupState) => {
       logger.log('sendNodeStartupStatus', { status });
-      this.mainWindow.webContents.send(
-        ipcConsts.N_M_NODE_STARTUP_STATUS,
-        status
-      );
+      this.sendNodeStartupState(status);
+
       if (status !== NodeStartupState.Ready && timer) {
         // If we got any new non "Ready" state — drop the timer
         // to avoid stop reading logs before we got "Ready" state again

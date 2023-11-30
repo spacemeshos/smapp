@@ -146,16 +146,18 @@ class WalletManager extends AbstractManager {
       }
       if (isLocalNodeType(wallet.meta.type)) {
         const isRunning = this.nodeManager.isNodeRunning();
-        if (isRunning && !isNewGenesisId) return true;
+        if (isRunning && !isNewGenesisId) {
+          // Re-emit Node StartupState if node is already running
+          // and we don't need to stop/restart it
+          this.nodeManager.sendNodeStartupState();
+          return true;
+        }
         res = isRunning
           ? await this.nodeManager.restartNode()
           : await this.nodeManager.startNode();
         if (!res) return false;
-      } else {
-        await this.nodeManager.stopNode();
-        if (!!apiUrl && isRemoteNodeApi(apiUrl)) {
-          res = await this.nodeManager.connectToRemoteNode(apiUrl);
-        }
+      } else if (!!apiUrl && isRemoteNodeApi(apiUrl)) {
+        res = await this.nodeManager.connectToRemoteNode(apiUrl);
       }
       this.meshService.createService(apiUrl);
       this.glStateService.createService(apiUrl);
