@@ -20,17 +20,17 @@ Refer to issues by their #numbers that should be completed before the developmen
 
 Describe the most straightforward usage scenario
 
-- [ ] I open this
-- [ ] I create that
-- [ ] I click there
-- [ ] I benefit from the result in a such way
+1. I open this
+2. I create that
+3. I click there
+4. I benefit from the result in a such way
 
 ### Acceptance criteria
 
 Provide some steps that an end-user would be able to perform when the feature could be considered as implemented. E.g.:
 
 - [ ] The basic scenario works as described
-- [ ] If I do not enter a value, an error¹ is shown
+- [ ] If I do not enter a value, an error is shown
 - [ ] Clicking OK changes all nodes’ labels to the Foo value
 
 ### Out of scope
