@@ -52,7 +52,7 @@ export const isWalletOnlyType = (walletType: WalletType) =>
   walletType === WalletType.RemoteApi;
 
 export const isLocalNodeType = (walletType: WalletType) =>
-  walletType === WalletType.LocalNode;
+  !isWalletOnlyType(walletType);
 
 export const isObject = (o: any): o is Record<string, any> =>
   typeof o === 'object' && !Array.isArray(o) && o !== null;

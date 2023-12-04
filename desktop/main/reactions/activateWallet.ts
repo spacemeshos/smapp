@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { combineLatest, map, Observable, startWith, Subject } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
@@ -12,30 +12,18 @@ const logger = Logger({ className: 'activateWallet' });
 export default (
   $wallet: Observable<Wallet | null>,
   $managers: Observable<Managers>,
-  $isWalletActivated: Subject<void>,
   $mainWindow: Observable<BrowserWindow>,
-  $nodeRestartRequest: Observable<void>
+  $isWalletActivated: Subject<void>
 ) =>
   makeSubscription(
-    combineLatest([
-      $wallet,
-      $managers,
-      $mainWindow,
-      $nodeRestartRequest.pipe(
-        map(() => true),
-        startWith(false)
-      ),
-    ]),
-    async ([wallet, managers, mw, shallRestart]) => {
+    combineLatest([$wallet, $managers, $mainWindow]),
+    async ([wallet, managers, mw]) => {
       if (
         !wallet ||
         !wallet.meta.genesisID ||
         (isWalletOnlyType(wallet.meta.type) && !wallet.meta.remoteApi)
       ) {
         return;
-      }
-      if (shallRestart) {
-        await managers.node.stopNode();
       }
 
       const res = await managers.wallet.activate(wallet);

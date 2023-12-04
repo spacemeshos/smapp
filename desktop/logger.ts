@@ -34,8 +34,8 @@ const Logger = ({ className }: { className: string }) => ({
       (acc, next) => `${acc}  ${JSON.stringify(next)}`,
       ''
     );
-    const msg = `${title}: ${payload}`;
-    logger.debug?.(msg);
+    const msg = args.length > 0 ? `${title}: ${payload}` : title;
+    logger.debug?.(`${className}: ${msg}`);
   },
 });
 

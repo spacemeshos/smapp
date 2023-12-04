@@ -11,12 +11,12 @@ export interface NetworkState {
 }
 
 export enum NodeStartupState {
-  Starting,
-  Compacting,
-  Vacuuming,
-  VerifyingLayers,
-  StartingGRPC,
-  SyncingAtxs,
-  SyncingMaliciousProofs,
-  Ready,
+  Starting = 'Starting',
+  Compacting = 'Compacting',
+  Vacuuming = 'Vacuuming',
+  VerifyingLayers = 'VerifyingLayers',
+  StartingGRPC = 'StartingGRPC',
+  SyncingAtxs = 'SyncingAtxs',
+  SyncingMaliciousProofs = 'SyncingMaliciousProofs',
+  Ready = 'Ready',
 }

@@ -109,6 +109,8 @@ class NodeManager extends AbstractManager {
 
   private isRestarting = false;
 
+  private nodeStartupState: NodeStartupState = NodeStartupState.Starting;
+
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
     async (poolList, resetPool) => {
@@ -211,6 +213,7 @@ class NodeManager extends AbstractManager {
 
   // Before deleting
   unsubscribe = async () => {
+    logger.log('unsubscribe', null);
     await this.stopNode();
     await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
@@ -247,6 +250,7 @@ class NodeManager extends AbstractManager {
       if (prompt.canceled) return false;
       const newPath = prompt.filePaths[0];
       if (oldPath === newPath) return true;
+      logger.log('promptChangeDir', { oldPath, newPath: prompt.filePaths[0] });
       // Validate new dir
       await fse.ensureDir(newPath);
       if (!(await isEmptyDir(newPath))) {
@@ -320,6 +324,7 @@ class NodeManager extends AbstractManager {
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    logger.log('connectToRemoteNode', apiUrl);
     this.nodeService.cancelStreams();
     await this.stopNode();
     this.$_nodeStatus.reset();
@@ -370,10 +375,12 @@ class NodeManager extends AbstractManager {
       }`
     );
     if (this.isNodeRunning()) return true;
+    this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
     await this.spawnNode();
     this.isRestarting = false;
     this.startGRPCClient();
+    this.sendNodeStartupState(NodeStartupState.Starting);
     return true;
   };
 
@@ -385,7 +392,6 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  //
   startSmeshing = async (
     postSetupOpts: PostSetupOpts,
     provingOpts: PostProvingOpts
@@ -418,6 +424,16 @@ class NodeManager extends AbstractManager {
     return SmeshingSetupState.ViaRestart;
   };
 
+  sendNodeStartupState = (status?: NodeStartupState) => {
+    if (status) {
+      this.nodeStartupState = status;
+    }
+    this.mainWindow.webContents.send(
+      ipcConsts.N_M_NODE_STARTUP_STATUS,
+      this.nodeStartupState
+    );
+  };
+
   private watchForStartupStatus = () => {
     if (!this.nodeProcess) {
       throw new Error(
@@ -438,10 +454,9 @@ class NodeManager extends AbstractManager {
 
     let timer;
     const sendStatus = (status: NodeStartupState) => {
-      this.mainWindow.webContents.send(
-        ipcConsts.N_M_NODE_STARTUP_STATUS,
-        status
-      );
+      logger.log('sendNodeStartupStatus', { status });
+      this.sendNodeStartupState(status);
+
       if (status !== NodeStartupState.Ready && timer) {
         // If we got any new non "Ready" state — drop the timer
         // to avoid stop reading logs before we got "Ready" state again
@@ -452,9 +467,10 @@ class NodeManager extends AbstractManager {
         // which will stop reading logs. However, we need the timer
         // to make it possible to switch for some other optional statuses
         timer = setTimeout(() => {
+          logger.log('sendNodeStartupStatus', 'Stop reading logs');
           rl.close();
           passsThrough.end();
-        }, 3 * MINUTE);
+        }, 10 * MINUTE);
       }
     };
 
@@ -686,7 +702,6 @@ class NodeManager extends AbstractManager {
     this.isRestarting = true;
     await this.nodeService.cancelStreams();
     await this.stopNode();
-    this.sendNodeStatus(DEFAULT_NODE_STATUS);
     return this.startNode();
   };
 
