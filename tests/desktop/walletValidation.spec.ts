@@ -1,9 +1,8 @@
 import { WalletFile, WalletFileWithPath } from '../../shared/types';
 import {
-  hasDuplicateCipherText,
-  hasDuplicateName,
   isApiMissing,
   isGenesisIDMissing,
+  isWalletDuplicate,
 } from '../../desktop/walletValidation';
 
 const walletFiles = [
@@ -39,30 +38,34 @@ const duplicateCipherTextWallet = {
 } as WalletFile;
 
 describe('Wallet Validation', () => {
-  describe('hasDuplicateName', () => {
+  describe('isWalletDuplicate', () => {
     test('should return true for duplicate names', () => {
-      const result = hasDuplicateName(duplicateNameWallet, walletFiles);
-      expect(result).toBeTruthy();
+      const { isDuplicateName } = isWalletDuplicate(
+        duplicateNameWallet,
+        walletFiles
+      );
+      expect(isDuplicateName).toBeTruthy();
     });
 
     test('should return false for unique names', () => {
-      const result = hasDuplicateName(newWallet, walletFiles);
-      expect(result).toBeFalsy();
+      const { isDuplicateName } = isWalletDuplicate(newWallet, walletFiles);
+      expect(isDuplicateName).toBeFalsy();
     });
-  });
 
-  describe('hasDuplicateCipherText', () => {
     test('should return true for duplicate cipher texts', () => {
-      const result = hasDuplicateCipherText(
+      const { isDuplicateCipherText } = isWalletDuplicate(
         duplicateCipherTextWallet,
         walletFiles
       );
-      expect(result).toBeTruthy();
+      expect(isDuplicateCipherText).toBeTruthy();
     });
 
     test('should return false for unique cipher texts', () => {
-      const result = hasDuplicateCipherText(newWallet, walletFiles);
-      expect(result).toBeFalsy();
+      const { isDuplicateCipherText } = isWalletDuplicate(
+        newWallet,
+        walletFiles
+      );
+      expect(isDuplicateCipherText).toBeFalsy();
     });
   });
 
