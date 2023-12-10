@@ -16,7 +16,7 @@ import {
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
   WalletType,
-  WalletWithPath,
+  WalletFileWithPath,
 } from '../../shared/types';
 import {
   isWalletFile,
@@ -288,7 +288,7 @@ export const loadRawWallets = (files: string[]) =>
         return null;
       }
     })
-  ).then((x: (WalletWithPath | null)[]) => R.reject(R.isNil, x));
+  ).then((x: (WalletFileWithPath | null)[]) => R.reject(R.isNil, x));
 
 export const listWalletsMetaByPaths = (
   files: string[]

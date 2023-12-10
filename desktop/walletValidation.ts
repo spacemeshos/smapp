@@ -1,8 +1,8 @@
-import { Wallet, WalletFile, WalletWithPath } from '../shared/types';
+import { Wallet, WalletFile, WalletFileWithPath } from '../shared/types';
 
 export const hasDuplicateName = (
   newWalletData: WalletFile,
-  existingWallets: WalletWithPath[]
+  existingWallets: WalletFileWithPath[]
 ): boolean => {
   const existingNames = new Set(
     existingWallets.map(({ wallet }) => wallet.meta.displayName)
@@ -12,7 +12,7 @@ export const hasDuplicateName = (
 
 export const hasDuplicateCipherText = (
   newWalletData: WalletFile,
-  existingWallets: WalletWithPath[]
+  existingWallets: WalletFileWithPath[]
 ): boolean => {
   const existingCiphertexts = new Set(
     existingWallets.map(({ wallet }) => wallet.crypto.cipherText)

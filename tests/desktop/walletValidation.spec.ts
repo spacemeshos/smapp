@@ -1,4 +1,4 @@
-import { WalletFile, WalletWithPath } from '../../shared/types';
+import { WalletFile, WalletFileWithPath } from '../../shared/types';
 import {
   hasDuplicateCipherText,
   hasDuplicateName,
@@ -21,7 +21,7 @@ const walletFiles = [
       crypto: { cipherText: 'cipher2' },
     },
   },
-] as WalletWithPath[];
+] as WalletFileWithPath[];
 
 const newWallet = {
   meta: { displayName: 'New Wallet' },
