@@ -18,7 +18,6 @@ import {
   AddWalletResponseType,
   createIpcResponse,
   CreateWalletRequest,
-  ImportWalletWarningRequest,
 } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
@@ -31,6 +30,7 @@ import {
   loadRawWallets,
 } from './walletFile';
 import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
+import sendPromptToRenderer from './sendPromptToRenderer';
 
 const list = async () => {
   try {
@@ -42,18 +42,6 @@ const list = async () => {
   } catch (error) {
     return { error, files: null };
   }
-};
-
-const sendApproveAddWalletRequestAndWaitResponse = (
-  event: Electron.IpcMainInvokeEvent,
-  payload: ImportWalletWarningRequest
-) => {
-  event.sender.send(ipcConsts.W_M_APPROVE_ADD_WALLET_REQUEST, payload);
-  return new Promise((resolve) =>
-    ipcMain.once(ipcConsts.W_M_APPROVE_ADD_WALLET_RESPONSE, (_, userResponse) =>
-      resolve(userResponse)
-    )
-  );
 };
 
 const addWallet = async (
@@ -68,16 +56,22 @@ const addWallet = async (
       newWalletData,
       existingWallets
     );
-
     const isDuplicatePath = oldWalletFiles.includes(filePath);
-    const isDuplicate =
-      isDuplicateName || isDuplicateCipherText || isDuplicatePath;
 
-    if (isDuplicate) {
-      const approved = await sendApproveAddWalletRequestAndWaitResponse(event, {
-        isDuplicateName,
-        isDuplicateWallet: isDuplicateCipherText,
-        isDuplicatePath,
+    if (isDuplicateName || isDuplicateCipherText || isDuplicatePath) {
+      let promptMessage = '';
+
+      if (isDuplicateCipherText || isDuplicatePath) {
+        promptMessage =
+          'This wallet is already opened. Do you want to import it anyway?';
+      } else if (isDuplicateName) {
+        promptMessage =
+          'A different wallet with the same name is already opened in Smapp. Double-check which one you use and consider renaming one of them.';
+      }
+
+      const approved = await sendPromptToRenderer(event, {
+        title: 'CONFIRM FILE IMPORT',
+        message: promptMessage,
       });
 
       if (!approved) {
