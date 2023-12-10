@@ -288,7 +288,7 @@ export const loadRawWallets = (files: string[]) =>
         return null;
       }
     })
-  ).then(R.reject<WalletWithPath | null>(R.isNil)) as Promise<WalletWithPath[]>;
+  ).then((x: (WalletWithPath | null)[]) => R.reject(R.isNil, x));
 
 export const listWalletsMetaByPaths = (
   files: string[]
