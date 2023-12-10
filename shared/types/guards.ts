@@ -3,9 +3,8 @@ import { Reward__Output } from '../../proto/spacemesh/v1/Reward';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { NodeError } from './node';
-import { Tx, Reward, Activation } from './tx';
+import { Activation, Reward, Tx } from './tx';
 import {
-  Wallet,
   WalletFile,
   WalletMeta,
   WalletSecrets,
@@ -84,7 +83,3 @@ export const isWalletFile = (wallet: any): wallet is WalletFile =>
   isWalletMeta(wallet.meta) &&
   (isWalletGCMEncrypted(wallet.crypto) ||
     isWalletLegacyEncrypted(wallet.crypto));
-
-export const isGenesisIDMissing = (wallet: Wallet) =>
-  !wallet?.meta?.genesisID?.length;
-export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;

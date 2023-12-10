@@ -13,7 +13,7 @@ import { isWalletOnlyType } from '../../../shared/utils';
 import Logger from '../../logger';
 import { hasNetwork } from '../Networks';
 import { makeSubscription } from '../rx.utils';
-import { isApiMissing, isGenesisIDMissing } from '../../../shared/types/guards';
+import { isApiMissing, isGenesisIDMissing } from '../../walletValidation';
 
 const logger = Logger({ className: 'ensureNetwork' });
 

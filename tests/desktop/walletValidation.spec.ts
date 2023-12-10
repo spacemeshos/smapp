@@ -2,6 +2,8 @@ import { WalletFile, WalletWithPath } from '../../shared/types';
 import {
   hasDuplicateCipherText,
   hasDuplicateName,
+  isApiMissing,
+  isGenesisIDMissing,
 } from '../../desktop/walletValidation';
 
 const walletFiles = [
@@ -61,6 +63,62 @@ describe('Wallet Validation', () => {
     test('should return false for unique cipher texts', () => {
       const result = hasDuplicateCipherText(newWallet, walletFiles);
       expect(result).toBeFalsy();
+    });
+  });
+
+  describe('isGenesisIDMissing', () => {
+    it('should return false when genesisID is present', () => {
+      const walletWithGenesisID = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isGenesisIDMissing(walletWithGenesisID as any)).toBe(false);
+    });
+
+    it('should return true when genesisID is missing', () => {
+      const walletWithoutGenesisID = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: '',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isGenesisIDMissing(walletWithoutGenesisID as any)).toBe(true);
+    });
+  });
+
+  describe('isApiMissing', () => {
+    it('should return false when remoteApi is present', () => {
+      const walletWithApi = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: 'http://localhost:1234',
+          type: 'type1',
+        },
+      };
+      expect(isApiMissing(walletWithApi as any)).toBe(false);
+    });
+
+    it('should return true when remoteApi is missing', () => {
+      const walletWithoutApi = {
+        meta: {
+          displayName: 'Wallet',
+          created: '2023-01-01',
+          genesisID: 'some-genesis-id',
+          remoteApi: '',
+          type: 'type1',
+        },
+      };
+      expect(isApiMissing(walletWithoutApi as any)).toBe(true);
     });
   });
 });

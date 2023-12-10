@@ -1,4 +1,4 @@
-import { WalletFile, WalletWithPath } from '../shared/types';
+import { Wallet, WalletFile, WalletWithPath } from '../shared/types';
 
 export const hasDuplicateName = (
   newWalletData: WalletFile,
@@ -19,3 +19,7 @@ export const hasDuplicateCipherText = (
   );
   return existingCiphertexts.has(newWalletData.crypto.cipherText);
 };
+
+export const isGenesisIDMissing = (wallet: Wallet) =>
+  !wallet?.meta?.genesisID?.length;
+export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
