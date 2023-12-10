@@ -1,23 +1,24 @@
 import { Wallet, WalletFile, WalletFileWithPath } from '../shared/types';
 
-export const hasDuplicateName = (
+export const isWalletDuplicate = (
   newWalletData: WalletFile,
   existingWallets: WalletFileWithPath[]
-): boolean => {
-  const existingNames = new Set(
-    existingWallets.map(({ wallet }) => wallet.meta.displayName)
-  );
-  return existingNames.has(newWalletData.meta.displayName);
-};
+) => {
+  const nameSet = new Set();
+  const cipherTextSet = new Set();
 
-export const hasDuplicateCipherText = (
-  newWalletData: WalletFile,
-  existingWallets: WalletFileWithPath[]
-): boolean => {
-  const existingCiphertexts = new Set(
-    existingWallets.map(({ wallet }) => wallet.crypto.cipherText)
+  existingWallets.forEach((walletWithPath) => {
+    const { wallet } = walletWithPath;
+    nameSet.add(wallet.meta.displayName);
+    cipherTextSet.add(wallet.crypto.cipherText);
+  });
+
+  const isDuplicateName = nameSet.has(newWalletData.meta.displayName);
+  const isDuplicateCipherText = cipherTextSet.has(
+    newWalletData.crypto.cipherText
   );
-  return existingCiphertexts.has(newWalletData.crypto.cipherText);
+
+  return { isDuplicateName, isDuplicateCipherText };
 };
 
 export const isGenesisIDMissing = (wallet: Wallet) =>

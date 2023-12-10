@@ -22,7 +22,7 @@ import {
 } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
-import { hasDuplicateCipherText, hasDuplicateName } from '../walletValidation';
+import { isWalletDuplicate } from '../walletValidation';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import {
   copyWalletFile,
@@ -64,18 +64,19 @@ const addWallet = async (
     const oldWalletFiles = StoreService.get('walletFiles');
     const newWalletData = await loadRawWallet(filePath);
     const existingWallets = await loadRawWallets(oldWalletFiles);
-    const isDuplicateName = hasDuplicateName(newWalletData, existingWallets);
-    const isDuplicateWallet = hasDuplicateCipherText(
+    const { isDuplicateName, isDuplicateCipherText } = isWalletDuplicate(
       newWalletData,
       existingWallets
     );
+
     const isDuplicatePath = oldWalletFiles.includes(filePath);
-    const isDuplicate = isDuplicateName || isDuplicateWallet || isDuplicatePath;
+    const isDuplicate =
+      isDuplicateName || isDuplicateCipherText || isDuplicatePath;
 
     if (isDuplicate) {
       const approved = await sendApproveAddWalletRequestAndWaitResponse(event, {
         isDuplicateName,
-        isDuplicateWallet,
+        isDuplicateWallet: isDuplicateCipherText,
         isDuplicatePath,
       });
 
