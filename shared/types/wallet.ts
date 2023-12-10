@@ -81,7 +81,7 @@ export interface WalletFile {
   crypto: WalletSecretsEncrypted;
 }
 
-export interface WalletWithPath {
+export interface WalletFileWithPath {
   path: string;
   wallet: WalletFile;
 }
