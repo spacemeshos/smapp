@@ -53,7 +53,7 @@ const PromptModal = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal header={title} subHeader=" " width={600} height={300}>
+    <Modal header={title} width={600} height={300}>
       <Message>{message}</Message>
       <ButtonsWrapper>
         <Button
