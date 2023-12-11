@@ -119,9 +119,6 @@ class EventsService {
       value,
     });
 
-  static sendApproveAddWalletResponse = (response: boolean) =>
-    ipcRenderer.send(ipcConsts.W_M_APPROVE_ADD_WALLET_RESPONSE, response);
-
   static renameAccount = (payload: RenameAccountRequest) =>
     ipcRenderer.send(ipcConsts.W_M_RENAME_ACCOUNT, payload);
 
