@@ -33,6 +33,7 @@ export interface NodeState {
   error: NodeError | null;
   port: string;
   dataPath: string;
+  isRestarting: boolean;
 }
 
 export interface WalletState {
