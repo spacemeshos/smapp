@@ -14,6 +14,7 @@ import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 import { getLocalNodeConnectionConfig } from './main/utils';
+import NodeStartupStateStore from './main/nodeStartupStateStore';
 
 const PROTO_PATH = 'proto/node.proto';
 
@@ -125,6 +126,11 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
         errCount = 0;
       },
       () => {
+        if (!NodeStartupStateStore.isReady()) {
+          // Do nothing if Node is not ready
+          return;
+        }
+
         if (errCount === 5) {
           errorHandler(NODE_NOT_RESPONDING_ERROR);
         } else if (errCount === 3) {

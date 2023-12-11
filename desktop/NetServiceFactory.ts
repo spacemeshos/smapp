@@ -7,6 +7,7 @@ import { PublicService, SocketAddress } from '../shared/types';
 import { delay, isNodeApiEq } from '../shared/utils';
 import Logger from './logger';
 import { getLocalNodeConnectionConfig } from './main/utils';
+import NodeStartupStateStore from './main/nodeStartupStateStore';
 
 // Types
 type Proto = { spacemesh: { v1: any; [k: string]: any }; [k: string]: any };
@@ -180,6 +181,12 @@ class NetServiceFactory<
     retriesLeft = 300
   ) =>
     this.callService(method, opts).catch(async (err) => {
+      if (!NodeStartupStateStore.isReady()) {
+        // If Node is not in Ready state — wait longer and then try again
+        // And do not reduce the retries amount
+        await delay(30000);
+        return this.callServiceWithRetries(method, opts, retriesLeft);
+      }
       if (err.code === 14 && retriesLeft > 0) {
         await delay(5000);
         return this.callServiceWithRetries(method, opts, retriesLeft - 1);
@@ -231,10 +238,6 @@ class NetServiceFactory<
     const cancel = () =>
       new Promise<void>((resolve) =>
         setImmediate(() => {
-          this.logger?.debug(
-            `grpc ${this.serviceName}.${String(method)}`,
-            'cancel() called'
-          );
           if (stream && stream.cancel) {
             stream.cancel();
             stream.destroy();
@@ -248,6 +251,14 @@ class NetServiceFactory<
       );
 
     const startStream = async (attempt = 1) => {
+      if (!NodeStartupStateStore.isReady()) {
+        // If Node is not in Ready state — wait longer and then try again
+        // And do not reduce the retries amount
+        await delay(30000);
+        await startStream(attempt);
+        return;
+      }
+
       if (!this.service) {
         this.logger?.error(
           `startStream > Service ${this.serviceName} is not running`,

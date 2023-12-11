@@ -56,6 +56,7 @@ import {
   checkRequiredLibs,
   requiredLibsCrashErrors,
 } from './checkRequiredLibs';
+import NodeStartupStateStore from './main/nodeStartupStateStore';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -427,6 +428,7 @@ class NodeManager extends AbstractManager {
   sendNodeStartupState = (status?: NodeStartupState) => {
     if (status) {
       this.nodeStartupState = status;
+      NodeStartupStateStore.setStatus(status);
     }
     this.mainWindow.webContents.send(
       ipcConsts.N_M_NODE_STARTUP_STATUS,
