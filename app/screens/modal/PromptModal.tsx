@@ -18,9 +18,9 @@ const Message = styled.pre`
   line-height: 1.33em;
   word-wrap: break-word;
   white-space: pre-wrap;
-  flex: 1;
   overflow-y: auto;
   height: 150px;
+  margin-top: 15px;
 `;
 
 const PromptModal = () => {
