@@ -110,7 +110,7 @@ class NodeManager extends AbstractManager {
 
   private isRestarting = false;
 
-  private nodeStartupState: NodeStartupState = NodeStartupState.Starting;
+  private nodeStartupState: NodeStartupState = NodeStartupState.NotRunning;
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -632,6 +632,7 @@ class NodeManager extends AbstractManager {
     this.nodeProcess.on('close', (code, signal) => {
       logger.error('Node Process close', code, signal);
       this.nodeLogStream?.end();
+      this.sendNodeStartupState(NodeStartupState.NotRunning);
       this.pushToErrorPool({ type: 'Exit', code, signal });
       this.nodeProcess = null;
     });
