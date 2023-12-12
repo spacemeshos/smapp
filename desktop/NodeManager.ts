@@ -56,6 +56,7 @@ import {
   checkRequiredLibs,
   requiredLibsCrashErrors,
 } from './checkRequiredLibs';
+import NodeStartupStateStore from './main/nodeStartupStateStore';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -109,7 +110,7 @@ class NodeManager extends AbstractManager {
 
   private isRestarting = false;
 
-  private nodeStartupState: NodeStartupState = NodeStartupState.Starting;
+  private nodeStartupState: NodeStartupState = NodeStartupState.NotRunning;
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -427,6 +428,7 @@ class NodeManager extends AbstractManager {
   sendNodeStartupState = (status?: NodeStartupState) => {
     if (status) {
       this.nodeStartupState = status;
+      NodeStartupStateStore.setStatus(status);
     }
     this.mainWindow.webContents.send(
       ipcConsts.N_M_NODE_STARTUP_STATUS,
@@ -630,6 +632,7 @@ class NodeManager extends AbstractManager {
     this.nodeProcess.on('close', (code, signal) => {
       logger.error('Node Process close', code, signal);
       this.nodeLogStream?.end();
+      this.sendNodeStartupState(NodeStartupState.NotRunning);
       this.pushToErrorPool({ type: 'Exit', code, signal });
       this.nodeProcess = null;
     });
@@ -724,7 +727,10 @@ class NodeManager extends AbstractManager {
   sendNodeStatus: StatusStreamHandler = debounce(1000, (status: NodeStatus) => {
     logger.log('sendNodeStatus', status);
     this.$_nodeStatus.next(status);
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+    if (this.nodeProcess) {
+      // Send the status only if Node process in up
+      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+    }
   });
 
   sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {

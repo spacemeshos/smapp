@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { NetworkStatus } from '../../components/NetworkStatus';
@@ -18,7 +18,6 @@ import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { AuthPath } from '../../routerPaths';
-import { delay } from '../../../shared/utils';
 import Address from '../../components/common/Address';
 import {
   getFirstLayerInEpochFn,
@@ -32,6 +31,7 @@ import {
   isWindows as isWindowsSelector,
 } from '../../redux/ui/selectors';
 import ErrorCheckListModal from '../modal/ErrorCheckListModal';
+import { restartNode } from '../../redux/node/actions';
 
 const Container = styled.div`
   display: flex;
@@ -117,16 +117,12 @@ const Network = ({ history }) => {
     (state: RootState) => state.network.genesisTime
   );
   const remoteApi = useSelector(getRemoteApi);
-  const [isRestarting, setRestarting] = useState(false);
 
-  const requestNodeRestart = useCallback(async () => {
-    setRestarting(true);
-    await eventsService.restartNode();
-    await delay(60 * 1000);
-    // In case if Node restarts earlier the component will be
-    // re-rendered and Restart button will disappear
-    setRestarting(false);
-  }, []);
+  const isRestarting = useSelector(
+    (state: RootState) => state.node.isRestarting
+  );
+  const dispatch = useDispatch();
+  const requestNodeRestart = () => dispatch(restartNode());
 
   const requestSwitchApiProvider = () => {
     history.push(AuthPath.ConnectToAPI);

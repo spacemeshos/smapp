@@ -4,12 +4,15 @@ import {
   NodeStatus,
   NodeVersionAndBuild,
 } from '../../../shared/types';
+import { eventsService } from '../../infra/eventsService';
+import { AppThDispatch } from '../../types';
 
 export const SET_NODE_VERSION_AND_BUILD = 'SET_NODE_VERSION_AND_BUILD';
 export const SET_NODE_STATUS = 'SET_NODE_STATUS';
 export const SET_NODE_ERROR = 'SET_NODE_ERROR';
 
 export const SET_STARTUP_STATUS = 'SET_STARTUP_STATUS';
+export const RESTART_NODE = 'RESTART_NODE';
 
 export const setNodeStatus = (status: NodeStatus) => ({
   type: SET_NODE_STATUS,
@@ -29,3 +32,8 @@ export const setNodeStartupStatus = (payload: NodeStartupState) => ({
   type: SET_STARTUP_STATUS,
   payload,
 });
+
+export const restartNode = () => (dispatch: AppThDispatch) => {
+  dispatch({ type: 'RESTART_NODE' });
+  eventsService.restartNode();
+};

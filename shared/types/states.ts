@@ -11,6 +11,7 @@ export interface NetworkState {
 }
 
 export enum NodeStartupState {
+  NotRunning = 'NotRunning',
   Starting = 'Starting',
   Compacting = 'Compacting',
   Vacuuming = 'Vacuuming',
