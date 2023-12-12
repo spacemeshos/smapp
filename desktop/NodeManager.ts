@@ -726,7 +726,10 @@ class NodeManager extends AbstractManager {
   sendNodeStatus: StatusStreamHandler = debounce(1000, (status: NodeStatus) => {
     logger.log('sendNodeStatus', status);
     this.$_nodeStatus.next(status);
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+    if (this.nodeProcess) {
+      // Send the status only if Node process in up
+      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+    }
   });
 
   sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
