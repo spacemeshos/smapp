@@ -380,47 +380,47 @@ jobs:
       - run: cp -f ./release/latest-merged.yml ./release/macos/latest-mac.yml
       - run: cp -f ./release/latest-merged.yml ./release/macos-arm64/latest-mac.yml
 
-      # Upload artifacts to GCS
-      - name: Set up GCloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+      # Upload artifacts to Cloudflare
+      - name: Set up Cloudflare SDK
+        uses: cloudflare/setup-cloudflare@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          key: ${{ secrets.CLOUDFLARE_KEY }}
 
       - name: Upload macos artifact
-        uses: google-github-actions/upload-cloud-storage@v0
+        uses: cloudflare/upload-cdn@v1
         with:
           path: ./release/macos/
-          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload macos arm64 artifact
-        uses: google-github-actions/upload-cloud-storage@v0
+        uses: cloudflare/upload-cdn@v1
         with:
           path: ./release/macos-arm64/
-          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload windows build
-        uses: google-github-actions/upload-cloud-storage@v0
+        uses: cloudflare/upload-cdn@v1
         with:
           path: ./release/windows-signed/
-          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload linux build
-        uses: google-github-actions/upload-cloud-storage@v0
+        uses: cloudflare/upload-cdn@v1
         with:
           path: ./release/linux/
-          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload linux arm64 build
-        uses: google-github-actions/upload-cloud-storage@v0
+        uses: cloudflare/upload-cdn@v1
         with:
           path: ./release/linux-arm64/
-          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Create Release
