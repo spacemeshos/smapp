@@ -202,8 +202,10 @@ const Main = () => {
 
   const handleOpenLink = (url: string) => window.open(url);
 
+  type LabelStringOrNode = string | ReactNode;
+
   const renderNavBarLink = (
-    label: string | ReactNode,
+    label: LabelStringOrNode,
     tooltip: string,
     route: string
   ) => {
