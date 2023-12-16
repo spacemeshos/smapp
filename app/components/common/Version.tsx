@@ -253,10 +253,10 @@ const CheckForUpdates = () => {
   const network = useSelector(getNetworkInfo);
   enum CheckState {
     Idle = 0,
-    Checking,
-    NoUpdates,
-    HasUpdate,
-    ManualUpdate,
+    Checking = 1,
+    NoUpdates = 2,
+    HasUpdate = 3,
+    ManualUpdate = 4,
   }
   const [curState, setCurState] = useState(CheckState.Idle);
   const [manualUpdateSmappVersion, setManualUpdateSmappVersion] = useState('');

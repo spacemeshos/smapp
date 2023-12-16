@@ -49,7 +49,7 @@ type Props = {
 };
 
 const SignMessage = ({ index, close }: Props) => {
-  let copiedTimeout: any = null;
+  let copiedTimeout: NodeJS.Timeout;
   const [message, setMessage] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [lastResult, setLastResult] = useState('');

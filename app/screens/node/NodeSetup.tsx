@@ -38,12 +38,12 @@ const Bold = styled.div`
 
 enum SetupMode {
   Modify = 0,
-  Directory,
-  Profiler,
-  Size,
-  Processor,
-  RewardsAddress,
-  Summary,
+  Directory = 1,
+  Profiler = 2,
+  Size = 3,
+  Processor = 4,
+  RewardsAddress = 5,
+  Summary = 6,
 }
 
 const headers = {

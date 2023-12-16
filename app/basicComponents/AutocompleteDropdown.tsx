@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+// import styled from 'styled-components';
 import styled from 'styled-components';
 import { getAbbreviatedAddress } from '../infra/utils';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
@@ -68,7 +69,7 @@ const InputField = styled.div<{
   }) =>
     `
     color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
-    
+
     &:hover {
         color: ${
           isDarkSkin ? light.states.normal.color : dark.states.normal.color
@@ -157,7 +158,7 @@ const ActualInput = styled.input<{
   }) =>
     `
     color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
-    
+
     &:hover {
         color: ${
           isDarkSkin ? light.states.normal.color : dark.states.normal.color
@@ -214,7 +215,7 @@ const AutocompleteList = styled.div<{
               isDarkSkin
                 ? light.states.hover.backgroundColor
                 : dark.states.hover.backgroundColor
-            }; 
+            };
             color: ${
               isDarkSkin ? light.states.hover.color : dark.states.hover.color
             };
@@ -293,11 +294,13 @@ type Props = {
 
 export type AutocompleteDropdownProps = Props;
 
+type TimeoutOrNull = NodeJS.Timeout | null;
+
 const AutocompleteDropdown = (props: Props) => {
   const { value, autofocus, autocomplete = true } = props;
-  let inputBlurTimer: any;
+  let inputBlurTimer: TimeoutOrNull;
   const [isOpen, setIsOpen] = useState(false);
-  const [list, setList] = useState<Array<any>>([]);
+  const [list, setList] = useState<string[]>([]);
   const [isFocus, setIsFocus] = useState(-1);
   const [editField, setEditField] = useState(value || '');
   const [move, setMove] = useState<string | null>(null);
@@ -317,7 +320,7 @@ const AutocompleteDropdown = (props: Props) => {
     // @ts-ignore
     const { value } = inputField.current || {};
 
-    let list: any = [];
+    let list: typeof data = []; // typeof data = []
 
     if (value && value.trim() && autocomplete) {
       list = data.filter(
@@ -363,7 +366,7 @@ const AutocompleteDropdown = (props: Props) => {
     setIsOpen(!isOpen);
   };
 
-  const pressEnterKey = (e: KeyboardEvent) => {
+  const pressEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { onChange, getItemValue, onEnter } = props;
     const data = list[isFocus];
 
@@ -374,11 +377,13 @@ const AutocompleteDropdown = (props: Props) => {
     setList([]);
     setIsOpen(false);
 
+    const genericEvent: React.KeyboardEvent = e as React.KeyboardEvent;
+
     // @ts-ignore
-    onEnter(e.target.value);
+    onEnter(genericEvent);
   };
 
-  const handleInputKeyUp = (e: any) => {
+  const handleInputKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { keyCode } = e;
 
     e.stopPropagation();
@@ -437,7 +442,12 @@ const AutocompleteDropdown = (props: Props) => {
     }
   };
 
-  const renderItem = (item: any) => (
+  interface ItemType {
+    nickname: string;
+    address: string;
+  }
+
+  const renderItem = (item: ItemType) => (
     <div role="button" tabIndex={-1}>
       {item.nickname} - {getAbbreviatedAddress(item.address)}
     </div>
@@ -461,7 +471,7 @@ const AutocompleteDropdown = (props: Props) => {
     return menus;
   };
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { target } = e;
     const { value } = target;
     const { onChange } = props;

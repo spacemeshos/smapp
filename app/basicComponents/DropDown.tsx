@@ -109,7 +109,7 @@ const HeaderWrapper = styled.div<{
     }
 
     color: ${isDarkMode ? dark.states.normal.color : light.states.normal.color};
-    
+
     &:hover {
         color: ${
           isDarkMode ? dark.states.hover.color : light.states.hover.color
@@ -170,7 +170,7 @@ const DropdownRow = styled.div<{
               isDarkMode
                 ? dark.states.hover.backgroundColor
                 : light.states.hover.backgroundColor
-            }; 
+            };
             color: ${
               isDarkMode ? dark.states.hover.color : light.states.hover.color
             };
@@ -254,17 +254,17 @@ const ItemsWrapper = styled.div<{
       },
     },
   }) => `
-  
+
   > div:first-child {
     border-top: 1px solid ${isDarkMode ? dark.borderColor : light.borderColor};
   }
-  
+
   > div:last-child  {
       border-bottom: none;
-  }  
-    
+  }
+
   > div {
-    
+
     border-bottom: 1px solid  ${
       isDarkMode ? dark.borderColor : light.borderColor
     };
@@ -365,12 +365,14 @@ const DropDownItem: React.FC<DropDownItemProps> = ({
   </StyledDropDownItem>
 );
 
+type NumberOrString = number | string;
+
 type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
   onClose?: () => void;
   data: Partial<T>[];
   selectedItemIndex: number;
-  rowHeight?: number | string;
+  rowHeight?: NumberOrString;
   isOpened?: boolean;
   isDisabled?: boolean;
   bold?: boolean;

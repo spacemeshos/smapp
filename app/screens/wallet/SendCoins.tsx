@@ -81,7 +81,7 @@ const SendCoins = ({ history, location }: Props) => {
     })();
   }, [currentAccountIndex, address, amount, currentAccount]);
 
-  const updateTxNote = ({ value }: { value: any }) => {
+  const updateTxNote = ({ value }: { value: string }) => {
     setNote(value);
   };
 
