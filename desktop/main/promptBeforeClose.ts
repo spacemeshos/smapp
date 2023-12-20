@@ -19,7 +19,8 @@ const promptBeforeClose = (
   mainWindow: BrowserWindow,
   managers: Partial<Managers>,
   $isAppClosing: BehaviorSubject<boolean>,
-  $showWindowOnLoad: Subject<boolean>
+  $showWindowOnLoad: Subject<boolean>,
+  $isUpdateInProgress: BehaviorSubject<boolean>
 ) => {
   const showPrompt = async () => {
     if (!mainWindow) return CloseAppPromptResult.KEEP_SMESHING;
@@ -64,8 +65,10 @@ const promptBeforeClose = (
   };
 
   const handleClosingApp = async (event: Electron.Event) => {
-    event.preventDefault();
-    if (!mainWindow) {
+    // in case of autoUpdater before-quit-for-update event, the event may be undefined
+    event?.preventDefault();
+    // if user requested update or no mainWindow, do not show the prompt
+    if ($isUpdateInProgress.value || !mainWindow) {
       await quit();
       return;
     }

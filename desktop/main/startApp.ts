@@ -133,6 +133,7 @@ const startApp = (): AppStore => {
     $isAppClosing,
     $showWindowOnLoad,
     $isWindowReady,
+    $isUpdateInProgress,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
@@ -218,7 +219,8 @@ const startApp = (): AppStore => {
       $managers,
       $mainWindow,
       $isAppClosing,
-      $showWindowOnLoad
+      $showWindowOnLoad,
+      $isUpdateInProgress
     ),
     // Unlock / Create wallet
     // Switch network
@@ -264,7 +266,8 @@ const startApp = (): AppStore => {
       CHECK_UPDATES_INTERVAL,
       $mainWindow,
       $managers,
-      $currentNetwork
+      $currentNetwork,
+      $isUpdateInProgress
     ),
     handleOpenDashboard($mainWindow, $currentNetwork),
     sendWarningsToRenderer($warnings, $mainWindow, $isWindowReady),
