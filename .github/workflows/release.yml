@@ -381,46 +381,97 @@ jobs:
       - run: cp -f ./release/latest-merged.yml ./release/macos-arm64/latest-mac.yml
 
       # Upload artifacts to Cloudflare
-      - name: Set up Cloudflare SDK
-        uses: cloudflare/setup-cloudflare@v1
+      - name: Upload macos artifact CF
+        uses: ryand56/r2-upload-action@latest
         with:
-          account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          key: ${{ secrets.CLOUDFLARE_KEY }}
+          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source-dir: ./release/macos/
+          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+
+      - name: Upload macos arm64 artifact CF
+        uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source-dir: ./release/macos-arm64/
+          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+
+      - name: Upload windows artifact CF
+        uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.LOUDFLARE_BUCKET }}
+          source-dir: ./release/windows-signed/
+          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+
+      - name: Upload linux artifact CF
+        uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source-dir: ./release/linux/
+          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+
+      - name: Upload linux arm64 artifact CF
+        uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source-dir: ./release/linux-arm64/
+          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+
+      # Upload artifacts to GCS
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
 
       - name: Upload macos artifact
-        uses: cloudflare/upload-cdn@v1
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/macos/
-          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload macos arm64 artifact
-        uses: cloudflare/upload-cdn@v1
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/macos-arm64/
-          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload windows build
-        uses: cloudflare/upload-cdn@v1
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/windows-signed/
-          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload linux build
-        uses: cloudflare/upload-cdn@v1
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/linux/
-          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload linux arm64 build
-        uses: cloudflare/upload-cdn@v1
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/linux-arm64/
-          destination: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Create Release
