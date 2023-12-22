@@ -389,7 +389,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos/
-          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination-dir: smapp/${{ needs.build.outputs.tagName }}
 
       - name: Upload macos arm64 artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -399,7 +399,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos-arm64/
-          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination-dir: smapp/${{ needs.build.outputs.tagName }}
 
       - name: Upload windows artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -409,7 +409,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.LOUDFLARE_BUCKET }}
           source-dir: ./release/windows-signed/
-          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination-dir: smapp/${{ needs.build.outputs.tagName }}
 
       - name: Upload linux artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -419,7 +419,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux/
-          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination-dir: smapp/${{ needs.build.outputs.tagName }}
 
       - name: Upload linux arm64 artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -429,7 +429,25 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux-arm64/
-          destination-dir: ${{ secrets.CLOUDFLARE_BUCKET }}/${{ needs.build.outputs.tagName }}
+          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+
+      - name: Create Release CF
+        id: create-release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Release ${{ needs.build.outputs.tagName }}
+          body: |
+            ## Compiled Binaries
+            - Windows: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
+            - macOS: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
+            - Linux
+              - AppImage [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
+                GPG signatures: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
+              - deb [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
+          draft: true
+          prerelease: true
 
       # Upload artifacts to GCS
       - name: Set up GCloud SDK
@@ -474,7 +492,7 @@ jobs:
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
-      - name: Create Release
+      - name: Create Release GC
         id: create-release
         uses: softprops/action-gh-release@v1
         env:
