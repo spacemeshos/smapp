@@ -16,6 +16,31 @@ export enum TxState {
   INVALID = 9,
 }
 
+export const formatTxState = (txState: TxState) => {
+  switch (txState) {
+    case TxState.UNSPECIFIED:
+    default:
+      return 'Unspecified State';
+    case TxState.REJECTED:
+      return 'Rejected';
+    case TxState.CONFLICTING:
+      return 'Conflicting';
+    case TxState.INSUFFICIENT_FUNDS:
+      return 'Insufficient funds';
+    case TxState.FAILURE:
+      return 'Failure';
+    case TxState.INVALID:
+      return 'Invalid Transaction';
+    case TxState.MEMPOOL:
+      return 'In Mempool';
+    case TxState.MESH:
+      return 'In Mesh';
+    case TxState.PROCESSED:
+    case TxState.SUCCESS:
+      return 'Applied';
+  }
+};
+
 export const toTxState = (state: TState | TxState, res?: TResult): TxState => {
   if (!state) return TxState.UNSPECIFIED;
   if (typeof res === 'number') return TxState.PROCESSED + 1 + res;
