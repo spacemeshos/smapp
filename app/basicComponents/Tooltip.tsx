@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../vars';
 
@@ -69,17 +69,25 @@ const OuterIcon = styled.img.attrs((props) => ({
   }) => infoTooltip.color};
 `;
 
-const Wrapper = styled.div<{ marginTop: number; marginLeft: number }>`
+const Wrapper = styled.div<{
+  marginTop: number;
+  marginLeft: number;
+  disabled: boolean;
+}>`
   position: relative;
   margin-left: ${({ marginLeft }) => marginLeft}px;
   display: inline-block;
   margin-top: ${({ marginTop }) => marginTop}px;
-  &:hover ${InnerWrapper} {
-    display: block;
-  }
+  ${({ disabled }) =>
+    !disabled &&
+    `
+    &:hover ${InnerWrapper} {
+      display: block;
+    }
+  `}
 `;
 
-type Props = {
+type Props = PropsWithChildren<{
   top?: number;
   left?: number;
   width: number;
@@ -88,7 +96,8 @@ type Props = {
   text: string;
   hide?: boolean;
   affectTextCase?: boolean;
-};
+  disabled?: boolean;
+}>;
 
 const Tooltip = ({
   width,
@@ -98,10 +107,12 @@ const Tooltip = ({
   marginTop = 2,
   marginLeft = 5,
   hide = true,
+  disabled = false,
   affectTextCase,
+  children,
 }: Props) => (
-  <Wrapper marginTop={marginTop} marginLeft={marginLeft}>
-    <OuterIcon />
+  <Wrapper marginTop={marginTop} marginLeft={marginLeft} disabled={disabled}>
+    {children ?? <OuterIcon />}
     <InnerWrapper top={top} left={left} width={width} hide={hide}>
       <InnerIcon />
       <Text affectTextCase={affectTextCase}>{text}</Text>
