@@ -16,6 +16,7 @@ import {
   WrapperWith2SideBars,
   CorneredWrapper,
   DropDown,
+  Tooltip,
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
@@ -28,11 +29,14 @@ import {
   RewardView,
   TxView,
 } from '../../redux/wallet/selectors';
-import { TxState, Bech32Address } from '../../../shared/types';
+import { TxState, Bech32Address, formatTxState } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
 import { DAY, ExternalLinks } from '../../../shared/constants';
 import { SingleSigMethods } from '../../../shared/templateConsts';
 import { setRef } from '../../infra/utils';
+import { formatDateAsISO } from '../../../shared/datetime';
+import exportCsvIcon from '../../assets/images/export_csv_icon.svg';
+import exportCsvDisabledIcon from '../../assets/images/export_csv_disabled_icon.svg';
 
 const Wrapper = styled.div`
   display: flex;
@@ -71,6 +75,44 @@ const DropDownWrapper = styled.div`
 
 const FilterDropDownWrapper = styled(DropDownWrapper)`
   right: 30px;
+`;
+
+const ExportButtonWrapper = styled(DropDownWrapper)`
+  width: 30px;
+  right: 205px;
+`;
+
+const ExportButton = styled.button`
+  border: 0;
+  outline: 0;
+  background: transparent;
+  &:disabled {
+    cursor: pointer;
+  }
+  ${(props) =>
+    !props.disabled &&
+    `
+    cursor: pointer;
+    & > * {
+      cursor: pointer;
+    }
+    &:hover {
+      opacity: 0.5;
+    }
+    &:active {
+      transform: translate3d(2px, 2px, 0);
+    }
+    `}
+`;
+
+const ExportIcon = styled.img`
+  align-self: center;
+  width: 36px;
+  height: 36px;
+  border: 5px solid transparent;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  margin: 0 3px;
 `;
 
 const getNumOfCoinsFromTransactions = (
@@ -246,6 +288,131 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setAddressToAdd('');
   };
 
+  const getCsvFileNameSuffix = () => {
+    switch (txFilter) {
+      case TxFilter.All:
+      default:
+        throw new Error('Cannot export Transactions and Reward at once');
+      case TxFilter.Received:
+        return 'txs-received';
+      case TxFilter.Sent:
+        return 'txs-sent';
+      case TxFilter.Transactions:
+        return 'txs';
+      case TxFilter.Rewards:
+        return 'rewards';
+    }
+  };
+  const getCsvContent = () => {
+    switch (txFilter) {
+      case TxFilter.All:
+      default:
+        throw new Error('Cannot export Transactions and Reward at once');
+      case TxFilter.Received:
+      case TxFilter.Sent:
+      case TxFilter.Transactions: {
+        const totals = (transactions as TxView[]).reduce(
+          (acc, next) => {
+            const isOutgoing = next.principal === address;
+            const sign = isOutgoing ? BigInt(-1) : BigInt(1);
+            const amount =
+              sign * (next.payload?.Arguments?.Amount ?? BigInt(0));
+            return {
+              gas: acc.gas - next.gas.fee,
+              spent: acc.spent + amount,
+            };
+          },
+          { gas: 0, spent: BigInt(0) }
+        );
+        return [
+          [
+            'ID',
+            'Template',
+            'Method',
+            'Date',
+            'Layer',
+            'Status',
+            'Gas Spent in Smidge',
+            'Principal address',
+            'Sent to',
+            'Amount in Smidge',
+            'Note',
+          ].join(','),
+          (transactions as TxView[])
+            .map((tx: TxView) => {
+              const isOutgoing = tx.principal === address;
+              const sign = isOutgoing ? BigInt(-1) : BigInt(1);
+              const amount =
+                tx.method === SingleSigMethods.Spend
+                  ? sign * tx.payload.Arguments.Amount
+                  : BigInt(0);
+              return [
+                tx.id,
+                tx.meta?.templateName,
+                tx.meta?.methodName,
+                tx.timestamp
+                  ? formatDateAsISO(new Date(tx.timestamp))
+                  : 'Unknown date',
+                tx.layer ?? 'Unknown layer',
+                formatTxState(tx.status),
+                -tx.gas.fee,
+                tx.principal,
+                tx.method === SingleSigMethods.Spend
+                  ? tx.payload.Arguments.Destination
+                  : 'SelfSpawn',
+                tx.method === SingleSigMethods.Spend ? amount.toString() : '0',
+                tx.note ?? '',
+              ].join(',');
+            })
+            .join('\n'),
+          [
+            'Transactions:',
+            transactions.length,
+            '',
+            '',
+            '',
+            '',
+            totals.gas,
+            '',
+            '',
+            totals.spent.toString(),
+            '',
+          ].join(','),
+        ].join('\n');
+      }
+      case TxFilter.Rewards: {
+        const totals = (transactions as RewardView[]).reduce(
+          (acc, next) => acc + next.amount,
+          0
+        );
+        return [
+          ['Layer', 'Date', 'Reward in Smidge'].join(','),
+          (transactions as RewardView[])
+            .map((r) =>
+              [
+                r.layer,
+                r.timestamp
+                  ? formatDateAsISO(new Date(r.timestamp))
+                  : 'Unknown date',
+                r.amount,
+              ].join(',')
+            )
+            .join('\n'),
+          ['Rewards:', transactions.length, totals].join(','),
+        ].join('\n');
+      }
+    }
+  };
+  const exportCsv = () => {
+    const content = getCsvContent();
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/csv' });
+    element.href = URL.createObjectURL(file);
+    element.download = `export-${getCsvFileNameSuffix()}.csv`;
+    element.click();
+  };
+  const isExportCsvDisabled = txFilter === TxFilter.All;
+
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
   const filteredTransactions = filterLastDays(
@@ -285,6 +452,27 @@ const Transactions = ({ history }: RouteComponentProps) => {
             dark
           />
         </FilterDropDownWrapper>
+        <ExportButtonWrapper>
+          <Tooltip
+            width={200}
+            left={-190}
+            text="Select a filter to enable export as CSV"
+            disabled={!isExportCsvDisabled}
+          >
+            <ExportButton
+              type="button"
+              disabled={isExportCsvDisabled}
+              title="Export as CSV"
+              onClick={exportCsv}
+            >
+              <ExportIcon
+                src={
+                  isExportCsvDisabled ? exportCsvDisabledIcon : exportCsvIcon
+                }
+              />
+            </ExportButton>
+          </Tooltip>
+        </ExportButtonWrapper>
         <TransactionList
           address={address}
           transactions={transactions}
