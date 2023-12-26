@@ -432,7 +432,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos/
-          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+          destination-dir: dist/${{ needs.build.outputs.tagName }}
 
       - name: Upload macos arm64 artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -442,7 +442,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos-arm64/
-          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+          destination-dir: dist/${{ needs.build.outputs.tagName }}
 
       - name: Upload windows artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -452,7 +452,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.LOUDFLARE_BUCKET }}
           source-dir: ./release/windows-signed/
-          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+          destination-dir: dist/${{ needs.build.outputs.tagName }}
 
       - name: Upload linux artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -462,7 +462,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux/
-          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+          destination-dir: dist/${{ needs.build.outputs.tagName }}
 
       - name: Upload linux arm64 artifact CF
         uses: ryand56/r2-upload-action@latest
@@ -472,7 +472,7 @@ jobs:
           r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux-arm64/
-          destination-dir: smapp/${{ needs.build.outputs.tagName }}
+          destination-dir: dist/${{ needs.build.outputs.tagName }}
 
       - name: Create Release
         id: create-release
