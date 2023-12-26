@@ -492,23 +492,23 @@ jobs:
           source-dir: ./release/linux-arm64/
           destination-dir: smapp/${{ needs.build.outputs.tagName }}
 
-      - name: Create Release CF
-        id: create-release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: Release ${{ needs.build.outputs.tagName }}
-          body: |
-            ## Compiled Binaries
-            - Windows: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
-            - macOS: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
-            - Linux
-              - AppImage [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
-                GPG signatures: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
-              - deb [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
-          draft: true
-          prerelease: true
+      # - name: Create Release CF
+      #   id: create-release
+      #   uses: softprops/action-gh-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     name: Release ${{ needs.build.outputs.tagName }}
+      #     body: |
+      #       ## Compiled Binaries
+      #       - Windows: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
+      #       - macOS: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
+      #       - Linux
+      #         - AppImage [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
+      #           GPG signatures: [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
+      #         - deb [x64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://smapp2.spacemesh.network/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
+      #     draft: true
+      #     prerelease: true
 
       - name: Delete all artifacts
         uses: geekyeggo/delete-artifact@v1
