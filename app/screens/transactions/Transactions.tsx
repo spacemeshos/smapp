@@ -16,6 +16,7 @@ import {
   WrapperWith2SideBars,
   CorneredWrapper,
   DropDown,
+  Tooltip,
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
@@ -35,6 +36,7 @@ import { SingleSigMethods } from '../../../shared/templateConsts';
 import { setRef } from '../../infra/utils';
 import { formatDateAsISO } from '../../../shared/datetime';
 import exportCsvIcon from '../../assets/images/export_csv_icon.svg';
+import exportCsvDisabledIcon from '../../assets/images/export_csv_disabled_icon.svg';
 
 const Wrapper = styled.div`
   display: flex;
@@ -77,7 +79,7 @@ const FilterDropDownWrapper = styled(DropDownWrapper)`
 
 const ExportButtonWrapper = styled(DropDownWrapper)`
   width: 30px;
-  right: 195px;
+  right: 205px;
 `;
 
 const ExportButton = styled.button`
@@ -85,7 +87,6 @@ const ExportButton = styled.button`
   outline: 0;
   background: transparent;
   &:disabled {
-    opacity: 0.2;
     cursor: pointer;
   }
   ${(props) =>
@@ -104,9 +105,7 @@ const ExportButton = styled.button`
     `}
 `;
 
-const ExportIcon = styled.img.attrs({
-  src: exportCsvIcon,
-})`
+const ExportIcon = styled.img`
   align-self: center;
   width: 36px;
   height: 36px;
@@ -412,6 +411,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
     element.download = `export-${getCsvFileNameSuffix()}.csv`;
     element.click();
   };
+  const isExportCsvDisabled = txFilter === TxFilter.All;
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
@@ -453,18 +453,25 @@ const Transactions = ({ history }: RouteComponentProps) => {
           />
         </FilterDropDownWrapper>
         <ExportButtonWrapper>
-          <ExportButton
-            type="button"
-            disabled={txFilter === TxFilter.All}
-            title={
-              txFilter === TxFilter.All
-                ? 'Choose Transactions or Rewards to export'
-                : 'Export as CSV'
-            }
-            onClick={exportCsv}
+          <Tooltip
+            width={200}
+            left={-190}
+            text="Select a filter to enable export as CSV"
+            disabled={!isExportCsvDisabled}
           >
-            <ExportIcon />
-          </ExportButton>
+            <ExportButton
+              type="button"
+              disabled={isExportCsvDisabled}
+              title="Export as CSV"
+              onClick={exportCsv}
+            >
+              <ExportIcon
+                src={
+                  isExportCsvDisabled ? exportCsvDisabledIcon : exportCsvIcon
+                }
+              />
+            </ExportButton>
+          </Tooltip>
         </ExportButtonWrapper>
         <TransactionList
           address={address}
