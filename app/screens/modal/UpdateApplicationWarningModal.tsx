@@ -40,19 +40,19 @@ const UpdateApplicationWarningModal = ({ isOpen, onApprove, onCancel }) => {
     <Modal header="Update SMAPP" height={380}>
       <Message>
         <p>
-          Restarting now is <b>CRITICAL</b> and may impact your node’s
-          performance and rewards.
+          To finalize the update, Smapp must be restarted. However, verify your
+          eligibility for upcoming layer rewards. Powering off the node risks
+          missing proposal submissions and losing the rewards.
         </p>
         <ul>
           <li>
             Click <b style={{ color: smColors.green }}>RESTART NOW</b> to apply
-            the update immediately. Delaying the update could result in
-            potential loss of rewards.
+            the update immediately.
           </li>
           <li>
             Click <b style={{ color: smColors.purple }}>POSTPONE</b> to delay
-            the update. Be aware that postponing may slow down your node’s
-            performance and future rewards.
+            the update. The persistent &quot;restart Smapp&quot; button will
+            remind you about the pending update.
           </li>
         </ul>
       </Message>

@@ -24,6 +24,7 @@ import updaterSlice from '../../redux/updater/slice';
 import { SECOND } from '../../../shared/constants';
 import { Loader } from '../../basicComponents';
 import UpdateApplicationWarningModal from '../../screens/modal/UpdateApplicationWarningModal';
+import * as SmesherSelectors from '../../redux/smesher/selectors';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -197,6 +198,7 @@ const UpdateStatus = () => {
   const isDownloading = useSelector(isUpdateDownloading);
   const isDownloaded = useSelector(isUpdateDownloaded);
   const error = useSelector(getError);
+  const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const [
     isOpenUpdateApplicationWarningModal,
     setIsOpenUpdateApplicationWarningModal,
@@ -216,6 +218,14 @@ const UpdateStatus = () => {
     }, 10 * SECOND);
   };
 
+  const handleRestart = () => {
+    if (isSmeshing) {
+      setIsOpenUpdateApplicationWarningModal(true);
+    } else {
+      handleRestartNow();
+    }
+  };
+
   const handlePostpone = () => {
     setIsOpenUpdateApplicationWarningModal(false);
   };
@@ -233,11 +243,7 @@ const UpdateStatus = () => {
     return (
       <>
         <ProgressChunk>Update is ready to install</ProgressChunk>
-        <PrimaryAction
-          onClick={() => setIsOpenUpdateApplicationWarningModal(true)}
-        >
-          Restart Smapp
-        </PrimaryAction>
+        <PrimaryAction onClick={handleRestart}>Restart Smapp</PrimaryAction>
         <UpdateApplicationWarningModal
           isOpen={isOpenUpdateApplicationWarningModal}
           onApprove={handleRestartNow}
