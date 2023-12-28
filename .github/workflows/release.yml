@@ -425,54 +425,54 @@ jobs:
 
       # Upload artifacts to Cloudflare
       - name: Upload macos artifact CF
-        uses: ryand56/r2-upload-action@latest
+        uses: shallwefootball/s3-upload-action@master
         with:
-          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos/
           destination-dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: Upload macos arm64 artifact CF
-        uses: ryand56/r2-upload-action@latest
+        uses: shallwefootball/s3-upload-action@master
         with:
-          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/macos-arm64/
           destination-dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: Upload windows artifact CF
-        uses: ryand56/r2-upload-action@latest
+        uses: shallwefootball/s3-upload-action@master
         with:
-          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.LOUDFLARE_BUCKET }}
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/windows-signed/
           destination-dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: Upload linux artifact CF
-        uses: ryand56/r2-upload-action@latest
+        uses: shallwefootball/s3-upload-action@master
         with:
-          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux/
           destination-dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: Upload linux arm64 artifact CF
-        uses: ryand56/r2-upload-action@latest
+        uses: shallwefootball/s3-upload-action@master
         with:
-          r2-account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source-dir: ./release/linux-arm64/
           destination-dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - name: Create Release
         id: create-release
