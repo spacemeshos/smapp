@@ -423,6 +423,57 @@ jobs:
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
+      # Upload artifacts to Cloudflare
+      - name: Upload macos artifact CF
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/macos/
+          destination_dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Upload macos arm64 artifact CF
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/macos-arm64/
+          destination_dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Upload windows artifact CF
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/windows-signed/
+          destination_dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Upload linux artifact CF
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/linux/
+          destination_dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Upload linux arm64 artifact CF
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/linux-arm64/
+          destination_dir: dist/${{ needs.build.outputs.tagName }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
       - name: Create Release
         id: create-release
         uses: softprops/action-gh-release@v1
@@ -432,12 +483,12 @@ jobs:
           name: Release ${{ needs.build.outputs.tagName }}
           body: |
             ## Compiled Binaries
-            - Windows: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
-            - macOS: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
+            - Windows: [x64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe)
+            - macOS: [x64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
             - Linux
-              - AppImage [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
-                GPG signatures: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
-              - deb [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
+              - AppImage [x64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
+                GPG signatures: [x64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
+              - deb [x64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://smapp.spacemesh.network/dist/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
           draft: true
           prerelease: true
 
