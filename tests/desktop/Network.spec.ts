@@ -1,4 +1,4 @@
-import { generateGenesisID } from '../../desktop/main/Networks';
+import { generateGenesisID } from 'shared/utils';
 
 describe('test Network util functions', () => {
   const genesisTime = '2022-11-20T20:00:00.498Z';

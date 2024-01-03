@@ -37,7 +37,8 @@ import NodeService, {
   StatusStreamHandler,
 } from './NodeService';
 import SmesherManager from './SmesherManager';
-import { createDebouncePool, getSpawnErrorReason, isEmptyDir } from './utils';
+import { createDebouncePool, getSpawnErrorReason } from './utils';
+import { isEmptyDir } from './fsUtils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import {
   DEFAULT_GRPC_PRIVATE_PORT,

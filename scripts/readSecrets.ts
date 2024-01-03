@@ -1,7 +1,7 @@
 import prompts from 'prompts';
 import fs from 'fs';
-import { decryptWallet } from '../desktop/main/walletFile';
 import { WalletFile } from '../shared/types';
+import { decryptWallet } from '../desktop/main/walletFile';
 
 (async () => {
   console.log('Attention!');

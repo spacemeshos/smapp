@@ -1,20 +1,11 @@
-import { hash } from '@spacemesh/sm-codec';
 import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
-import { toHexString } from '../../shared/utils';
+import { generateGenesisID } from '../../shared/utils';
 import { getStandaloneNetwork, isTestMode } from '../testMode';
 import { fetchJSON, patchQueryString } from '../utils';
 import { getEnvInfo } from '../envinfo';
 import { isDevNet } from '../envModes';
 import { toPublicService } from './utils';
-
-//
-// Assertions
-//
-
-export const generateGenesisID = (genesisTime: string, extraData: string) => {
-  return `${toHexString(hash(genesisTime + extraData)).substring(0, 40)}`;
-};
 
 export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
   if (

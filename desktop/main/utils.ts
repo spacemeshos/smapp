@@ -1,7 +1,7 @@
 import path from 'path';
 import readFromBottom from 'fs-reverse';
 import { app, BrowserWindow, Notification } from 'electron';
-import { isFileExists } from '../utils';
+import { isFileExists } from '../fsUtils';
 import { PublicService, SocketAddress } from '../../shared/types';
 import { USERDATA_DIR } from './constants';
 
@@ -114,7 +114,3 @@ export const toPublicService = (
   name: netName,
   ...toSocketAddress(url),
 });
-
-// to lower case and replace spaces with underscores
-export const getWalletFileName = (walletName: string) =>
-  walletName.toLowerCase().replaceAll(/\s/g, '_');

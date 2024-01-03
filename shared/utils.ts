@@ -1,4 +1,5 @@
 import os from 'os';
+import { hash } from '@spacemesh/sm-codec';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
 import { Event } from '../proto/spacemesh/v1/Event';
 import { Duration } from '../proto/google/protobuf/Duration';
@@ -138,6 +139,10 @@ export const getEventType = (event: NodeEvent): Event['details'] => {
   return eventType;
 };
 
+export const generateGenesisID = (genesisTime: string, extraData: string) => {
+  return `${toHexString(hash(genesisTime + extraData)).substring(0, 40)}`;
+};
+
 export const getShortGenesisId = (genesisID: HexString) =>
   genesisID.substring(0, 8);
 
@@ -149,3 +154,6 @@ export const isDebPackage = () =>
 
 export const isLinuxAppImage = () =>
   os.platform() === 'linux' && !!process.env.APPIMAGE;
+//
+// Assertions
+//
