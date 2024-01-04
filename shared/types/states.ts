@@ -14,6 +14,7 @@ export enum NodeStartupState {
   NotRunning = 'NotRunning',
   Starting = 'Starting',
   Compacting = 'Compacting',
+  RunningMigrations = 'RunningMigrations',
   Vacuuming = 'Vacuuming',
   VerifyingLayers = 'VerifyingLayers',
   StartingGRPC = 'StartingGRPC',
