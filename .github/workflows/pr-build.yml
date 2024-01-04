@@ -101,7 +101,7 @@ jobs:
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.node }}.zip"
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/go-spacemesh-${{ steps.latestNode.outputs.version }}-${{ matrix.node }}.zip"
 
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
