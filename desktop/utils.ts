@@ -1,6 +1,3 @@
-import util from 'util';
-import fs from 'fs';
-import { F_OK } from 'constants';
 import cs from 'checksum';
 import electronFetch, { RequestInit } from 'electron-fetch';
 import { NodeConfig } from '../shared/types';
@@ -72,33 +69,6 @@ export const isNetError = (error: Error) => error.message.startsWith('net::');
 // --------------------------------------------------------
 
 export const isByteArray = (a: any): a is Uint8Array => a instanceof Uint8Array;
-
-// --------------------------------------------------------
-// FS Utils
-// --------------------------------------------------------
-
-export const readFileAsync = util.promisify(fs.readFile);
-
-export const writeFileAsync = util.promisify(fs.writeFile);
-export const deleteFileAsync = util.promisify(fs.unlink);
-
-export const isFileExists = (filePath: string) =>
-  fs.promises
-    .access(filePath, F_OK)
-    .then(() => true)
-    .catch(() => false);
-
-export const isEmptyDir = async (path: string) => {
-  try {
-    const fsp = fs.promises;
-    const directory = await fsp.opendir(path);
-    const entry = await directory.read();
-    await directory.close();
-    return entry === null;
-  } catch (error) {
-    return false;
-  }
-};
 
 /**
  * Creates a pool of objects T which will be collected

@@ -28,8 +28,9 @@ import {
   listWallets,
   loadRawWallet,
   loadRawWallets,
+  getWalletFileName,
 } from './walletFile';
-import { getLocalNodeConnectionConfig, getWalletFileName } from './utils';
+import { getLocalNodeConnectionConfig } from './utils';
 import sendPromptToRenderer from './sendPromptToRenderer';
 
 const list = async () => {

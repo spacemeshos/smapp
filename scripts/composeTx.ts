@@ -3,9 +3,8 @@ import Bech32 from '@spacemesh/address-wasm';
 import prompts from 'prompts';
 
 import { sign } from '../desktop/ed25519';
-import { fromHexString } from '../shared/utils';
+import { fromHexString, generateGenesisID } from '../shared/utils';
 import { SingleSigMethods } from '../shared/templateConsts';
-import { generateGenesisID } from "../desktop/main/Networks";
 
 (async () => {
   // Inputs

@@ -4,7 +4,7 @@ import {
   isFileExists,
   readFileAsync,
   writeFileAsync,
-} from './utils';
+} from './fsUtils';
 
 interface SmesherMetadata {
   smeshingStart?: number;

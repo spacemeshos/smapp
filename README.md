@@ -207,3 +207,24 @@ Additionally:
   Where `{GENESIS_ID}` is first 8 chars from the HexString. Eg `7c8cef2b`
 
 - Check if the incoming connections aren’t blocked for go-spacemesh
+
+## CLI-tools
+These tools are created for debugging and development purposes.
+They are not supposed to be used in the production (on real and valuable data).
+So use it at your own risk.
+
+### `yarn script:composeTx`
+Compose the transaction (and sign if needed).
+
+### `yarn script:decomposeTx`
+Decompose the transaction (byte array) to the human-readable structure (JSON)
+
+### `yarn script:readSecrets`
+Read secrets from the wallet file.
+For example, if you need to export private keys or mnemonics.
+
+### `yarn script:addViewAccount`
+Add a public key to the wallet file.
+It makes it possible to track someone else transactions and rewards.
+Pay attention that Smapp does not fully support such kinds of accounts.
+So in case you try to sign a message or publish a transaction — unhandled exceptions will occur.

@@ -37,9 +37,8 @@ import {
   KDF_ITERATIONS,
 } from '../aes-gcm';
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
-import { isFileExists } from '../utils';
+import { isFileExists } from '../fsUtils';
 import { getISODate } from '../../shared/datetime';
-import { getWalletFileName } from './utils';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
@@ -64,6 +63,9 @@ export const defaultizeWalletSecrets = (
   mnemonic: '',
   ...secrets,
 });
+
+export const getWalletFileName = (walletName: string) =>
+  walletName.toLowerCase().replaceAll(/\s/g, '_');
 
 //
 // Encryption
@@ -319,3 +321,4 @@ export const listWallets = async (
     ...(await listWalletsInDirectory(walletsDir)),
   ]);
 };
+// to lower case and replace spaces with underscores
