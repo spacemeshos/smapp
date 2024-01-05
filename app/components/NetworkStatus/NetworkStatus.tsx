@@ -37,6 +37,8 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
       return 'Starting node...';
     case NodeStartupState.Compacting:
       return 'Compacting database...';
+    case NodeStartupState.RunningMigrations:
+      return 'Running database migrations...';
     case NodeStartupState.Vacuuming:
       return 'Vacuuming database...';
     case NodeStartupState.StartingGRPC:

@@ -481,6 +481,8 @@ class NodeManager extends AbstractManager {
     rl.on('line', (line) => {
       if (line.includes('Welcome to Spacemesh')) {
         sendStatus(NodeStartupState.Compacting);
+      } else if (line.includes('running migrations')) {
+        sendStatus(NodeStartupState.RunningMigrations);
       } else if (line.includes('vacuuming db')) {
         sendStatus(NodeStartupState.Vacuuming);
       } else if (line.includes('candidate layer is verified')) {
