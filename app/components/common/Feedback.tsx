@@ -201,6 +201,7 @@ interface FormFields {
   name: string;
   email: string;
   comments: string;
+  title: string;
 }
 
 const DESCRIPTION_PLACEHOLDER = ``;
@@ -224,11 +225,13 @@ const FeedbackButton = () => {
     name: '',
     email: '',
     comments: '',
+    title: '',
   });
   const [fieldErrors, setFieldErrors] = useState({
     name: '',
     email: '',
     comments: '',
+    title: '',
   });
 
   const resetForm = () =>
@@ -236,6 +239,7 @@ const FeedbackButton = () => {
       name: '',
       email: '',
       comments: DESCRIPTION_PLACEHOLDER,
+      title: '',
     });
 
   const validate = () => {
@@ -364,6 +368,19 @@ const FeedbackButton = () => {
             {Boolean(fieldErrors.email) && (
               <ErrorMessage>{fieldErrors.email}</ErrorMessage>
             )}
+            <InputWrapper label="Title" required>
+              <ActualInput
+                value={userData.title}
+                type="text"
+                placeholder="Clear and concise description of the issue"
+                onChange={(e: any) =>
+                  setUserData((userData) => ({
+                    ...userData,
+                    additionalInfo: e.target.value,
+                  }))
+                }
+              />
+            </InputWrapper>
             <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
