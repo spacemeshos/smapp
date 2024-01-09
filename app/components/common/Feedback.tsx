@@ -83,7 +83,7 @@ const SuccemssMessage = styled.span`
   font-size: 14px;
 `;
 
-const ActualInput = styled((props) => <input {...props} />)<{
+const ActualInput = styled((props) => <input {...props} />) <{
   value?: string;
   onKeyPress?: (event: any) => void;
   onChange: (event: any) => void;
@@ -99,26 +99,26 @@ const ActualInput = styled((props) => <input {...props} />)<{
   transition: background-color 100ms linear, border-color 100ms linear;
 
   color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) => states.normal.color};
+  },
+}) => states.normal.color};
   background-color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) => states.normal.backgroundColor};
+  },
+}) => states.normal.backgroundColor};
   ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) =>
+  },
+}) =>
     css`
       &:hover,
       &:focus,
@@ -203,22 +203,7 @@ interface FormFields {
   comments: string;
 }
 
-const DESCRIPTION_PLACEHOLDER = `### Describe the bug
-
-A clear and concise description of what the bug is.
-
-### Steps to reproduce
-
-Try to narrow down your scenario to a minimal working/failing example. That is, if you have a big program causing a problem, start with deleting parts not relevant to the issue and observing the result: is the problem still there? Repeat until you get the most straightforward sequence of steps to reproduce the problem without any noise surrounding it.
-
-### Expected behavior
-
-What should happen?
-
-### Actual behavior
-
-What’s happening now?
-`;
+const DESCRIPTION_PLACEHOLDER = ``;
 
 const FORM_ERRORS: Partial<FormFields> = {
   name: 'Your Discord handle or name should not be empty',
@@ -238,7 +223,7 @@ const FeedbackButton = () => {
   const [userData, setUserData] = useState<FormFields>({
     name: '',
     email: '',
-    comments: DESCRIPTION_PLACEHOLDER,
+    comments: '',
   });
   const [fieldErrors, setFieldErrors] = useState({
     name: '',
@@ -266,6 +251,10 @@ const FeedbackButton = () => {
 
       errors[key] = userData[key] === '' ? FORM_ERRORS[key] : '';
     });
+    // Add validation for comments
+    if (!userData.comments.trim() || userData.comments.trim().length < 15) {
+      errors['comments'] = 'Description must be at least 15 characters long';
+    }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
   };
@@ -375,11 +364,11 @@ const FeedbackButton = () => {
             {Boolean(fieldErrors.email) && (
               <ErrorMessage>{fieldErrors.email}</ErrorMessage>
             )}
-            <InputWrapper label="Step to reproduce" required>
+            <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
                 required
-                placeholder={DESCRIPTION_PLACEHOLDER}
+                placeholder="Provide clear steps to reproduce the issue, including expected and actual behaviors."
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
