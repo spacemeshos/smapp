@@ -255,9 +255,12 @@ const FeedbackButton = () => {
 
       errors[key] = userData[key] === '' ? FORM_ERRORS[key] : '';
     });
-    // Add validation for comments
-    if (!userData.comments.trim() || userData.comments.trim().length < 15) {
-      errors['comments'] = 'Description must be at least 15 characters long';
+    const titleLen = userData.title.trim().length;
+    if (titleLen < 10 || titleLen > 60) {
+      errors['title'] = 'Bug summary must be between 10 and 60 characters';
+    }
+    if (!userData.comments.trim() || userData.comments.trim().length < 30) {
+      errors['comments'] = 'Description must be at least 30 characters long';
     }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
@@ -376,10 +379,13 @@ const FeedbackButton = () => {
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
-                    additionalInfo: e.target.value,
+                    title: e.target.value,
                   }))
                 }
               />
+              {Boolean(fieldErrors.title) && (
+                <ErrorMessage>{fieldErrors.title}</ErrorMessage>
+              )}
             </InputWrapper>
             <InputWrapper label="Details" required>
               <StyledTextArea
