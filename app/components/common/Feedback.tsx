@@ -368,7 +368,7 @@ const FeedbackButton = () => {
             {Boolean(fieldErrors.email) && (
               <ErrorMessage>{fieldErrors.email}</ErrorMessage>
             )}
-            <InputWrapper label="Title" required>
+            <InputWrapper label="Issue overview" required>
               <ActualInput
                 value={userData.title}
                 type="text"
