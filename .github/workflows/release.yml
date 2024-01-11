@@ -15,27 +15,27 @@ jobs:
           - image: macos-latest
             id: macos
             platform: macos
-            node: macOS
+            node: mac-amd64
             arch: '' # x64
           - image: windows-latest
             id: windows
             platform: windows
-            node: Windows
+            node: win-amd64
             arch: '' # x64
           - image: ubuntu-latest
             id: linux
             platform: linux
-            node: Linux
+            node: linux-amd64
             arch: amd64
           - image: [self-hosted, macos, arm64]
             id: macos-arm64
             platform: macos
-            node: macOS_ARM64
+            node: mac-arm64
             arch: arm64
           - image: [self-hosted, linux, arm64]
             id: linux-arm64
             platform: linux
-            node: Linux_ARM64
+            node: linux-arm64
             arch: arm64
 
     outputs:
@@ -107,7 +107,7 @@ jobs:
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.node }}.zip"
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/go-spacemesh-${{ steps.latestNode.outputs.version }}-${{ matrix.node }}.zip"
 
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
