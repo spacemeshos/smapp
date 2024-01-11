@@ -56,7 +56,7 @@ const InputWrapper = styled(
 )`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 24px;
 `;
 
@@ -72,8 +72,8 @@ const ModalContainer = styled.div`
 
 const ErrorMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
-  margin-top: -16px;
-  margin-bottom: 20px;
+  margin-top: -20px;
+  margin-bottom: 10px;
   font-size: 14px;
 `;
 
@@ -136,7 +136,7 @@ const ActualInput = styled((props) => <input {...props} />) <{
   `}
 `;
 
-const StyledTextArea = styled((props) => <textarea {...props} rows={10} />)`
+const StyledTextArea = styled((props) => <textarea {...props} rows={3} />)`
   display: flex;
   flex-direction: column;
   resize: none;
@@ -273,7 +273,7 @@ const FeedbackButton = () => {
 
     const formData = {
       event_id: captureReactMessage(`
-           User has submitted an issue and asked to check it. Discord handle: ${userData.name} and email: ${userData.email}, 
+           Report: ${userData.title} By: ${userData.name}  email: ${userData.email}, 
          `),
       ...userData,
     };
@@ -375,7 +375,7 @@ const FeedbackButton = () => {
               <ActualInput
                 value={userData.title}
                 type="text"
-                placeholder="Clear and concise description of the issue"
+                placeholder="Concise description of the issue. 10-60 chars"
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -383,10 +383,10 @@ const FeedbackButton = () => {
                   }))
                 }
               />
-              {Boolean(fieldErrors.title) && (
+            </InputWrapper>
+            {Boolean(fieldErrors.title) && (
                 <ErrorMessage>{fieldErrors.title}</ErrorMessage>
               )}
-            </InputWrapper>
             <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
@@ -401,8 +401,8 @@ const FeedbackButton = () => {
               />
             </InputWrapper>
             {Boolean(fieldErrors.comments) && (
-              <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
-            )}
+                <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
+              )}
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
           <Row>
