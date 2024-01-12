@@ -25,6 +25,7 @@ export interface ProtoGrpcType {
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       LogLevel: EnumTypeDefinition
+      MalfeasanceProof: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
       NodeError: MessageTypeDefinition
       NodeInfoResponse: MessageTypeDefinition

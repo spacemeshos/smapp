@@ -7,16 +7,34 @@ import "node_types.proto";
 // Readonly basic node data
 service NodeService {
     // A simple test endpoint
-    rpc Echo(EchoRequest) returns (EchoResponse);
+    rpc Echo(EchoRequest) returns (EchoResponse) {
+        option (google.api.http) = {
+            post: "/v1/node/echo"
+            body: "*"
+        };
+    }
 
     // Returns the version of the node software as a semver string
-    rpc Version(google.protobuf.Empty) returns (VersionResponse);
+    rpc Version(google.protobuf.Empty) returns (VersionResponse) {
+        option (google.api.http) = {
+            post: "/v1/node/version"
+        };
+    }
 
     // Returns the github commit hash used to build the node
-    rpc Build(google.protobuf.Empty) returns (BuildResponse);
+    rpc Build(google.protobuf.Empty) returns (BuildResponse) {
+        option (google.api.http) = {
+            post: "/v1/node/build"
+        };
+    }
 
     // Current node status (net and sync)
-    rpc Status(StatusRequest) returns (StatusResponse);
+    rpc Status(StatusRequest) returns (StatusResponse) {
+        option (google.api.http) = {
+            post: "/v1/node/status"
+            body: "*"
+        };
+    }
 
     // NodeInfo is a node configuration info.
     rpc NodeInfo(google.protobuf.Empty) returns (NodeInfoResponse);

@@ -15,7 +15,12 @@ service DebugService {
 
     // Accounts returns data for all the accounts currently in the node's current global state.
     // This includes each account's address, nonce and balance but excludes projection of account state.
-    rpc Accounts (AccountsRequest) returns (AccountsResponse);
+    rpc Accounts (AccountsRequest) returns (AccountsResponse) {
+        option (google.api.http) = {
+            post: "/v1/debug/accounts"
+            body: "*"
+        };
+    }
 
     // ActiveSet returns the active set used by hare in a given epoch.
     rpc ActiveSet(ActiveSetRequest) returns (ActiveSetResponse);

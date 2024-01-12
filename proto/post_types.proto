@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package spacemesh.v1;
+import "types.proto";
+
+
+// NodeRequest is a request sent from the node to the post service.
+message NodeRequest {
+  oneof kind {
+    MetadataRequest metadata = 1;
+    GenProofRequest gen_proof = 2;
+    // InitRequest init = 3;
+    // ResizeRequest resize = 4;
+  }
+}
+
+// ServiceResponse is a response sent from the post service to the node.
+message ServiceResponse {
+  oneof kind {
+    MetadataResponse metadata = 1;
+    GenProofResponse gen_proof = 2;
+    // InitResponse init = 3;
+    // ResizeResponse resize = 4;
+  }
+}
+
+message GenProofRequest { bytes challenge = 1; }
+
+message Proof {
+  uint32 nonce = 1;
+  bytes indices = 2;
+  uint64 pow = 3;
+}
+
+message Metadata {
+  bytes node_id = 1;
+  bytes commitment_atx_id = 2;
+  optional uint64 nonce = 3;
+
+  uint32 num_units = 4;
+  uint64 labels_per_unit = 5;
+}
+
+message ProofMetadata {
+  bytes challenge = 1;
+  Metadata meta = 2;
+}
+
+enum GenProofStatus {
+  GEN_PROOF_STATUS_UNSPECIFIED = 0;
+  GEN_PROOF_STATUS_OK = 1;
+  GEN_PROOF_STATUS_ERROR = 2;
+}
+
+message GenProofResponse {
+  GenProofStatus status = 1;
+  Proof proof = 2;
+  ProofMetadata metadata = 3;
+}
+
+message MetadataRequest {}
+
+message MetadataResponse {
+  Metadata meta = 1;
+}

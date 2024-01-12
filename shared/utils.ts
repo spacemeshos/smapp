@@ -133,9 +133,6 @@ export const getEventType = (event: NodeEvent): Event['details'] => {
   const eventType = (Object.keys(event).filter(
     (e) => !['timestamp', 'failure', 'help'].includes(e)
   )[0] as unknown) as typeof event.details;
-  if (!eventType) {
-    throw new Error(`Unknown Node Event: ${JSON.stringify(event)}`);
-  }
   return eventType;
 };
 

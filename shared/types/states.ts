@@ -17,7 +17,6 @@ export enum NodeStartupState {
   RunningMigrations = 'RunningMigrations',
   Vacuuming = 'Vacuuming',
   VerifyingLayers = 'VerifyingLayers',
-  StartingGRPC = 'StartingGRPC',
   SyncingAtxs = 'SyncingAtxs',
   SyncingMaliciousProofs = 'SyncingMaliciousProofs',
   Ready = 'Ready',

@@ -44,6 +44,11 @@ export interface ProtoGrpcType {
       LayerStreamResponse: MessageTypeDefinition
       LayersQueryRequest: MessageTypeDefinition
       LayersQueryResponse: MessageTypeDefinition
+      MalfeasanceProof: MessageTypeDefinition
+      MalfeasanceRequest: MessageTypeDefinition
+      MalfeasanceResponse: MessageTypeDefinition
+      MalfeasanceStreamRequest: MessageTypeDefinition
+      MalfeasanceStreamResponse: MessageTypeDefinition
       MaxTransactionsPerSecondRequest: MessageTypeDefinition
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition

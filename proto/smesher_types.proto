@@ -111,7 +111,7 @@ message PostSetupOpts {
     string data_dir = 1;             // User provided path to create the setup data files at
     uint32 num_units = 2;            // Number of Post data units to generate
     uint64 max_file_size = 3;        // Max size in bytes of a single file within the data files
-    uint32 provider_id = 4;          // A `PostSetupProvider` id
+    optional uint32 provider_id = 4; // A `PostSetupProvider` id
     bool throttle = 5;               // Throttle down setup phase computations while user is interactive on system
 }
 
@@ -128,12 +128,4 @@ message PostSetupStatus {
     State state = 1;
     uint64 num_labels_written = 2;  // Number of labels (hashes) written to the data files
     PostSetupOpts opts = 3;         // setup options previously set by the user
-}
-
-message UpdatePoetServersRequest {
-    repeated string urls = 1;
-}
-
-message UpdatePoetServersResponse {
-    google.rpc.Status status = 1;
 }

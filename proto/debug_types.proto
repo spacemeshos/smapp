@@ -15,6 +15,22 @@ message AccountsResponse {
 
 message NetworkInfoResponse {
     string id = 1;
+    repeated string listen_addresses = 2;
+    repeated string known_addresses = 3;
+    enum NATType {
+        NATTypeUnknown = 0;
+        Cone = 1;
+        Symmetric = 2;
+    }
+    NATType nat_type_udp = 4;
+    NATType nat_type_tcp = 5;
+    enum Reachability {
+        ReachabilityUnknown = 0;
+        Public = 1;
+        Private = 2;
+    };
+    Reachability reachability = 6;
+    bool dht_server_enabled = 7;
 }
 
 message EpochData {

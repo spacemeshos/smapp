@@ -12,6 +12,9 @@ import type { EventAtxPubished as _spacemesh_v1_EventAtxPubished, EventAtxPubish
 import type { EventEligibilities as _spacemesh_v1_EventEligibilities, EventEligibilities__Output as _spacemesh_v1_EventEligibilities__Output } from '../../spacemesh/v1/EventEligibilities';
 import type { EventProposal as _spacemesh_v1_EventProposal, EventProposal__Output as _spacemesh_v1_EventProposal__Output } from '../../spacemesh/v1/EventProposal';
 import type { EventInitFailed as _spacemesh_v1_EventInitFailed, EventInitFailed__Output as _spacemesh_v1_EventInitFailed__Output } from '../../spacemesh/v1/EventInitFailed';
+import type { EventMalfeasance as _spacemesh_v1_EventMalfeasance, EventMalfeasance__Output as _spacemesh_v1_EventMalfeasance__Output } from '../../spacemesh/v1/EventMalfeasance';
+import type { EventPostServiceStarted as _spacemesh_v1_EventPostServiceStarted, EventPostServiceStarted__Output as _spacemesh_v1_EventPostServiceStarted__Output } from '../../spacemesh/v1/EventPostServiceStarted';
+import type { EventPostServiceStopped as _spacemesh_v1_EventPostServiceStopped, EventPostServiceStopped__Output as _spacemesh_v1_EventPostServiceStopped__Output } from '../../spacemesh/v1/EventPostServiceStopped';
 
 export interface Event {
   'timestamp'?: (_google_protobuf_Timestamp | null);
@@ -28,7 +31,10 @@ export interface Event {
   'eligibilities'?: (_spacemesh_v1_EventEligibilities | null);
   'proposal'?: (_spacemesh_v1_EventProposal | null);
   'initFailed'?: (_spacemesh_v1_EventInitFailed | null);
-  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed";
+  'malfeasance'?: (_spacemesh_v1_EventMalfeasance | null);
+  'postServiceStarted'?: (_spacemesh_v1_EventPostServiceStarted | null);
+  'postServiceStopped'?: (_spacemesh_v1_EventPostServiceStopped | null);
+  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped";
 }
 
 export interface Event__Output {
@@ -46,5 +52,8 @@ export interface Event__Output {
   'eligibilities'?: (_spacemesh_v1_EventEligibilities__Output | null);
   'proposal'?: (_spacemesh_v1_EventProposal__Output | null);
   'initFailed'?: (_spacemesh_v1_EventInitFailed__Output | null);
-  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed";
+  'malfeasance'?: (_spacemesh_v1_EventMalfeasance__Output | null);
+  'postServiceStarted'?: (_spacemesh_v1_EventPostServiceStarted__Output | null);
+  'postServiceStopped'?: (_spacemesh_v1_EventPostServiceStopped__Output | null);
+  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped";
 }

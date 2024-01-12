@@ -3,6 +3,7 @@ package spacemesh.v1;
 option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
+import "types.proto";
 
 message CheckpointStreamRequest {
   uint32 snapshot_layer = 1;
@@ -37,6 +38,9 @@ message Event {
     EventEligibilities eligibilities = 12;
     EventProposal proposal = 13;
     EventInitFailed init_failed = 14;
+    EventMalfeasance malfeasance = 15;
+    EventPostServiceStarted post_service_started = 16;
+    EventPostServiceStopped post_service_stopped = 17;
   }
 }
 
@@ -57,6 +61,10 @@ message EventInitFailed {
 }
 
 message EventInitComplete {}
+
+message EventPostServiceStarted {}
+
+message EventPostServiceStopped {}
 
 message EventPostStart {
   bytes challenge = 1;
@@ -104,4 +112,20 @@ message EventProposal {
   bytes proposal = 2;
 }
 
+message EventMalfeasance {
+    MalfeasanceProof proof = 1;
+}
+
 message EventStreamRequest {}
+
+message ConnectionInfo {
+    string address = 1;
+  	google.protobuf.Duration uptime = 2;
+    bool outbound = 3;
+}
+
+message PeerInfo {
+    string id = 1;
+    repeated ConnectionInfo connections = 2;
+    repeated string tags = 4;
+}

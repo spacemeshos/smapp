@@ -8,10 +8,20 @@ import "global_state_types.proto";
 // Global state is modified only by the state transition function.
 service GlobalStateService {
     // Latest computed global state - layer and its root hash
-    rpc GlobalStateHash(GlobalStateHashRequest) returns (GlobalStateHashResponse);
+    rpc GlobalStateHash(GlobalStateHashRequest) returns (GlobalStateHashResponse) {
+        option (google.api.http) = {
+            post: "/v1/globalstate/globalstatehash"
+            body: "*"
+        };
+    }
 
     // Account info in the current global state.
-    rpc Account(AccountRequest) returns (AccountResponse);
+    rpc Account(AccountRequest) returns (AccountResponse) {
+        option (google.api.http) = {
+            post: "/v1/globalstate/account"
+            body: "*"
+        };
+    }
 
     // Query for account related data such as rewards, tx receipts and account info
     //
@@ -19,12 +29,22 @@ service GlobalStateService {
     // as it may require indexing all global state changes per account by layer.
     // If it is possible to index by layer then we should add param start_layer to
     // AccountDataParams. Currently it will return data from genesis.
-    rpc AccountDataQuery(AccountDataQueryRequest) returns (AccountDataQueryResponse);
+    rpc AccountDataQuery(AccountDataQueryRequest) returns (AccountDataQueryResponse) {
+        option (google.api.http) = {
+            post: "/v1/globalstate/accountdataquery"
+            body: "*"
+        };
+    }
 
     // Query for smesher data. Currently returns smesher rewards.
     // Note: Not supporting start_layer yet as it may require to index all rewards by
     // smesher and by layer id or allow for queries from a layer and later....
-    rpc SmesherDataQuery(SmesherDataQueryRequest) returns (SmesherDataQueryResponse);
+    rpc SmesherDataQuery(SmesherDataQueryRequest) returns (SmesherDataQueryResponse) {
+        option (google.api.http) = {
+            post: "/v1/globalstate/smesherdataquery"
+            body: "*"
+        };
+    }
 
     ////////// Streams
 
