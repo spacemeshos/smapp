@@ -488,8 +488,6 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.Vacuuming);
       } else if (line.includes('candidate layer is verified')) {
         sendStatus(NodeStartupState.VerifyingLayers);
-      } else if (line.includes('Server created')) {
-        sendStatus(NodeStartupState.StartingGRPC);
       } else if (line.includes('syncing malicious proofs')) {
         sendStatus(NodeStartupState.SyncingMaliciousProofs);
       } else if (line.includes('syncing atx')) {

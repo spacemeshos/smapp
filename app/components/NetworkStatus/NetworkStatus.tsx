@@ -41,8 +41,6 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
       return 'Running database migrations...';
     case NodeStartupState.Vacuuming:
       return 'Vacuuming database...';
-    case NodeStartupState.StartingGRPC:
-      return 'Starting GRPC server...';
     case NodeStartupState.VerifyingLayers:
       return 'Tortoise verifying layers...';
     case NodeStartupState.SyncingAtxs:
