@@ -15,4 +15,8 @@ service AdminService {
 
   // Events that are relevant for node operator
   rpc EventsStream(EventStreamRequest) returns (stream Event);
+
+  // PeerInfo returns info for all connected peers. 
+  rpc PeerInfoStream(google.protobuf.Empty) returns (stream PeerInfo);
+
 }

@@ -24,6 +24,10 @@ import type { LayerStreamRequest as _spacemesh_v1_LayerStreamRequest, LayerStrea
 import type { LayerStreamResponse as _spacemesh_v1_LayerStreamResponse, LayerStreamResponse__Output as _spacemesh_v1_LayerStreamResponse__Output } from '../../spacemesh/v1/LayerStreamResponse';
 import type { LayersQueryRequest as _spacemesh_v1_LayersQueryRequest, LayersQueryRequest__Output as _spacemesh_v1_LayersQueryRequest__Output } from '../../spacemesh/v1/LayersQueryRequest';
 import type { LayersQueryResponse as _spacemesh_v1_LayersQueryResponse, LayersQueryResponse__Output as _spacemesh_v1_LayersQueryResponse__Output } from '../../spacemesh/v1/LayersQueryResponse';
+import type { MalfeasanceRequest as _spacemesh_v1_MalfeasanceRequest, MalfeasanceRequest__Output as _spacemesh_v1_MalfeasanceRequest__Output } from '../../spacemesh/v1/MalfeasanceRequest';
+import type { MalfeasanceResponse as _spacemesh_v1_MalfeasanceResponse, MalfeasanceResponse__Output as _spacemesh_v1_MalfeasanceResponse__Output } from '../../spacemesh/v1/MalfeasanceResponse';
+import type { MalfeasanceStreamRequest as _spacemesh_v1_MalfeasanceStreamRequest, MalfeasanceStreamRequest__Output as _spacemesh_v1_MalfeasanceStreamRequest__Output } from '../../spacemesh/v1/MalfeasanceStreamRequest';
+import type { MalfeasanceStreamResponse as _spacemesh_v1_MalfeasanceStreamResponse, MalfeasanceStreamResponse__Output as _spacemesh_v1_MalfeasanceStreamResponse__Output } from '../../spacemesh/v1/MalfeasanceStreamResponse';
 import type { MaxTransactionsPerSecondRequest as _spacemesh_v1_MaxTransactionsPerSecondRequest, MaxTransactionsPerSecondRequest__Output as _spacemesh_v1_MaxTransactionsPerSecondRequest__Output } from '../../spacemesh/v1/MaxTransactionsPerSecondRequest';
 import type { MaxTransactionsPerSecondResponse as _spacemesh_v1_MaxTransactionsPerSecondResponse, MaxTransactionsPerSecondResponse__Output as _spacemesh_v1_MaxTransactionsPerSecondResponse__Output } from '../../spacemesh/v1/MaxTransactionsPerSecondResponse';
 
@@ -115,6 +119,20 @@ export interface MeshServiceClient extends grpc.Client {
   layersQuery(argument: _spacemesh_v1_LayersQueryRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_LayersQueryResponse__Output) => void): grpc.ClientUnaryCall;
   layersQuery(argument: _spacemesh_v1_LayersQueryRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_LayersQueryResponse__Output) => void): grpc.ClientUnaryCall;
   
+  MalfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  MalfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  MalfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  MalfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  malfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  malfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  malfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  malfeasanceQuery(argument: _spacemesh_v1_MalfeasanceRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MalfeasanceResponse__Output) => void): grpc.ClientUnaryCall;
+  
+  MalfeasanceStream(argument: _spacemesh_v1_MalfeasanceStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_MalfeasanceStreamResponse__Output>;
+  MalfeasanceStream(argument: _spacemesh_v1_MalfeasanceStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_MalfeasanceStreamResponse__Output>;
+  malfeasanceStream(argument: _spacemesh_v1_MalfeasanceStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_MalfeasanceStreamResponse__Output>;
+  malfeasanceStream(argument: _spacemesh_v1_MalfeasanceStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_MalfeasanceStreamResponse__Output>;
+  
   MaxTransactionsPerSecond(argument: _spacemesh_v1_MaxTransactionsPerSecondRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MaxTransactionsPerSecondResponse__Output) => void): grpc.ClientUnaryCall;
   MaxTransactionsPerSecond(argument: _spacemesh_v1_MaxTransactionsPerSecondRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MaxTransactionsPerSecondResponse__Output) => void): grpc.ClientUnaryCall;
   MaxTransactionsPerSecond(argument: _spacemesh_v1_MaxTransactionsPerSecondRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MaxTransactionsPerSecondResponse__Output) => void): grpc.ClientUnaryCall;
@@ -149,6 +167,10 @@ export interface MeshServiceHandlers extends grpc.UntypedServiceImplementation {
   
   LayersQuery: grpc.handleUnaryCall<_spacemesh_v1_LayersQueryRequest__Output, _spacemesh_v1_LayersQueryResponse>;
   
+  MalfeasanceQuery: grpc.handleUnaryCall<_spacemesh_v1_MalfeasanceRequest__Output, _spacemesh_v1_MalfeasanceResponse>;
+  
+  MalfeasanceStream: grpc.handleServerStreamingCall<_spacemesh_v1_MalfeasanceStreamRequest__Output, _spacemesh_v1_MalfeasanceStreamResponse>;
+  
   MaxTransactionsPerSecond: grpc.handleUnaryCall<_spacemesh_v1_MaxTransactionsPerSecondRequest__Output, _spacemesh_v1_MaxTransactionsPerSecondResponse>;
   
 }
@@ -165,5 +187,7 @@ export interface MeshServiceDefinition extends grpc.ServiceDefinition {
   LayerDuration: MethodDefinition<_spacemesh_v1_LayerDurationRequest, _spacemesh_v1_LayerDurationResponse, _spacemesh_v1_LayerDurationRequest__Output, _spacemesh_v1_LayerDurationResponse__Output>
   LayerStream: MethodDefinition<_spacemesh_v1_LayerStreamRequest, _spacemesh_v1_LayerStreamResponse, _spacemesh_v1_LayerStreamRequest__Output, _spacemesh_v1_LayerStreamResponse__Output>
   LayersQuery: MethodDefinition<_spacemesh_v1_LayersQueryRequest, _spacemesh_v1_LayersQueryResponse, _spacemesh_v1_LayersQueryRequest__Output, _spacemesh_v1_LayersQueryResponse__Output>
+  MalfeasanceQuery: MethodDefinition<_spacemesh_v1_MalfeasanceRequest, _spacemesh_v1_MalfeasanceResponse, _spacemesh_v1_MalfeasanceRequest__Output, _spacemesh_v1_MalfeasanceResponse__Output>
+  MalfeasanceStream: MethodDefinition<_spacemesh_v1_MalfeasanceStreamRequest, _spacemesh_v1_MalfeasanceStreamResponse, _spacemesh_v1_MalfeasanceStreamRequest__Output, _spacemesh_v1_MalfeasanceStreamResponse__Output>
   MaxTransactionsPerSecond: MethodDefinition<_spacemesh_v1_MaxTransactionsPerSecondRequest, _spacemesh_v1_MaxTransactionsPerSecondResponse, _spacemesh_v1_MaxTransactionsPerSecondRequest__Output, _spacemesh_v1_MaxTransactionsPerSecondResponse__Output>
 }

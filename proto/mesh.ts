@@ -45,6 +45,11 @@ export interface ProtoGrpcType {
       LayerStreamResponse: MessageTypeDefinition
       LayersQueryRequest: MessageTypeDefinition
       LayersQueryResponse: MessageTypeDefinition
+      MalfeasanceProof: MessageTypeDefinition
+      MalfeasanceRequest: MessageTypeDefinition
+      MalfeasanceResponse: MessageTypeDefinition
+      MalfeasanceStreamRequest: MessageTypeDefinition
+      MalfeasanceStreamResponse: MessageTypeDefinition
       MaxTransactionsPerSecondRequest: MessageTypeDefinition
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
       MeshService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_MeshServiceClient> & { service: _spacemesh_v1_MeshServiceDefinition }

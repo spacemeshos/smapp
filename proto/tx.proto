@@ -12,7 +12,12 @@ service TransactionService {
     // Submit a new tx to the node for processing. The response
     // TransactionState message contains both the txid of the new tx, as well
     // as whether or not it was admitted into the mempool.
-    rpc SubmitTransaction(SubmitTransactionRequest) returns (SubmitTransactionResponse);
+    rpc SubmitTransaction(SubmitTransactionRequest) returns (SubmitTransactionResponse) {
+        option (google.api.http) = {
+            post: "/v1/transaction/submittransaction"
+            body: "*"
+        };
+    }
 
     // ParseTransaction without submitting it to the mempool.
     // It has a limitation that it will work only for an already spawned accounts,
@@ -23,7 +28,12 @@ service TransactionService {
     // Returns current tx state for one or more txs which indicates if a tx is
     // on the mesh, on its way to the mesh or was rejected and will never get
     // to the mesh
-    rpc TransactionsState(TransactionsStateRequest) returns (TransactionsStateResponse);
+    rpc TransactionsState(TransactionsStateRequest) returns (TransactionsStateResponse) {
+        option (google.api.http) = {
+            post: "/v1/transaction/transactionsstate"
+            body: "*"
+        };
+    }
 
     ////////// Streams
     // Streams return live, new data as it becomes available to the node and

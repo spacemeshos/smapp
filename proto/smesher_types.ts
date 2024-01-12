@@ -31,6 +31,7 @@ export interface ProtoGrpcType {
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
+      MalfeasanceProof: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
       MinGasResponse: MessageTypeDefinition
       Nonce: MessageTypeDefinition
@@ -57,8 +58,6 @@ export interface ProtoGrpcType {
       StopSmeshingResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
-      UpdatePoetServersRequest: MessageTypeDefinition
-      UpdatePoetServersResponse: MessageTypeDefinition
     }
   }
 }

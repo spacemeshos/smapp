@@ -16,16 +16,23 @@ export interface ProtoGrpcType {
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
       EpochNumber: MessageTypeDefinition
-      GetRequest: MessageTypeDefinition
-      GetResponse: MessageTypeDefinition
-      HighestResponse: MessageTypeDefinition
+      GenProofRequest: MessageTypeDefinition
+      GenProofResponse: MessageTypeDefinition
+      GenProofStatus: EnumTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MalfeasanceProof: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
+      Metadata: MessageTypeDefinition
+      MetadataRequest: MessageTypeDefinition
+      MetadataResponse: MessageTypeDefinition
+      NodeRequest: MessageTypeDefinition
       Nonce: MessageTypeDefinition
+      Proof: MessageTypeDefinition
+      ProofMetadata: MessageTypeDefinition
       Reward: MessageTypeDefinition
+      ServiceResponse: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
       SmesherId: MessageTypeDefinition

@@ -107,3 +107,20 @@ message EpochStreamRequest {
 message EpochStreamResponse {
     ActivationId id = 1;
 }
+
+message MalfeasanceRequest {
+    string smesher_hex = 1;
+    bool include_proof = 2;
+}
+
+message MalfeasanceResponse {
+    MalfeasanceProof proof = 1;
+}
+
+message MalfeasanceStreamRequest {
+    bool include_proof = 1;
+}
+
+message MalfeasanceStreamResponse {
+    MalfeasanceProof proof = 1;
+}

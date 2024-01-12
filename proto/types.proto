@@ -117,3 +117,17 @@ message AppEvent { // an event emitted from an app instance
     TransactionId transaction_id = 1; // the transaction that called the code
     string message = 2; // the event's string emitted from code
 }
+
+message MalfeasanceProof {
+    SmesherId smesher_id = 1;
+    LayerNumber layer = 2;
+    enum MalfeasanceType {
+        MALFEASANCE_UNSPECIFIED = 0;
+        MALFEASANCE_ATX = 1;
+        MALFEASANCE_BALLOT = 2;
+        MALFEASANCE_HARE = 3;
+    }
+    MalfeasanceType kind = 3;
+    string debug_info = 4;
+    bytes proof = 5;
+}

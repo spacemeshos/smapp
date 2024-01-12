@@ -6,34 +6,79 @@ import "mesh_types.proto";
 // Readonly API for basic mesh info
 service MeshService {
     // Network genesis time as unix epoch time
-    rpc GenesisTime(GenesisTimeRequest) returns (GenesisTimeResponse);
+    rpc GenesisTime(GenesisTimeRequest) returns (GenesisTimeResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/genesistime"
+            body: "*"
+        };
+    }
 
     // Current layer number
-    rpc CurrentLayer(CurrentLayerRequest) returns (CurrentLayerResponse);
+    rpc CurrentLayer(CurrentLayerRequest) returns (CurrentLayerResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/currentlayer"
+            body: "*"
+        };
+    }
 
     // Current epoch number
-    rpc CurrentEpoch(CurrentEpochRequest) returns (CurrentEpochResponse);
+    rpc CurrentEpoch(CurrentEpochRequest) returns (CurrentEpochResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/currentepoch"
+            body: "*"
+        };
+    }
 
     // Genesis ID
-    rpc GenesisID(GenesisIDRequest) returns (GenesisIDResponse);
+    rpc GenesisID(GenesisIDRequest) returns (GenesisIDResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/genesisid"
+            body: "*"
+        };
+    }
 
     // Number of layers per epoch (a network parameter)
-    rpc EpochNumLayers(EpochNumLayersRequest) returns (EpochNumLayersResponse);
+    rpc EpochNumLayers(EpochNumLayersRequest) returns (EpochNumLayersResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/epochnumlayers"
+            body: "*"
+        };
+    }
 
     // Layer duration (a network parameter)
-    rpc LayerDuration(LayerDurationRequest) returns (LayerDurationResponse);
+    rpc LayerDuration(LayerDurationRequest) returns (LayerDurationResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/layerduration"
+            body: "*"
+        };
+    }
 
     // Number of transactions per second (a network parameter)
-    rpc MaxTransactionsPerSecond(MaxTransactionsPerSecondRequest) returns (MaxTransactionsPerSecondResponse);
+    rpc MaxTransactionsPerSecond(MaxTransactionsPerSecondRequest) returns (MaxTransactionsPerSecondResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/maxtransactionspersecond"
+            body: "*"
+        };
+    }
 
     ////////// Queries
     // Queries return paginated, historical data.
 
     // Get account data query
-    rpc AccountMeshDataQuery(AccountMeshDataQueryRequest) returns (AccountMeshDataQueryResponse);
+    rpc AccountMeshDataQuery(AccountMeshDataQueryRequest) returns (AccountMeshDataQueryResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/accountmeshdataquery"
+            body: "*"
+        };
+    }
 
     // Layers data query
-    rpc LayersQuery(LayersQueryRequest) returns (LayersQueryResponse);
+    rpc LayersQuery(LayersQueryRequest) returns (LayersQueryResponse) {
+        option (google.api.http) = {
+            post: "/v1/mesh/layersquery"
+            body: "*"
+        };
+    }
 
     ////////// Streams
     // Streams return live, new data as it becomes available to the node and not
@@ -49,4 +94,7 @@ service MeshService {
 
     // Epoch activation transactions.
     rpc EpochStream(EpochStreamRequest) returns (stream EpochStreamResponse);
+
+    rpc MalfeasanceQuery(MalfeasanceRequest) returns (MalfeasanceResponse);
+    rpc MalfeasanceStream(MalfeasanceStreamRequest) returns (stream MalfeasanceStreamResponse);
 }

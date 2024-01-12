@@ -41,6 +41,7 @@ export interface ProtoGrpcType {
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
+      MalfeasanceProof: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
       Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
