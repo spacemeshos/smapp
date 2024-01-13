@@ -31,7 +31,7 @@ import {
   UnlockWalletResponse,
   UpdateWalletMetaRequest,
 } from '../../../shared/ipcMessages';
-import { Network, Wallet, WalletType } from '../../../shared/types';
+import { NetworkExtended, Wallet, WalletType } from '../../../shared/types';
 import {
   isLocalNodeApi,
   isRemoteNodeApi,
@@ -157,7 +157,7 @@ const handleUpdateWalletSecrets = <
 const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
-  $networks: Subject<Network[]>,
+  $networks: Subject<NetworkExtended[]>,
   $smeshingStarted: Observable<SmeshingSetupState>,
   $warnings: Subject<Warning>
 ) => {

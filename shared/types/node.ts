@@ -1,4 +1,4 @@
-import { HexString } from './misc';
+import { HexString, Network } from './misc';
 
 export interface NodeVersionAndBuild {
   version: string;
@@ -113,4 +113,9 @@ export interface NodeConfig {
 
 export type NodeConfigWithDefinedSmeshing = NodeConfig & {
   smeshing: NodeConfig['smeshing'];
+};
+
+export type NetworkExtended = Network & {
+  genesisID: string;
+  config: NodeConfig;
 };

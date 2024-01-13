@@ -4,7 +4,7 @@ import Bech32 from '@spacemesh/address-wasm';
 
 import HRP from '../../shared/hrp';
 import {
-  Network,
+  NetworkExtended,
   NodeConfig,
   NodeVersionAndBuild,
   Wallet,
@@ -17,7 +17,7 @@ import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
   fetchDiscovery,
-  fetchDiscoveryEach,
+  fetchDiscoveryEvery,
   listPublicApisByRequest,
   listNetworksByRequest,
   listenNodeConfigAndRestartNode,
@@ -140,7 +140,7 @@ const startApp = (): AppStore => {
   // Data
   const $wallet = new $.BehaviorSubject<Wallet | null>(null);
   const $walletPath = new $.BehaviorSubject<string>('');
-  const $networks = new $.BehaviorSubject<Network[]>([]);
+  const $networks = new $.BehaviorSubject<NetworkExtended[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $hrp = $nodeConfig.pipe(
     $.map((c) => c.main['network-hrp'] ?? HRP.MainNet),
@@ -201,7 +201,7 @@ const startApp = (): AppStore => {
     // Update networks on init
     fetchDiscovery($networks),
     // Update networks each N seconds
-    fetchDiscoveryEach(CHECK_UPDATES_INTERVAL, $networks),
+    fetchDiscoveryEvery(CHECK_UPDATES_INTERVAL, $networks),
     // And update them by users request
     listNetworksByRequest($networks),
     // Get actual logs to client app

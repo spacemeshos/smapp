@@ -10,12 +10,10 @@ import Warning, {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../../shared/warning';
-import { fetchNodeConfig } from '../utils';
 import StoreService from '../storeService';
 import { getShortGenesisId, toHexString } from '../../shared/utils';
 import Logger from '../logger';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
-import { generateGenesisIDFromConfig } from './Networks';
 import { safeSmeshingOpts } from './smeshingOpts';
 
 const logger = Logger({ className: 'NodeConfig' });
@@ -140,38 +138,33 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const downloadNodeConfig = async (
-  networkConfigUrl: string,
-  prevHash?: string
+export const mergeConfigs = async (
+  genesisID: string,
+  prevHash: string,
+  config: NodeConfig
 ) => {
-  const discoveryConfig = await fetchNodeConfig(networkConfigUrl, prevHash);
-  const discoveryConfigHash = toHexString(
-    hash(JSON.stringify(discoveryConfig))
-  );
-
-  const customNodeConfig = await loadOrCreateCustomConfig(
-    generateGenesisIDFromConfig(discoveryConfig)
-  );
-  const mergedConfig = R.mergeLeft(customNodeConfig, discoveryConfig);
+  const nextHash = toHexString(hash(JSON.stringify(config)));
+  const customConfig = await loadOrCreateCustomConfig(genesisID);
+  const mergedConfig = R.mergeLeft(customConfig, config);
 
   await writeNodeConfig(mergedConfig);
 
-  logger.log('downloadNodeConfig', {
-    networkConfigUrl,
+  logger.log('mergeConfigs', {
+    genesisID,
     prevHash,
-    nextHash: discoveryConfigHash,
+    nextHash,
   });
 
   return {
     mergedConfig,
-    discoveryConfig,
-    discoveryConfigHash,
-    discoveryConfigPrevHash: prevHash,
-    discoveryConfigHashChanged: prevHash !== discoveryConfigHash,
+    originalConfig: config,
+    nextHash,
+    prevHash,
+    hashChanged: prevHash !== nextHash,
   };
 };
 
 export default {
   load: loadNodeConfig,
-  download: downloadNodeConfig,
+  mergeConfigs,
 };

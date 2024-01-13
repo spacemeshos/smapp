@@ -14,10 +14,16 @@ import {
   withLatestFrom,
   of as ofRx,
   RetryConfig,
+  tap,
 } from 'rxjs';
-import { dissocPath, equals, of } from 'ramda';
+import { dissocPath, equals } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
-import { Network, NodeConfig, Wallet } from '../../../shared/types';
+import {
+  Network,
+  NetworkExtended,
+  NodeConfig,
+  Wallet,
+} from '../../../shared/types';
 import {
   fetchNetworksFromDiscovery,
   generateGenesisIDFromConfig,
@@ -27,11 +33,16 @@ import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
 import Logger from '../../logger';
+import {
+  loadFallbackConfig,
+  loadFallbackNetworks,
+  saveFallbackNetworks,
+} from '../fallbackConfigs';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
 const RETRY_CONFIG: RetryConfig = {
-  count: Infinity,
+  count: 3,
   delay: 10000, // Every 10 seconds
 };
 
@@ -42,12 +53,13 @@ export const fromNetworkConfig = (net: Network) => {
     retry(RETRY_CONFIG),
     catchError((err) => {
       logger.error('fromNetworkConfig', err);
-      return of([]);
+      // TODO: Show error popup
+      return from(loadFallbackConfig(net));
     })
   );
 };
 
-export const withGenesisID = () =>
+export const extendWithConfig = () =>
   switchMap((networks: Network[]) =>
     forkJoin([
       ...networks.map(
@@ -56,9 +68,10 @@ export const withGenesisID = () =>
     ]).pipe(
       map((configs) => {
         return networks.map(
-          (net, i): Network => ({
+          (net, i): NetworkExtended => ({
             ...net,
             genesisID: generateGenesisIDFromConfig(configs[i]),
+            config: configs[i],
           })
         );
       })
@@ -69,26 +82,28 @@ const fromDiscovery = () =>
   ofRx(null).pipe(
     switchMap(() => from(fetchNetworksFromDiscovery())),
     retry(RETRY_CONFIG),
+    extendWithConfig(),
+    tap((nets) => saveFallbackNetworks(nets)),
     catchError((err) => {
       logger.error('fromDiscovery()', err);
-      return ofRx([]);
-    }),
-    withGenesisID()
+      // TODO: Show error popup
+      return from(loadFallbackNetworks());
+    })
   );
 
-export const fetchDiscovery = ($networks: Subject<Network[]>) =>
+export const fetchDiscovery = ($networks: Subject<NetworkExtended[]>) =>
   makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
 
-export const fetchDiscoveryEach = (
+export const fetchDiscoveryEvery = (
   period: number,
-  $networks: Subject<Network[]>
+  $networks: Subject<NetworkExtended[]>
 ) =>
   makeSubscription(
     interval(period).pipe(switchMap(fromDiscovery)),
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 
-export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
+export const listNetworksByRequest = ($networks: Subject<NetworkExtended[]>) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,

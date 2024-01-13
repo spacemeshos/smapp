@@ -13,8 +13,10 @@ import { generateGenesisIDFromConfig } from '../Networks';
 import SmesherManager from '../../SmesherManager';
 import NodeManager from '../../NodeManager';
 import WalletManager from '../../WalletManager';
+import Logger from '../../logger';
 
 let managers: Managers | null = null;
+const logger = Logger({ className: 'spawnManager' });
 
 const spawnManagers = async (
   mainWindow: BrowserWindow,
@@ -26,12 +28,14 @@ const spawnManagers = async (
 
   // init managers
   if (!managers) {
+    logger.log('Spawning managers', { genesisID });
     const smesher = new SmesherManager(mainWindow, genesisID, $nodeConfig);
     const node = new NodeManager(mainWindow, genesisID, smesher, $nodeConfig);
     const wallet = new WalletManager(mainWindow, node);
 
     managers = { smesher, node, wallet };
   } else {
+    logger.log('Update GenesisID in managers', { genesisID });
     // update GenesisID and netName for instance
     managers.smesher.setGenesisID(genesisID);
     managers.node.setGenesisID(genesisID);

@@ -9,14 +9,14 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { Network, Wallet } from '../../../shared/types';
+import { NetworkExtended, Wallet } from '../../../shared/types';
 import NodeConfig from '../NodeConfig';
 import { generateGenesisIDFromConfig } from '../Networks';
 
 export default (
   $runNodeBeforeLogin: Observable<boolean>,
   $wallet: Subject<Wallet | null>,
-  $networks: Subject<Network[]>
+  $networks: Subject<NetworkExtended[]>
 ) =>
   $networks.pipe(
     combineLatestWith($runNodeBeforeLogin, $wallet),
