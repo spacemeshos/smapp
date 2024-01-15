@@ -9,16 +9,11 @@ import GlobalStyle, { fontsCss } from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
-import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
 import { init } from './sentry';
-import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
-import NoInternetConnection from './screens/modal/NoInternetConnection';
-import PoSProvingOptsUpdateWarningModal from './screens/modal/PoSProvingOptsUpdateWarningModal';
-import AutoLaunchErrorModal from './screens/modal/AutoLaunchErrorModal';
-import PromptModal from './screens/modal/PromptModal';
+import Modals from './Modals';
 
 const history = createMemoryHistory();
 
@@ -71,12 +66,7 @@ const StyledApp = () => {
             ))}
             <Redirect to="/auth" />
           </Switch>
-          <WriteFilePermissionError />
-          <NoInternetConnection />
-          <CloseAppModal />
-          <PoSProvingOptsUpdateWarningModal />
-          <AutoLaunchErrorModal />
-          <PromptModal />
+          <Modals />
         </Router>
       </ErrorBoundary>
     </ThemeProvider>

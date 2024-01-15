@@ -202,16 +202,16 @@ const startApp = (): AppStore => {
     handleAppWalletChange($isWalletActivated, $wallet, $managers),
     // Update currentLayer & rootHash
     // Update networks on init
-    fetchDiscovery($networks),
+    fetchDiscovery($networks, $warnings),
     // Update networks each N seconds
-    fetchDiscoveryEvery(CHECK_UPDATES_INTERVAL, $networks),
+    fetchDiscoveryEvery(CHECK_UPDATES_INTERVAL, $networks, $warnings),
     // And update them by users request
-    listNetworksByRequest($networks),
+    listNetworksByRequest($networks, $warnings),
     // Get actual logs to client app
     sentryLogsListener(),
     // List Public APIs for current network
     // Do not update anything
-    listPublicApisByRequest($wallet),
+    listPublicApisByRequest($wallet, $warnings),
     // If current network does not exist in discovery service
     // then ask User to switch the network
     ensureNetwork($wallet, $networks, $mainWindow),

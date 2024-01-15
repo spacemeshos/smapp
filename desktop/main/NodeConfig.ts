@@ -3,7 +3,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import 'json-bigint-patch';
 import * as R from 'ramda';
-import { hash } from '@spacemesh/sm-codec';
 
 import { NodeConfig } from '../../shared/types';
 import Warning, {
@@ -11,7 +10,7 @@ import Warning, {
   WriteFilePermissionWarningKind,
 } from '../../shared/warning';
 import StoreService from '../storeService';
-import { getShortGenesisId, toHexString } from '../../shared/utils';
+import { getShortGenesisId } from '../../shared/utils';
 import Logger from '../logger';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
 import { safeSmeshingOpts } from './smeshingOpts';

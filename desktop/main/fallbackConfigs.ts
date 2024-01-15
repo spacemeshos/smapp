@@ -1,17 +1,17 @@
 import path from 'path';
 import { writeFile, readFile } from 'fs/promises';
-import { ensureDir } from 'fs-extra';
+import { ensureDir, pathExists } from 'fs-extra';
 import { app } from 'electron';
 import { Network, NetworkExtended, NodeConfig } from '../../shared/types';
 import { isNetConfig, isNetwork } from '../../shared/types/guards';
 import Logger from '../logger';
 import { generateGenesisIDFromConfig } from './Networks';
 
-const NETWORKS_FILENAME = 'networks.json';
+export const NETWORKS_FILENAME = 'networks.json';
 
 const logger = Logger({ className: 'fallbackConfigs' });
 
-const getFallbackPath = (filename: string) =>
+export const getFallbackPath = (filename: string) =>
   path.join(app.getPath('userData'), 'ConfigCache', filename);
 
 export const getConfigFilename = (net: Network) => {
@@ -52,7 +52,13 @@ export const saveFallbackNetworks = async (nets: NetworkExtended[]) => {
 export const loadFallbackConfig = async (net: Network): Promise<NodeConfig> => {
   const fileName = getConfigFilename(net);
   logger.log('loading config...', { netName: net.netName, fileName });
-  const configRaw = await readFile(getFallbackPath(fileName), 'utf-8');
+  const filepath = getFallbackPath(fileName);
+  if (!(await pathExists(filepath))) {
+    throw new Error(
+      `Cached config file for ${net.netName} is not found: ${filepath}`
+    );
+  }
+  const configRaw = await readFile(filepath, 'utf-8');
   const config: NodeConfig = JSON.parse(configRaw);
   if (!isNetConfig(config)) {
     throw new Error(
@@ -64,10 +70,11 @@ export const loadFallbackConfig = async (net: Network): Promise<NodeConfig> => {
 
 export const loadFallbackNetworks = async () => {
   logger.log('loading...', null);
-  const networksRaw = await readFile(
-    getFallbackPath(NETWORKS_FILENAME),
-    'utf-8'
-  );
+  const filepath = getFallbackPath(NETWORKS_FILENAME);
+  if (!(await pathExists(filepath))) {
+    throw new Error(`Cached networks list is not found: ${filepath}`);
+  }
+  const networksRaw = await readFile(filepath, 'utf-8');
   const networks: Network[] = JSON.parse(networksRaw);
   if (!networks.every(isNetwork)) {
     throw new Error(

@@ -5,6 +5,7 @@ export enum WarningType {
   WriteFilePermission = 'WriteFilePermission',
   UpdateSmeshingProvingOpts = 'UpdateSmeshingProvingOpts',
   SyncAutoStartAndConfig = 'SyncAutoStartAndConfig',
+  CannotLoadConfigsFromDiscovery = 'CannotLoadConfigsFromDiscovery',
 }
 
 export enum WriteFilePermissionWarningKind {
@@ -22,6 +23,12 @@ interface WarningTypeOptions {
   }>;
   [WarningType.UpdateSmeshingProvingOpts]: WarningOptions<boolean>;
   [WarningType.SyncAutoStartAndConfig]: WarningOptions<string>;
+  [WarningType.CannotLoadConfigsFromDiscovery]: WarningOptions<{
+    type: 'networks' | 'config';
+    cacheHit: boolean;
+    dir: string;
+    url: string;
+  }>;
 }
 
 export type AnyWarningType = keyof WarningTypeOptions;

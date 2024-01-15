@@ -27,6 +27,7 @@ import {
 import {
   fetchNetworksFromDiscovery,
   generateGenesisIDFromConfig,
+  getDiscoveryUrl,
   listPublicApis,
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
@@ -34,11 +35,18 @@ import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
 import Logger from '../../logger';
 import {
+  NETWORKS_FILENAME,
+  getFallbackPath,
   loadFallbackConfig,
   loadFallbackNetworks,
   saveFallbackNetworks,
 } from '../fallbackConfigs';
 import { getConfigHashByURL } from '../configHash';
+import Warning, { WarningType } from '../../../shared/warning';
+import {
+  DEFAULT_MAINNET_CONFIG,
+  DEFAULT_NETWORKS_LIST,
+} from '../../../shared/constants';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
@@ -47,8 +55,27 @@ const RETRY_CONFIG: RetryConfig = {
   delay: 10000, // Every 10 seconds
 };
 
-export const fromNetworkConfig = (net: Network) => {
+export const fromNetworkConfig = (
+  net: Network,
+  $warnings: Subject<Warning>
+) => {
   logger.log('fromNetworkConfig', { net });
+
+  const createWarning = (cacheHit: boolean, err: Error) => {
+    $warnings.next(
+      Warning.fromError(
+        WarningType.CannotLoadConfigsFromDiscovery,
+        {
+          type: 'config',
+          cacheHit,
+          dir: getFallbackPath(''),
+          url: getDiscoveryUrl(),
+        },
+        err
+      )
+    );
+  };
+
   return ofRx(null).pipe(
     switchMap(() => {
       const prevHash = getConfigHashByURL(net.conf);
@@ -57,17 +84,29 @@ export const fromNetworkConfig = (net: Network) => {
     retry(RETRY_CONFIG),
     catchError((err) => {
       logger.error('fromNetworkConfig', err);
-      // TODO: Show error popup
-      return from(loadFallbackConfig(net));
+
+      // eslint-disable-next-line promise/no-promise-in-callback
+      const result = loadFallbackConfig(net).then(
+        (val) => {
+          createWarning(true, err);
+          return val;
+        },
+        (err) => {
+          createWarning(false, err);
+          return DEFAULT_MAINNET_CONFIG;
+        }
+      );
+
+      return from(result);
     })
   );
 };
 
-export const extendWithConfig = () =>
+export const extendWithConfig = ($warnings: Subject<Warning>) =>
   switchMap((networks: Network[]) =>
     forkJoin([
       ...networks.map(
-        (net) => fromNetworkConfig(net) as Observable<NodeConfig>
+        (net) => fromNetworkConfig(net, $warnings) as Observable<NodeConfig>
       ),
     ]).pipe(
       map((configs) => {
@@ -82,39 +121,75 @@ export const extendWithConfig = () =>
     )
   );
 
-const fromDiscovery = () =>
-  ofRx(null).pipe(
+const fromDiscovery = ($warnings: Subject<Warning>) => {
+  const createWarning = (cacheHit: boolean, err: Error) => {
+    $warnings.next(
+      Warning.fromError(
+        WarningType.CannotLoadConfigsFromDiscovery,
+        {
+          type: 'networks',
+          cacheHit,
+          dir: getFallbackPath(NETWORKS_FILENAME),
+          url: getDiscoveryUrl(),
+        },
+        err
+      )
+    );
+  };
+
+  return ofRx(null).pipe(
     switchMap(() => from(fetchNetworksFromDiscovery())),
     retry(RETRY_CONFIG),
-    extendWithConfig(),
+    extendWithConfig($warnings),
     tap((nets) => saveFallbackNetworks(nets)),
     catchError((err) => {
       logger.error('fromDiscovery()', err);
-      // TODO: Show error popup
-      return from(loadFallbackNetworks());
+
+      // eslint-disable-next-line promise/no-promise-in-callback
+      const result = loadFallbackNetworks().then(
+        (val) => {
+          createWarning(true, err);
+          return val;
+        },
+        () => {
+          createWarning(false, err);
+          return DEFAULT_NETWORKS_LIST;
+        }
+      );
+
+      return from(result);
     })
   );
+};
 
-export const fetchDiscovery = ($networks: Subject<NetworkExtended[]>) =>
-  makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
+export const fetchDiscovery = (
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
+) => makeSubscription(fromDiscovery($warnings), (nets) => $networks.next(nets));
 
 export const fetchDiscoveryEvery = (
   period: number,
-  $networks: Subject<NetworkExtended[]>
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
 ) =>
   makeSubscription(
-    interval(period).pipe(switchMap(() => fromDiscovery())),
+    interval(period).pipe(switchMap(() => fromDiscovery($warnings))),
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 
-export const listNetworksByRequest = ($networks: Subject<NetworkExtended[]>) =>
+export const listNetworksByRequest = (
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
+) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,
-      () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
+      () => fromDiscovery($warnings).pipe(map((nets) => handlerResult(nets))),
       (nets) => nets
     ),
-    (networks) => $networks.next(networks)
+    (networks) => {
+      $networks.next(networks);
+    }
   );
 
 export const listenNodeConfigAndRestartNode = (
@@ -153,12 +228,15 @@ export const listenNodeConfigAndRestartNode = (
     }
   );
 
-export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
+export const listPublicApisByRequest = (
+  $wallet: Subject<Wallet | null>,
+  $warnings: Subject<Warning>
+) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_PUBLIC_SERVICES,
       (selectedGenesisID: string) =>
-        fromDiscovery().pipe(
+        fromDiscovery($warnings).pipe(
           withLatestFrom($wallet),
           first(),
           map(([nets, wallet]) => {
