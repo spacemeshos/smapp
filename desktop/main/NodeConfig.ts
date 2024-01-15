@@ -138,29 +138,17 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const mergeConfigs = async (
-  genesisID: string,
-  prevHash: string,
-  config: NodeConfig
-) => {
-  const nextHash = toHexString(hash(JSON.stringify(config)));
+export const mergeConfigs = async (genesisID: string, config: NodeConfig) => {
   const customConfig = await loadOrCreateCustomConfig(genesisID);
   const mergedConfig = R.mergeLeft(customConfig, config);
 
   await writeNodeConfig(mergedConfig);
 
-  logger.log('mergeConfigs', {
-    genesisID,
-    prevHash,
-    nextHash,
-  });
+  logger.log('mergeConfigs', { genesisID });
 
   return {
     mergedConfig,
     originalConfig: config,
-    nextHash,
-    prevHash,
-    hashChanged: prevHash !== nextHash,
   };
 };
 

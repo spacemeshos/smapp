@@ -38,6 +38,7 @@ import {
   loadFallbackNetworks,
   saveFallbackNetworks,
 } from '../fallbackConfigs';
+import { getConfigHashByURL } from '../configHash';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
@@ -49,7 +50,10 @@ const RETRY_CONFIG: RetryConfig = {
 export const fromNetworkConfig = (net: Network) => {
   logger.log('fromNetworkConfig', { net });
   return ofRx(null).pipe(
-    switchMap(() => from(fetchNodeConfig(net.conf))),
+    switchMap(() => {
+      const prevHash = getConfigHashByURL(net.conf);
+      return from(fetchNodeConfig(net.conf, prevHash));
+    }),
     retry(RETRY_CONFIG),
     catchError((err) => {
       logger.error('fromNetworkConfig', err);
@@ -99,7 +103,7 @@ export const fetchDiscoveryEvery = (
   $networks: Subject<NetworkExtended[]>
 ) =>
   makeSubscription(
-    interval(period).pipe(switchMap(fromDiscovery)),
+    interval(period).pipe(switchMap(() => fromDiscovery())),
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 

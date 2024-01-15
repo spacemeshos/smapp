@@ -47,6 +47,7 @@ import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherPr
 import ensureProvingOpts from './reactions/ensureProvingOpts';
 import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
 import restartNode from './reactions/restartNode';
+import { updateConfigHash } from './configHash';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -189,6 +190,8 @@ const startApp = (): AppStore => {
       $smeshingSetupState,
       $warnings
     ),
+    // Update config hash on changing network
+    updateConfigHash($currentNetwork),
     // Restart the node & re-emit wallet if User requested restart
     restartNode($nodeRestartRequest, $managers, $wallet),
     // Activate wallet and accounts
