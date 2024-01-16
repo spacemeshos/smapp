@@ -83,7 +83,7 @@ const SuccemssMessage = styled.span`
   font-size: 14px;
 `;
 
-const ActualInput = styled((props) => <input {...props} />) <{
+const ActualInput = styled((props) => <input {...props} />)<{
   value?: string;
   onKeyPress?: (event: any) => void;
   onChange: (event: any) => void;
@@ -99,26 +99,26 @@ const ActualInput = styled((props) => <input {...props} />) <{
   transition: background-color 100ms linear, border-color 100ms linear;
 
   color: ${({
-  theme: {
-    form: {
-      input: { states },
+    theme: {
+      form: {
+        input: { states },
+      },
     },
-  },
-}) => states.normal.color};
+  }) => states.normal.color};
   background-color: ${({
-  theme: {
-    form: {
-      input: { states },
+    theme: {
+      form: {
+        input: { states },
+      },
     },
-  },
-}) => states.normal.backgroundColor};
+  }) => states.normal.backgroundColor};
   ${({
-  theme: {
-    form: {
-      input: { states },
+    theme: {
+      form: {
+        input: { states },
+      },
     },
-  },
-}) =>
+  }) =>
     css`
       &:hover,
       &:focus,
@@ -204,14 +204,6 @@ interface FormFields {
   title: string;
 }
 
-const DESCRIPTION_PLACEHOLDER = ``;
-
-const FORM_ERRORS: Partial<FormFields> = {
-  name: 'Your Discord handle or name should not be empty',
-  email: 'Email should be valid',
-  comments: 'Steps to reproduce should not be empty',
-};
-
 const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
 
 const FeedbackButton = () => {
@@ -238,29 +230,34 @@ const FeedbackButton = () => {
     setUserData({
       name: '',
       email: '',
-      comments: DESCRIPTION_PLACEHOLDER,
+      comments: '',
       title: '',
     });
 
   const validate = () => {
-    const errors = {};
-    Object.keys(fieldErrors).forEach((key) => {
-      if (key === 'email' && userData[key]) {
-        const isValidEmail = REGULAR_EXP_FOR_EMAIL_CHECK.test(
-          userData[key] || ''
-        );
-        errors[key] = !isValidEmail ? 'Email is not valid' : '';
-        return;
-      }
+    const errors: Partial<Record<keyof FormFields, string>> = {};
+    const { email, title, comments } = userData;
 
-      errors[key] = userData[key] === '' ? FORM_ERRORS[key] : '';
+    // Common empty field check for all fields
+    Object.entries(userData).forEach(([key, value]) => {
+      if (!value.trim()) {
+        errors[key as keyof FormFields] = 'This field cannot be empty';
+      }
     });
-    const titleLen = userData.title.trim().length;
-    if (titleLen < 10 || titleLen > 60) {
-      errors['title'] = 'Bug summary must be between 10 and 60 characters';
+
+    // Field-specific validations (only if not already flagged as empty)
+
+    if (!errors.email && !REGULAR_EXP_FOR_EMAIL_CHECK.test(email)) {
+      errors.email = 'Email should be valid';
     }
-    if (!userData.comments.trim() || userData.comments.trim().length < 30) {
-      errors['comments'] = 'Description must be at least 30 characters long';
+
+    const titleLen = title.trim().length;
+    if (!errors.title && (titleLen < 10 || titleLen > 60)) {
+      errors.title = 'Title must contain between 10-60 characters';
+    }
+
+    if (!errors.comments && comments.trim().length < 30) {
+      errors.comments = 'Comments must contain a minimum of 30 characters';
     }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
@@ -385,8 +382,8 @@ const FeedbackButton = () => {
               />
             </InputWrapper>
             {Boolean(fieldErrors.title) && (
-                <ErrorMessage>{fieldErrors.title}</ErrorMessage>
-              )}
+              <ErrorMessage>{fieldErrors.title}</ErrorMessage>
+            )}
             <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
@@ -401,8 +398,8 @@ const FeedbackButton = () => {
               />
             </InputWrapper>
             {Boolean(fieldErrors.comments) && (
-                <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
-              )}
+              <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
+            )}
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
           <Row>
