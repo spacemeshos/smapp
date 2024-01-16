@@ -83,7 +83,7 @@ const SuccemssMessage = styled.span`
   font-size: 14px;
 `;
 
-const ActualInput = styled((props) => <input {...props} />)<{
+const ActualInput = styled((props) => <input {...props} />) <{
   value?: string;
   onKeyPress?: (event: any) => void;
   onChange: (event: any) => void;
@@ -99,26 +99,26 @@ const ActualInput = styled((props) => <input {...props} />)<{
   transition: background-color 100ms linear, border-color 100ms linear;
 
   color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) => states.normal.color};
+  },
+}) => states.normal.color};
   background-color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) => states.normal.backgroundColor};
+  },
+}) => states.normal.backgroundColor};
   ${({
-    theme: {
-      form: {
-        input: { states },
-      },
+  theme: {
+    form: {
+      input: { states },
     },
-  }) =>
+  },
+}) =>
     css`
       &:hover,
       &:focus,
@@ -200,14 +200,15 @@ const IssueDescriptionSection = styled.div`
 interface FormFields {
   name: string;
   email: string;
-  title: string;
   comments: string;
+  title: string;
 }
+
+const DESCRIPTION_PLACEHOLDER = ``;
 
 const FORM_ERRORS: Partial<FormFields> = {
   name: 'Your Discord handle or name should not be empty',
   email: 'Email should be valid',
-  title: 'Title must not be empty',
   comments: 'Steps to reproduce should not be empty',
 };
 
@@ -223,22 +224,22 @@ const FeedbackButton = () => {
   const [userData, setUserData] = useState<FormFields>({
     name: '',
     email: '',
-    title: '',
     comments: '',
+    title: '',
   });
   const [fieldErrors, setFieldErrors] = useState({
     name: '',
     email: '',
-    title: '',
     comments: '',
+    title: '',
   });
 
   const resetForm = () =>
     setUserData({
       name: '',
       email: '',
+      comments: DESCRIPTION_PLACEHOLDER,
       title: '',
-      comments: '',
     });
 
   const validate = () => {
@@ -256,10 +257,10 @@ const FeedbackButton = () => {
     });
     const titleLen = userData.title.trim().length;
     if (titleLen < 10 || titleLen > 60) {
-      errors.title = 'Bug summary must be between 10 and 60 characters';
+      errors['title'] = 'Bug summary must be between 10 and 60 characters';
     }
     if (!userData.comments.trim() || userData.comments.trim().length < 30) {
-      errors.comments = 'Description must be at least 30 characters long';
+      errors['comments'] = 'Description must be at least 30 characters long';
     }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
@@ -384,8 +385,8 @@ const FeedbackButton = () => {
               />
             </InputWrapper>
             {Boolean(fieldErrors.title) && (
-              <ErrorMessage>{fieldErrors.title}</ErrorMessage>
-            )}
+                <ErrorMessage>{fieldErrors.title}</ErrorMessage>
+              )}
             <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
@@ -400,8 +401,8 @@ const FeedbackButton = () => {
               />
             </InputWrapper>
             {Boolean(fieldErrors.comments) && (
-              <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
-            )}
+                <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
+              )}
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
           <Row>
