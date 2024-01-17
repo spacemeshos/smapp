@@ -250,14 +250,15 @@ const FeedbackButton = () => {
     if (!errors.email && !REGULAR_EXP_FOR_EMAIL_CHECK.test(email)) {
       errors.email = 'Email should be valid';
     }
-
-    const titleLen = title.trim().length;
+    const titleLen = title.replace(/\s/g, '').length;
     if (!errors.title && (titleLen < 10 || titleLen > 60)) {
-      errors.title = 'Title must contain between 10-60 characters';
+      errors.title =
+        'Summary must contain between 10-60 characters (excluding spaces)';
     }
-
-    if (!errors.comments && comments.trim().length < 30) {
-      errors.comments = 'Comments must contain a minimum of 30 characters';
+    const commentsLen = comments.replace(/\s/g, '').length;
+    if (!errors.comments && commentsLen < 30) {
+      errors.comments =
+        'Details must contain a minimum of 30 characters (excluding spaces)';
     }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
