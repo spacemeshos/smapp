@@ -16,10 +16,11 @@ This repo includes the source code for the `Spacemesh App`. A desktop applicatio
 
 **Also, the Wallet-only mode is temporarily disabled.**
 
-
 ## Installation & Quick Start
 
 Download the latest Smapp release from [Spacemesh Website](https://spacemesh.io/start/).
+
+For the installation guide, [follow this link.](https://spacemesh.io/start/#spacemesh-app)
 
 <p align="center">
   <img width="80%" src="resources/smapp_app_wallet.png" />
