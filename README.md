@@ -64,8 +64,8 @@ Smapp can be started with additional arguments:
   Env variable alias: `TEST_MODE`
 - `--check-interval` (number)
   _e.g._ `./Spacemesh --check-interval=60` to check for updates every 60 seconds
-  Smapp checks every N seconds for the updates the software updates and new config.
-  If new config arrived — it automatically merges it with the custom User settings and
+  Smapp checks every N seconds for the software updates and new config.
+  If a new config arrived — it automatically merges it with the custom User settings and
   restarts the Node.
   Default: `3600` seconds, or every hour
 
@@ -122,7 +122,7 @@ SENTRY_AUTH_TOKEN='special auth token for sentry cli integration'
 
 ### Building Artifacts in CI
 
-Smapp uses two workflows. Both of them build an application for all supported platforms: Windows, macOS, Linux.
+Smapp uses two workflows. Both of them build an application for all supported platforms: Windows, macOS, and Linux.
 
 - **PR builds**
   Triggered by open Pull Request and any further changes on the branch.
