@@ -1,25 +1,29 @@
-![Latest Release](https://img.shields.io/github/v/release/spacemeshos/smapp) 
+![Latest Release](https://img.shields.io/github/v/release/spacemeshos/smapp)
 [![CodeQL](https://github.com/spacemeshos/smapp/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/spacemeshos/smapp/actions/workflows/codeql-analysis.yml)
 [![Discord](https://img.shields.io/discord/623195163510046732?label=discord&logo=discord)](http://chat.spacemesh.io/)
 [![made by](https://img.shields.io/badge/madeby-spacemeshos-blue.svg)](https://spacemesh.io)
 ![GitHub License](https://img.shields.io/github/license/spacemeshos/smapp)
 
-
 <h1 align="center">
   <p align="center">Smapp - the Spacemesh App 🏦📊</p>
   <p align="center">Smesher UI + Wallet</p>
+  <img width="10%" src="resources/transparentbg.gif" />
 </h1>
-
 
 This repo includes the source code for the `Spacemesh App`. A desktop application for Windows 10, OS X, and Linux which includes a Smesher and a basic wallet. The main artifacts of this repo are the app and an app installer for all supported platforms.
 
-**Important note: Currently, Smapp does not support Hardware Wallets. This feature will be implemented in the future, but until then we highly recommend using [SMCLI](https://github.com/spacemeshos/smcli) to generate the necessary keys for your ledger setup.
-Also, the Wallet-only mode is temporarily disabled.**
+**Important note: Currently, Smapp does not support Hardware Wallets. This feature will be implemented in the future, but until then we highly recommend using [SMCLI](https://github.com/spacemeshos/smcli) to generate the necessary keys for your ledger setup.**
+
+**Also, the Wallet-only mode is temporarily disabled.**
 
 
 ## Installation & Quick Start
 
 Download the latest Smapp release from [Spacemesh Website](https://spacemesh.io/start/).
+
+<p align="center">
+  <img width="80%" src="resources/smapp_app_wallet.png" />
+</p>
 
 ### Building from Source
 
