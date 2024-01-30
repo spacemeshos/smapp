@@ -1,5 +1,5 @@
 import pkg from '../package.json';
-import { NodeStatus, TxState } from './types';
+import { NetworkExtended, NodeStatus, TxState } from './types';
 
 export const TX_STATE_LABELS: Record<TxState, string> = {
   [TxState.UNSPECIFIED]: 'Unknown state',
@@ -74,7 +74,7 @@ export const DEFAULT_MAINNET_CONFIG = {
   },
 };
 
-export const DEFAULT_NETWORKS_LIST = [
+export const DEFAULT_NETWORKS_LIST: NetworkExtended[] = [
   {
     netName: 'Main Network',
     conf: 'https://configs.spacemesh.network/config.mainnet.json',

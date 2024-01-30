@@ -96,18 +96,11 @@ export interface NodeConfig {
     'genesis-extra-data': string;
   };
   poet: {
-    'phase-shift': string;
     'cycle-gap': string;
-    'grace-period': string;
   };
   post: {
     'post-labels-per-unit': number;
     'post-max-numunits': number;
-    'post-min-numunits': number;
-    'post-k1'?: number;
-    'post-k2'?: number;
-    'post-k3'?: number;
-    'post-k2pow-difficulty'?: bigint | number;
   };
 }
 
