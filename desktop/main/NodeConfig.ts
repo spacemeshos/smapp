@@ -3,19 +3,16 @@ import fs from 'fs/promises';
 import path from 'path';
 import 'json-bigint-patch';
 import * as R from 'ramda';
-import { hash } from '@spacemesh/sm-codec';
 
 import { NodeConfig } from '../../shared/types';
 import Warning, {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../../shared/warning';
-import { fetchNodeConfig } from '../utils';
 import StoreService from '../storeService';
-import { getShortGenesisId, toHexString } from '../../shared/utils';
+import { getShortGenesisId } from '../../shared/utils';
 import Logger from '../logger';
 import { NODE_CONFIG_FILE, USERDATA_DIR } from './constants';
-import { generateGenesisIDFromConfig } from './Networks';
 import { safeSmeshingOpts } from './smeshingOpts';
 
 const logger = Logger({ className: 'NodeConfig' });
@@ -140,38 +137,21 @@ export const updateSmeshingOpts = async (
   return mergedConfig;
 };
 
-export const downloadNodeConfig = async (
-  networkConfigUrl: string,
-  prevHash?: string
-) => {
-  const discoveryConfig = await fetchNodeConfig(networkConfigUrl, prevHash);
-  const discoveryConfigHash = toHexString(
-    hash(JSON.stringify(discoveryConfig))
-  );
-
-  const customNodeConfig = await loadOrCreateCustomConfig(
-    generateGenesisIDFromConfig(discoveryConfig)
-  );
-  const mergedConfig = R.mergeLeft(customNodeConfig, discoveryConfig);
+export const mergeConfigs = async (genesisID: string, config: NodeConfig) => {
+  const customConfig = await loadOrCreateCustomConfig(genesisID);
+  const mergedConfig = R.mergeLeft(customConfig, config);
 
   await writeNodeConfig(mergedConfig);
 
-  logger.log('downloadNodeConfig', {
-    networkConfigUrl,
-    prevHash,
-    nextHash: discoveryConfigHash,
-  });
+  logger.log('mergeConfigs', { genesisID });
 
   return {
     mergedConfig,
-    discoveryConfig,
-    discoveryConfigHash,
-    discoveryConfigPrevHash: prevHash,
-    discoveryConfigHashChanged: prevHash !== discoveryConfigHash,
+    originalConfig: config,
   };
 };
 
 export default {
   load: loadNodeConfig,
-  download: downloadNodeConfig,
+  mergeConfigs,
 };

@@ -18,28 +18,33 @@ export default (
   makeSubscription(
     combineLatest([$wallet, $managers, $mainWindow]),
     async ([wallet, managers, mw]) => {
-      if (
-        !wallet ||
-        !wallet.meta.genesisID ||
-        (isWalletOnlyType(wallet.meta.type) && !wallet.meta.remoteApi)
-      ) {
-        return;
-      }
+      try {
+        if (
+          !wallet ||
+          !wallet.meta.genesisID ||
+          (isWalletOnlyType(wallet.meta.type) && !wallet.meta.remoteApi)
+        ) {
+          return;
+        }
 
-      const res = await managers.wallet.activate(wallet);
-      if (res) {
-        managers.wallet.setAccounts(wallet.crypto.accounts);
-        managers.node
-          .isNodeAlive()
-          .then(() => managers.wallet.subscribeAccounts())
-          .catch((err) => {
-            logger.error('activateWallet', err);
-          });
-        $isWalletActivated.next();
+        const res = await managers.wallet.activate(wallet);
+        if (res) {
+          managers.wallet.setAccounts(wallet.crypto.accounts);
+          managers.node
+            .isNodeAlive()
+            .then(() => managers.wallet.subscribeAccounts())
+            .catch((err) => {
+              logger.error('activateWallet', err);
+            });
+          $isWalletActivated.next();
+        }
+        // Renderer waits for WALLET_ACTIVATED event
+        // to show the next screen, so we send it anyway
+        mw.webContents.send(ipcConsts.WALLET_ACTIVATED);
+        logger.debug('Send IPC Event WALLET_ACTIVATE IPC');
+      } catch (err) {
+        logger.error('Cannot activate wallet', err);
+        mw.webContents.send(ipcConsts.WALLET_ACTIVATED);
       }
-      // Renderer waits for WALLET_ACTIVATED event
-      // to show the next screen, so we send it anyway
-      mw.webContents.send(ipcConsts.WALLET_ACTIVATED);
-      logger.debug('Send IPC Event WALLET_ACTIVATE IPC');
     }
   );

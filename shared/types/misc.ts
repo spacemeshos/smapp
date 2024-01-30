@@ -17,12 +17,12 @@ export type Network = {
   dash: string;
   grpcAPI: string;
   jsonAPI: string;
-  minNodeVersion: string;
-  maxNodeVersion: string;
+  minNodeVersion?: string;
+  maxNodeVersion?: string;
   minSmappRelease: string;
   latestSmappRelease: string;
   smappBaseDownloadUrl: string;
-  nodeBaseDownloadUrl: string;
+  nodeBaseDownloadUrl?: string;
   genesisID: string;
   [key: string]: any;
 };

@@ -20,7 +20,7 @@ import {
 
 import { getEventType } from '../../../shared/utils';
 import {
-  Network,
+  NetworkExtended,
   NodeConfig,
   NodeVersionAndBuild,
   Wallet,
@@ -112,8 +112,8 @@ export default (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
   $storeService: Observable<ConfigStore>,
-  $networks: Subject<Network[]>,
-  $currentNetwork: Observable<Network | null>,
+  $networks: Subject<NetworkExtended[]>,
+  $currentNetwork: Observable<NetworkExtended | null>,
   $nodeConfig: Observable<NodeConfig>,
   $currentLayer: Observable<number>,
   $rootHash: Observable<string>,

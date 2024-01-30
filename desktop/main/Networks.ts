@@ -31,10 +31,10 @@ const getDevNet = async () =>
     grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
   } as Partial<Network>);
 
-const getDiscoveryUrl = () =>
+export const getDiscoveryUrl = () =>
   app.commandLine.getSwitchValue('discovery') ||
   process.env.DISCOVERY_URL ||
-  'https://smapp.spacemesh.network/networks.json';
+  'https://configs.spacemesh.network/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
   const networks: Network[] = await fetchJSON(

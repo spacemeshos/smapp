@@ -4,7 +4,7 @@ import Bech32 from '@spacemesh/address-wasm';
 
 import HRP from '../../shared/hrp';
 import {
-  Network,
+  NetworkExtended,
   NodeConfig,
   NodeVersionAndBuild,
   Wallet,
@@ -17,7 +17,7 @@ import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
   fetchDiscovery,
-  fetchDiscoveryEach,
+  fetchDiscoveryEvery,
   listPublicApisByRequest,
   listNetworksByRequest,
   listenNodeConfigAndRestartNode,
@@ -47,6 +47,8 @@ import handleUpdateSmesherProvingOptsIpc from './reactions/handleUpdateSmesherPr
 import ensureProvingOpts from './reactions/ensureProvingOpts';
 import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
 import restartNode from './reactions/restartNode';
+import { updateConfigHash } from './configHash';
+import { ensureConfigCacheDir } from './fallbackConfigs';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -140,7 +142,7 @@ const startApp = (): AppStore => {
   // Data
   const $wallet = new $.BehaviorSubject<Wallet | null>(null);
   const $walletPath = new $.BehaviorSubject<string>('');
-  const $networks = new $.BehaviorSubject<Network[]>([]);
+  const $networks = new $.BehaviorSubject<NetworkExtended[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $hrp = $nodeConfig.pipe(
     $.map((c) => c.main['network-hrp'] ?? HRP.MainNet),
@@ -177,6 +179,8 @@ const startApp = (): AppStore => {
     $networks
   );
 
+  ensureConfigCacheDir();
+
   // Reactions
   // List of unsubscribe functions
   const unsubs = [
@@ -189,6 +193,8 @@ const startApp = (): AppStore => {
       $smeshingSetupState,
       $warnings
     ),
+    // Update config hash on changing network
+    updateConfigHash($currentNetwork),
     // Restart the node & re-emit wallet if User requested restart
     restartNode($nodeRestartRequest, $managers, $wallet),
     // Activate wallet and accounts
@@ -199,16 +205,16 @@ const startApp = (): AppStore => {
     handleAppWalletChange($isWalletActivated, $wallet, $managers),
     // Update currentLayer & rootHash
     // Update networks on init
-    fetchDiscovery($networks),
+    fetchDiscovery($networks, $warnings),
     // Update networks each N seconds
-    fetchDiscoveryEach(CHECK_UPDATES_INTERVAL, $networks),
+    fetchDiscoveryEvery(CHECK_UPDATES_INTERVAL, $networks, $warnings),
     // And update them by users request
-    listNetworksByRequest($networks),
+    listNetworksByRequest($networks, $warnings),
     // Get actual logs to client app
     sentryLogsListener(),
     // List Public APIs for current network
     // Do not update anything
-    listPublicApisByRequest($wallet),
+    listPublicApisByRequest($wallet, $warnings),
     // If current network does not exist in discovery service
     // then ask User to switch the network
     ensureNetwork($wallet, $networks, $mainWindow),

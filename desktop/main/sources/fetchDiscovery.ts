@@ -14,88 +14,181 @@ import {
   withLatestFrom,
   of as ofRx,
   RetryConfig,
+  tap,
 } from 'rxjs';
-import { dissocPath, equals, of } from 'ramda';
+import { dissocPath, equals } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
-import { Network, NodeConfig, Wallet } from '../../../shared/types';
+import {
+  Network,
+  NetworkExtended,
+  NodeConfig,
+  Wallet,
+} from '../../../shared/types';
 import {
   fetchNetworksFromDiscovery,
   generateGenesisIDFromConfig,
+  getDiscoveryUrl,
   listPublicApis,
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
 import Logger from '../../logger';
+import {
+  getFallbackPath,
+  loadFallbackConfig,
+  loadFallbackNetworks,
+  saveFallbackNetworks,
+} from '../fallbackConfigs';
+import { getConfigHashByURL } from '../configHash';
+import Warning, { WarningType } from '../../../shared/warning';
+import {
+  DEFAULT_MAINNET_CONFIG,
+  DEFAULT_NETWORKS_LIST,
+} from '../../../shared/constants';
 
 const logger = Logger({ className: 'fetchDiscovery' });
 
 const RETRY_CONFIG: RetryConfig = {
-  count: Infinity,
+  count: 3,
   delay: 10000, // Every 10 seconds
 };
 
-export const fromNetworkConfig = (net: Network) => {
+export const fromNetworkConfig = (
+  net: Network,
+  $warnings: Subject<Warning>
+) => {
   logger.log('fromNetworkConfig', { net });
+
+  const createWarning = (cacheHit: boolean, err: Error) => {
+    $warnings.next(
+      Warning.fromError(
+        WarningType.CannotLoadConfigsFromDiscovery,
+        {
+          type: 'config',
+          cacheHit,
+          dir: getFallbackPath(''),
+          url: getDiscoveryUrl(),
+        },
+        err
+      )
+    );
+  };
+
   return ofRx(null).pipe(
-    switchMap(() => from(fetchNodeConfig(net.conf))),
+    switchMap(() => {
+      const prevHash = getConfigHashByURL(net.conf);
+      return from(fetchNodeConfig(net.conf, prevHash));
+    }),
     retry(RETRY_CONFIG),
     catchError((err) => {
       logger.error('fromNetworkConfig', err);
-      return of([]);
+
+      // eslint-disable-next-line promise/no-promise-in-callback
+      const result = loadFallbackConfig(net).then(
+        (val) => {
+          createWarning(true, err);
+          return val;
+        },
+        (err) => {
+          createWarning(false, err);
+          return DEFAULT_MAINNET_CONFIG;
+        }
+      );
+
+      return from(result);
     })
   );
 };
 
-export const withGenesisID = () =>
+export const extendWithConfig = ($warnings: Subject<Warning>) =>
   switchMap((networks: Network[]) =>
     forkJoin([
       ...networks.map(
-        (net) => fromNetworkConfig(net) as Observable<NodeConfig>
+        (net) => fromNetworkConfig(net, $warnings) as Observable<NodeConfig>
       ),
     ]).pipe(
       map((configs) => {
         return networks.map(
-          (net, i): Network => ({
+          (net, i): NetworkExtended => ({
             ...net,
             genesisID: generateGenesisIDFromConfig(configs[i]),
+            config: configs[i],
           })
         );
       })
     )
   );
 
-const fromDiscovery = () =>
-  ofRx(null).pipe(
+const fromDiscovery = ($warnings: Subject<Warning>) => {
+  const createWarning = (cacheHit: boolean, err: Error) => {
+    $warnings.next(
+      Warning.fromError(
+        WarningType.CannotLoadConfigsFromDiscovery,
+        {
+          type: 'networks',
+          cacheHit,
+          dir: getFallbackPath(''),
+          url: getDiscoveryUrl(),
+        },
+        err
+      )
+    );
+  };
+
+  return ofRx(null).pipe(
     switchMap(() => from(fetchNetworksFromDiscovery())),
     retry(RETRY_CONFIG),
+    extendWithConfig($warnings),
+    tap((nets) => saveFallbackNetworks(nets)),
     catchError((err) => {
       logger.error('fromDiscovery()', err);
-      return ofRx([]);
-    }),
-    withGenesisID()
+
+      // eslint-disable-next-line promise/no-promise-in-callback
+      const result = loadFallbackNetworks().then(
+        (val) => {
+          createWarning(true, err);
+          return val;
+        },
+        () => {
+          createWarning(false, err);
+          return DEFAULT_NETWORKS_LIST;
+        }
+      );
+
+      return from(result);
+    })
   );
+};
 
-export const fetchDiscovery = ($networks: Subject<Network[]>) =>
-  makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
+export const fetchDiscovery = (
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
+) => makeSubscription(fromDiscovery($warnings), (nets) => $networks.next(nets));
 
-export const fetchDiscoveryEach = (
+export const fetchDiscoveryEvery = (
   period: number,
-  $networks: Subject<Network[]>
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
 ) =>
   makeSubscription(
-    interval(period).pipe(switchMap(fromDiscovery)),
+    interval(period).pipe(switchMap(() => fromDiscovery($warnings))),
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 
-export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
+export const listNetworksByRequest = (
+  $networks: Subject<NetworkExtended[]>,
+  $warnings: Subject<Warning>
+) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,
-      () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
+      () => fromDiscovery($warnings).pipe(map((nets) => handlerResult(nets))),
       (nets) => nets
     ),
-    (networks) => $networks.next(networks)
+    (networks) => {
+      $networks.next(networks);
+    }
   );
 
 export const listenNodeConfigAndRestartNode = (
@@ -134,12 +227,15 @@ export const listenNodeConfigAndRestartNode = (
     }
   );
 
-export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
+export const listPublicApisByRequest = (
+  $wallet: Subject<Wallet | null>,
+  $warnings: Subject<Warning>
+) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_PUBLIC_SERVICES,
       (selectedGenesisID: string) =>
-        fromDiscovery().pipe(
+        fromDiscovery($warnings).pipe(
           withLatestFrom($wallet),
           first(),
           map(([nets, wallet]) => {

@@ -41,7 +41,10 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
     case ADD_WARNING:
       return {
         ...state,
-        warnings: [...state.warnings, action.payload],
+        warnings: [
+          ...state.warnings.filter((w) => w.type !== action.payload.type),
+          action.payload,
+        ],
       };
     case OMIT_WARNING:
       return {

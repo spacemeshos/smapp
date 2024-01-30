@@ -1,36 +1,27 @@
 import {
-  BehaviorSubject,
   catchError,
-  delay,
   distinctUntilChanged,
   filter,
   from,
   merge,
   Observable,
-  retry,
   Subject,
   switchMap,
   throwError,
-  withLatestFrom,
 } from 'rxjs';
-import { Network, NodeConfig } from '../../../shared/types';
+import { NetworkExtended, NodeConfig } from '../../../shared/types';
 import Warning, { WarningType } from '../../../shared/warning';
 import { SmeshingSetupState } from '../../NodeManager';
-import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
-import Logger from '../../logger';
-
-const logger = Logger({ className: 'syncNodeConfig' });
+import { mergeConfigs } from '../NodeConfig';
 
 export default (
-  $currentNetwork: Observable<Network | null>,
+  $currentNetwork: Observable<NetworkExtended | null>,
   $nodeConfig: Subject<NodeConfig>,
   $smeshingSetupState: Subject<SmeshingSetupState>,
   $warnings: Subject<Warning>
-) => {
-  const $hash = new BehaviorSubject('startup'); // first time
-
-  return makeSubscription(
+) =>
+  makeSubscription(
     merge(
       $currentNetwork.pipe(filter(Boolean), distinctUntilChanged()),
       $smeshingSetupState.pipe(
@@ -39,10 +30,7 @@ export default (
         filter(Boolean)
       )
     ).pipe(
-      withLatestFrom($hash),
-      switchMap(([net, hash]) => from(downloadNodeConfig(net.conf, hash))),
-      retry(5),
-      delay(500),
+      switchMap((net) => from(mergeConfigs(net.genesisID, net.config))),
       catchError((err: any) => {
         $warnings.next(
           err instanceof Warning
@@ -54,13 +42,5 @@ export default (
     ),
     (conf) => {
       $nodeConfig.next(conf.mergedConfig as NodeConfig);
-      if (conf.discoveryConfigHashChanged) {
-        logger.debug('got new config from discovery', {
-          prevHash: conf.discoveryConfigPrevHash,
-          nextHash: conf.discoveryConfigHash,
-        });
-        $hash.next(conf.discoveryConfigHash);
-      }
     }
   );
-};

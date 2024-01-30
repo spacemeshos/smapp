@@ -2,7 +2,7 @@ import { Object } from 'ts-toolbelt';
 import { Reward__Output } from '../../proto/spacemesh/v1/Reward';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
-import { NodeError } from './node';
+import { NodeConfig, NodeError } from './node';
 import { Tx, Reward, Activation } from './tx';
 import {
   WalletFile,
@@ -12,6 +12,11 @@ import {
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
 } from './wallet';
+import { Network } from './misc';
+
+// Utils
+export const notEmptyString = (a: any): a is string =>
+  typeof a === 'string' && a.length > 0;
 
 // GRPC Type guards
 export const hasRequiredTxFields = (
@@ -83,3 +88,25 @@ export const isWalletFile = (wallet: any): wallet is WalletFile =>
   isWalletMeta(wallet.meta) &&
   (isWalletGCMEncrypted(wallet.crypto) ||
     isWalletLegacyEncrypted(wallet.crypto));
+
+export const isNetwork = (net: any): net is Network =>
+  !!net &&
+  notEmptyString(net.netName) &&
+  notEmptyString(net.conf) &&
+  notEmptyString(net.dash) &&
+  notEmptyString(net.explorer) &&
+  notEmptyString(net.minSmappRelease) &&
+  notEmptyString(net.latestSmappRelease) &&
+  notEmptyString(net.smappBaseDownloadUrl);
+
+export const isNetConfig = (c: any): c is NodeConfig =>
+  !!c &&
+  c.main &&
+  notEmptyString(c.main['layer-duration']) &&
+  c.main['layers-per-epoch'] > 0 &&
+  c.post &&
+  c.post['post-labels-per-unit'] > 0 &&
+  c.post['post-max-numunits'] > 0 &&
+  notEmptyString(c.poet?.['cycle-gap']) &&
+  notEmptyString(c.genesis?.['genesis-time']) &&
+  notEmptyString(c.genesis?.['genesis-extra-data']);
