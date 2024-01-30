@@ -56,7 +56,7 @@ const InputWrapper = styled(
 )`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 24px;
 `;
 
@@ -72,8 +72,8 @@ const ModalContainer = styled.div`
 
 const ErrorMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
-  margin-top: -16px;
-  margin-bottom: 20px;
+  margin-top: -20px;
+  margin-bottom: 10px;
   font-size: 14px;
 `;
 
@@ -136,7 +136,7 @@ const ActualInput = styled((props) => <input {...props} />)<{
   `}
 `;
 
-const StyledTextArea = styled((props) => <textarea {...props} rows={10} />)`
+const StyledTextArea = styled((props) => <textarea {...props} rows={3} />)`
   display: flex;
   flex-direction: column;
   resize: none;
@@ -201,30 +201,8 @@ interface FormFields {
   name: string;
   email: string;
   comments: string;
+  title: string;
 }
-
-const DESCRIPTION_PLACEHOLDER = `### Describe the bug
-
-A clear and concise description of what the bug is.
-
-### Steps to reproduce
-
-Try to narrow down your scenario to a minimal working/failing example. That is, if you have a big program causing a problem, start with deleting parts not relevant to the issue and observing the result: is the problem still there? Repeat until you get the most straightforward sequence of steps to reproduce the problem without any noise surrounding it.
-
-### Expected behavior
-
-What should happen?
-
-### Actual behavior
-
-What’s happening now?
-`;
-
-const FORM_ERRORS: Partial<FormFields> = {
-  name: 'Your Discord handle or name should not be empty',
-  email: 'Email should be valid',
-  comments: 'Steps to reproduce should not be empty',
-};
 
 const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
 
@@ -238,34 +216,50 @@ const FeedbackButton = () => {
   const [userData, setUserData] = useState<FormFields>({
     name: '',
     email: '',
-    comments: DESCRIPTION_PLACEHOLDER,
+    comments: '',
+    title: '',
   });
   const [fieldErrors, setFieldErrors] = useState({
     name: '',
     email: '',
     comments: '',
+    title: '',
   });
 
   const resetForm = () =>
     setUserData({
       name: '',
       email: '',
-      comments: DESCRIPTION_PLACEHOLDER,
+      comments: '',
+      title: '',
     });
 
   const validate = () => {
-    const errors = {};
-    Object.keys(fieldErrors).forEach((key) => {
-      if (key === 'email' && userData[key]) {
-        const isValidEmail = REGULAR_EXP_FOR_EMAIL_CHECK.test(
-          userData[key] || ''
-        );
-        errors[key] = !isValidEmail ? 'Email is not valid' : '';
-        return;
-      }
+    const errors: Partial<Record<keyof FormFields, string>> = {};
+    const { email, title, comments } = userData;
 
-      errors[key] = userData[key] === '' ? FORM_ERRORS[key] : '';
+    // Common empty field check for all fields
+    Object.entries(userData).forEach(([key, value]) => {
+      if (!value.trim()) {
+        errors[key as keyof FormFields] = 'This field cannot be empty';
+      }
     });
+
+    // Field-specific validations (only if not already flagged as empty)
+
+    if (!errors.email && !REGULAR_EXP_FOR_EMAIL_CHECK.test(email)) {
+      errors.email = 'Email should be valid';
+    }
+    const titleLen = title.replace(/\s/g, '').length;
+    if (!errors.title && (titleLen < 10 || titleLen > 60)) {
+      errors.title =
+        'Summary must contain between 10-60 characters (excluding spaces)';
+    }
+    const commentsLen = comments.replace(/\s/g, '').length;
+    if (!errors.comments && commentsLen < 30) {
+      errors.comments =
+        'Details must contain a minimum of 30 characters (excluding spaces)';
+    }
     setFieldErrors(errors as FormFields);
     return !Object.values(errors).some((error) => error);
   };
@@ -277,7 +271,7 @@ const FeedbackButton = () => {
 
     const formData = {
       event_id: captureReactMessage(`
-           User has submitted an issue and asked to check it. Discord handle: ${userData.name} and email: ${userData.email}, 
+           Report: ${userData.title} By: ${userData.name}  email: ${userData.email}, 
          `),
       ...userData,
     };
@@ -375,11 +369,27 @@ const FeedbackButton = () => {
             {Boolean(fieldErrors.email) && (
               <ErrorMessage>{fieldErrors.email}</ErrorMessage>
             )}
-            <InputWrapper label="Step to reproduce" required>
+            <InputWrapper label="Issue overview" required>
+              <ActualInput
+                value={userData.title}
+                type="text"
+                placeholder="Concise description of the issue. 10-60 chars"
+                onChange={(e: any) =>
+                  setUserData((userData) => ({
+                    ...userData,
+                    title: e.target.value,
+                  }))
+                }
+              />
+            </InputWrapper>
+            {Boolean(fieldErrors.title) && (
+              <ErrorMessage>{fieldErrors.title}</ErrorMessage>
+            )}
+            <InputWrapper label="Details" required>
               <StyledTextArea
                 value={userData.comments}
                 required
-                placeholder={DESCRIPTION_PLACEHOLDER}
+                placeholder="Provide clear steps to reproduce the issue, including expected and actual behaviors."
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
