@@ -14,6 +14,8 @@ const logger = Logger({ className: 'fallbackConfigs' });
 export const getFallbackPath = (filename: string) =>
   path.join(app.getPath('userData'), 'ConfigCache', filename);
 
+export const ensureConfigCacheDir = () => ensureDir(getFallbackPath(''));
+
 export const getConfigFilename = (net: Network) => {
   const urlParts = net.conf.split('/');
   return urlParts[urlParts.length - 1];

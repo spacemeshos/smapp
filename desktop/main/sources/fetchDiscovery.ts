@@ -35,7 +35,6 @@ import { fetchNodeConfig } from '../../utils';
 import { Managers } from '../app.types';
 import Logger from '../../logger';
 import {
-  NETWORKS_FILENAME,
   getFallbackPath,
   loadFallbackConfig,
   loadFallbackNetworks,
@@ -129,7 +128,7 @@ const fromDiscovery = ($warnings: Subject<Warning>) => {
         {
           type: 'networks',
           cacheHit,
-          dir: getFallbackPath(NETWORKS_FILENAME),
+          dir: getFallbackPath(''),
           url: getDiscoveryUrl(),
         },
         err

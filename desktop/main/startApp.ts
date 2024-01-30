@@ -48,6 +48,7 @@ import ensureProvingOpts from './reactions/ensureProvingOpts';
 import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
 import restartNode from './reactions/restartNode';
 import { updateConfigHash } from './configHash';
+import { ensureConfigCacheDir } from './fallbackConfigs';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -177,6 +178,8 @@ const startApp = (): AppStore => {
     $wallet,
     $networks
   );
+
+  ensureConfigCacheDir();
 
   // Reactions
   // List of unsubscribe functions
