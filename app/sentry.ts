@@ -37,7 +37,7 @@ export const init = (history) =>
     ],
     async beforeSend(event, hint) {
       const isFeedbackFormMessage = (event?.message || '').includes(
-        'User has submitted an issue and asked to check it.'
+        'Report: '
       );
 
       if (!isFeedbackFormMessage) {
