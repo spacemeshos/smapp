@@ -7,7 +7,7 @@ import {
   captureUserFeedback,
   reactRouterV5Instrumentation,
 } from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import { BrowserTracing } from '@sentry/browser';
 import { matchPath } from 'react-router-dom';
 import { RouteConfig } from '@sentry/react/types/reactrouter';
 import { Primitive } from '@sentry/types';
