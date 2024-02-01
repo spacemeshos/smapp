@@ -271,7 +271,7 @@ const FeedbackButton = () => {
 
     const formData = {
       event_id: captureReactMessage(`
-           Report: ${userData.title} By: ${userData.name}  email: ${userData.email}, 
+           User Reported: ${userData.title} By: ${userData.name}  email: ${userData.email}, 
          `),
       ...userData,
     };

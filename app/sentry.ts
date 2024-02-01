@@ -37,7 +37,7 @@ export const init = (history) =>
     ],
     async beforeSend(event, hint) {
       const isFeedbackFormMessage = (event?.message || '').includes(
-        'Report: '
+        'User Reported: '
       );
 
       if (!isFeedbackFormMessage) {
