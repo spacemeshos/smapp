@@ -7,7 +7,7 @@ import {
   captureUserFeedback,
   reactRouterV5Instrumentation,
 } from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import { BrowserTracing } from '@sentry/browser';
 import { matchPath } from 'react-router-dom';
 import { RouteConfig } from '@sentry/react/types/reactrouter';
 import { Primitive } from '@sentry/types';
@@ -37,7 +37,7 @@ export const init = (history) =>
     ],
     async beforeSend(event, hint) {
       const isFeedbackFormMessage = (event?.message || '').includes(
-        'User has submitted an issue and asked to check it.'
+        'User Reported: '
       );
 
       if (!isFeedbackFormMessage) {
