@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
-import { GenericPromptOpts } from '../../shared/SendPromptToRendererInput';
+import { GenericPromptOpts } from '../../shared/genericPrompt';
 
 export default (
   webContents: Electron.WebContents,

@@ -1,5 +1,6 @@
 export { default as Loader } from './Loader';
 export { default as Button } from './Button';
+export * from './ButtonNew';
 export { default as SecondaryButton } from './SecondaryButton';
 export { default as Input } from './Input';
 export { default as RadioButton } from './RadioButton';

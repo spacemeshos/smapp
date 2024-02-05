@@ -2,21 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ipcRenderer } from 'electron';
 import Modal from '../../components/common/Modal';
-import { Button } from '../../basicComponents';
 import { ipcConsts } from '../../vars';
 import {
   GENERIC_PROMPT_DEFAULTS,
   GenericPromptOpts,
-} from '../../../shared/SendPromptToRendererInput';
-import { ButtonNew, ButtonNewGroup } from '../../basicComponents/ButtonNew';
-
-const ButtonsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: auto 0 15px 0;
-  padding-top: 30px;
-`;
+} from '../../../shared/genericPrompt';
+import { ButtonNew, ButtonNewGroup } from '../../basicComponents';
 
 const Message = styled.pre`
   font-size: 14px;
