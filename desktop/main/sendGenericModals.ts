@@ -1,8 +1,9 @@
 import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { GenericPromptOpts } from '../../shared/genericPrompt';
+import { GenericModalOpts } from '../../shared/genericModal';
 
-export default (
+export const showGenericPrompt = (
   webContents: Electron.WebContents,
   opts: GenericPromptOpts
 ): Promise<boolean> => {
@@ -12,4 +13,12 @@ export default (
       resolve(userResponse)
     )
   );
+};
+
+export const showGenericModal = (
+  webContents: Electron.WebContents,
+  opts: GenericModalOpts
+) => {
+  webContents.send(ipcConsts.GENERIC_MODAL_SHOW, opts);
+  return true;
 };

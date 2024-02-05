@@ -31,7 +31,7 @@ import {
   getWalletFileName,
 } from './walletFile';
 import { getLocalNodeConnectionConfig } from './utils';
-import sendPromptToRenderer from './sendPromptToRenderer';
+import { showGenericPrompt } from './sendGenericModals';
 
 const list = async () => {
   try {
@@ -70,7 +70,7 @@ const addWallet = async (
           'A different wallet with the same name is already opened in Smapp. Double-check which one you use and consider renaming one of them.';
       }
 
-      const approved = await sendPromptToRenderer(event.sender, {
+      const approved = await showGenericPrompt(event.sender, {
         title: 'CONFIRM FILE IMPORT',
         message: promptMessage,
       });

@@ -6,6 +6,7 @@ import PoSProvingOptsUpdateWarningModal from './screens/modal/PoSProvingOptsUpda
 import AutoLaunchErrorModal from './screens/modal/AutoLaunchErrorModal';
 import PromptModal from './screens/modal/PromptModal';
 import CannotFetchConfigsError from './screens/modal/CannotFetchConfigsError';
+import GenericModal from './screens/modal/GenericModal';
 
 export default () => (
   <>
@@ -16,5 +17,6 @@ export default () => (
     <PoSProvingOptsUpdateWarningModal />
     <AutoLaunchErrorModal />
     <PromptModal />
+    <GenericModal />
   </>
 );
