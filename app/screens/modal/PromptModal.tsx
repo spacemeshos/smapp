@@ -4,6 +4,11 @@ import { ipcRenderer } from 'electron';
 import Modal from '../../components/common/Modal';
 import { Button } from '../../basicComponents';
 import { ipcConsts } from '../../vars';
+import {
+  GENERIC_PROMPT_DEFAULTS,
+  GenericPromptOpts,
+} from '../../../shared/SendPromptToRendererInput';
+import { ButtonNew, ButtonNewGroup } from '../../basicComponents/ButtonNew';
 
 const ButtonsWrapper = styled.div`
   display: flex;
@@ -25,13 +30,18 @@ const Message = styled.pre`
 
 const PromptModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
+  const [opts, setOpts] = useState<Required<GenericPromptOpts>>({
+    ...GENERIC_PROMPT_DEFAULTS,
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
-    const handleShowModal = (_, { title, message }) => {
-      setTitle(title);
-      setMessage(message);
+    const handleShowModal = (_, opts: GenericPromptOpts) => {
+      setOpts({
+        ...GENERIC_PROMPT_DEFAULTS,
+        ...opts,
+      });
       setIsOpen(true);
     };
 
@@ -53,16 +63,19 @@ const PromptModal = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal header={title} width={600} height={300}>
-      <Message>{message}</Message>
-      <ButtonsWrapper>
-        <Button
-          isPrimary={false}
+    <Modal header={opts.title} width={600} height={300}>
+      <Message>{opts.message}</Message>
+      <ButtonNewGroup>
+        <ButtonNew
           onClick={() => handleResponse(true)}
-          text="CONFIRM"
+          text={opts.confirmTitle}
         />
-        <Button onClick={() => handleResponse(false)} text="CANCEL" />
-      </ButtonsWrapper>
+        <ButtonNew
+          isPrimary
+          onClick={() => handleResponse(false)}
+          text={opts.cancelTitle}
+        />
+      </ButtonNewGroup>
     </Modal>
   );
 };

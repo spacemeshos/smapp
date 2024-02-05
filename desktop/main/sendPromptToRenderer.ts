@@ -1,16 +1,12 @@
 import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
-
-interface SendPromptToRendererInput {
-  title: string;
-  message: string;
-}
+import { GenericPromptOpts } from '../../shared/SendPromptToRendererInput';
 
 export default (
-  event: Electron.IpcMainInvokeEvent,
-  { title, message }: SendPromptToRendererInput
+  webContents: Electron.WebContents,
+  opts: GenericPromptOpts
 ): Promise<boolean> => {
-  event.sender.send(ipcConsts.PROMPT_MODAL_REQUEST, { title, message });
+  webContents.send(ipcConsts.PROMPT_MODAL_REQUEST, opts);
   return new Promise((resolve) =>
     ipcMain.once(ipcConsts.PROMPT_MODAL_REQUEST, (_, userResponse) =>
       resolve(userResponse)

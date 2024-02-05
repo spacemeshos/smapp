@@ -70,7 +70,7 @@ const addWallet = async (
           'A different wallet with the same name is already opened in Smapp. Double-check which one you use and consider renaming one of them.';
       }
 
-      const approved = await sendPromptToRenderer(event, {
+      const approved = await sendPromptToRenderer(event.sender, {
         title: 'CONFIRM FILE IMPORT',
         message: promptMessage,
       });
