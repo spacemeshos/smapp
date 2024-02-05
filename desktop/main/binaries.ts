@@ -18,6 +18,9 @@ export const getBinaryPath = () =>
 
 export const getBinaryExt = () => (os.type() === 'Windows_NT' ? '.exe' : '');
 
+export const getQuicksyncPath = () =>
+  path.resolve(getBinaryPath(), `quicksync${getBinaryExt()}`);
+
 export const getNodePath = () =>
   path.resolve(getBinaryPath(), `go-spacemesh${getBinaryExt()}`);
 

@@ -51,13 +51,14 @@ import {
 } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
-import { getBinaryPath, getNodePath } from './main/binaries';
+import { getBinaryPath, getNodePath, getQuicksyncPath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 import {
   checkRequiredLibs,
   requiredLibsCrashErrors,
 } from './checkRequiredLibs';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
+import { showGenericModal, showGenericPrompt } from './main/sendGenericModals';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -379,6 +380,35 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
+    const isUpToDate = await this.isDatabaseUpToDate().catch((err) => {
+      logger.error('isDatabaseUpToDate', err);
+      // Fallback to default syncing
+      return {
+        synced: true,
+        db: 0,
+        latest: 0,
+      };
+    });
+    logger.log('isDatabaseUpToDate', isUpToDate);
+    if (!isUpToDate.synced) {
+      const prompt = await showGenericPrompt(this.mainWindow.webContents, {
+        title: 'Do you want to quick sync?',
+        message: [
+          'The database is too far behind:',
+          `Latest layer in your database: ${isUpToDate.db}`,
+          `Latest layer in the network: ${isUpToDate.latest}`,
+          '',
+          'Do you want to run a quicksync, which will download database from official Spacemesh storage?',
+        ].join('\n'),
+        confirmTitle: 'Yes, quicksync!',
+        cancelTitle: 'Sync as usual',
+      });
+
+      if (prompt) {
+        await this.runQuicksync();
+        // TODO: Handle error -> show popup and just run the node
+      }
+    }
     await this.spawnNode();
     this.isRestarting = false;
     this.startGRPCClient();
@@ -506,14 +536,175 @@ class NodeManager extends AbstractManager {
     });
   };
 
+  private getNodeDataPath = () =>
+    path.join(
+      StoreService.get('node.dataPath'),
+      getShortGenesisId(this.genesisID)
+    );
+
+  private isDatabaseUpToDate = () => {
+    const bin = getQuicksyncPath();
+    return new Promise<{
+      synced: boolean;
+      db: number;
+      latest: number;
+    }>((resolve, reject) => {
+      const process = spawn(bin, [
+        'check',
+        '--node-data',
+        this.getNodeDataPath(),
+      ]);
+
+      let stdout = '';
+      let stderr = '';
+      process.stdout.on('data', (data) => {
+        stdout += data;
+      });
+      process.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      process.on('error', (err) => {
+        reject(
+          new Error(
+            `Cannot run Quicksync tool to check the database: ${err.message}`
+          )
+        );
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0) {
+          return reject(
+            new Error(
+              `Quicksync tool failed with exit code ${code}:\n${stderr}`
+            )
+          );
+        }
+
+        const stats = stdout
+          .split('\n')
+          .filter((l) => l.startsWith('Latest'))
+          .join('\n')
+          .match(/(\d+)/g);
+        if (!stats) {
+          return reject(
+            new Error(
+              `Unknown result of running Quicksync tool:\n${stdout}\n${stderr}`
+            )
+          );
+        }
+
+        return resolve({
+          synced: stdout.includes('OK!'),
+          db: parseInt(stats[0], 10),
+          latest: parseInt(stats[1], 10),
+        });
+      });
+    });
+  };
+
+  private runQuicksync = async () => {
+    const bin = getQuicksyncPath();
+    const args = [
+      'download',
+      '--node-data',
+      this.getNodeDataPath(),
+      '--go-spacemesh-path',
+      getNodePath(),
+    ];
+
+    logger.log('runQuicksync', `${bin} ${args.map((x) => `"${x}"`).join(' ')}`);
+
+    return new Promise((resolve, reject) => {
+      const process = spawn(bin, args);
+      let cancelled = false;
+
+      process.on('error', (err) => {
+        reject(
+          new Error(
+            `Cannot run Quicksync tool to download the database: ${err.message}`
+          )
+        );
+      });
+
+      const notifyProgress = (messageLines: string[], isFinish = false) => {
+        showGenericModal(this.mainWindow.webContents, {
+          title: 'Quicksyncing...',
+          message: messageLines.join('\n'),
+          buttons: [
+            isFinish
+              ? {
+                  label: 'Close',
+                  action: 'close',
+                }
+              : {
+                  label: 'Cancel',
+                  action: 'cancel',
+                },
+          ],
+        });
+      };
+
+      ipcMain.once(ipcConsts.GENERIC_MODAL_BTN_PRESS, (_, eventName) => {
+        if (eventName === 'cancel') {
+          cancelled = true;
+          process.kill();
+        }
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      process.stdout.on('data', (data) => {
+        const line = data.toString();
+        stdout = line;
+        notifyProgress([
+          line,
+          '',
+          'If you cancel — Node will continue syncing as usually',
+        ]);
+      });
+
+      process.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0 && !cancelled) {
+          notifyProgress(
+            [
+              'Quicksyncing failed. Starting syncing as usually...',
+              stdout,
+              'You can try to restart Smapp and run quicksync once again',
+            ],
+            true
+          );
+          return reject(
+            new Error(
+              `Quicksync tool failed with exit code ${code}:\n${stderr}`
+            )
+          );
+        }
+        if (cancelled) {
+          return resolve(false);
+        }
+        notifyProgress(
+          [
+            'Quick syncing is finished successfully.',
+            'Now you can close this window and continue using Smapp as usually',
+          ],
+          true
+        );
+        return resolve(true);
+      });
+    });
+  };
+
   private spawnNode = async () => {
     if (this.isNodeRunning()) return;
     const nodeDir = getBinaryPath();
     const nodePath = getNodePath();
-    const nodeDataFilesPath = path.join(
-      StoreService.get('node.dataPath'),
-      getShortGenesisId(this.genesisID)
-    );
+    const nodeDataFilesPath = this.getNodeDataPath();
     const logFilePath = getNodeLogsPath(this.genesisID);
 
     this.nodeLogStream = rotator({
