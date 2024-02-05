@@ -26,7 +26,7 @@ jobs:
             platform: linux
             node: linux-amd64
             arch: amd64
-          - image: [self-hosted, macos, arm64]
+          - image: [smapp]
             id: macos-arm64
             platform: macos
             node: mac-arm64
