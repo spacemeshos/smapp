@@ -133,7 +133,7 @@ const PoSSummary = ({
           <Text>data generation max speed</Text>
           <Tooltip
             width={100}
-            text="Depending on the processor's capacity and availability. The final POS creation time might vary."
+            text="Depending on the processor's capacity and availability. The final PoS creation time might vary."
           />
         </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>

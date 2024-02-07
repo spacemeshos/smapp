@@ -18,7 +18,7 @@ import {
 import {
   SET_ACCOUNT_REWARDS,
   SET_METADATA,
-  SET_POST_DATA_CREATION_STATUS,
+  SET_POS_DATA_CREATION_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   SET_SMESHER_CONFIG,
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
@@ -380,7 +380,7 @@ ipcRenderer.on(
     } = request;
 
     store.dispatch({
-      type: SET_POST_DATA_CREATION_STATUS,
+      type: SET_POS_DATA_CREATION_STATUS,
       payload: { postSetupState, numLabelsWritten },
     });
   }

@@ -511,7 +511,7 @@ const Node = ({ history, location }: Props) => {
                     onClick={handlePauseSmeshing}
                     text={`${
                       isActionButtonLoading ? 'PAUSING' : 'PAUSE'
-                    } POST DATA GENERATION `}
+                    } POS DATA GENERATION `}
                     img={pauseIcon}
                     isPrimary={false}
                     width={280}

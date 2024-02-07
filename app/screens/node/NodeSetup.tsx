@@ -209,7 +209,7 @@ const NodeSetup = ({ history, location }: Props) => {
     setProvider({
       id: 0,
       deviceType: DeviceType.DEVICE_CLASS_UNKNOWN,
-      model: 'No POS Provider',
+      model: 'No PoS Provider',
       performance: 0,
     });
     setMode(mode + 1);

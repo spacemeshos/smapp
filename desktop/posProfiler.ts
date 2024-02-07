@@ -63,7 +63,7 @@ export const runProfiler = (
         typeof res.time_s !== 'number' ||
         typeof res.speed_gib_s !== 'number'
       ) {
-        reject(new Error(`Invalid output of Pos profiler tool: ${out.stdout}`));
+        reject(new Error(`Invalid output of PoS profiler tool: ${out.stdout}`));
       }
       return resolve({
         time: res.time_s,
