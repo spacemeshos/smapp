@@ -16,26 +16,31 @@ jobs:
             platform: macos
             node: mac-amd64
             arch: '' # x64
+            quicksync: macos
           - image: windows-latest
             id: windows
             platform: windows
             node: win-amd64
             arch: '' # x64
+            quicksync: windows
           - image: ubuntu-latest
             id: linux
             platform: linux
             node: linux-amd64
             arch: amd64
+            quicksync: linux
           - image: [smapp]
             id: macos-arm64
             platform: macos
             node: mac-arm64
             arch: arm64
+            quicksync: macos-m1
           - image: [self-hosted, linux, arm64]
             id: linux-arm64
             platform: linux
             node: linux-arm64
             arch: arm64
+            quicksync: linux-arm64
 
     outputs:
       version: ${{ steps.package-version.outputs.version }}
@@ -88,14 +93,18 @@ jobs:
         id: latestNode
         run: echo "::set-output name=version::$(cat ./node/use-version)"
 
+      - name: Get specified Quicksync version
+        id: latestQuicksync
+        run: echo "::set-output name=version::$(cat ./node/use-version-quicksync)"
+
       - id: cache-gospacemesh
         uses: actions/cache@v3
         with:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-cache
-          restore-keys: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-cache
+          key: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-${{ hashFiles('./node/use-version-quicksync') }}
+          restore-keys: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-${{ hashFiles('./node/use-version-quicksync') }}
 
       - name: Prepare link to go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -126,6 +135,20 @@ jobs:
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' '*.h' 'profiler*' -r -y
+
+      - name: Download quicksync tool
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: 'spacemeshos/quicksync-rs'
+          version: 'tags/${{ steps.latestQuicksync.outputs.version }}'
+          file: 'quicksync-${{ matrix.quicksync }}-${{ steps.latestQuicksync.outputs.version }}.zip'
+          target: 'node/quicksync.zip'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Unzip archive & get rid of redundant files
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/quicksync.zip 'quicksync*' -r -y
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: matrix.platform != 'windows'
