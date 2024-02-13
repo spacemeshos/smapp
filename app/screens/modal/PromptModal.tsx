@@ -26,6 +26,7 @@ const PromptModal = () => {
     title: '',
     message: '',
   });
+  const [timeleft, setTimeleft] = useState(Infinity);
 
   useEffect(() => {
     const handleShowModal = (_, opts: GenericPromptOpts) => {
@@ -46,12 +47,36 @@ const PromptModal = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (opts.cancelTimeout) {
+      setTimeleft(opts.cancelTimeout);
+      const ival = setInterval(() => {
+        setTimeleft((val) => val - 1);
+      }, 1000);
+      return () => clearInterval(ival);
+    }
+    return () => {};
+  }, [opts]);
+
   const handleResponse = (response: boolean) => {
     ipcRenderer.send(ipcConsts.PROMPT_MODAL_REQUEST, response);
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    setImmediate(() => {
+      if (opts.cancelTimeout && timeleft === 0) {
+        setTimeleft(Infinity);
+        handleResponse(false);
+      }
+    });
+  }, [opts, timeleft]);
+
   if (!isOpen) return null;
+
+  const cancelText = opts.cancelTimeout
+    ? `${opts.cancelTitle} (${timeleft} sec)`
+    : opts.cancelTitle;
 
   return (
     <Modal header={opts.title} width={600} height={300}>
@@ -64,7 +89,7 @@ const PromptModal = () => {
         <ButtonNew
           isPrimary
           onClick={() => handleResponse(false)}
-          text={opts.cancelTitle}
+          text={cancelText}
         />
       </ButtonNewGroup>
     </Modal>
