@@ -79,7 +79,7 @@ const PromptModal = () => {
     : opts.cancelTitle;
 
   return (
-    <Modal header={opts.title} width={600} height={300}>
+    <Modal header={opts.title} width={600} height={360}>
       <Message>{opts.message}</Message>
       <ButtonNewGroup>
         <ButtonNew

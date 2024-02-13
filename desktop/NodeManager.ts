@@ -387,19 +387,22 @@ class NodeManager extends AbstractManager {
       return {
         synced: true,
         db: 0,
-        latest: 0,
+        current: 0,
+        available: 0,
       };
     });
     logger.log('isDatabaseUpToDate', isUpToDate);
-    if (!isUpToDate.synced) {
+    if (!isUpToDate.synced && isUpToDate.available > isUpToDate.db) {
       const prompt = await showGenericPrompt(this.mainWindow.webContents, {
         title: 'Do you want to quick sync?',
         message: [
-          'The database is too far behind:',
-          `Latest layer in your database: ${isUpToDate.db}`,
-          `Latest layer in the network: ${isUpToDate.latest}`,
+          'Your local database is too far behind.',
           '',
-          'Do you want to run a quicksync, which will download database from official Spacemesh storage?',
+          `Latest layer in your database: ${isUpToDate.db}`,
+          `Current layer in the network: ${isUpToDate.current}`,
+          `Latest layer available in the cloud: ${isUpToDate.available}`,
+          '',
+          'Do you want to run a quicksync, which will download database from the official Spacemesh cloud?',
         ].join('\n'),
         confirmTitle: 'Yes, quicksync!',
         cancelTitle: 'Sync as usual',
@@ -549,13 +552,18 @@ class NodeManager extends AbstractManager {
     return new Promise<{
       synced: boolean;
       db: number;
-      latest: number;
+      current: number;
+      available: number;
     }>((resolve, reject) => {
-      const process = spawn(bin, [
+      const args = [
         'check',
         '--node-data',
         this.getNodeDataPath(),
-      ]);
+        '--go-spacemesh-path',
+        getNodePath(),
+      ];
+      const process = spawn(bin, args);
+      logger.log('runQuicksync:check', `${bin} ${args.join(' ')}`);
 
       let stdout = '';
       let stderr = '';
@@ -585,9 +593,10 @@ class NodeManager extends AbstractManager {
 
         const stats = stdout
           .split('\n')
-          .filter((l) => l.startsWith('Latest'))
+          .filter((l) => l.startsWith('Latest') || l.startsWith('Current'))
           .join('\n')
           .match(/(\d+)/g);
+
         if (!stats) {
           return reject(
             new Error(
@@ -597,16 +606,18 @@ class NodeManager extends AbstractManager {
         }
 
         const db = parseInt(stats[0], 10);
-        const latest = parseInt(stats[1], 10);
+        const current = parseInt(stats[1], 10);
+        const available = stats[2] ? parseInt(stats[2], 10) : 0;
 
         const epochSize = await loadNodeConfig().then((nc) =>
           Math.floor((nc?.main?.['layers-per-epoch'] || 4032) / 2)
         );
 
         return resolve({
-          synced: db >= latest - epochSize,
+          synced: db >= current - epochSize,
           db,
-          latest,
+          current,
+          available,
         });
       });
     });
@@ -622,7 +633,7 @@ class NodeManager extends AbstractManager {
       getNodePath(),
     ];
 
-    logger.log('runQuicksync', `${bin} ${args.map((x) => `"${x}"`).join(' ')}`);
+    logger.log('runQuicksync:download', `${bin} ${args.join(' ')}`);
 
     return new Promise((resolve, reject) => {
       const process = spawn(bin, args);
