@@ -5,6 +5,7 @@ export interface GenericPromptOpts {
   message: string;
   confirmTitle?: string;
   cancelTitle?: string;
+  cancelTimeout?: number | null;
 }
 
 export const GENERIC_PROMPT_DEFAULTS: Required<
@@ -12,4 +13,5 @@ export const GENERIC_PROMPT_DEFAULTS: Required<
 > = {
   confirmTitle: 'Confirm',
   cancelTitle: 'Cancel',
+  cancelTimeout: null,
 };

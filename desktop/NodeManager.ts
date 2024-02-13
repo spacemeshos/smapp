@@ -402,6 +402,7 @@ class NodeManager extends AbstractManager {
         ].join('\n'),
         confirmTitle: 'Yes, quicksync!',
         cancelTitle: 'Sync as usual',
+        cancelTimeout: 60,
       });
 
       if (prompt) {
