@@ -59,6 +59,7 @@ import {
 } from './checkRequiredLibs';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
 import { showGenericModal, showGenericPrompt } from './main/sendGenericModals';
+import { loadNodeConfig } from './main/NodeConfig';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -573,7 +574,7 @@ class NodeManager extends AbstractManager {
         );
       });
 
-      process.on('close', (code) => {
+      process.on('close', async (code) => {
         if (code !== 0) {
           return reject(
             new Error(
@@ -595,10 +596,17 @@ class NodeManager extends AbstractManager {
           );
         }
 
+        const db = parseInt(stats[0], 10);
+        const latest = parseInt(stats[1], 10);
+
+        const epochSize = await loadNodeConfig().then((nc) =>
+          Math.floor((nc?.main?.['layers-per-epoch'] || 4032) / 2)
+        );
+
         return resolve({
-          synced: stdout.includes('OK!'),
-          db: parseInt(stats[0], 10),
-          latest: parseInt(stats[1], 10),
+          synced: db >= latest - epochSize,
+          db,
+          latest,
         });
       });
     });
