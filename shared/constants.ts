@@ -23,14 +23,14 @@ export const DEFAULT_NODE_STATUS: NodeStatus = {
 };
 
 export enum ExternalLinks {
-  About = 'https://testnet.spacemesh.io',
-  UserGuide = 'https://testnet.spacemesh.io',
-  Terms = 'https://testnet.spacemesh.io/#/terms',
-  Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer',
+  About = 'https://spacemesh.io/',
+  UserGuide = 'https://github.com/spacemeshos/wiki/wiki/Smesher-Guide',
+  Terms = 'https://testnet.spacemesh.io/#/terms', // TODO: update link, Yaeli or Danielle will provide the correct one
+  Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer', // TODO: update link, Yaeli or Danielle will provide the correct one
   Discord = 'https://discord.com/invite/yVhQ7rC',
-  Privacy = 'https://testnet.spacemesh.io/#/privacy',
-  SetupGuide = 'https://testnet.spacemesh.io/#/guide/setup',
-  NoSleepGuide = 'https://testnet.spacemesh.io/#/no_sleep',
+  Privacy = 'https://testnet.spacemesh.io/#/privacy', // TODO: update link, Yaeli or Danielle will provide the correct one
+  SetupGuide = 'https://www.youtube.com/playlist?list=PL5BszCNLCnMOyFilWE1pBltt4tz_c7eQl',
+  NoSleepGuide = 'https://github.com/spacemeshos/smapp/wiki/User-Support#disabling-sleep-mode',
   SendCoinGuide = 'https://testnet.spacemesh.io/#/send_coin',
   GetCoinGuide = 'https://testnet.spacemesh.io/#/get_coin',
   WalletGuide = 'https://testnet.spacemesh.io/#/wallet',
@@ -38,12 +38,12 @@ export enum ExternalLinks {
   RestoreGuide = 'https://testnet.spacemesh.io/#/advanced_wallet?id=restoring-a-wallet',
   RestoreFileGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file',
   RestoreMnemoGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list',
-  Help = 'https://testnet.spacemesh.io/#/help',
+  Help = 'https://github.com/spacemeshos/smapp/wiki/User-Support#getting-help',
   DiscordTapAccount = 'https://discord.gg/ASpy52C',
   RedistWindowsInstallOfficialSite = 'https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022',
   OpenCLWindowsInstallGuide = 'https://sasview.org/docs/old_docs/4.1.2/user/opencl_installation.html',
   OpenCLUbuntuInstallGuide = 'https://saturncloud.io/blog/how-to-install-cudaopencl-on-ubuntu-installed-on-a-usb-drive/#installing-opencl',
-  GithubSMAppIssuePage = 'https://github.com/spacemeshos/smapp/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=',
+  GithubSMAppIssuePage = 'https://github.com/spacemeshos/smapp/issues/new/choose',
   PosProvingDocumentation = 'https://github.com/spacemeshos/wiki/wiki/Smesher-Guide#fine-tuning-proving',
 }
 
