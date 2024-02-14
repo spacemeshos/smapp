@@ -396,15 +396,17 @@ class NodeManager extends AbstractManager {
       const prompt = await showGenericPrompt(this.mainWindow.webContents, {
         title: 'Do you want to quick sync?',
         message: [
-          'Your local database is too far behind.',
-          '',
           `Latest layer in your database: ${isUpToDate.db}`,
+          `Latest layer in the trusted state: ${isUpToDate.available}`,
           `Current layer in the network: ${isUpToDate.current}`,
-          `Latest layer available in the cloud: ${isUpToDate.available}`,
           '',
-          'Do you want to run a quicksync, which will download database from the official Spacemesh cloud?',
+          'Quick sync will download the trusted state.',
+          'Syncing as usual may take more time, but it is the prefered way.',
+          '<a href="https://spacemesh.io/blog/quicksync/">Read more</a> in the blog post.',
+          '',
+          'You can run the quick sync from the settings page later.',
         ].join('\n'),
-        confirmTitle: 'Yes, quicksync!',
+        confirmTitle: 'Yes, download it!',
         cancelTitle: 'Sync as usual',
         cancelTimeout: 60,
       });
