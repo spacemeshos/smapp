@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div<{
-  onClick: (e?: React.MouseEvent) => void;
+  onClick: (e: React.MouseEvent) => void;
   isPrimary: boolean;
   isDisabled: boolean;
 }>`
@@ -27,7 +27,7 @@ const Wrapper = styled.div<{
 `;
 
 type Props = {
-  onClick: (e?: React.MouseEvent) => void;
+  onClick: (e: React.MouseEvent) => void;
   isPrimary?: boolean;
   isDisabled?: boolean;
   text: string;
