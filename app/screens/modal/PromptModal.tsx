@@ -8,8 +8,10 @@ import {
   GenericPromptOpts,
 } from '../../../shared/genericPrompt';
 import { ButtonNew, ButtonNewGroup } from '../../basicComponents';
+import formatMessage from '../../infra/formatMessage';
 
 const Message = styled.pre`
+  flex-grow: 1;
   font-size: 14px;
   line-height: 1.33em;
   word-wrap: break-word;
@@ -80,7 +82,7 @@ const PromptModal = () => {
 
   return (
     <Modal header={opts.title} width={600} height={360}>
-      <Message>{opts.message}</Message>
+      <Message>{formatMessage(opts.message)}</Message>
       <ButtonNewGroup>
         <ButtonNew
           onClick={() => handleResponse(true)}
