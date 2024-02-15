@@ -2,6 +2,7 @@ import { NetworkState } from '../../types';
 
 const networkInitialState: NetworkState = {
   genesisID: '',
+  isMainNet: false,
   netName: '',
   genesisTime: '',
   layerDurationSec: 0,

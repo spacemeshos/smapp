@@ -1,5 +1,6 @@
 export interface NetworkState {
   netName: string;
+  isMainNet: boolean;
   genesisTime: string;
   currentLayer: number;
   layerDurationSec: number;

@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
 import { tap } from 'ramda';
 
 import { ipcConsts } from '../app/vars';
-import { delay, getShortGenesisId } from '../shared/utils';
+import { delay, getShortGenesisId, isMainNetConfig } from '../shared/utils';
 import { DEFAULT_NODE_STATUS, MINUTE } from '../shared/constants';
 import {
   HexString,
@@ -400,6 +400,13 @@ class NodeManager extends AbstractManager {
 
   runQuicksync = async () => {
     try {
+      const cfg = await loadNodeConfig();
+      const isMainnet = isMainNetConfig(cfg);
+
+      if (!isMainnet) {
+        // Fallback to default syncing
+        return;
+      }
       const isUpToDate = await this.runQuicksyncCheck().catch((err) => {
         logger.error('isDatabaseUpToDate', err);
         // Fallback to default syncing
@@ -671,8 +678,9 @@ class NodeManager extends AbstractManager {
         const current = parseInt(stats[1], 10);
         const available = stats[2] ? parseInt(stats[2], 10) : 0;
 
-        const epochSize = await loadNodeConfig().then((nc) =>
-          Math.floor((nc?.main?.['layers-per-epoch'] || 4032) / 2)
+        const cfg = await loadNodeConfig();
+        const epochSize = Math.floor(
+          (cfg?.main?.['layers-per-epoch'] || 4032) / 2
         );
 
         const result: QuicksyncStatus = {

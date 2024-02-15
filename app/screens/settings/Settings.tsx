@@ -172,6 +172,7 @@ class Settings extends Component<Props, State> {
       displayName,
       accounts,
       netName,
+      isMainNet,
       genesisID,
       genesisTime,
       rootHash,
@@ -534,6 +535,7 @@ class Settings extends Component<Props, State> {
                     onClick={this.runQuicksync}
                     text="QUICK SYNC"
                     width={180}
+                    isDisabled={!isMainNet}
                   />
                 }
                 rowName="Run a quicksync tool"
@@ -806,6 +808,7 @@ const mapStateToProps = (state: RootState) => ({
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
   currentWalletPath: state.wallet.currentWalletPath,
+  isMainNet: state.network.isMainNet,
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,
