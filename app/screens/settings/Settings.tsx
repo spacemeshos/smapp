@@ -232,7 +232,7 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Wallet Auto Start"
               />
-              <SettingRow
+              {/* <SettingRow
                 upperPart={[
                   <Text key={1}>Read our&nbsp;</Text>,
                   <Link
@@ -244,7 +244,7 @@ class Settings extends Component<Props, State> {
                   />,
                 ]}
                 rowName="Legal"
-              />
+              /> */}
               <SettingRow
                 upperPartLeft="Learn more in our extensive user guide"
                 isUpperPartLeftText
