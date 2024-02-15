@@ -1,4 +1,4 @@
-import { ipcMain, webContents } from 'electron';
+import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { GenericPromptOpts } from '../../shared/genericPrompt';
 import { GenericModalOpts } from '../../shared/genericModal';
