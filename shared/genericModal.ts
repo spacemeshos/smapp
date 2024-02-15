@@ -8,11 +8,11 @@ export interface GenericButtonOpts {
 export interface GenericModalOpts {
   title: string;
   message: string;
-  buttons: GenericButtonOpts[];
+  buttons?: GenericButtonOpts[];
 }
 
 export const GENERIC_MODAL_DEFAULTS: Required<
   PickOptionalPropsOf<GenericModalOpts>
 > = {
-  dismissTitle: 'DISMISS',
+  buttons: [{ label: 'DISMISS', action: 'close' }],
 };
