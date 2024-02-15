@@ -9,6 +9,7 @@ import {
   setNodeStartupStatus,
   setNodeStatus,
   setVersionAndBuild,
+  updateQuicksyncStatus,
 } from '../../redux/node/actions';
 import {
   addTransaction,
@@ -62,6 +63,7 @@ import {
   UnlockWalletRequest,
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
+import { QuicksyncStatus } from '../../../shared/types/quicksync';
 
 class EventsService {
   static createWallet = ({
@@ -256,6 +258,12 @@ class EventsService {
     ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
   };
 
+  static runQuicksync = () =>
+    ipcRenderer.send(ipcConsts.REQUEST_RUNNING_QUICKSYNC);
+
+  static runQuicksyncCheck = () =>
+    ipcRenderer.invoke(ipcConsts.REQUEST_QUICKSYNC_CHECK);
+
   static switchApiProvider = (genesisID: string, apiUrl?: SocketAddress) =>
     ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
@@ -419,6 +427,13 @@ ipcRenderer.on(
   ipcConsts.N_M_NODE_STARTUP_STATUS,
   (_, status: NodeStartupState) => {
     store.dispatch(setNodeStartupStatus(status));
+  }
+);
+
+ipcRenderer.on(
+  ipcConsts.UPDATE_QUICKSYNC_STATUS,
+  (_, status: QuicksyncStatus) => {
+    store.dispatch(updateQuicksyncStatus(status));
   }
 );
 

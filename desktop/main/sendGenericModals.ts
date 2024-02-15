@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, webContents } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { GenericPromptOpts } from '../../shared/genericPrompt';
 import { GenericModalOpts } from '../../shared/genericModal';
@@ -21,4 +21,8 @@ export const showGenericModal = (
 ) => {
   webContents.send(ipcConsts.GENERIC_MODAL_SHOW, opts);
   return true;
+};
+
+export const hideGenericModal = (webContents: Electron.WebContents) => {
+  webContents.send(ipcConsts.GENERIC_MODAL_HIDE);
 };

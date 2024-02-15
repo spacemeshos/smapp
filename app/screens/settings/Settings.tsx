@@ -521,7 +521,23 @@ class Settings extends Component<Props, State> {
                 </>
               )}
             </SettingsSection>
-            <SettingsSection title={categories[4]} name={categories[4]}>
+            <SettingsSection
+              title={categories[4]}
+              name={categories[4]}
+              id="advanced"
+            >
+              <SettingRow
+                upperPartLeft="Download the trusted database"
+                isUpperPartLeftText
+                upperPartRight={
+                  <Button
+                    onClick={this.runQuicksync}
+                    text="QUICK SYNC"
+                    width={180}
+                  />
+                }
+                rowName="Run a quicksync tool"
+              />
               <SettingRow
                 upperPartLeft={dataPath}
                 upperPartRight={
@@ -715,6 +731,8 @@ class Settings extends Component<Props, State> {
     localStorage.clear();
     eventsService.wipeOut();
   };
+
+  runQuicksync = () => eventsService.runQuicksync();
 
   deleteWallet = async () => {
     const { currentWalletPath } = this.props;
