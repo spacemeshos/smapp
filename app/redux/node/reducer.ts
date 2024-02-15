@@ -7,9 +7,11 @@ import {
   SET_NODE_STATUS,
   SET_NODE_VERSION_AND_BUILD,
   SET_STARTUP_STATUS,
+  UPDATE_QUICKSYNC_STATUS,
 } from './actions';
 
 const initialState: NodeState = {
+  quicksyncStatus: null,
   startupStatus: NodeStartupState.Starting,
   status: null,
   version: '',
@@ -33,6 +35,8 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     }
     case SET_STARTUP_STATUS:
       return { ...state, startupStatus: action.payload };
+    case UPDATE_QUICKSYNC_STATUS:
+      return { ...state, quicksyncStatus: action.payload };
     case SET_NODE_ERROR: {
       const error = action.payload;
       return {

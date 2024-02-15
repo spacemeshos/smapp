@@ -32,6 +32,13 @@ import {
 } from '../../redux/ui/selectors';
 import ErrorCheckListModal from '../modal/ErrorCheckListModal';
 import { restartNode } from '../../redux/node/actions';
+import {
+  getNodeError,
+  getNodeStartupState,
+  getNodeStatus,
+  isQuicksyncAvailable,
+} from '../../redux/node/selectors';
+import QuicksyncLink from '../../basicComponents/QuicksyncLink';
 
 const Container = styled.div`
   display: flex;
@@ -94,11 +101,10 @@ const Network = ({ history }) => {
   const isWindows = useSelector(isWindowsSelector);
   const isLinux = useSelector(isLinuxSelector);
   const isWalletMode = useSelector(isWalletOnly);
-  const startupStatus = useSelector(
-    (state: RootState) => state.node.startupStatus
-  );
-  const status = useSelector((state: RootState) => state.node.status);
-  const nodeError = useSelector((state: RootState) => state.node.error);
+  const startupStatus = useSelector(getNodeStartupState);
+  const status = useSelector(getNodeStatus);
+  const nodeError = useSelector(getNodeError);
+  const quicksyncAvailable = useSelector(isQuicksyncAvailable);
   const genesisID = useSelector(
     (state: RootState) => state.network.genesisID || ''
   );
@@ -121,6 +127,7 @@ const Network = ({ history }) => {
   const isRestarting = useSelector(
     (state: RootState) => state.node.isRestarting
   );
+
   const dispatch = useDispatch();
   const requestNodeRestart = () => dispatch(restartNode());
 
@@ -194,6 +201,7 @@ const Network = ({ history }) => {
           <Tooltip width={250} text="Network Synchronization Status" />
         </DetailsTextWrap>
         <GrayText>
+          {quicksyncAvailable && <QuicksyncLink />}
           <NetworkStatus
             startupStatus={startupStatus}
             status={status}

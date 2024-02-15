@@ -22,10 +22,12 @@ import {
 } from '../../shared/types';
 import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
+import { QuicksyncStatus } from '../../shared/types/quicksync';
 
 export { NetworkState } from '../../shared/types';
 
 export interface NodeState {
+  quicksyncStatus: QuicksyncStatus | null;
   startupStatus: NodeStartupState;
   status: NodeStatus | null;
   version: string;

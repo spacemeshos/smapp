@@ -10,6 +10,7 @@ import {
 } from '../../../shared/genericModal';
 
 const Message = styled.pre`
+  flex-grow: 1;
   font-size: 14px;
   line-height: 1.33em;
   word-wrap: break-word;
@@ -36,10 +37,16 @@ const GenericModal = () => {
       setIsOpen(true);
     };
 
+    const handleHideModal = () => {
+      setIsOpen(false);
+    };
+
     ipcRenderer.on(ipcConsts.GENERIC_MODAL_SHOW, handleShowModal);
+    ipcRenderer.on(ipcConsts.GENERIC_MODAL_HIDE, handleHideModal);
 
     return () => {
       ipcRenderer.removeListener(ipcConsts.GENERIC_MODAL_SHOW, handleShowModal);
+      ipcRenderer.removeListener(ipcConsts.GENERIC_MODAL_HIDE, handleHideModal);
     };
   }, []);
 
@@ -52,7 +59,7 @@ const GenericModal = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal header={opts.title} width={600} height={300}>
+    <Modal header={opts.title} width={600} height={360}>
       <Message>{opts.message}</Message>
       {opts.buttons.length > 0 && (
         <ButtonNewGroup>
