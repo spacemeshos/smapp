@@ -30,6 +30,7 @@ import Warning, {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../shared/warning';
+import { QuicksyncStatus } from '../shared/types/quicksync';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -58,9 +59,12 @@ import {
   requiredLibsCrashErrors,
 } from './checkRequiredLibs';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
-import { hideGenericModal, showGenericModal, showGenericPrompt } from './main/sendGenericModals';
+import {
+  hideGenericModal,
+  showGenericModal,
+  showGenericPrompt,
+} from './main/sendGenericModals';
 import { loadNodeConfig } from './main/NodeConfig';
-import { QuicksyncStatus } from '../shared/types/quicksync';
 
 const logger = Logger({ className: 'NodeManager' });
 
