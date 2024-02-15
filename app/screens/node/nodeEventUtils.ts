@@ -5,11 +5,11 @@ import { smColors } from '../../vars';
 export const getNodeEventStage = (event: NodeEvent) => {
   switch (getEventType(event)) {
     case 'initStart':
-      return 'PoST data initialization';
+      return 'PoS data initialization';
     case 'initComplete':
-      return 'PoST data initialization complete';
+      return 'PoS data initialization complete';
     case 'initFailed':
-      return 'PoST data initialization';
+      return 'PoS data initialization';
     case 'poetWaitRound':
       return 'Waiting for PoET registration';
     case 'poetWaitProof':

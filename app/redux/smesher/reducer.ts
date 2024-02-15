@@ -12,7 +12,7 @@ import {
   SET_SETUP_COMPUTE_PROVIDERS,
   DELETED_POS_DATA,
   STARTED_SMESHING,
-  SET_POST_DATA_CREATION_STATUS,
+  SET_POS_DATA_CREATION_STATUS,
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
   RESUMED_SMESHING,
@@ -134,7 +134,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postSetupState: PostSetupState.STATE_IN_PROGRESS,
       };
     }
-    case SET_POST_DATA_CREATION_STATUS: {
+    case SET_POS_DATA_CREATION_STATUS: {
       const {
         payload: { postSetupState, numLabelsWritten },
       } = action;

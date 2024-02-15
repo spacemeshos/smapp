@@ -68,7 +68,7 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
           <Text>Stop smeshing and delete PoS data</Text>
           <Tooltip
             width={200}
-            text="Stop Smeshing and delete the POS data files."
+            text="Stop Smeshing and delete the PoS data files."
           />
           <Dots>.....................................................</Dots>
           <Button
@@ -78,7 +78,7 @@ const PoSModifyPostData = ({ deleteData, isDeleting }: Props) => {
             isPrimary={false}
           />
           {showDeletePoSModal && (
-            <Modal header="Are you sure you want to delete your POS data?">
+            <Modal header="Are you sure you want to delete your PoS data?">
               <StyledRow>
                 <Button
                   isDisabled={isDeleting}

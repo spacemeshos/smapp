@@ -38,7 +38,7 @@ const PoSFooter = ({
 
   return (
     <Footer>
-      <Link onClick={navigateToExplanation} text="POST SETUP GUIDE" />
+      <Link onClick={navigateToExplanation} text="POS SETUP GUIDE" />
       <ButtonWrap>
         {skipAction && (
           <Button

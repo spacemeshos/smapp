@@ -27,7 +27,7 @@ const withTime = (str: string, now: number, wait?: number) =>
 const getEventErrorMessage = (event: NodeEvent) => {
   switch (getEventType(event)) {
     case 'initFailed':
-      return `PoST data initialization failed: ${event.initFailed?.error}`;
+      return `PoS data initialization failed: ${event.initFailed?.error}`;
     default:
       return `Stage "${getNodeEventStage(
         event
@@ -44,11 +44,11 @@ export default (event: NodeEvent) => {
   }
   switch (getEventType(event)) {
     case 'initStart':
-      return 'Started PoST data initialization';
+      return 'Started PoS data initialization';
     case 'initComplete':
-      return 'Completed PoST data initialization';
+      return 'Completed PoS data initialization';
     case 'initFailed':
-      return 'PoST data initialization failed';
+      return 'PoS data initialization failed';
     case 'poetWaitRound':
       return withTime(
         'Waiting for PoET registration window',
