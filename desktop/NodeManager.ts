@@ -486,6 +486,10 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.RunningMigrations);
       } else if (line.includes('vacuuming db')) {
         sendStatus(NodeStartupState.Vacuuming);
+      } else if (line.includes('initializing tortoise')) {
+        sendStatus(NodeStartupState.InitializingTortoise);
+      } else if (line.includes('starting cache warmup')) {
+        sendStatus(NodeStartupState.PreparingCache);
       } else if (line.includes('candidate layer is verified')) {
         sendStatus(NodeStartupState.VerifyingLayers);
       } else if (line.includes('syncing malicious proofs')) {

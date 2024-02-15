@@ -39,6 +39,10 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
       return 'Compacting database...';
     case NodeStartupState.RunningMigrations:
       return 'Running database migrations...';
+    case NodeStartupState.InitializingTortoise:
+      return 'Initializing Tortoise...';
+    case NodeStartupState.PreparingCache:
+      return 'Preparing node cache...';
     case NodeStartupState.Vacuuming:
       return 'Vacuuming database...';
     case NodeStartupState.VerifyingLayers:
