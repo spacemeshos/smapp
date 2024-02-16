@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { AuthPath } from '../../routerPaths';
 import WordsBackup from '../backup/WordsBackup';
 import Steps, { Step } from './Steps';
@@ -21,13 +21,17 @@ const ContentSection = styled.div`
 
 const ProtectWallet = () => {
   const history = useHistory();
+  const location = useLocation();
 
   const handleNext = (mnemonic: string) => {
-    history.push(AuthPath.ProtectWalletTestMnemonic, { mnemonic });
+    history.push(AuthPath.ProtectWalletTestMnemonic, {
+      createWallet: location.state,
+      mnemonic,
+    });
   };
 
   const handleSkip = () => {
-    history.push(AuthPath.WalletCreated);
+    history.push(AuthPath.WalletCreated, location.state);
   };
 
   return (
@@ -35,6 +39,7 @@ const ProtectWallet = () => {
       <Steps step={Step.PROTECT_WALLET} />
       <ContentSection>
         <WordsBackup
+          mnemonics={location?.state?.wallet?.crypto?.mnemonic}
           nextButtonHandler={handleNext}
           skipButtonHandler={handleSkip}
         />

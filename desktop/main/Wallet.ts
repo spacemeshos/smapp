@@ -18,6 +18,7 @@ import {
   AddWalletResponseType,
   createIpcResponse,
   CreateWalletRequest,
+  CreateWalletResponse,
 } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { isMnemonicExisting, isMnemonicNew } from '../../shared/mnemonic';
@@ -184,7 +185,7 @@ export const createWallet = async ({
   password,
   name,
   mnemonic,
-}: CreateWalletRequest) => {
+}: CreateWalletRequest): Promise<CreateWalletResponse> => {
   const { files } = await list();
   const wallet = create(files?.length || 0, mnemonic, name);
 
@@ -200,7 +201,8 @@ export const createWallet = async ({
     DEFAULT_WALLETS_DIRECTORY,
     `wallet_${walletName}_${wallet.meta.created}.json`
   );
-  return { path: walletPath, wallet, password };
+  const result = { path: walletPath, wallet, password };
+  return result;
 };
 
 const subscribe = () => {

@@ -7,7 +7,6 @@ import {
   WalletMeta,
   WalletType,
   Account,
-  MnemonicOpts,
   Bech32Address,
 } from '../../../shared/types';
 import {
@@ -110,42 +109,6 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: SAVE_WALLET_FILES, payload: files });
   return files;
 };
-
-export const createNewWallet = ({
-  mnemonic,
-  password,
-  apiUrl,
-  genesisID,
-  type,
-  name,
-}: {
-  password: string;
-  type: WalletType;
-  apiUrl: SocketAddress | null;
-  genesisID: string;
-  mnemonic: MnemonicOpts;
-  name?: string;
-}) => (dispatch: AppThDispatch, getState: GetState) =>
-  eventsService
-    .createWallet({
-      mnemonic,
-      password,
-      type,
-      apiUrl,
-      genesisID,
-      name,
-    })
-    .then(async ({ error, payload }) => {
-      if (error) {
-        throw error;
-      }
-      await waitForWalletData(getState);
-      return payload;
-    })
-    .catch((err) => {
-      console.log(err); // eslint-disable-line no-console
-      dispatch(setUiError(addErrorPrefix('Can not create new wallet\n', err)));
-    });
 
 export const unlockWallet = (path: string, password: string) => async (
   dispatch: AppThDispatch,
