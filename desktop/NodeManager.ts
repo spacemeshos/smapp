@@ -791,6 +791,7 @@ class NodeManager extends AbstractManager {
           ],
           true
         );
+        this.runQuicksyncCheck();
         return resolve(true);
       });
     });
