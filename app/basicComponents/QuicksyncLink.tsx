@@ -9,9 +9,9 @@ const Wrapper = styled.div`
 
 const Box = styled.div`
   position: absolute;
-  top: -8px;
+  top: -7px;
   right: 0;
-  left: -300px;
+  left: -150px;
 
   & a {
     color: ${({ theme }) => theme.colors.primary100};
@@ -26,7 +26,7 @@ export default () => (
   <Wrapper>
     <Box>
       <HashLink to={`${MainPath.Settings}#advanced`} smooth>
-        Do you want to run a quick sync?
+        Run a Quicksync?
       </HashLink>
     </Box>
   </Wrapper>
