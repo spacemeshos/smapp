@@ -7,6 +7,7 @@ import {
   WalletMeta,
   WalletType,
   MnemonicOpts,
+  Wallet,
 } from './types';
 
 // Utils
@@ -62,7 +63,11 @@ export type CreateWalletRequest = {
   name?: string;
   mnemonic: MnemonicOpts;
 };
-export type CreateWalletResponse = IpcResponse<{ path: string }>;
+export type CreateWalletResponse = {
+  path: string;
+  password: string;
+  wallet: Wallet;
+};
 
 export type UpdateWalletMetaRequest = {
   key: keyof WalletMeta;

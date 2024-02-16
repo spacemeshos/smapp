@@ -22,3 +22,9 @@ export type AuthRouterParams = RouteComponentProps<
   StaticContext,
   AuthLocationState
 >;
+
+export type CreateWalletParams = RouteComponentProps<
+  Record<string, any>,
+  StaticContext,
+  CreateWalletParams
+>;

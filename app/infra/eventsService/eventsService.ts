@@ -64,6 +64,7 @@ import {
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
 import { QuicksyncStatus } from '../../../shared/types/quicksync';
+import { setLastSelectedWalletPath } from '../lastSelectedWalletPath';
 
 class EventsService {
   static createWallet = ({
@@ -82,6 +83,16 @@ class EventsService {
       name,
       mnemonic,
     });
+
+  static createWalletFinish = async (walletData: CreateWalletResponse) => {
+    const result = await ipcRenderer.invoke(
+      ipcConsts.W_M_CREATE_WALLET_FINISH,
+      walletData
+    );
+    // Select newly created wallet in the dropdown
+    setLastSelectedWalletPath(result.path);
+    return result;
+  };
 
   static readWalletFiles = () =>
     ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
