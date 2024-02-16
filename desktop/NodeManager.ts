@@ -421,17 +421,17 @@ class NodeManager extends AbstractManager {
       hideGenericModal(this.mainWindow.webContents);
       if (!isUpToDate.synced && isUpToDate.available > isUpToDate.db) {
         const prompt = await showGenericPrompt(this.mainWindow.webContents, {
-          title: 'Do you want to quick sync?',
+          title: 'Run a Quicksync?',
           message: [
             `Latest layer in your database: ${isUpToDate.db}`,
             `Latest layer in the trusted state: ${isUpToDate.available}`,
             `Current layer in the network: ${isUpToDate.current}`,
             '',
-            'Quick sync will download the trusted state.',
-            'Syncing as usual may take more time, but it is the prefered way.',
+            'Quicksync will download the trusted state.',
+            'Syncing as usual may take more time, but it is the preferred way.',
             '<a href="https://spacemesh.io/blog/making-sync-faster/">Read more</a> in the blog post.',
             '',
-            'You can run the quick sync from the settings page later.',
+            'You can run the Quicksync from the settings page later.',
           ].join('\n'),
           confirmTitle: 'Yes, download it!',
           cancelTitle: 'Sync as usual',
@@ -445,7 +445,7 @@ class NodeManager extends AbstractManager {
               message: [
                 'The node is shutting down...',
                 '',
-                'We need to shut it down to avoid the database corruption. Afterwards it will automatically run the quicksync process.',
+                'We need to shut it down to avoid the database corruption. Afterward, it will automatically run the Quicksync process.',
                 '',
                 'Please be patient, it may take some time.',
               ].join('\n'),
@@ -771,7 +771,7 @@ class NodeManager extends AbstractManager {
             [
               'Quicksyncing failed. Starting syncing as usually...',
               stdout,
-              'You can try to restart Smapp and run quicksync once again',
+              'You can try to restart Smapp and run Quicksync once again',
             ],
             true
           );
@@ -786,7 +786,7 @@ class NodeManager extends AbstractManager {
         }
         notifyProgress(
           [
-            'Quick syncing is finished successfully.',
+            'Quicksync has completed successfully.',
             'Now you can close this window and continue using Smapp as usually',
           ],
           true

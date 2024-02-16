@@ -544,12 +544,12 @@ class Settings extends Component<Props, State> {
                 upperPartRight={
                   <Button
                     onClick={this.runQuicksync}
-                    text="QUICK SYNC"
+                    text="QUICKSYNC"
                     width={180}
                     isDisabled={!isMainNet || !isQuicksyncAvailable}
                   />
                 }
-                rowName="Run a quicksync tool"
+                rowName="Run a Quicksync tool"
               />
               <SettingRow
                 upperPartLeft={dataPath}
