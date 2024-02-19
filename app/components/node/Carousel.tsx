@@ -12,7 +12,7 @@ import {
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { DeviceType, PostSetupProvider } from '../../../shared/types';
-import { formatWithCommas } from '../../infra/utils';
+import { formatWithCommas, formatHashesToMiBs } from '../../infra/utils';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -282,8 +282,9 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                 </TextWrapper>
                 <TextWrapper>
                   <Text>
-                    ~{formatWithCommas(provider.performance)} hashes per second
+                    ~{formatWithCommas(provider.performance)} hashes/s
                   </Text>
+                  <Text>~{formatHashesToMiBs(provider.performance)} MiB/s</Text>
                   {/* <Text>TO SAVE DATA</Text> */}
                   {/* TODO: Return it back when estimated time will be available */}
                 </TextWrapper>
