@@ -535,7 +535,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={
                   // eslint-disable-next-line no-nested-ternary
                   !isMainNet
-                    ? 'This feature available only for MainNet'
+                    ? 'This feature is available only for MainNet'
                     : !isQuicksyncAvailable
                     ? 'Your database is already up to date'
                     : 'Download the trusted database'
