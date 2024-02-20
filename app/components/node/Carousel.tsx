@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { convertHashesToMiBs } from 'shared/utils';
+import { convertHashesToMiBs } from '../../../shared/utils';
 import {
   chevronLeftBlack,
   chevronLeftGray,
