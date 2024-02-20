@@ -72,10 +72,6 @@ export const formatBytes = (bytes: number) => {
 export const formatWithCommas = (x: number) =>
   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-export const formatHashesToMiBs = (hashesPerSecond: number) => {
-  return ((hashesPerSecond * 16) / 1024 ** 2).toFixed(2); // 1 Hash = 16B, and 1024^2 bytes in a MiB
-};
-
 // -------------------
 // Units
 // -------------------
