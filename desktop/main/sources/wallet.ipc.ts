@@ -161,8 +161,13 @@ const handleWalletIpcRequests = (
   $smeshingStarted: Observable<SmeshingSetupState>,
   $warnings: Subject<Warning>
 ) => {
-  ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, (_, data: CreateWalletRequest) =>
-    createWallet(data)
+  ipcMain.handle(
+    ipcConsts.W_M_CREATE_WALLET,
+    async (_, data: CreateWalletRequest) => {
+      const walletData = await createWallet(data);
+      await updateWalletFile(walletData);
+      return walletData;
+    }
   );
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -178,9 +183,7 @@ const handleWalletIpcRequests = (
     ),
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET_FINISH,
-      (data: CreateWalletResponse) => {
-        return of(handlerResult({ ...data, save: true } as WalletData));
-      },
+      (data: CreateWalletResponse) => of(handlerResult(data)),
       ({ path }) => ({ path })
     ),
     //

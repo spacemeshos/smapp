@@ -59,7 +59,9 @@ const WalletCreated = ({ history, location }: CreateWalletParams) => {
           <br />
           <br />
           <Link
-            onClick={() => eventsService.showFileInFolder({})}
+            onClick={() =>
+              eventsService.showFileInFolder({ filePath: location.state.path })
+            }
             text="Browse file location"
           />
         </SubHeader>
