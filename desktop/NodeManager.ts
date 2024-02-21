@@ -12,7 +12,7 @@ import { tap } from 'ramda';
 
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId, isMainNetConfig } from '../shared/utils';
-import { DEFAULT_NODE_STATUS, MINUTE } from '../shared/constants';
+import { DEFAULT_NODE_STATUS, HOUR, MINUTE } from '../shared/constants';
 import {
   HexString,
   NodeConfig,
@@ -234,6 +234,8 @@ class NodeManager extends AbstractManager {
     this.genesisID = id;
   };
 
+  private quicksyncCheckTimer: null | NodeJS.Timeout = null;
+
   subscribeIPCEvents() {
     // Handlers
     const getVersionAndBuild = () =>
@@ -287,19 +289,25 @@ class NodeManager extends AbstractManager {
         ].join('\n'),
         buttons: [],
       });
-      await this.runQuicksync();
+      await this.runQuicksync(true);
       await this.startNode(true);
     };
 
-    const handleQuicksyncCheck = () => this.runQuicksyncCheck();
+    this.quicksyncCheckTimer = setInterval(() => {
+      this.runQuicksyncCheck();
+    }, HOUR);
+
     // Subscriptions
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
     ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
     ipcMain.on(ipcConsts.REQUEST_RUNNING_QUICKSYNC, handleQuicksyncButton);
     ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
-    ipcMain.handle(ipcConsts.REQUEST_QUICKSYNC_CHECK, handleQuicksyncCheck);
+    ipcMain.handle(ipcConsts.REQUEST_QUICKSYNC_CHECK, () =>
+      this.runQuicksyncCheck()
+    );
     // Unsub
     return () => {
+      this.quicksyncCheckTimer && clearInterval(this.quicksyncCheckTimer);
       ipcMain.removeListener(
         ipcConsts.N_M_GET_VERSION_AND_BUILD,
         getVersionAndBuild
@@ -398,7 +406,7 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  runQuicksync = async () => {
+  runQuicksync = async (forced = false) => {
     try {
       const cfg = await loadNodeConfig();
       const isMainnet = isMainNetConfig(cfg);
@@ -419,7 +427,10 @@ class NodeManager extends AbstractManager {
       });
       logger.log('isDatabaseUpToDate', isUpToDate);
       hideGenericModal(this.mainWindow.webContents);
-      if (!isUpToDate.synced && isUpToDate.available > isUpToDate.db) {
+      if (
+        forced ||
+        (!isUpToDate.synced && isUpToDate.available > isUpToDate.db)
+      ) {
         const prompt = await showGenericPrompt(this.mainWindow.webContents, {
           title: 'Run a Quicksync?',
           message: [
@@ -679,12 +690,10 @@ class NodeManager extends AbstractManager {
         const available = stats[2] ? parseInt(stats[2], 10) : 0;
 
         const cfg = await loadNodeConfig();
-        const epochSize = Math.floor(
-          (cfg?.main?.['layers-per-epoch'] || 4032) / 2
-        );
+        const delta = Math.floor((cfg?.main?.['layers-per-epoch'] || 4032) / 2);
 
         const result: QuicksyncStatus = {
-          synced: db >= current - epochSize,
+          synced: db >= current - delta,
           db,
           current,
           available,
