@@ -91,15 +91,20 @@ const WordWrapper = styled.div`
 interface TwelveWordsBackupProps {
   nextButtonHandler?: (mnemonic: string) => void;
   skipButtonHandler?: () => void;
+  mnemonics?: string;
 }
 const WordsBackup = ({
   nextButtonHandler,
   skipButtonHandler,
+  mnemonics,
 }: TwelveWordsBackupProps) => {
   const history = useHistory();
   const [isCopied, setIsCopied] = useState(false);
 
-  const mnemonic = useSelector((state: RootState) => state.wallet.mnemonic);
+  const mnemonicState = useSelector(
+    (state: RootState) => state.wallet.mnemonic
+  );
+  const mnemonic = mnemonics || mnemonicState;
 
   const words: Array<string> = mnemonic.split(' ');
   let wordsPrint = '<div>';

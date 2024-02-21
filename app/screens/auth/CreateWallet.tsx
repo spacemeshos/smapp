@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
-import { createNewWallet } from '../../redux/wallet/actions';
+import { useDispatch } from 'react-redux';
 import { CorneredContainer, PasswordInput } from '../../components/common';
-import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
-import {
-  getCurrentWalletFile,
-  isWalletOnly,
-} from '../../redux/wallet/selectors';
+import { Input, Button, Link, ErrorPopup } from '../../basicComponents';
+import { eventsService } from '../../infra/eventsService';
+import { setUiError } from '../../redux/ui/actions';
+import { addErrorPrefix } from '../../infra/utils';
 import { WalletType } from '../../../shared/types';
 import { AuthPath } from '../../routerPaths';
-import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { isMnemonicExisting } from '../../../shared/mnemonic';
 import { AuthRouterParams } from './routerParams';
@@ -62,14 +59,6 @@ const ErrorSection = styled.div`
   margin-left: 10px;
 `;
 
-const LoaderWrapper = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 const BottomPart = styled.div`
   display: flex;
   flex: 1;
@@ -94,20 +83,10 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
-  const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
-  const isWalletOnlyMode = useSelector(isWalletOnly);
-  const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
   const [convenientWalletName, setConvenientWalletName] = useState('');
   const [nameWalletError, setNameWalletError] = useState('');
-
-  useEffect(() => {
-    // Store create wallet to localStorage to choose it
-    // in the dropdown next time
-    if (!currentWalletPath) return;
-    setLastSelectedWalletPath(currentWalletPath);
-  }, [currentWalletPath]);
 
   const handleValidateWalletName = () => {
     const nameWalletError = validationWalletName(convenientWalletName);
@@ -127,24 +106,25 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     return !verifyPasswordError;
   };
 
-  const createWallet = async () => {
-    if (!isLoaderVisible) {
-      setIsLoaderVisible(true);
-      await dispatch(
-        createNewWallet({
-          mnemonic: location?.state?.mnemonic,
-          password,
-          type: location?.state?.isWalletOnly
-            ? WalletType.RemoteApi
-            : WalletType.LocalNode,
-          genesisID: location?.state?.genesisID || '',
-          apiUrl: location?.state?.apiUrl || null,
-          name: convenientWalletName,
-        })
-      );
-      setIsLoaderVisible(false);
-    }
-  };
+  const createWallet = () =>
+    eventsService
+      .createWallet({
+        mnemonic: location?.state?.mnemonic,
+        password,
+        type: location?.state?.isWalletOnly
+          ? WalletType.RemoteApi
+          : WalletType.LocalNode,
+        genesisID: location?.state?.genesisID || '',
+        apiUrl: location?.state?.apiUrl || null,
+        name: convenientWalletName,
+      })
+      .catch((err) => {
+        console.log(err); // eslint-disable-line no-console
+        dispatch(
+          setUiError(addErrorPrefix('Can not create new wallet\n', err))
+        );
+        return null;
+      });
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -159,36 +139,25 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     setConvenientWalletName(value);
   };
 
-  const nextAction = () => {
+  const nextAction = async () => {
     if (validate() && handleValidateWalletName()) {
-      createWallet();
-
-      // recovery wallet flow
-      if (isMnemonicExisting(location?.state?.mnemonic)) {
-        history.push(AuthPath.WalletCreated);
+      const walletData = await createWallet();
+      if (!walletData) {
         return;
       }
 
-      history.push(AuthPath.ProtectWallet);
+      // recovery wallet flow
+      if (isMnemonicExisting(location?.state?.mnemonic)) {
+        history.push(AuthPath.WalletCreated, walletData);
+        return;
+      }
+
+      history.push(AuthPath.ProtectWallet, walletData);
     }
   };
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
-  if (isLoaderVisible) {
-    return (
-      <LoaderWrapper>
-        <Loader
-          size={Loader.sizes.BIG}
-          note={
-            isWalletOnlyMode
-              ? 'Please wait, connecting to Spacemesh api...'
-              : 'Please wait, starting up Spacemesh node...'
-          }
-        />
-      </LoaderWrapper>
-    );
-  }
   return (
     <Wrapper>
       <Steps step={Step.CREATE_WALLET} />

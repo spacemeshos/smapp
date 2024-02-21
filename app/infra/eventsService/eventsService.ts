@@ -9,6 +9,7 @@ import {
   setNodeStartupStatus,
   setNodeStatus,
   setVersionAndBuild,
+  updateQuicksyncStatus,
 } from '../../redux/node/actions';
 import {
   addTransaction,
@@ -62,6 +63,8 @@ import {
   UnlockWalletRequest,
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
+import { QuicksyncStatus } from '../../../shared/types/quicksync';
+import { setLastSelectedWalletPath } from '../lastSelectedWalletPath';
 
 class EventsService {
   static createWallet = ({
@@ -80,6 +83,16 @@ class EventsService {
       name,
       mnemonic,
     });
+
+  static createWalletFinish = async (walletData: CreateWalletResponse) => {
+    const result = await ipcRenderer.invoke(
+      ipcConsts.W_M_CREATE_WALLET_FINISH,
+      walletData
+    );
+    // Select newly created wallet in the dropdown
+    setLastSelectedWalletPath(result.path);
+    return result;
+  };
 
   static readWalletFiles = () =>
     ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
@@ -256,6 +269,12 @@ class EventsService {
     ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
   };
 
+  static runQuicksync = () =>
+    ipcRenderer.send(ipcConsts.REQUEST_RUNNING_QUICKSYNC);
+
+  static runQuicksyncCheck = () =>
+    ipcRenderer.invoke(ipcConsts.REQUEST_QUICKSYNC_CHECK);
+
   static switchApiProvider = (genesisID: string, apiUrl?: SocketAddress) =>
     ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
@@ -419,6 +438,13 @@ ipcRenderer.on(
   ipcConsts.N_M_NODE_STARTUP_STATUS,
   (_, status: NodeStartupState) => {
     store.dispatch(setNodeStartupStatus(status));
+  }
+);
+
+ipcRenderer.on(
+  ipcConsts.UPDATE_QUICKSYNC_STATUS,
+  (_, status: QuicksyncStatus) => {
+    store.dispatch(updateQuicksyncStatus(status));
   }
 );
 

@@ -37,6 +37,7 @@ import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 import { setClientSettingsTheme } from '../../theme';
 import { validationWalletName } from '../auth/Validation';
+import { isQuicksyncAvailable } from '../../redux/node/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -107,6 +108,8 @@ const ErrorSection = styled.div`
 interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
+  isMainNet: boolean;
+  isQuicksyncAvailable: boolean;
   walletFiles: Array<string>;
   updateWalletName: AppThDispatch;
   createNewAccount: AppThDispatch;
@@ -172,6 +175,8 @@ class Settings extends Component<Props, State> {
       displayName,
       accounts,
       netName,
+      isMainNet,
+      isQuicksyncAvailable,
       genesisID,
       genesisTime,
       rootHash,
@@ -521,7 +526,31 @@ class Settings extends Component<Props, State> {
                 </>
               )}
             </SettingsSection>
-            <SettingsSection title={categories[4]} name={categories[4]}>
+            <SettingsSection
+              title={categories[4]}
+              name={categories[4]}
+              id="advanced"
+            >
+              <SettingRow
+                upperPartLeft={
+                  // eslint-disable-next-line no-nested-ternary
+                  !isMainNet
+                    ? 'This feature is available only for MainNet'
+                    : !isQuicksyncAvailable
+                    ? 'Your database is already up to date'
+                    : 'Download the trusted database'
+                }
+                isUpperPartLeftText
+                upperPartRight={
+                  <Button
+                    onClick={this.runQuicksync}
+                    text="QUICKSYNC"
+                    width={180}
+                    isDisabled={!isMainNet || !isQuicksyncAvailable}
+                  />
+                }
+                rowName="Run a Quicksync tool"
+              />
               <SettingRow
                 upperPartLeft={dataPath}
                 upperPartRight={
@@ -716,6 +745,8 @@ class Settings extends Component<Props, State> {
     eventsService.wipeOut();
   };
 
+  runQuicksync = () => eventsService.runQuicksync();
+
   deleteWallet = async () => {
     const { currentWalletPath } = this.props;
     localStorage.clear();
@@ -788,6 +819,8 @@ const mapStateToProps = (state: RootState) => ({
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
   currentWalletPath: state.wallet.currentWalletPath,
+  isMainNet: state.network.isMainNet,
+  isQuicksyncAvailable: isQuicksyncAvailable(state),
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,

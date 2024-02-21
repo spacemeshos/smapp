@@ -58,12 +58,13 @@ const SubHeader = styled.div`
 `;
 
 type Props = {
+  id?: string;
   title: string;
   children: any;
   name: string;
 };
 
-const SettingsSection = ({ name, title, children }: Props) => {
+const SettingsSection = ({ name, title, id, children }: Props) => {
   const {
     icons: { corners },
   } = useTheme();
@@ -72,7 +73,7 @@ const SettingsSection = ({ name, title, children }: Props) => {
   const { bottomLeft } = corners;
   const { bottomRight } = corners;
   return (
-    <Wrapper name={name}>
+    <Wrapper name={name} id={id}>
       <Header>{title}</Header>
       <SubHeader>--</SubHeader>
       <TopLeftCorner src={topLeft} />

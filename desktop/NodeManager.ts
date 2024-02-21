@@ -11,8 +11,8 @@ import { Subject } from 'rxjs';
 import { tap } from 'ramda';
 
 import { ipcConsts } from '../app/vars';
-import { delay, getShortGenesisId } from '../shared/utils';
-import { DEFAULT_NODE_STATUS, MINUTE } from '../shared/constants';
+import { delay, getShortGenesisId, isMainNetConfig } from '../shared/utils';
+import { DEFAULT_NODE_STATUS, HOUR, MINUTE } from '../shared/constants';
 import {
   HexString,
   NodeConfig,
@@ -30,6 +30,7 @@ import Warning, {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../shared/warning';
+import { QuicksyncStatus } from '../shared/types/quicksync';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -51,13 +52,19 @@ import {
 } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
-import { getBinaryPath, getNodePath } from './main/binaries';
+import { getBinaryPath, getNodePath, getQuicksyncPath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 import {
   checkRequiredLibs,
   requiredLibsCrashErrors,
 } from './checkRequiredLibs';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
+import {
+  hideGenericModal,
+  showGenericModal,
+  showGenericPrompt,
+} from './main/sendGenericModals';
+import { loadNodeConfig } from './main/NodeConfig';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -227,6 +234,8 @@ class NodeManager extends AbstractManager {
     this.genesisID = id;
   };
 
+  private quicksyncCheckTimer: null | NodeJS.Timeout = null;
+
   subscribeIPCEvents() {
     // Handlers
     const getVersionAndBuild = () =>
@@ -270,19 +279,47 @@ class NodeManager extends AbstractManager {
       // Start the Node
       return this.startNode();
     };
+
+    const handleQuicksyncButton = async () => {
+      showGenericModal(this.mainWindow.webContents, {
+        title: 'Quicksyncing...',
+        message: [
+          'Checking states of your local and trusted databases.',
+          'Please wait...',
+        ].join('\n'),
+        buttons: [],
+      });
+      await this.runQuicksync(true);
+      await this.startNode(true);
+    };
+
+    this.quicksyncCheckTimer = setInterval(() => {
+      this.runQuicksyncCheck();
+    }, HOUR);
+
     // Subscriptions
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
     ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
+    ipcMain.on(ipcConsts.REQUEST_RUNNING_QUICKSYNC, handleQuicksyncButton);
     ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
+    ipcMain.handle(ipcConsts.REQUEST_QUICKSYNC_CHECK, () =>
+      this.runQuicksyncCheck()
+    );
     // Unsub
     return () => {
+      this.quicksyncCheckTimer && clearInterval(this.quicksyncCheckTimer);
       ipcMain.removeListener(
         ipcConsts.N_M_GET_VERSION_AND_BUILD,
         getVersionAndBuild
       );
       ipcMain.removeListener(ipcConsts.SET_NODE_PORT, setNodePort);
+      ipcMain.removeListener(
+        ipcConsts.REQUEST_RUNNING_QUICKSYNC,
+        handleQuicksyncButton
+      );
       ipcMain.removeHandler(ipcConsts.N_M_RESTART_NODE);
       ipcMain.removeHandler(ipcConsts.PROMPT_CHANGE_DATADIR);
+      ipcMain.removeHandler(ipcConsts.REQUEST_QUICKSYNC_CHECK);
     };
   }
 
@@ -369,7 +406,83 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  startNode = async () => {
+  runQuicksync = async (forced = false) => {
+    try {
+      const cfg = await loadNodeConfig();
+      const isMainnet = isMainNetConfig(cfg);
+
+      if (!isMainnet) {
+        // Fallback to default syncing
+        return;
+      }
+      const isUpToDate = await this.runQuicksyncCheck().catch((err) => {
+        logger.error('isDatabaseUpToDate', err);
+        // Fallback to default syncing
+        return {
+          synced: true,
+          db: 0,
+          current: 0,
+          available: 0,
+        };
+      });
+      logger.log('isDatabaseUpToDate', isUpToDate);
+      hideGenericModal(this.mainWindow.webContents);
+      if (
+        forced ||
+        (!isUpToDate.synced && isUpToDate.available > isUpToDate.db)
+      ) {
+        const prompt = await showGenericPrompt(this.mainWindow.webContents, {
+          title: 'Run a Quicksync?',
+          message: [
+            `Latest layer in your database: ${isUpToDate.db}`,
+            `Latest layer in the trusted state: ${isUpToDate.available}`,
+            `Current layer in the network: ${isUpToDate.current}`,
+            '',
+            'Quicksync will download the trusted state.',
+            'Syncing as usual may take more time, but it is the preferred way.',
+            '<a href="https://spacemesh.io/blog/making-sync-faster/">Read more</a> in the blog post.',
+            '',
+            'You can run the Quicksync from the settings page later.',
+          ].join('\n'),
+          confirmTitle: 'Yes, download it!',
+          cancelTitle: 'Sync as usual',
+          cancelTimeout: 60,
+        });
+
+        if (prompt) {
+          if (this.nodeProcess) {
+            showGenericModal(this.mainWindow.webContents, {
+              title: 'Quicksyncing...',
+              message: [
+                'The node is shutting down...',
+                '',
+                'We need to shut it down to avoid the database corruption. Afterward, it will automatically run the Quicksync process.',
+                '',
+                'Please be patient, it may take some time.',
+              ].join('\n'),
+              buttons: [],
+            });
+            await this.stopNode();
+          }
+          await this.runQuicksyncDownload();
+        }
+      }
+    } catch (err) {
+      logger.error('runQuicksync', err);
+      if (err instanceof Error) {
+        showGenericModal(this.mainWindow.webContents, {
+          title: 'Quicksync failed',
+          message: [
+            err.message,
+            '',
+            'You can run Quicksync again from the Settings screen.',
+          ].join('\n'),
+        });
+      }
+    }
+  };
+
+  startNode = async (skipQuicksync = false) => {
     logger.log(
       'startNode',
       `called, while node is ${
@@ -379,6 +492,7 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
+    !skipQuicksync && (await this.runQuicksync());
     await this.spawnNode();
     this.isRestarting = false;
     this.startGRPCClient();
@@ -506,14 +620,197 @@ class NodeManager extends AbstractManager {
     });
   };
 
+  private getNodeDataPath = () =>
+    path.join(
+      StoreService.get('node.dataPath'),
+      getShortGenesisId(this.genesisID)
+    );
+
+  private runQuicksyncCheck = () => {
+    const bin = getQuicksyncPath();
+    return new Promise<{
+      synced: boolean;
+      db: number;
+      current: number;
+      available: number;
+    }>((resolve, reject) => {
+      const args = [
+        'check',
+        '--node-data',
+        this.getNodeDataPath(),
+        '--go-spacemesh-path',
+        getNodePath(),
+      ];
+      const process = spawn(bin, args);
+      logger.log('runQuicksync:check', `${bin} ${args.join(' ')}`);
+
+      let stdout = '';
+      let stderr = '';
+      process.stdout.on('data', (data) => {
+        stdout += data;
+      });
+      process.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      process.on('error', (err) => {
+        reject(
+          new Error(
+            `Cannot run Quicksync tool to check the database: ${err.message}`
+          )
+        );
+      });
+
+      process.on('close', async (code) => {
+        if (code !== 0) {
+          // TODO: Better error for known codes
+          return reject(
+            new Error(
+              `Quicksync tool failed with exit code ${code}:\n${stderr}`
+            )
+          );
+        }
+
+        const stats = stdout
+          .split('\n')
+          .filter((l) => l.startsWith('Latest') || l.startsWith('Current'))
+          .join('\n')
+          .match(/(\d+)/g);
+
+        if (!stats) {
+          return reject(
+            new Error(
+              `Unknown result of running Quicksync tool:\n${stdout}\n${stderr}`
+            )
+          );
+        }
+
+        const db = parseInt(stats[0], 10);
+        const current = parseInt(stats[1], 10);
+        const available = stats[2] ? parseInt(stats[2], 10) : 0;
+
+        const cfg = await loadNodeConfig();
+        const delta = Math.floor((cfg?.main?.['layers-per-epoch'] || 4032) / 2);
+
+        const result: QuicksyncStatus = {
+          synced: db >= current - delta,
+          db,
+          current,
+          available,
+        };
+
+        this.mainWindow.webContents.send(
+          ipcConsts.UPDATE_QUICKSYNC_STATUS,
+          result
+        );
+        return resolve(result);
+      });
+    });
+  };
+
+  private runQuicksyncDownload = async () => {
+    const bin = getQuicksyncPath();
+    const args = [
+      'download',
+      '--node-data',
+      this.getNodeDataPath(),
+      '--go-spacemesh-path',
+      getNodePath(),
+    ];
+
+    logger.log('runQuicksync:download', `${bin} ${args.join(' ')}`);
+
+    return new Promise((resolve, reject) => {
+      const process = spawn(bin, args);
+      let cancelled = false;
+
+      process.on('error', (err) => {
+        reject(
+          new Error(
+            `Cannot run Quicksync tool to download the database: ${err.message}`
+          )
+        );
+      });
+
+      const notifyProgress = (messageLines: string[], isFinish = false) => {
+        showGenericModal(this.mainWindow.webContents, {
+          title: 'Quicksyncing...',
+          message: messageLines.join('\n'),
+          buttons: [
+            isFinish
+              ? {
+                  label: 'Close',
+                  action: 'close',
+                }
+              : {
+                  label: 'Cancel',
+                  action: 'cancel',
+                },
+          ],
+        });
+      };
+
+      ipcMain.once(ipcConsts.GENERIC_MODAL_BTN_PRESS, (_, eventName) => {
+        if (eventName === 'cancel') {
+          cancelled = true;
+          process.kill();
+        }
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      process.stdout.on('data', (data) => {
+        const line = data.toString();
+        stdout = line;
+        notifyProgress([
+          line,
+          '',
+          'If you cancel — Node will continue syncing as usually',
+        ]);
+      });
+
+      process.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0 && !cancelled) {
+          notifyProgress(
+            [
+              'Quicksyncing failed. Starting syncing as usually...',
+              stdout,
+              'You can try to restart Smapp and run Quicksync once again',
+            ],
+            true
+          );
+          return reject(
+            new Error(
+              `Quicksync tool failed with exit code ${code}:\n${stderr}`
+            )
+          );
+        }
+        if (cancelled) {
+          return resolve(false);
+        }
+        notifyProgress(
+          [
+            'Quicksync has completed successfully.',
+            'Now you can close this window and continue using Smapp as usually',
+          ],
+          true
+        );
+        this.runQuicksyncCheck();
+        return resolve(true);
+      });
+    });
+  };
+
   private spawnNode = async () => {
     if (this.isNodeRunning()) return;
     const nodeDir = getBinaryPath();
     const nodePath = getNodePath();
-    const nodeDataFilesPath = path.join(
-      StoreService.get('node.dataPath'),
-      getShortGenesisId(this.genesisID)
-    );
+    const nodeDataFilesPath = this.getNodeDataPath();
     const logFilePath = getNodeLogsPath(this.genesisID);
 
     this.nodeLogStream = rotator({

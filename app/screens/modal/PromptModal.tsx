@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ipcRenderer } from 'electron';
 import Modal from '../../components/common/Modal';
-import { Button } from '../../basicComponents';
 import { ipcConsts } from '../../vars';
-
-const ButtonsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: auto 0 15px 0;
-  padding-top: 30px;
-`;
+import {
+  GENERIC_PROMPT_DEFAULTS,
+  GenericPromptOpts,
+} from '../../../shared/genericPrompt';
+import { ButtonNew, ButtonNewGroup } from '../../basicComponents';
+import formatMessage from '../../infra/formatMessage';
 
 const Message = styled.pre`
+  flex-grow: 1;
   font-size: 14px;
   line-height: 1.33em;
   word-wrap: break-word;
@@ -25,13 +23,19 @@ const Message = styled.pre`
 
 const PromptModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
+  const [opts, setOpts] = useState<Required<GenericPromptOpts>>({
+    ...GENERIC_PROMPT_DEFAULTS,
+    title: '',
+    message: '',
+  });
+  const [timeleft, setTimeleft] = useState(Infinity);
 
   useEffect(() => {
-    const handleShowModal = (_, { title, message }) => {
-      setTitle(title);
-      setMessage(message);
+    const handleShowModal = (_, opts: GenericPromptOpts) => {
+      setOpts({
+        ...GENERIC_PROMPT_DEFAULTS,
+        ...opts,
+      });
       setIsOpen(true);
     };
 
@@ -45,24 +49,51 @@ const PromptModal = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (opts.cancelTimeout) {
+      setTimeleft(opts.cancelTimeout);
+      const ival = setInterval(() => {
+        setTimeleft((val) => val - 1);
+      }, 1000);
+      return () => clearInterval(ival);
+    }
+    return () => {};
+  }, [opts]);
+
   const handleResponse = (response: boolean) => {
     ipcRenderer.send(ipcConsts.PROMPT_MODAL_REQUEST, response);
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    setImmediate(() => {
+      if (opts.cancelTimeout && timeleft === 0) {
+        setTimeleft(Infinity);
+        handleResponse(false);
+      }
+    });
+  }, [opts, timeleft]);
+
   if (!isOpen) return null;
 
+  const cancelText = opts.cancelTimeout
+    ? `${opts.cancelTitle} (${timeleft} sec)`
+    : opts.cancelTitle;
+
   return (
-    <Modal header={title} width={600} height={300}>
-      <Message>{message}</Message>
-      <ButtonsWrapper>
-        <Button
-          isPrimary={false}
+    <Modal header={opts.title} width={600} height={360}>
+      <Message>{formatMessage(opts.message)}</Message>
+      <ButtonNewGroup>
+        <ButtonNew
           onClick={() => handleResponse(true)}
-          text="CONFIRM"
+          text={opts.confirmTitle}
         />
-        <Button onClick={() => handleResponse(false)} text="CANCEL" />
-      </ButtonsWrapper>
+        <ButtonNew
+          isPrimary
+          onClick={() => handleResponse(false)}
+          text={cancelText}
+        />
+      </ButtonNewGroup>
     </Modal>
   );
 };

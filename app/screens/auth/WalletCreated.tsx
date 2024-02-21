@@ -1,15 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { getCurrentWalletFile } from '../../redux/wallet/selectors';
 import { MainPath, WalletPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { isLocalNodeApi } from '../../../shared/utils';
-import { AuthRouterParams } from './routerParams';
+import { CreateWalletParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
@@ -30,17 +28,15 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const WalletCreated = ({ history, location }: AuthRouterParams) => {
-  const currentWalletPath = useSelector(getCurrentWalletFile);
-
+const WalletCreated = ({ history, location }: CreateWalletParams) => {
   useEffect(() => {
     // Store create wallet to localStorage to choose it
     // in the dropdown next time
-    if (!currentWalletPath) return;
-    setLastSelectedWalletPath(currentWalletPath);
-  }, [currentWalletPath]);
+    setLastSelectedWalletPath(location.state.path);
+  }, [location]);
 
   const nextAction = () => {
+    eventsService.createWalletFinish(location.state);
     if (
       location?.state?.genesisID &&
       typeof location?.state?.apiUrl === 'string' &&
@@ -63,7 +59,9 @@ const WalletCreated = ({ history, location }: AuthRouterParams) => {
           <br />
           <br />
           <Link
-            onClick={() => eventsService.showFileInFolder({})}
+            onClick={() =>
+              eventsService.showFileInFolder({ filePath: location.state.path })
+            }
             text="Browse file location"
           />
         </SubHeader>

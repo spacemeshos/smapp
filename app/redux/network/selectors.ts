@@ -6,6 +6,8 @@ import { RootState } from '../../types';
 
 export const getNetworkInfo = (state: RootState) => state.network;
 
+export const isMainNet = (state: RootState) => getNetworkInfo(state).isMainNet;
+
 export const getNetworkName = (state: RootState) =>
   getNetworkInfo(state).netName;
 

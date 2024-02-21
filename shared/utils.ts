@@ -3,7 +3,14 @@ import { hash } from '@spacemesh/sm-codec';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
 import { Event } from '../proto/spacemesh/v1/Event';
 import { Duration } from '../proto/google/protobuf/Duration';
-import { HexString, NodeEvent, SocketAddress, WalletType } from './types';
+import {
+  HexString,
+  NodeConfig,
+  NodeEvent,
+  SocketAddress,
+  WalletType,
+} from './types';
+import { DEFAULT_MAINNET_CONFIG } from './constants';
 
 export const delay = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -151,6 +158,9 @@ export const isDebPackage = () =>
 
 export const isLinuxAppImage = () =>
   os.platform() === 'linux' && !!process.env.APPIMAGE;
-//
-// Assertions
-//
+
+export const isMainNetConfig = (cfg: NodeConfig) =>
+  cfg.genesis['genesis-extra-data'] ===
+    DEFAULT_MAINNET_CONFIG.genesis['genesis-extra-data'] &&
+  cfg.genesis['genesis-time'] ===
+    DEFAULT_MAINNET_CONFIG.genesis['genesis-time'];

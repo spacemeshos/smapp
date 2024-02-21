@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import { ipcMain } from 'electron';
 import {
   combineLatest,
   delay,
@@ -153,7 +154,6 @@ const handleUpdateWalletSecrets = <
   );
 
 // Subscription
-
 const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
@@ -161,6 +161,14 @@ const handleWalletIpcRequests = (
   $smeshingStarted: Observable<SmeshingSetupState>,
   $warnings: Subject<Warning>
 ) => {
+  ipcMain.handle(
+    ipcConsts.W_M_CREATE_WALLET,
+    async (_, data: CreateWalletRequest) => {
+      const walletData = await createWallet(data);
+      await updateWalletFile(walletData);
+      return walletData;
+    }
+  );
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
     //
@@ -173,19 +181,10 @@ const handleWalletIpcRequests = (
         forceNetworkSelection: false,
       })
     ),
-    //
     handleIPC(
-      ipcConsts.W_M_CREATE_WALLET,
-      (data: CreateWalletRequest) =>
-        from(
-          wrapResult(
-            createWallet(data).then((walletData) => ({
-              ...walletData,
-              save: true,
-            })) as Promise<WalletData>
-          )
-        ),
-      ({ path }): CreateWalletResponse['payload'] => ({ path })
+      ipcConsts.W_M_CREATE_WALLET_FINISH,
+      (data: CreateWalletResponse) => of(handlerResult(data)),
+      ({ path }) => ({ path })
     ),
     //
     fromIPC<string>(ipcConsts.SWITCH_NETWORK).pipe(
@@ -402,7 +401,10 @@ const handleWalletIpcRequests = (
     }),
   ];
 
-  return () => subs.forEach((sub) => sub.unsubscribe());
+  return () => {
+    ipcMain.removeHandler(ipcConsts.W_M_CREATE_WALLET);
+    subs.forEach((sub) => sub.unsubscribe());
+  };
 };
 
 export default handleWalletIpcRequests;
