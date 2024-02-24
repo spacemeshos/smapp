@@ -10,3 +10,8 @@ export const isQuicksyncEnabled = (state: RootState) => {
   const nodeStatus = state.node.status;
   return isMainNet(state) && (!nodeStatus || !nodeStatus?.isSynced);
 };
+
+export const isNodeLayersBehind = (delta: number) => (state: RootState) => {
+  const nodeStatus = state.node.status;
+  return !nodeStatus || nodeStatus.topLayer - delta > nodeStatus.syncedLayer;
+};
