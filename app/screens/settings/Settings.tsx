@@ -37,7 +37,7 @@ import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 import { setClientSettingsTheme } from '../../theme';
 import { validationWalletName } from '../auth/Validation';
-import { isQuicksyncAvailable } from '../../redux/node/selectors';
+import { isQuicksyncEnabled } from '../../redux/node/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -820,7 +820,7 @@ const mapStateToProps = (state: RootState) => ({
   walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
   currentWalletPath: state.wallet.currentWalletPath,
   isMainNet: state.network.isMainNet,
-  isQuicksyncAvailable: isQuicksyncAvailable(state),
+  isQuicksyncAvailable: isQuicksyncEnabled(state),
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,

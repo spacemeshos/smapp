@@ -36,7 +36,7 @@ import {
   getNodeError,
   getNodeStartupState,
   getNodeStatus,
-  isQuicksyncAvailable,
+  isQuicksyncEnabled,
 } from '../../redux/node/selectors';
 import QuicksyncLink from '../../basicComponents/QuicksyncLink';
 
@@ -104,7 +104,7 @@ const Network = ({ history }) => {
   const startupStatus = useSelector(getNodeStartupState);
   const status = useSelector(getNodeStatus);
   const nodeError = useSelector(getNodeError);
-  const quicksyncAvailable = useSelector(isQuicksyncAvailable);
+  const quicksyncAvailable = useSelector(isQuicksyncEnabled);
   const genesisID = useSelector(
     (state: RootState) => state.network.genesisID || ''
   );

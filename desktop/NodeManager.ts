@@ -12,7 +12,7 @@ import { tap } from 'ramda';
 
 import { ipcConsts } from '../app/vars';
 import { delay, getShortGenesisId, isMainNetConfig } from '../shared/utils';
-import { DEFAULT_NODE_STATUS, HOUR, MINUTE } from '../shared/constants';
+import { DEFAULT_NODE_STATUS, MINUTE } from '../shared/constants';
 import {
   HexString,
   NodeConfig,
@@ -30,6 +30,10 @@ import Warning, {
   WarningType,
   WriteFilePermissionWarningKind,
 } from '../shared/warning';
+import {
+  isLocalStateFarBehind,
+  isQuicksyncAvailable,
+} from '../shared/quicksync';
 import { QuicksyncStatus } from '../shared/types/quicksync';
 import StoreService from './storeService';
 import Logger from './logger';
@@ -234,8 +238,6 @@ class NodeManager extends AbstractManager {
     this.genesisID = id;
   };
 
-  private quicksyncCheckTimer: null | NodeJS.Timeout = null;
-
   subscribeIPCEvents() {
     // Handlers
     const getVersionAndBuild = () =>
@@ -281,6 +283,14 @@ class NodeManager extends AbstractManager {
     };
 
     const handleQuicksyncButton = async () => {
+      const cfg = await loadNodeConfig();
+      if (!isMainNetConfig(cfg)) {
+        showGenericModal(this.mainWindow.webContents, {
+          title: 'Quicksync is not available',
+          message: 'This feature supported only on MainNet',
+        });
+        return;
+      }
       showGenericModal(this.mainWindow.webContents, {
         title: 'Quicksyncing...',
         message: [
@@ -289,13 +299,32 @@ class NodeManager extends AbstractManager {
         ].join('\n'),
         buttons: [],
       });
-      await this.runQuicksync(true);
+      const qsStatus = await this.runQuicksyncCheck();
+      if (
+        isQuicksyncAvailable(qsStatus) &&
+        isLocalStateFarBehind(qsStatus, 100)
+      ) {
+        await this.runQuicksyncPrompt(qsStatus);
+      } else {
+        hideGenericModal(this.mainWindow.webContents);
+        const isForce = await showGenericPrompt(this.mainWindow.webContents, {
+          title: 'Quick sync is not needed',
+          message: [
+            `Latest layer in your database: ${qsStatus.db}`,
+            `Latest layer in the trusted state: ${qsStatus.available}`,
+            `Current layer in the network: ${qsStatus.current}`,
+            '',
+            'We recommend you to keep using your local state.',
+            'Do you want to download the trusted state anyway?',
+          ].join('\n'),
+          confirmTitle: 'Download anyway!',
+          cancelTitle: 'No, thanks!',
+          cancelTimeout: 60,
+        });
+        isForce && (await this.runQuicksyncDownload());
+      }
       await this.startNode(true);
     };
-
-    this.quicksyncCheckTimer = setInterval(() => {
-      this.runQuicksyncCheck();
-    }, HOUR);
 
     // Subscriptions
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
@@ -307,7 +336,6 @@ class NodeManager extends AbstractManager {
     );
     // Unsub
     return () => {
-      this.quicksyncCheckTimer && clearInterval(this.quicksyncCheckTimer);
       ipcMain.removeListener(
         ipcConsts.N_M_GET_VERSION_AND_BUILD,
         getVersionAndBuild
@@ -406,66 +434,32 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  runQuicksync = async (forced = false) => {
+  // If we did quicksync check before — do not run it once again and just use
+  // the result passed in the argument. It is required for additional checks
+  // when User clicks on "RUN QUICKSYNC" button manually
+  runQuicksyncPrompt = async (qsStatus: QuicksyncStatus) => {
     try {
-      const cfg = await loadNodeConfig();
-      const isMainnet = isMainNetConfig(cfg);
-
-      if (!isMainnet) {
-        // Fallback to default syncing
-        return;
-      }
-      const isUpToDate = await this.runQuicksyncCheck().catch((err) => {
-        logger.error('isDatabaseUpToDate', err);
-        // Fallback to default syncing
-        return {
-          synced: true,
-          db: 0,
-          current: 0,
-          available: 0,
-        };
-      });
-      logger.log('isDatabaseUpToDate', isUpToDate);
       hideGenericModal(this.mainWindow.webContents);
-      if (
-        forced ||
-        (!isUpToDate.synced && isUpToDate.available > isUpToDate.db)
-      ) {
-        const prompt = await showGenericPrompt(this.mainWindow.webContents, {
-          title: 'Run a Quicksync?',
-          message: [
-            `Latest layer in your database: ${isUpToDate.db}`,
-            `Latest layer in the trusted state: ${isUpToDate.available}`,
-            `Current layer in the network: ${isUpToDate.current}`,
-            '',
-            'Quicksync will download the trusted state.',
-            'Syncing as usual may take more time, but it is the preferred way.',
-            '<a href="https://spacemesh.io/blog/making-sync-faster/">Read more</a> in the blog post.',
-            '',
-            'You can run the Quicksync from the settings page later.',
-          ].join('\n'),
-          confirmTitle: 'Yes, download it!',
-          cancelTitle: 'Sync as usual',
-          cancelTimeout: 60,
-        });
+      const prompt = await showGenericPrompt(this.mainWindow.webContents, {
+        title: 'Run a Quicksync?',
+        message: [
+          `Latest layer in your database: ${qsStatus.db}`,
+          `Latest layer in the trusted state: ${qsStatus.available}`,
+          `Current layer in the network: ${qsStatus.current}`,
+          '',
+          'Quicksync will download the trusted state.',
+          'Syncing as usual may take more time, but it is the preferred way.',
+          '<a href="https://spacemesh.io/blog/making-sync-faster/">Read more</a> in the blog post.',
+          '',
+          'You can run the Quicksync from the settings page later.',
+        ].join('\n'),
+        confirmTitle: 'Yes, download it!',
+        cancelTitle: 'Sync as usual',
+        cancelTimeout: 60,
+      });
 
-        if (prompt) {
-          if (this.nodeProcess) {
-            showGenericModal(this.mainWindow.webContents, {
-              title: 'Quicksyncing...',
-              message: [
-                'The node is shutting down...',
-                '',
-                'We need to shut it down to avoid the database corruption. Afterward, it will automatically run the Quicksync process.',
-                '',
-                'Please be patient, it may take some time.',
-              ].join('\n'),
-              buttons: [],
-            });
-            await this.stopNode();
-          }
-          await this.runQuicksyncDownload();
-        }
+      if (prompt) {
+        await this.runQuicksyncDownload();
       }
     } catch (err) {
       logger.error('runQuicksync', err);
@@ -492,7 +486,20 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
-    !skipQuicksync && (await this.runQuicksync());
+
+    const cfg = await loadNodeConfig();
+    if (!skipQuicksync && isMainNetConfig(cfg)) {
+      const qsStatus = await this.runQuicksyncCheck();
+      const epochSize = Math.floor(
+        ((await cfg).main['layers-per-epoch'] || 4032) / 2
+      );
+      if (
+        isQuicksyncAvailable(qsStatus) &&
+        isLocalStateFarBehind(qsStatus, epochSize)
+      ) {
+        await this.runQuicksyncPrompt(qsStatus);
+      }
+    }
     await this.spawnNode();
     this.isRestarting = false;
     this.startGRPCClient();
@@ -628,12 +635,7 @@ class NodeManager extends AbstractManager {
 
   private runQuicksyncCheck = () => {
     const bin = getQuicksyncPath();
-    return new Promise<{
-      synced: boolean;
-      db: number;
-      current: number;
-      available: number;
-    }>((resolve, reject) => {
+    return new Promise<QuicksyncStatus>((resolve, reject) => {
       const args = [
         'check',
         '--node-data',
@@ -689,11 +691,7 @@ class NodeManager extends AbstractManager {
         const current = parseInt(stats[1], 10);
         const available = stats[2] ? parseInt(stats[2], 10) : 0;
 
-        const cfg = await loadNodeConfig();
-        const delta = Math.floor((cfg?.main?.['layers-per-epoch'] || 4032) / 2);
-
         const result: QuicksyncStatus = {
-          synced: db >= current - delta,
           db,
           current,
           available,
@@ -703,12 +701,37 @@ class NodeManager extends AbstractManager {
           ipcConsts.UPDATE_QUICKSYNC_STATUS,
           result
         );
+        logger.log('runQuicksyncCheck', result);
         return resolve(result);
       });
+    }).catch((err) => {
+      logger.error('runQuicksyncCheck', err);
+      // Fallback to default syncing
+      return {
+        synced: true,
+        db: 0,
+        current: 0,
+        available: 0,
+      };
     });
   };
 
   private runQuicksyncDownload = async () => {
+    if (this.nodeProcess) {
+      showGenericModal(this.mainWindow.webContents, {
+        title: 'Quicksyncing...',
+        message: [
+          'The node is shutting down...',
+          '',
+          'We need to shut it down to avoid the database corruption. Afterward, it will automatically run the Quicksync process.',
+          '',
+          'Please be patient, it may take some time.',
+        ].join('\n'),
+        buttons: [],
+      });
+      await this.stopNode();
+    }
+
     const bin = getQuicksyncPath();
     const args = [
       'download',
