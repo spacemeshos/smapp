@@ -1,9 +1,10 @@
 import React from 'react';
 import { NodeEvent } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
-import { getEventType } from '../../../shared/utils';
+import { getEventType, toHexString } from '../../../shared/utils';
 import { CustomTimeAgo } from '../../basicComponents';
 import { getNodeEventStage } from './nodeEventUtils';
+import Address, { AddressType } from '../../components/common/Address';
 
 const withTime = (str: string, now: number, wait?: number) =>
   !wait ? (
@@ -35,6 +36,12 @@ const getEventErrorMessage = (event: NodeEvent) => {
   }
 };
 
+const ensureSmesherIdType = (s: string | Buffer | Uint8Array | undefined) => {
+  if (!s) return null;
+  if (typeof s === 'string') return s;
+  return toHexString(s);
+};
+
 export default (event: NodeEvent) => {
   if (event && event.failure) {
     return <ErrorMessage>{getEventErrorMessage(event)}</ErrorMessage>;
@@ -43,8 +50,19 @@ export default (event: NodeEvent) => {
     return 'Node is connecting...';
   }
   switch (getEventType(event)) {
-    case 'initStart':
-      return 'Started PoS data initialization';
+    case 'initStart': {
+      const smesherId = ensureSmesherIdType(event.initStart?.smesher);
+      if (!smesherId) {
+        return 'Started PoS data initialization';
+      } else {
+        return (
+          <>
+            Started PoS data initialization for
+            <Address type={AddressType.SMESHER} address={smesherId} isHex />
+          </>
+        );
+      }
+    }
     case 'initComplete':
       return 'Completed PoS data initialization';
     case 'initFailed':
@@ -66,10 +84,32 @@ export default (event: NodeEvent) => {
         event.poetWaitProof?.wait
       );
     }
-    case 'postStart':
-      return "Generating PoST proof for the PoET's challenge";
-    case 'postComplete':
-      return 'Finished generating PoST proof';
+    case 'postStart': {
+      const smesherId = ensureSmesherIdType(event.postStart?.smesher);
+      if (!smesherId) {
+        return "Generating PoST proof for the PoET's challenge";
+      } else {
+        return (
+          <>
+            Generating PoST proof for the PoET&apos;s challenge for
+            <Address type={AddressType.SMESHER} address={smesherId} isHex />
+          </>
+        );
+      }
+    }
+    case 'postComplete': {
+      const smesherId = ensureSmesherIdType(event.postComplete?.smesher);
+      if (!smesherId) {
+        return 'Finished generating PoST proof';
+      } else {
+        return (
+          <>
+            Finished generating PoST proof for
+            <Address type={AddressType.SMESHER} address={smesherId} isHex />
+          </>
+        );
+      }
+    }
     case 'atxPublished':
       return 'Published activation. Waiting for the next epoch';
     case 'eligibilities':
