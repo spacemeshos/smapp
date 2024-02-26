@@ -183,10 +183,6 @@ jobs:
       # Build
       - name: yarn build
         run: yarn build
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ENV: pr-builds
 
       # Create binaries
       - if: matrix.platform == 'linux'
@@ -195,9 +191,6 @@ jobs:
           echo "USE_SYSTEM_FPM?$(echo $USE_SYSTEM_FPM)"
           yarn package-linux
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ENV: pr-builds
           USE_SYSTEM_FPM: ${{ matrix.id == 'linux-arm64' && 'true' }}
 
       - if: matrix.platform == 'windows'
@@ -205,18 +198,12 @@ jobs:
         run: yarn package-win
         env:
           DONT_SIGN_APP: true # Do not sign the development artifacts
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ENV: pr-builds
 
       - if: matrix.platform == 'macos'
         name: Build mac app
         run: yarn package-mac
         env:
           DONT_SIGN_APP: true # Do not sign the development artifacts
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ENV: pr-builds
 
       - name: ls ./release
         run: ls ${{matrix.platform != 'windows' && '-la' || ''}} ./release

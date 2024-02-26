@@ -187,31 +187,20 @@ jobs:
 
       - name: Build
         run: yarn build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Create binaries
       - if: matrix.platform == 'linux'
         name: Build linux app
         run: yarn package-linux
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           USE_SYSTEM_FPM: ${{ matrix.id == 'linux-arm64' && 'true' }}
       - if: matrix.platform == 'windows'
         name: Build windows app
         run: yarn package-win
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - if: matrix.platform == 'macos'
         name: Build mac app
         run: yarn package-mac
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           CSC_LINK: ${{ secrets.SIGNING_CERTIFICATE_P12_DATA }}
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
