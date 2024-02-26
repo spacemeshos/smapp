@@ -53,6 +53,10 @@ message SmesherIDResponse {
     bytes public_key = 1;
 }
 
+message SmesherIDsResponse {
+    repeated bytes public_keys = 1;
+}
+
 message CoinbaseResponse {
     AccountId account_id = 1;
 }
