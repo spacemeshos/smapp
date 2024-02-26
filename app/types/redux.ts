@@ -56,7 +56,7 @@ export interface WalletState {
 }
 
 export interface SmesherState {
-  smesherId: string;
+  smesherIds: string[];
   isSmeshingStarted: boolean;
   postSetupProviders: PostSetupProvider[];
   coinbase: string;

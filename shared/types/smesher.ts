@@ -61,7 +61,7 @@ export interface PostSetupStatus {
 export interface IPCSmesherStartupData {
   // TODO: Get rid of empty Record when we get rid of mixing erros and data (`normalizeServiceError`)
   config: SmesherConfig | Record<string, never>;
-  smesherId: string;
+  smesherIds: string[];
   postSetupState: PostSetupState;
   isSmeshingStarted: boolean;
   numLabelsWritten: number;

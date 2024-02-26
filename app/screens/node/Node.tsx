@@ -252,19 +252,24 @@ const ERR_MESSAGE_NODE_ERROR =
   'The Node is not syncing. Please check the Network tab';
 
 const SmesherStatus = ({
-  smesherId,
+  smesherIds,
   status,
   networkName,
 }: {
-  smesherId: HexString;
+  smesherIds: HexString[];
   status: NodeStatus | null;
   networkName: string;
 }) => (
   <SubHeader>
     Smesher
-    <SmesherId>
-      <Address type={AddressType.SMESHER} address={smesherId} isHex />
-    </SmesherId>
+    {smesherIds.map((smesherID, idx) => (
+      <>
+        {idx > 0 && ', '}
+        <SmesherId key={`smesher_${smesherID}`}>
+          <Address type={AddressType.SMESHER} address={smesherID} isHex />
+        </SmesherId>
+      </>
+    ))}
     is&nbsp;
     <StatusSpan status={status}> {status ? 'ONLINE' : ' OFFLINE'} </StatusSpan>
     &nbsp;on {networkName}.
@@ -302,7 +307,9 @@ const Node = ({ history, location }: Props) => {
   const nodeError = useSelector((state: RootState) => state.node.error);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
-  const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
+  const smesherIds = useSelector(
+    (state: RootState) => state.smesher.smesherIds
+  );
   const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
@@ -432,13 +439,20 @@ const Node = ({ history, location }: Props) => {
         `${postProvingOpts.nonces} nonces | ${postProvingOpts.threads} CPU threads`,
       ],
       [
-        'Smesher ID',
-        <Address
-          key="smesherId"
-          type={AddressType.SMESHER}
-          address={smesherId}
-          isHex
-        />,
+        'Smesher IDs',
+        <>
+          {smesherIds.map((smesherId, idx) => (
+            <>
+              {idx > 0 && ', '}
+              <Address
+                key={`smesher_${smesherId}`}
+                type={AddressType.SMESHER}
+                address={smesherId}
+                isHex
+              />
+            </>
+          ))}
+        </>,
       ],
     ];
   };
@@ -563,7 +577,7 @@ const Node = ({ history, location }: Props) => {
       return (
         <>
           <SmesherStatus
-            smesherId={smesherId}
+            smesherIds={smesherIds}
             status={status}
             networkName={networkName}
           />
