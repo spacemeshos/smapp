@@ -18,6 +18,7 @@ import type { SetCoinbaseResponse as _spacemesh_v1_SetCoinbaseResponse, SetCoinb
 import type { SetMinGasRequest as _spacemesh_v1_SetMinGasRequest, SetMinGasRequest__Output as _spacemesh_v1_SetMinGasRequest__Output } from '../../spacemesh/v1/SetMinGasRequest';
 import type { SetMinGasResponse as _spacemesh_v1_SetMinGasResponse, SetMinGasResponse__Output as _spacemesh_v1_SetMinGasResponse__Output } from '../../spacemesh/v1/SetMinGasResponse';
 import type { SmesherIDResponse as _spacemesh_v1_SmesherIDResponse, SmesherIDResponse__Output as _spacemesh_v1_SmesherIDResponse__Output } from '../../spacemesh/v1/SmesherIDResponse';
+import type { SmesherIDsResponse as _spacemesh_v1_SmesherIDsResponse, SmesherIDsResponse__Output as _spacemesh_v1_SmesherIDsResponse__Output } from '../../spacemesh/v1/SmesherIDsResponse';
 import type { StartSmeshingRequest as _spacemesh_v1_StartSmeshingRequest, StartSmeshingRequest__Output as _spacemesh_v1_StartSmeshingRequest__Output } from '../../spacemesh/v1/StartSmeshingRequest';
 import type { StartSmeshingResponse as _spacemesh_v1_StartSmeshingResponse, StartSmeshingResponse__Output as _spacemesh_v1_StartSmeshingResponse__Output } from '../../spacemesh/v1/StartSmeshingResponse';
 import type { StopSmeshingRequest as _spacemesh_v1_StopSmeshingRequest, StopSmeshingRequest__Output as _spacemesh_v1_StopSmeshingRequest__Output } from '../../spacemesh/v1/StopSmeshingRequest';
@@ -119,6 +120,15 @@ export interface SmesherServiceClient extends grpc.Client {
   smesherId(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDResponse__Output) => void): grpc.ClientUnaryCall;
   smesherId(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDResponse__Output) => void): grpc.ClientUnaryCall;
   
+  SmesherIDs(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  SmesherIDs(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  SmesherIDs(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  SmesherIDs(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  smesherIDs(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  smesherIDs(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  smesherIDs(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  smesherIDs(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SmesherIDsResponse__Output) => void): grpc.ClientUnaryCall;
+  
   StartSmeshing(argument: _spacemesh_v1_StartSmeshingRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StartSmeshingResponse__Output) => void): grpc.ClientUnaryCall;
   StartSmeshing(argument: _spacemesh_v1_StartSmeshingRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StartSmeshingResponse__Output) => void): grpc.ClientUnaryCall;
   StartSmeshing(argument: _spacemesh_v1_StartSmeshingRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StartSmeshingResponse__Output) => void): grpc.ClientUnaryCall;
@@ -162,6 +172,8 @@ export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementatio
   
   SmesherID: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDResponse>;
   
+  SmesherIDs: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDsResponse>;
+  
   StartSmeshing: grpc.handleUnaryCall<_spacemesh_v1_StartSmeshingRequest__Output, _spacemesh_v1_StartSmeshingResponse>;
   
   StopSmeshing: grpc.handleUnaryCall<_spacemesh_v1_StopSmeshingRequest__Output, _spacemesh_v1_StopSmeshingResponse>;
@@ -180,6 +192,7 @@ export interface SmesherServiceDefinition extends grpc.ServiceDefinition {
   SetCoinbase: MethodDefinition<_spacemesh_v1_SetCoinbaseRequest, _spacemesh_v1_SetCoinbaseResponse, _spacemesh_v1_SetCoinbaseRequest__Output, _spacemesh_v1_SetCoinbaseResponse__Output>
   SetMinGas: MethodDefinition<_spacemesh_v1_SetMinGasRequest, _spacemesh_v1_SetMinGasResponse, _spacemesh_v1_SetMinGasRequest__Output, _spacemesh_v1_SetMinGasResponse__Output>
   SmesherID: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_SmesherIDResponse, _google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDResponse__Output>
+  SmesherIDs: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_SmesherIDsResponse, _google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDsResponse__Output>
   StartSmeshing: MethodDefinition<_spacemesh_v1_StartSmeshingRequest, _spacemesh_v1_StartSmeshingResponse, _spacemesh_v1_StartSmeshingRequest__Output, _spacemesh_v1_StartSmeshingResponse__Output>
   StopSmeshing: MethodDefinition<_spacemesh_v1_StopSmeshingRequest, _spacemesh_v1_StopSmeshingResponse, _spacemesh_v1_StopSmeshingRequest__Output, _spacemesh_v1_StopSmeshingResponse__Output>
 }

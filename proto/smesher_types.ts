@@ -51,6 +51,7 @@ export interface ProtoGrpcType {
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
       SmesherIDResponse: MessageTypeDefinition
+      SmesherIDsResponse: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       StartSmeshingRequest: MessageTypeDefinition
       StartSmeshingResponse: MessageTypeDefinition
