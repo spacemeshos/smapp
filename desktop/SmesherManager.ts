@@ -70,12 +70,12 @@ class SmesherManager extends AbstractManager {
     return config.smeshing || {};
   };
 
-  getSmesherId = async () => {
-    const res = await this.smesherService.getSmesherID();
+  getSmesherIds = async () => {
+    const res = await this.smesherService.getSmesherIDs();
     if (res.error) {
       throw res.error;
     }
-    return res.smesherId;
+    return res.smesherIds;
   };
 
   getCurrentDataDir = async (genesisID: HexString) => {
@@ -126,7 +126,7 @@ class SmesherManager extends AbstractManager {
       }
     }
 
-    const { smesherId } = await this.smesherService.getSmesherID();
+    const { smesherIds } = await this.smesherService.getSmesherIDs();
     const {
       postSetupState,
       numLabelsWritten,
@@ -141,7 +141,7 @@ class SmesherManager extends AbstractManager {
 
     const data: IPCSmesherStartupData = {
       config,
-      smesherId: smesherId || '',
+      smesherIds,
       isSmeshingStarted,
       postSetupState,
       numLabelsWritten,

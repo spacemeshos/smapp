@@ -25,6 +25,7 @@ import {
   NodeVersionAndBuild,
   Wallet,
   NodeEvent,
+  HexString,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
 import { MINUTE } from '../../../shared/constants';
@@ -118,7 +119,7 @@ export default (
   $currentLayer: Observable<number>,
   $rootHash: Observable<string>,
   $nodeVersion: Observable<NodeVersionAndBuild>,
-  $smesherId: Observable<string>,
+  $smesherIds: Observable<HexString[]>,
   $nodeEvents: Observable<NodeEvent>,
   $hrp: Observable<string>
 ) => {
@@ -133,7 +134,7 @@ export default (
     networkView($currentNetwork, $currentNodeConfig),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
-    $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
+    $smesherIds.pipe(map((smesherIds) => ({ smesher: { smesherIds } }))),
     $nodeEvents.pipe(
       distinct(getNodeEventKey),
       scan((acc, next) => [...acc, next].slice(-1000), <NodeEvent[]>[]),

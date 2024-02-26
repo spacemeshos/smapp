@@ -94,7 +94,7 @@ const syncSmesherInfo = (
     share()
   );
 
-  const $smesherId = combineLatest([
+  const $smesherIds = combineLatest([
     $isLocalNode,
     $managers,
     $isWalletActivated,
@@ -102,14 +102,11 @@ const syncSmesherInfo = (
     switchMap(([isLocalNode, managers]) =>
       from(
         (async () => {
-          if (!isLocalNode) return '';
+          if (!isLocalNode) return [];
           if (await managers.node.getNodeStatus()) {
-            const smesherId = await managers.smesher
-              .getSmesherId()
-              .catch(() => '');
-            return smesherId || '';
+            return managers.smesher.getSmesherIds().catch(() => []);
           }
-          throw new Error('getSmesherId(): Can not reach the Node');
+          throw new Error('getSmesherIds(): Can not reach the Node');
         })()
       )
     ),
@@ -158,7 +155,7 @@ const syncSmesherInfo = (
   );
 
   return {
-    $smesherId,
+    $smesherIds,
     $coinbase,
     $smeshingStarted,
     $smeshingSetupState,

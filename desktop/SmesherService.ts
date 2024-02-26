@@ -1,9 +1,10 @@
 import { ProtoGrpcType } from '../proto/smesher';
 import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
-import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
+import { SmesherIDsResponse__Output } from '../proto/spacemesh/v1/SmesherIDsResponse';
 
 import {
   DeviceType,
+  HexString,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
@@ -133,15 +134,16 @@ class SmesherService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
-  getSmesherID = () =>
-    this.callServiceWithRetries('SmesherID', {})
-      .then((response: SmesherIDResponse__Output) => {
-        return {
-          smesherId: toHexString(response.publicKey),
-        };
-      })
+  getSmesherIDs = (): Promise<{
+    error: Error | null;
+    smesherIds: HexString[];
+  }> =>
+    this.callServiceWithRetries('SmesherIDs', {})
+      .then((response: SmesherIDsResponse__Output) => ({
+        smesherIds: response.publicKeys.map(toHexString),
+      }))
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ smesherId: '' }));
+      .catch(this.normalizeServiceError({ smesherIds: [] }));
 
   getCoinbase = (): Promise<{ error: Error | null; coinbase: string }> =>
     this.callServiceWithRetries('Coinbase', {})
