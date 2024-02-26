@@ -112,15 +112,7 @@ PPROF_SERVER=1 yarn start
 
 Alias for `--pprof-server` argument.
 
-#### Sentry
-
-```
-SENTRY_DSN='collection errors/logs url taken from sentry'
-SENTRY_LOG_LEVEL=boolean # enables debug information
-SENTRY_AUTH_TOKEN='special auth token for sentry cli integration'
-```
-
-### Building Artifacts in CI
+#### Building Artifacts in CI
 
 Smapp uses two workflows. Both of them build an application for all supported platforms: Windows, macOS, and Linux.
 
