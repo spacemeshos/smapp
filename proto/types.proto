@@ -126,6 +126,7 @@ message MalfeasanceProof {
         MALFEASANCE_ATX = 1;
         MALFEASANCE_BALLOT = 2;
         MALFEASANCE_HARE = 3;
+        MALFEASANCE_POST_INDEX = 4;
     }
     MalfeasanceType kind = 3;
     string debug_info = 4;

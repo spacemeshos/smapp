@@ -37,6 +37,14 @@ service SmesherService {
         option (google.api.http) = {
             post: "/v1/smesher/smesherid"
         };
+        option deprecated = true; // will return empty response in v1.4.x
+    }
+
+    // Get the Smesher IDs managed by the node
+    rpc SmesherIDs (google.protobuf.Empty) returns (SmesherIDsResponse) {
+        option (google.api.http) = {
+            post: "/v1/smesher/smesherids"
+        };
     }
 
     // Get the current coinbase
