@@ -53,6 +53,7 @@ export interface ProtoGrpcType {
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
       SmesherIDResponse: MessageTypeDefinition
+      SmesherIDsResponse: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       SmesherService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_SmesherServiceClient> & { service: _spacemesh_v1_SmesherServiceDefinition }
       StartSmeshingRequest: MessageTypeDefinition
