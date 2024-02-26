@@ -36,7 +36,7 @@ import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
-import nodeIPCStreams, { sentryLogsListener } from './sources/node.ipc';
+import nodeIPCStreams from './sources/node.ipc';
 import handleWipeOut from './reactions/wipeOut.ipc';
 import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 import handleAppWalletChange from './reactions/handleAppWalletChange';
@@ -210,8 +210,6 @@ const startApp = (): AppStore => {
     fetchDiscoveryEvery(CHECK_UPDATES_INTERVAL, $networks, $warnings),
     // And update them by users request
     listNetworksByRequest($networks, $warnings),
-    // Get actual logs to client app
-    sentryLogsListener(),
     // List Public APIs for current network
     // Do not update anything
     listPublicApisByRequest($wallet, $warnings),
