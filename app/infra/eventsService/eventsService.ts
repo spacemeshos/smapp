@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron';
 import { ProgressInfo, UpdateInfo } from 'electron-updater';
 import { TemplateRegistry } from '@spacemesh/sm-codec';
 
-import { setReactTags } from '../../sentry';
 import { ipcConsts } from '../../vars';
 import {
   setNodeError,
@@ -50,7 +49,6 @@ import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
   AddContactRequest,
   AddWalletResponseType,
-  AppLogs,
   ChangePasswordRequest,
   CreateAccountResponse,
   CreateWalletRequest,
@@ -177,11 +175,6 @@ class EventsService {
     ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, filepath);
 
   static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
-
-  /** ************************************   SENTRY   ****************************************** */
-
-  static getNodeAndAppLogs = (): Promise<IpcResponse<AppLogs>> =>
-    ipcRenderer.invoke(ipcConsts.GET_NODE_AND_APP_LOGS);
 
   /** ************************************   SMESHER   ****************************************** */
   static selectPostFolder = () =>
@@ -321,10 +314,6 @@ ipcRenderer.on(
   ipcConsts.N_M_GET_VERSION_AND_BUILD,
   (_event, payload: NodeVersionAndBuild) => {
     store.dispatch(setVersionAndBuild(payload));
-    setReactTags({
-      'go-sapacemesh:version': payload.version,
-      'go-sapacemesh:build': payload.build,
-    });
   }
 );
 
