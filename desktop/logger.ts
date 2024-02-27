@@ -26,7 +26,7 @@ const Logger = ({ className }: { className: string }) => ({
     const e = err instanceof Error ? String(err) : err;
     const msg = formatErrorMessage(className, fn, e, args);
     logger.error?.(msg);
-    // @todo clean up error invocation because of GRPC connection and streams and add sentry capture after it
+    // @todo clean up error invocation because of GRPC connection
   },
   debug: (title: string, ...args: any[]) => {
     if (!isDebug()) return;

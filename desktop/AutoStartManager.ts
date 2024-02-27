@@ -5,7 +5,6 @@ import { isLinuxAppImage } from '../shared/utils';
 import Warning, { WarningType } from '../shared/warning';
 import { isLinux, isMacOS, isWindows } from './osSystem';
 import Logger from './logger';
-import { captureMainException } from './sentry';
 import StoreService from './storeService';
 
 // Utils
@@ -62,8 +61,6 @@ const handleFailure = (err: unknown) => {
         'Failed to write the registry key for auto-start.\n\nPlease ensure that you have the necessary permissions to modify the registry.\n\nYou may need to run the application as an administrator or contact your system administrator for assistance.',
     };
   }
-
-  err instanceof Error && captureMainException(err);
 
   return {
     status: false,
