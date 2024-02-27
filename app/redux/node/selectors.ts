@@ -6,12 +6,12 @@ export const getNodeStartupState = (state: RootState) =>
   state.node.startupStatus;
 export const getNodeError = (state: RootState) => state.node.error;
 
-export const isQuicksyncAvailable = (state: RootState) => {
-  const quicksync = state.node.quicksyncStatus;
-  return (
-    isMainNet(state) &&
-    (!quicksync ||
-      (quicksync.current - 100 > quicksync.db &&
-        quicksync.available > quicksync.db))
-  );
+export const isQuicksyncEnabled = (state: RootState) => {
+  const nodeStatus = state.node.status;
+  return isMainNet(state) && (!nodeStatus || !nodeStatus?.isSynced);
+};
+
+export const isNodeLayersBehind = (delta: number) => (state: RootState) => {
+  const nodeStatus = state.node.status;
+  return !nodeStatus || nodeStatus.topLayer - delta > nodeStatus.syncedLayer;
 };
