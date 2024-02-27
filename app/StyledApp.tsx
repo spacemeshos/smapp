@@ -12,12 +12,9 @@ import ErrorBoundary from './ErrorBoundary';
 import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
-import { init } from './sentry';
 import Modals from './Modals';
 
 const history = createMemoryHistory();
-
-init(history);
 
 const EventRouter = () => {
   const onSwitchNet = (_, { isWalletOnly }) =>
