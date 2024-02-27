@@ -314,7 +314,7 @@ class NodeManager extends AbstractManager {
             `Latest layer in the trusted state: ${qsStatus.available}`,
             `Current layer in the network: ${qsStatus.current}`,
             '',
-            'We recommend you to keep using your local state.',
+            'Your node is nearly synced. We recommend you to keep using your local state.',
             'Do you want to download the trusted state anyway?',
           ].join('\n'),
           confirmTitle: 'Download anyway!',
