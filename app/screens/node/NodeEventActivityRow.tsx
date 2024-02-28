@@ -3,8 +3,8 @@ import { NodeEvent } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { getEventType, toHexString } from '../../../shared/utils';
 import { CustomTimeAgo } from '../../basicComponents';
-import { getNodeEventStage } from './nodeEventUtils';
 import Address, { AddressType } from '../../components/common/Address';
+import { getNodeEventStage } from './nodeEventUtils';
 
 const withTime = (str: string, now: number, wait?: number) =>
   !wait ? (

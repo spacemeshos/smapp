@@ -8,6 +8,7 @@ import {
   GENERIC_MODAL_DEFAULTS,
   GenericModalOpts,
 } from '../../../shared/genericModal';
+import formatMessage from '../../infra/formatMessage';
 
 const Message = styled.pre`
   flex-grow: 1;
@@ -60,12 +61,13 @@ const GenericModal = () => {
 
   return (
     <Modal header={opts.title} width={600} height={360}>
-      <Message>{opts.message}</Message>
+      <Message>{formatMessage(opts.message)}</Message>
       {opts.buttons.length > 0 && (
         <ButtonNewGroup>
           {opts.buttons.map((btn, ix) => (
             <ButtonNew
               key={ix}
+              isPrimary={btn.primary || false}
               onClick={
                 btn.action === 'close'
                   ? () => close()

@@ -87,7 +87,8 @@ export interface NodeConfig {
   main: {
     'layer-duration': string; // "120s"
     'layers-per-epoch': number;
-    'poet-server'?: Array<string>;
+    'poet-server'?: Array<string>; // Outdated since v1.4.0
+    'poet-servers'?: Array<{ address: string; pubkey: string }>;
     'network-hrp'?: string;
     [k: string]: any;
   };
