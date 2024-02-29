@@ -10,51 +10,63 @@ import { getLocalNodeConnectionConfig } from './main/utils';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
 
 // Types
-type Proto = { spacemesh: { v1: any; [k: string]: any }; [k: string]: any };
+type AnyRecord = { [k: string]: any };
+type Proto = {
+  spacemesh: { v1: AnyRecord; v2alpha1: AnyRecord; [k: string]: any };
+  [k: string]: any;
+};
 export type Service<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1']
-> = InstanceType<P['spacemesh']['v1'][ServiceName]>;
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version]
+> = InstanceType<P['spacemesh'][Version][ServiceName]>;
 export type ServiceOpts<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1'],
-  K extends keyof Service<P, ServiceName>
-> = Parameters<Service<P, ServiceName>[K]>[0];
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version],
+  K extends keyof Service<P, Version, ServiceName>
+> = Parameters<Service<P, Version, ServiceName>[K]>[0];
 export type ServiceCallback<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1'],
-  K extends keyof Service<P, ServiceName>
-> = Parameters<Service<P, ServiceName>[K]>[1];
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version],
+  K extends keyof Service<P, Version, ServiceName>
+> = Parameters<Service<P, Version, ServiceName>[K]>[1];
 export type ServiceCallbackResult<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1'],
-  K extends keyof Service<P, ServiceName>
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version],
+  K extends keyof Service<P, Version, ServiceName>
 > =
   // @ts-ignore
   // TODO: It works fine, but TypeScript finds this errorish
-  Parameters<ServiceCallback<P, ServiceName, K>>[1];
+  Parameters<ServiceCallback<P, Version, ServiceName, K>>[1];
 
 export type ServiceStream<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1'],
-  K extends keyof Service<P, ServiceName>
-> = ReturnType<Service<P, ServiceName>[K]>;
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version],
+  K extends keyof Service<P, Version, ServiceName>
+> = ReturnType<Service<P, Version, ServiceName>[K]>;
 
 export type ServiceStreamResponse<
   P extends Proto,
-  ServiceName extends keyof P['spacemesh']['v1'],
-  K extends keyof Service<P, ServiceName>
-> = ServiceStream<P, ServiceName, K> extends grpc.ClientReadableStream<infer T>
+  Version extends keyof P['spacemesh'],
+  ServiceName extends keyof P['spacemesh'][Version],
+  K extends keyof Service<P, Version, ServiceName>
+> = ServiceStream<P, Version, ServiceName, K> extends grpc.ClientReadableStream<
+  infer T
+>
   ? T
   : never;
 
 // Abstract Class
-
 class NetServiceFactory<
-  T extends { spacemesh: { v1: any; [k: string]: any }; [k: string]: any },
-  ServiceName extends keyof T['spacemesh']['v1']
+  T extends Proto,
+  Version extends keyof T['spacemesh'],
+  ServiceName extends keyof T['spacemesh'][Version]
 > {
-  protected service: Service<T, ServiceName> | null = null;
+  protected service: Service<T, Version, ServiceName> | null = null;
 
   protected serviceName: string | null = null;
 
@@ -65,7 +77,7 @@ class NetServiceFactory<
   private apiUrl: SocketAddress | null = null;
 
   private cancelStreamList: Record<
-    keyof Service<T, ServiceName>,
+    keyof Service<T, Version, ServiceName>,
     Array<() => Promise<void>>
   > = {} as typeof this.cancelStreamList;
 
@@ -93,8 +105,13 @@ class NetServiceFactory<
 
     this.apiUrl = apiUrl;
 
+    const STD_PROTOS = path.join(__dirname, '..', 'vendor', 'proto');
     const resolvedProtoPath = path.join(__dirname, '..', protoPath);
-    const packageDefinition = loadSync(resolvedProtoPath);
+    const parentDir = path.dirname(resolvedProtoPath);
+    const apiRootDir = path.resolve(parentDir, '../..');
+    const packageDefinition = loadSync(resolvedProtoPath, {
+      includeDirs: [STD_PROTOS, apiRootDir, parentDir],
+    });
     const proto = (grpc.loadPackageDefinition(
       packageDefinition
     ) as unknown) as T;
@@ -119,7 +136,9 @@ class NetServiceFactory<
     this.setIsStarted(false);
   };
 
-  ensureService = (method: string): Promise<Service<T, ServiceName>> => {
+  ensureService = (
+    method: string
+  ): Promise<Service<T, Version, ServiceName>> => {
     if (this.service) return Promise.resolve(this.service);
 
     this.logger?.error(
@@ -131,14 +150,14 @@ class NetServiceFactory<
     );
   };
 
-  callService = <K extends keyof Service<T, ServiceName>>(
+  callService = <K extends keyof Service<T, Version, ServiceName>>(
     method: K,
-    opts: ServiceOpts<T, ServiceName, K>
+    opts: ServiceOpts<T, Version, ServiceName, K>
   ) => {
-    type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
+    type ResultArg = ServiceCallbackResult<T, Version, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
     return this.ensureService(String(method)).then(
-      (_service: Service<T, ServiceName>) =>
+      (_service: Service<T, Version, ServiceName>) =>
         new Promise<Result>((resolve, reject) => {
           _service[method](
             opts,
@@ -175,25 +194,31 @@ class NetServiceFactory<
     );
   };
 
-  callServiceWithRetries = <K extends keyof Service<T, ServiceName>>(
+  callServiceWithRetries = <K extends keyof Service<T, Version, ServiceName>>(
     method: K,
-    opts: ServiceOpts<T, ServiceName, K>,
+    opts: ServiceOpts<T, Version, ServiceName, K>,
     retriesLeft = 300
-  ) =>
-    this.callService(method, opts).catch(async (err) => {
-      if (!NodeStartupStateStore.isReady()) {
-        // If Node is not in Ready state — wait longer and then try again
-        // And do not reduce the retries amount
-        await delay(30000);
-        return this.callServiceWithRetries(method, opts, retriesLeft);
+  ) => {
+    type ResultArg = ServiceCallbackResult<T, Version, ServiceName, K>;
+    type Result = NonNullable<ResultArg>;
+
+    return this.callService(method, opts).catch(
+      async (err): Promise<Result> => {
+        if (!NodeStartupStateStore.isReady()) {
+          // If Node is not in Ready state — wait longer and then try again
+          // And do not reduce the retries amount
+          await delay(30000);
+          return this.callServiceWithRetries(method, opts, retriesLeft);
+        }
+        if (err.code === 14 && retriesLeft > 0) {
+          await delay(5000);
+          return this.callServiceWithRetries(method, opts, retriesLeft - 1);
+        } else {
+          throw err;
+        }
       }
-      if (err.code === 14 && retriesLeft > 0) {
-        await delay(5000);
-        return this.callServiceWithRetries(method, opts, retriesLeft - 1);
-      } else {
-        throw err;
-      }
-    });
+    );
+  };
 
   // TODO: Get rid of mixing with `error`
   normalizeServiceResponse = <ResponseData extends Record<string, any>>(
@@ -211,10 +236,10 @@ class NetServiceFactory<
     error,
   });
 
-  runStream = <K extends keyof Service<T, ServiceName>>(
+  runStream = <K extends keyof Service<T, Version, ServiceName>>(
     method: K,
-    opts: ServiceOpts<T, ServiceName, K>,
-    onData: (data: ServiceStreamResponse<T, ServiceName, K>) => void,
+    opts: ServiceOpts<T, Version, ServiceName, K>,
+    onData: (data: ServiceStreamResponse<T, Version, ServiceName, K>) => void,
     onError: (error: grpc.ServiceError) => void = () => {}
   ) => {
     if (!this.service) {
@@ -232,7 +257,7 @@ class NetServiceFactory<
     );
 
     let stream: grpc.ClientReadableStream<
-      ServiceStreamResponse<T, ServiceName, K>
+      ServiceStreamResponse<T, Version, ServiceName, K>
     >;
 
     const cancel = () =>

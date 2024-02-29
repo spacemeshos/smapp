@@ -14,12 +14,12 @@ import {
   TxState,
 } from '../shared/types';
 import { ipcConsts } from '../app/vars';
-import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
-import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
-import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
-import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
-import { Reward__Output } from '../proto/spacemesh/v1/Reward';
-import { Account__Output } from '../proto/spacemesh/v1/Account';
+import { AccountDataFlag } from '../api/generated/spacemesh/v1/AccountDataFlag';
+import { Transaction__Output } from '../api/generated/spacemesh/v1/Transaction';
+import { TransactionState__Output } from '../api/generated/spacemesh/v1/TransactionState';
+import { MeshTransaction__Output } from '../api/generated/spacemesh/v1/MeshTransaction';
+import { Reward__Output } from '../api/generated/spacemesh/v1/Reward';
+import { Account__Output } from '../api/generated/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
 import {
   delay,

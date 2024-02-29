@@ -1,7 +1,7 @@
 import Bech32 from '@spacemesh/address-wasm';
 import { TemplateRegistry } from '@spacemesh/sm-codec';
-import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
-import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
+import { Transaction__Output } from '../api/generated/spacemesh/v1/Transaction';
+import { TransactionReceipt__Output } from '../api/generated/spacemesh/v1/TransactionReceipt';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { hasRequiredTxFields } from '../shared/types/guards';
 import { Tx, TxState } from '../shared/types/tx';

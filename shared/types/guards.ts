@@ -1,7 +1,7 @@
 import { Object } from 'ts-toolbelt';
-import { Reward__Output } from '../../proto/spacemesh/v1/Reward';
-import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
-import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
+import { Reward__Output } from '../../api/generated/spacemesh/v1/Reward';
+import { Transaction__Output } from '../../api/generated/spacemesh/v1/Transaction';
+import { TransactionState__Output } from '../../api/generated/spacemesh/v1/TransactionState';
 import { NodeConfig, NodeError } from './node';
 import { Tx, Reward, Activation } from './tx';
 import {

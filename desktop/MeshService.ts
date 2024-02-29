@@ -1,8 +1,8 @@
-import { ProtoGrpcType } from '../proto/mesh';
-import { AccountMeshDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountMeshDataStreamResponse';
-import { AccountMeshDataFlag } from '../proto/spacemesh/v1/AccountMeshDataFlag';
-import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
-import { AccountMeshData__Output } from '../proto/spacemesh/v1/AccountMeshData';
+import { ProtoGrpcType } from '../api/generated';
+import { AccountMeshDataStreamResponse__Output } from '../api/generated/spacemesh/v1/AccountMeshDataStreamResponse';
+import { AccountMeshDataFlag } from '../api/generated/spacemesh/v1/AccountMeshDataFlag';
+import { MeshTransaction__Output } from '../api/generated/spacemesh/v1/MeshTransaction';
+import { AccountMeshData__Output } from '../api/generated/spacemesh/v1/AccountMeshData';
 import { PublicService, SocketAddress } from '../shared/types';
 import { delay } from '../shared/utils';
 import { CurrentLayer } from '../app/types/events';
@@ -10,9 +10,13 @@ import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
-const PROTO_PATH = 'proto/mesh.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/mesh.proto';
 
-class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
+class MeshService extends NetServiceFactory<
+  ProtoGrpcType,
+  'v1',
+  'MeshService'
+> {
   logger = Logger({ className: 'MeshService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
