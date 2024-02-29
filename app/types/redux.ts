@@ -36,6 +36,7 @@ export interface NodeState {
   port: string;
   dataPath: string;
   isRestarting: boolean;
+  atxsCount: number;
 }
 
 export interface WalletState {

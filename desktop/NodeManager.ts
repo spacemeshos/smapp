@@ -73,6 +73,7 @@ import {
   loadCustomNodeConfig,
   loadNodeConfig,
 } from './main/NodeConfig';
+import ActivationV2Service from './ActivationV2Service';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -107,6 +108,12 @@ const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\s(FAT
 
 class NodeManager extends AbstractManager {
   private nodeService: NodeService;
+
+  private activationService: ActivationV2Service;
+
+  private atxCount = 0;
+
+  private atxWatchSubscription = () => {};
 
   private smesherManager: SmesherManager;
 
@@ -222,6 +229,7 @@ class NodeManager extends AbstractManager {
   ) {
     super(mainWindow);
     this.nodeService = new NodeService();
+    this.activationService = new ActivationV2Service();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.genesisID = genesisID;
@@ -425,6 +433,7 @@ class NodeManager extends AbstractManager {
     this.smesherManager.subscribeIPC();
     // Create GRPC Client for NodeService
     this.nodeService.createService();
+    this.activationService.createService();
     // Wait for the GRPC API
     await this.isNodeAlive();
     // update node status once by query request
@@ -674,12 +683,19 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.SyncingMaliciousProofs);
       } else if (line.includes('syncing atx')) {
         sendStatus(NodeStartupState.SyncingAtxs);
+        // Update ATXs count
+        this.atxWatchSubscription = this.activationService.watchForAnyATXs(() => {
+          this.atxCount += 1;
+          this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, this.atxCount);
+        });
       } else if (
         line.includes('app started') ||
         line.includes('atxs synced') ||
         line.includes('malicious IDs synced')
       ) {
         sendStatus(NodeStartupState.Ready);
+        // Unsubscribe
+        this.atxWatchSubscription();
       }
     });
   };

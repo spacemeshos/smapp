@@ -17,6 +17,8 @@ export const RESTART_NODE = 'RESTART_NODE';
 
 export const UPDATE_QUICKSYNC_STATUS = 'UPDATE_QUICKSYNC_STATUS';
 
+export const SET_ATXS_COUNT = 'SET_ATXS_COUNT';
+
 export const setNodeStatus = (status: NodeStatus) => ({
   type: SET_NODE_STATUS,
   payload: status,
@@ -44,4 +46,9 @@ export const restartNode = () => (dispatch: AppThDispatch) => {
 export const updateQuicksyncStatus = (status: QuicksyncStatus) => ({
   type: UPDATE_QUICKSYNC_STATUS,
   payload: status,
+});
+
+export const setAtxsCount = (amount: number) => ({
+  type: SET_ATXS_COUNT,
+  payload: amount,
 });
