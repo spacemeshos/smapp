@@ -1,8 +1,8 @@
 import os from 'os';
 import { hash } from '@spacemesh/sm-codec';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
-import { Event } from '../proto/spacemesh/v1/Event';
-import { Duration } from '../proto/google/protobuf/Duration';
+import { Event } from '../api/generated/spacemesh/v1/Event';
+import { Duration } from '../api/generated/google/protobuf/Duration';
 import {
   HexString,
   NodeConfig,

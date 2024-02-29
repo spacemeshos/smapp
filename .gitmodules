@@ -1,0 +1,3 @@
+[submodule "vendor/api"]
+	path = vendor/api
+	url = https://github.com/spacemeshos/api

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package spacemesh;
+
+import "spacemesh/v1/activation.proto";
+import "spacemesh/v1/admin.proto";
+import "spacemesh/v1/debug.proto";
+import "spacemesh/v1/global_state.proto";
+import "spacemesh/v1/mesh.proto";
+import "spacemesh/v1/node.proto";
+import "spacemesh/v1/post.proto";
+import "spacemesh/v1/smesher.proto";
+import "spacemesh/v1/tx.proto";
+
+import "spacemesh/v2alpha1/activation.proto";
+import "spacemesh/v2alpha1/reward.proto";

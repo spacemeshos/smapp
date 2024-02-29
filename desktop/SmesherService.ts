@@ -1,6 +1,6 @@
-import { ProtoGrpcType } from '../proto/smesher';
-import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
-import { SmesherIDsResponse__Output } from '../proto/spacemesh/v1/SmesherIDsResponse';
+import { ProtoGrpcType } from '../api/generated';
+import { PostSetupStatusStreamResponse__Output } from '../api/generated/spacemesh/v1/PostSetupStatusStreamResponse';
+import { SmesherIDResponse__Output } from '../api/generated/spacemesh/v1/SmesherIDResponse';
 
 import {
   DeviceType,
@@ -17,7 +17,7 @@ import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import { getPrivateNodeConnectionConfig } from './main/utils';
 
-const PROTO_PATH = 'proto/smesher.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/smesher.proto';
 
 // Status type:
 // The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
@@ -38,10 +38,11 @@ const PROTO_PATH = 'proto/smesher.proto';
 
 class SmesherService extends NetServiceFactory<
   ProtoGrpcType,
+  'v1',
   'SmesherService'
 > {
   private stream: ReturnType<
-    Service<ProtoGrpcType, 'SmesherService'>['PostSetupStatusStream']
+    Service<ProtoGrpcType, 'v1', 'SmesherService'>['PostSetupStatusStream']
   > | null = null;
 
   logger = Logger({ className: 'SmesherService' });

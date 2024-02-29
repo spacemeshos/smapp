@@ -1,8 +1,8 @@
-import { Event } from '../../proto/spacemesh/v1/Event';
-import { EventAtxPubished } from '../../proto/spacemesh/v1/EventAtxPubished';
-import { EventPoetWaitProof } from '../../proto/spacemesh/v1/EventPoetWaitProof';
-import { EventPoetWaitRound } from '../../proto/spacemesh/v1/EventPoetWaitRound';
-import { _spacemesh_v1_PostSetupStatus_State as PostSetupState } from '../../proto/spacemesh/v1/PostSetupStatus';
+import { Event } from '../../api/generated/spacemesh/v1/Event';
+import { EventAtxPubished } from '../../api/generated/spacemesh/v1/EventAtxPubished';
+import { EventPoetWaitProof } from '../../api/generated/spacemesh/v1/EventPoetWaitProof';
+import { EventPoetWaitRound } from '../../api/generated/spacemesh/v1/EventPoetWaitRound';
+import { _spacemesh_v1_PostSetupStatus_State as PostSetupState } from '../../api/generated/spacemesh/v1/PostSetupStatus';
 
 // Core
 
