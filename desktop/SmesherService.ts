@@ -51,6 +51,7 @@ class SmesherService extends NetServiceFactory<
     this.createNetService(
       PROTO_PATH,
       getPrivateNodeConnectionConfig(),
+      'v1',
       'SmesherService'
     );
   };

@@ -88,6 +88,7 @@ class NetServiceFactory<
   createNetService = (
     protoPath: string,
     apiUrl: SocketAddress | PublicService = getLocalNodeConnectionConfig(),
+    version: Version,
     serviceName: string
   ) => {
     this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
@@ -115,7 +116,7 @@ class NetServiceFactory<
     const proto = (grpc.loadPackageDefinition(
       packageDefinition
     ) as unknown) as T;
-    const Service = proto.spacemesh.v1[serviceName];
+    const Service = proto.spacemesh[version][serviceName];
     const connectionType =
       this.apiUrl.protocol === 'http:'
         ? grpc.credentials.createInsecure()

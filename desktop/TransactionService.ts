@@ -15,7 +15,7 @@ class TransactionService extends NetServiceFactory<
   logger = Logger({ className: 'TransactionService' });
 
   createService = (apiUrl?: PublicService | SocketAddress) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'TransactionService');
+    this.createNetService(PROTO_PATH, apiUrl, 'v1', 'TransactionService');
   };
 
   submitTransaction = ({ transaction }) =>

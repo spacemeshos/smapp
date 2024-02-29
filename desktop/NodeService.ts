@@ -56,6 +56,7 @@ class NodeService extends NetServiceFactory<
     this.createNetService(
       PROTO_PATH,
       apiUrl || getLocalNodeConnectionConfig(),
+      'v1',
       'NodeService'
     );
   };

@@ -16,6 +16,7 @@ class AdminService extends NetServiceFactory<ProtoGrpcType, 'v1', 'AdminService'
     this.createNetService(
       PROTO_PATH,
       getPrivateNodeConnectionConfig(),
+      'v1',
       'AdminService'
     );
   };
