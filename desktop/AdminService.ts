@@ -7,7 +7,11 @@ import { getPrivateNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'vendor/api/spacemesh/v1/admin.proto';
 
-class AdminService extends NetServiceFactory<ProtoGrpcType, 'v1', 'AdminService'> {
+class AdminService extends NetServiceFactory<
+  ProtoGrpcType,
+  'v1',
+  'AdminService'
+> {
   private cancelEventsStream: () => void = () => {};
 
   logger = Logger({ className: 'AdminService' });

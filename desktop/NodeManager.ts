@@ -684,10 +684,15 @@ class NodeManager extends AbstractManager {
       } else if (line.includes('syncing atx')) {
         sendStatus(NodeStartupState.SyncingAtxs);
         // Update ATXs count
-        this.atxWatchSubscription = this.activationService.watchForAnyATXs(() => {
-          this.atxCount += 1;
-          this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, this.atxCount);
-        });
+        this.atxWatchSubscription = this.activationService.watchForAnyATXs(
+          () => {
+            this.atxCount += 1;
+            this.mainWindow.webContents.send(
+              ipcConsts.UPDATE_ATX_COUNT,
+              this.atxCount
+            );
+          }
+        );
       } else if (
         line.includes('app started') ||
         line.includes('atxs synced') ||

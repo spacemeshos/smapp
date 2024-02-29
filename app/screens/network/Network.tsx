@@ -131,9 +131,7 @@ const Network = ({ history }) => {
   const isRestarting = useSelector(
     (state: RootState) => state.node.isRestarting
   );
-  const atxsCount = useSelector(
-    (state: RootState) => state.node.atxsCount
-  );
+  const atxsCount = useSelector((state: RootState) => state.node.atxsCount);
 
   const dispatch = useDispatch();
   const requestNodeRestart = () => dispatch(restartNode());

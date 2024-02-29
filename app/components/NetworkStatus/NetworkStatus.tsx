@@ -51,7 +51,9 @@ const getStartupStatusText = (startupStatus: NodeStartupState, atxsCount) => {
     case NodeStartupState.SyncingAtxs:
       return (
         <>
-          {atxsCount > 0 ? `Syncing Activations ({atxsCount})...` : 'Syncing Activations...'}
+          {atxsCount > 0
+            ? `Syncing Activations (${atxsCount})...`
+            : 'Syncing Activations...'}
           <Tooltip
             width={200}
             marginTop={-2}
@@ -95,7 +97,9 @@ const NetworkStatus = ({
       startupStatus !== NodeStartupState.Ready
     ) {
       return (
-        <ProgressLabel>{getStartupStatusText(startupStatus, atxsCount)}</ProgressLabel>
+        <ProgressLabel>
+          {getStartupStatusText(startupStatus, atxsCount)}
+        </ProgressLabel>
       );
     }
 

@@ -438,9 +438,8 @@ ipcRenderer.on(
   }
 );
 
-ipcRenderer.on(
-  ipcConsts.UPDATE_ATX_COUNT,
-  (_, amount) => store.dispatch(setAtxsCount(amount))
+ipcRenderer.on(ipcConsts.UPDATE_ATX_COUNT, (_, amount) =>
+  store.dispatch(setAtxsCount(amount))
 );
 
 export default EventsService;

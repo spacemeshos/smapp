@@ -52,5 +52,5 @@ package.json
 /desktop/dist/
 
 # Vendors & generated API
-/vendors
+/vendor
 /api
