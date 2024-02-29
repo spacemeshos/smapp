@@ -20,7 +20,7 @@ class MeshService extends NetServiceFactory<
   logger = Logger({ className: 'MeshService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'MeshService');
+    this.createNetService(PROTO_PATH, apiUrl, 'v1', 'MeshService');
   };
 
   getCurrentLayer = (): Promise<CurrentLayer> =>

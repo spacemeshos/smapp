@@ -51,7 +51,7 @@ class GlobalStateService extends NetServiceFactory<
   logger = Logger({ className: 'GlobalStateService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'GlobalStateService');
+    this.createNetService(PROTO_PATH, apiUrl, 'v1', 'GlobalStateService');
   };
 
   getGlobalStateHash = (): Promise<GlobalStateHash> =>
