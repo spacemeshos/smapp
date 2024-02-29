@@ -29,9 +29,10 @@ type Props = {
   isRestarting: boolean;
   isWalletMode: boolean;
   isShowMissingLibsMessage: boolean;
+  atxsCount: number;
 };
 
-const getStartupStatusText = (startupStatus: NodeStartupState) => {
+const getStartupStatusText = (startupStatus: NodeStartupState, atxsCount) => {
   switch (startupStatus) {
     case NodeStartupState.Starting:
       return 'Starting node...';
@@ -50,7 +51,7 @@ const getStartupStatusText = (startupStatus: NodeStartupState) => {
     case NodeStartupState.SyncingAtxs:
       return (
         <>
-          Syncing Activations...
+          {atxsCount > 0 ? `Syncing Activations ({atxsCount})...` : 'Syncing Activations...'}
           <Tooltip
             width={200}
             marginTop={-2}
@@ -74,6 +75,7 @@ const NetworkStatus = ({
   isRestarting,
   isWalletMode,
   isShowMissingLibsMessage,
+  atxsCount,
 }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.verifiedLayer && status.topLayer) {
@@ -93,7 +95,7 @@ const NetworkStatus = ({
       startupStatus !== NodeStartupState.Ready
     ) {
       return (
-        <ProgressLabel>{getStartupStatusText(startupStatus)}</ProgressLabel>
+        <ProgressLabel>{getStartupStatusText(startupStatus, atxsCount)}</ProgressLabel>
       );
     }
 

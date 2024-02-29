@@ -131,6 +131,9 @@ const Network = ({ history }) => {
   const isRestarting = useSelector(
     (state: RootState) => state.node.isRestarting
   );
+  const atxsCount = useSelector(
+    (state: RootState) => state.node.atxsCount
+  );
 
   const dispatch = useDispatch();
   const requestNodeRestart = () => dispatch(restartNode());
@@ -214,6 +217,7 @@ const Network = ({ history }) => {
             isRestarting={isRestarting}
             isWalletMode={isWalletMode}
             isShowMissingLibsMessage={isShowMissingLibsMessage}
+            atxsCount={atxsCount}
           />
         </GrayText>
       </DetailsRow>
