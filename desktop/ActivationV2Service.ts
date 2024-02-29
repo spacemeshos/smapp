@@ -1,8 +1,8 @@
 import { ProtoGrpcType } from '../api/generated';
-import { PublicService, SocketAddress } from '../shared/types';
+import { Activation__Output } from '../api/generated/spacemesh/v2alpha1/Activation';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
-import { Activation__Output } from '../api/generated/spacemesh/v2alpha1/Activation';
+import { getPrivateNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'vendor/api/spacemesh/v2alpha1/activation.proto';
 
@@ -13,18 +13,17 @@ class ActivationV2Service extends NetServiceFactory<
 > {
   logger = Logger({ className: 'ActivationV2Service' });
 
-  createService = (apiUrl?: SocketAddress | PublicService) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'v2alpha1', 'ActivationStreamService');
+  createService = () => {
+    this.createNetService(
+      PROTO_PATH,
+      getPrivateNodeConnectionConfig(),
+      'v2alpha1',
+      'ActivationStreamService'
+    );
   };
 
-  public watchForAnyATXs = (
-    handler: (payload: Activation__Output) => void
-  ) =>
-    this.runStream(
-      'Stream',
-      { watch: true },
-      handler
-    );
+  public watchForAnyATXs = (handler: (payload: Activation__Output) => void) =>
+    this.runStream('Stream', { watch: true }, handler);
 }
 
 export default ActivationV2Service;

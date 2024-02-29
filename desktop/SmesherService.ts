@@ -1,6 +1,5 @@
 import { ProtoGrpcType } from '../api/generated';
 import { PostSetupStatusStreamResponse__Output } from '../api/generated/spacemesh/v1/PostSetupStatusStreamResponse';
-import { SmesherIDResponse__Output } from '../api/generated/spacemesh/v1/SmesherIDResponse';
 
 import {
   DeviceType,
