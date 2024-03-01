@@ -35,7 +35,7 @@ jobs:
             platform: macos
             node: mac-arm64
             arch: arm64
-            quicksync: macos-m1
+            quicksync: macos-arm64
           - image: [self-hosted, linux, arm64]
             id: linux-arm64
             platform: linux
