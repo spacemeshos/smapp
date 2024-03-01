@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import styled, { css, keyframes } from 'styled-components';
-import { Button, Link, Tooltip } from '../../basicComponents';
-import { captureReactMessage, captureReactUserFeedback } from '../../sentry';
-import { smColors } from '../../vars';
+import styled from 'styled-components';
+import { eventsService } from '../../infra/eventsService';
+import SubHeader from '../../basicComponents/SubHeader';
+import { Button, Link } from '../../basicComponents';
 import { ExternalLinks } from '../../../shared/constants';
-import CopyButton from '../../basicComponents/CopyButton';
+import { smColors } from '../../vars';
 import Modal from './Modal';
 import BackButton from './BackButton';
 
@@ -12,11 +12,6 @@ const Container = styled.div`
   padding: 4px 12px;
   display: flex;
   margin-left: auto;
-`;
-
-const Row = styled.div`
-  display: flex;
-  width: 100%;
 `;
 
 const ReportButton = styled.div`
@@ -28,36 +23,17 @@ const ReportButton = styled.div`
   user-select: none;
 `;
 
-const Label = styled.div`
-  font-size: 16px;
-  line-height: 22px;
+const Message = styled.span`
   color: ${({ theme }) => theme.color.contrast};
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 25px;
+  padding-right: 40px;
 `;
 
-const Star = styled((props) => <span {...props}> *</span>)`
-  color: ${({ theme }) => theme.popups.states.error.backgroundColor};
-  position: relative;
-  bottom: 4px;
-  > * {
-    position: absolute;
-  }
-`;
-
-const InputWrapper = styled(
-  (props: { children?: any; label: string; required?: boolean }) => (
-    <div {...props}>
-      <Label>
-        {props.label}
-        {props.required && <Star />}
-      </Label>
-      {props.children}
-    </div>
-  )
-)`
+const Row = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
+  width: 100%;
 `;
 
 const ModalContainer = styled.div`
@@ -70,352 +46,73 @@ const ModalContainer = styled.div`
   margin-top: 8px;
 `;
 
-const ErrorMessage = styled.span`
-  color: ${({ theme }) => theme.colors.error};
-  margin-top: -20px;
-  margin-bottom: 10px;
-  font-size: 14px;
-`;
-
-const SuccemssMessage = styled.span`
-  color: ${({ theme }) => theme.color.contrast};
-  margin-bottom: 20px;
-  font-size: 14px;
-`;
-
-const ActualInput = styled((props) => <input {...props} />)<{
-  value?: string;
-  onKeyPress?: (event: any) => void;
-  onChange: (event: any) => void;
-  onFocus?: (event: any) => void;
-  onBlur?: (event: any) => void;
-  isDisabled?: any;
-  iconRight?: string;
-}>`
-  flex: 1;
-  width: 100%;
-  height: 38px;
-  padding: 8px 10px;
-  transition: background-color 100ms linear, border-color 100ms linear;
-
-  color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
-    },
-  }) => states.normal.color};
-  background-color: ${({
-    theme: {
-      form: {
-        input: { states },
-      },
-    },
-  }) => states.normal.backgroundColor};
-  ${({
-    theme: {
-      form: {
-        input: { states },
-      },
-    },
-  }) =>
-    css`
-      &:hover,
-      &:focus,
-      &:active {
-        background-color: ${states.focus.backgroundColor};
-        color: ${states.focus.color};
-      }
-    `}
-  font-size: 14px;
-  line-height: 16px;
-  outline: none;
-  cursor: text;
-  ${({ theme: { form } }) => css`
-    border-radius: ${form.input.boxRadius}px;
-  `}
-`;
-
-const StyledTextArea = styled((props) => <textarea {...props} rows={3} />)`
-  display: flex;
-  flex-direction: column;
-  resize: none;
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 0;
-  transition: background-color 100ms linear, border-color 100ms linear;
-  font-size: 14px;
-  line-height: 16px;
-  outline: none;
-  cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'text')};
-  ${({ theme: { form } }) => `
-  border-radius: ${form.input.boxRadius}px;`};
-`;
-
-const fadeInOut = keyframes`
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
-`;
-
-const CopiedBanner = styled.div`
-  position: absolute;
-  z-index: 10;
-  line-height: 1.466;
-  color: ${smColors.darkerGreen};
-  animation: 3s ${fadeInOut} ease-out;
-`;
-
-const ErrorIdentifier = styled.div<{ isCopied: boolean }>`
-  align-self: center;
-  line-height: 1.466;
-  cursor: inherit;
-  white-space: nowrap;
-
-  span {
-    visibility: ${(props) => props.isCopied && 'hidden'};
-  }
-`;
-
-const IdentifierSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-  align-items: center;
-`;
-
-const CopySection = styled.div`
-  display: flex;
-  border-radius: 10px;
-  padding: 10px;
-  background-color: ${smColors.black80Alpha2};
-`;
-
-const IssueDescriptionSection = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-interface FormFields {
-  name: string;
-  email: string;
-  comments: string;
-  title: string;
-}
-
-const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
-
 const FeedbackButton = () => {
   const [showReportDialog, setShowReportDialog] = useState(false);
-  const [
-    uniqIdentifierForSuccessDialog,
-    setUniqIdentifierForSuccessDialog,
-  ] = useState('');
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [userData, setUserData] = useState<FormFields>({
-    name: '',
-    email: '',
-    comments: '',
-    title: '',
-  });
-  const [fieldErrors, setFieldErrors] = useState({
-    name: '',
-    email: '',
-    comments: '',
-    title: '',
-  });
-
-  const resetForm = () =>
-    setUserData({
-      name: '',
-      email: '',
-      comments: '',
-      title: '',
-    });
-
-  const validate = () => {
-    const errors: Partial<Record<keyof FormFields, string>> = {};
-    const { email, title, comments } = userData;
-
-    // Common empty field check for all fields
-    Object.entries(userData).forEach(([key, value]) => {
-      if (!value.trim()) {
-        errors[key as keyof FormFields] = 'This field cannot be empty';
-      }
-    });
-
-    // Field-specific validations (only if not already flagged as empty)
-
-    if (!errors.email && !REGULAR_EXP_FOR_EMAIL_CHECK.test(email)) {
-      errors.email = 'Email should be valid';
-    }
-    const titleLen = title.replace(/\s/g, '').length;
-    if (!errors.title && (titleLen < 10 || titleLen > 60)) {
-      errors.title =
-        'Summary must contain between 10-60 characters (excluding spaces)';
-    }
-    const commentsLen = comments.replace(/\s/g, '').length;
-    if (!errors.comments && commentsLen < 30) {
-      errors.comments =
-        'Details must contain a minimum of 30 characters (excluding spaces)';
-    }
-    setFieldErrors(errors as FormFields);
-    return !Object.values(errors).some((error) => error);
-  };
-
-  const handleReport = () => {
-    if (!validate()) {
-      return;
-    }
-
-    const formData = {
-      event_id: captureReactMessage(`
-           User Reported: ${userData.title} By: ${userData.name}  email: ${userData.email}, 
-         `),
-      ...userData,
-    };
-
-    captureReactUserFeedback(formData);
-    resetForm();
-    setShowReportDialog(false);
-    setUniqIdentifierForSuccessDialog(formData.event_id);
-  };
-
-  const handleCloseSuccessMessageModal = () => {
-    setUniqIdentifierForSuccessDialog('');
-  };
-
   const openDiscord = () => window.open(ExternalLinks.Discord);
+  const openGitHub = () => window.open(ExternalLinks.GithubSMAppIssuePage);
+
+  const openLogFile = () => {
+    eventsService.showFileInFolder({ isLogFile: true });
+  };
 
   return (
     <Container>
-      {uniqIdentifierForSuccessDialog && (
-        <Modal header="The report was sent" indicatorColor={smColors.green}>
-          <SuccemssMessage>
-            Thank you for the report! The Spacemesh team will investigate it.
-            They may ask you to provide more details via email you have
-            specified.
-            <br />
-            <br />
-            <IdentifierSection>
-              <IssueDescriptionSection>
-                Issue ID
-                <Tooltip
-                  width={140}
-                  text="You can copy and share it with the Spacemesh team."
-                />
-                :
-              </IssueDescriptionSection>
-              <CopySection>
-                <ErrorIdentifier isCopied={isCopied}>
-                  {isCopied && <CopiedBanner>Copied</CopiedBanner>}
-                  <span>{uniqIdentifierForSuccessDialog}</span>
-                </ErrorIdentifier>
-                <CopyButton
-                  onClick={(val) => setIsCopied(Boolean(val))}
-                  value={uniqIdentifierForSuccessDialog}
-                />
-              </CopySection>
-            </IdentifierSection>
-            <br />
-            <Link
-              onClick={openDiscord}
-              text="Join Our Discord Community"
-              style={{ fontSize: 16, lineHeight: '22px' }}
-            />
-          </SuccemssMessage>
-          <Button onClick={handleCloseSuccessMessageModal} text="CLOSE" />
-        </Modal>
-      )}
       {showReportDialog && (
         <Modal
-          header="Report an issue"
-          height={580}
+          header="Help Improve Smapp"
+          height={450}
+          width={600}
           indicatorColor={smColors.red}
         >
           <ModalContainer>
-            <InputWrapper label="Your Discord handle or name" required>
-              <ActualInput
-                value={userData.name}
-                type="text"
-                required
-                placeholder="nickname"
-                onChange={(e: any) =>
-                  setUserData((userData) => ({
-                    ...userData,
-                    name: e.target.value,
-                  }))
-                }
+            <SubHeader>
+              ENCOUNTERED AN ISSUE OR HAVE A BRILLIANT IDEA?
+            </SubHeader>
+            <Message>
+              <Link
+                onClick={openGitHub}
+                text="SHARE IT WITH US!"
+                style={{
+                  fontSize: 16,
+                  lineHeight: '20px',
+                  paddingBottom: 20,
+                }}
               />
-            </InputWrapper>
-            {Boolean(fieldErrors.name) && (
-              <ErrorMessage>{fieldErrors.name}</ErrorMessage>
-            )}
-            <InputWrapper label="E-mail" required>
-              <ActualInput
-                value={userData.email}
-                type="email"
-                required
-                placeholder="john.doe@gmail.com"
-                onChange={(e: any) =>
-                  setUserData((userData) => ({
-                    ...userData,
-                    email: e.target.value,
-                  }))
-                }
+              Including your logs wiil help us understand better and act faster.{' '}
+              <Link
+                onClick={openLogFile}
+                text="Your log files are here."
+                style={{ fontSize: 14, display: 'inline' }}
               />
-            </InputWrapper>
-            {Boolean(fieldErrors.email) && (
-              <ErrorMessage>{fieldErrors.email}</ErrorMessage>
-            )}
-            <InputWrapper label="Issue overview" required>
-              <ActualInput
-                value={userData.title}
-                type="text"
-                placeholder="Concise description of the issue. 10-60 chars"
-                onChange={(e: any) =>
-                  setUserData((userData) => ({
-                    ...userData,
-                    title: e.target.value,
-                  }))
-                }
-              />
-            </InputWrapper>
-            {Boolean(fieldErrors.title) && (
-              <ErrorMessage>{fieldErrors.title}</ErrorMessage>
-            )}
-            <InputWrapper label="Details" required>
-              <StyledTextArea
-                value={userData.comments}
-                required
-                placeholder="Provide clear steps to reproduce the issue, including expected and actual behaviors."
-                onChange={(e: any) =>
-                  setUserData((userData) => ({
-                    ...userData,
-                    comments: e.target.value,
-                  }))
-                }
-              />
-            </InputWrapper>
-            {Boolean(fieldErrors.comments) && (
-              <ErrorMessage>{fieldErrors.comments}</ErrorMessage>
-            )}
+              <br />
+              <br />
+              <Link
+                onClick={openDiscord}
+                text="Join our Discord"
+                style={{
+                  fontSize: 14,
+                  lineHeight: '20px',
+                  display: 'inline',
+                }}
+              />{' '}
+              for more information, support, or to share your thoughts with
+              fellow Smeshers.
+            </Message>
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
           <Row>
             <Button
               style={{ marginLeft: 'auto' }}
-              text="REPORT"
-              onClick={handleReport}
+              text="CLOSE"
+              onClick={() => {
+                setShowReportDialog(false);
+              }}
             />
           </Row>
         </Modal>
       )}
-
       <ReportButton
         onClick={() => {
-          resetForm();
           setShowReportDialog(true);
         }}
       >
