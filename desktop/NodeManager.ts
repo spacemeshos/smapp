@@ -5,7 +5,7 @@ import { createInterface } from 'readline';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
-import { debounce } from 'throttle-debounce';
+import { debounce, throttle } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
 import { tap } from 'ramda';
@@ -624,6 +624,10 @@ class NodeManager extends AbstractManager {
     );
   };
 
+  private sendAtxsCount = throttle(1000, () => {
+    this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, this.atxCount);
+  });
+
   private watchForStartupStatus = () => {
     if (!this.nodeProcess) {
       throw new Error(
@@ -687,10 +691,7 @@ class NodeManager extends AbstractManager {
         this.atxWatchSubscription = this.activationService.watchForAnyATXs(
           () => {
             this.atxCount += 1;
-            this.mainWindow.webContents.send(
-              ipcConsts.UPDATE_ATX_COUNT,
-              this.atxCount
-            );
+            this.sendAtxsCount();
           }
         );
       } else if (
