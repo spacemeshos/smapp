@@ -113,7 +113,7 @@ class NodeManager extends AbstractManager {
 
   private atxCount = 0;
 
-  private atxWatchSubscription = () => {};
+  private stopWatchingForAtxs = () => {};
 
   private smesherManager: SmesherManager;
 
@@ -239,6 +239,7 @@ class NodeManager extends AbstractManager {
   // Before deleting
   unsubscribe = async () => {
     logger.log('unsubscribe', null);
+    this.stopWatchingForAtxs();
     await this.stopNode();
     await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
@@ -436,6 +437,11 @@ class NodeManager extends AbstractManager {
     this.activationService.createService();
     // Wait for the GRPC API
     await this.isNodeAlive();
+    // Watch for activations
+    this.stopWatchingForAtxs = this.activationService.watchForAnyATXs(() => {
+      this.atxCount += 1;
+      this.sendAtxsCount();
+    });
     // update node status once by query request
     await this.updateNodeStatus();
     // and activate streams
@@ -687,21 +693,12 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.SyncingMaliciousProofs);
       } else if (line.includes('syncing atx')) {
         sendStatus(NodeStartupState.SyncingAtxs);
-        // Update ATXs count
-        this.atxWatchSubscription = this.activationService.watchForAnyATXs(
-          () => {
-            this.atxCount += 1;
-            this.sendAtxsCount();
-          }
-        );
       } else if (
         line.includes('app started') ||
         line.includes('atxs synced') ||
         line.includes('malicious IDs synced')
       ) {
         sendStatus(NodeStartupState.Ready);
-        // Unsubscribe
-        this.atxWatchSubscription();
       }
     });
   };
