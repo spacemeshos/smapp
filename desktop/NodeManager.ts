@@ -5,7 +5,7 @@ import { createInterface } from 'readline';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
-import { debounce, throttle } from 'throttle-debounce';
+import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
 import { tap } from 'ramda';
@@ -110,8 +110,6 @@ class NodeManager extends AbstractManager {
   private nodeService: NodeService;
 
   private activationService: ActivationV2Service;
-
-  private atxCount = 0;
 
   private stopWatchingForAtxs = () => {};
 
@@ -438,10 +436,10 @@ class NodeManager extends AbstractManager {
     // Wait for the GRPC API
     await this.isNodeAlive();
     // Watch for activations
-    this.stopWatchingForAtxs = this.activationService.watchForAnyATXs(() => {
-      this.atxCount += 1;
-      this.sendAtxsCount();
+    const ival = this.activationService.watchForAtxAmount((amount) => {
+      this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, amount);
     });
+    this.stopWatchingForAtxs = () => clearInterval(ival);
     // update node status once by query request
     await this.updateNodeStatus();
     // and activate streams
@@ -629,10 +627,6 @@ class NodeManager extends AbstractManager {
       this.nodeStartupState
     );
   };
-
-  private sendAtxsCount = throttle(1000, () => {
-    this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, this.atxCount);
-  });
 
   private watchForStartupStatus = () => {
     if (!this.nodeProcess) {
