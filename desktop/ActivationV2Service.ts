@@ -1,29 +1,34 @@
 import { ProtoGrpcType } from '../api/generated';
-import { Activation__Output } from '../api/generated/spacemesh/v2alpha1/Activation';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
-import { getPrivateNodeConnectionConfig } from './main/utils';
+import { getLocalNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'vendor/api/spacemesh/v2alpha1/activation.proto';
 
 class ActivationV2Service extends NetServiceFactory<
   ProtoGrpcType,
   'v2alpha1',
-  'ActivationStreamService'
+  'ActivationService'
 > {
   logger = Logger({ className: 'ActivationV2Service' });
 
   createService = () => {
     this.createNetService(
       PROTO_PATH,
-      getPrivateNodeConnectionConfig(),
+      getLocalNodeConnectionConfig(),
       'v2alpha1',
-      'ActivationStreamService'
+      'ActivationService'
     );
   };
 
-  public watchForAnyATXs = (handler: (payload: Activation__Output) => void) =>
-    this.runStream('Stream', { watch: true }, handler);
+  public watchForAtxAmount = (handler: (amount: number) => void) =>
+    setInterval(() => {
+      this.callService('ActivationsCount', {})
+        .then((res) => handler(res.count))
+        .catch((err) => {
+          this.logger.error('watchForAtxAmount', err);
+        });
+    }, 30000);
 }
 
 export default ActivationV2Service;
