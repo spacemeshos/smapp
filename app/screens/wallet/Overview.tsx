@@ -57,6 +57,9 @@ const Overview = ({ history }: RouteComponentProps) => {
         Object.values(state?.wallet?.transactions?.[account.address] || {})) ||
       []
   );
+  const isNodeSynced = useSelector(
+    (state: RootState) => state.node.status?.isSynced || false
+  );
 
   const isSmeshing = useSelector(
     (state: RootState) =>
@@ -121,6 +124,30 @@ const Overview = ({ history }: RouteComponentProps) => {
       </MiddleSectionText>
     );
 
+  const renderActionButton = () =>
+    !isAccountSpawned ? (
+      <Button
+        onClick={navigateToSpawnAccount}
+        text="SPAWN"
+        isPrimary
+        width={225}
+        img={sendIcon}
+        imgPosition="after"
+        style={{ marginBottom: 20 }}
+        isDisabled={isAccountPendingSpawnTx}
+      />
+    ) : (
+      <Button
+        onClick={navigateToSendCoins}
+        text="SEND"
+        isPrimary={false}
+        width={225}
+        img={sendIcon}
+        imgPosition="after"
+        style={{ marginBottom: 20 }}
+      />
+    );
+
   return (
     <Wrapper>
       <MiddleSection>
@@ -130,26 +157,14 @@ const Overview = ({ history }: RouteComponentProps) => {
           --
         </MiddleSectionHeader>
         {renderMiddleSection()}
-        {!isAccountSpawned ? (
-          <Button
-            onClick={navigateToSpawnAccount}
-            text="SPAWN"
-            isPrimary
-            width={225}
-            img={sendIcon}
-            imgPosition="after"
-            style={{ marginBottom: 20 }}
-            isDisabled={isAccountPendingSpawnTx}
-          />
+        {isNodeSynced ? (
+          renderActionButton()
         ) : (
           <Button
-            onClick={navigateToSendCoins}
-            text="SEND"
-            isPrimary={false}
+            onClick={() => {}}
+            text="WAITING FOR NODE TO SYNC"
             width={225}
-            img={sendIcon}
-            imgPosition="after"
-            style={{ marginBottom: 20 }}
+            isDisabled
           />
         )}
         <Button
