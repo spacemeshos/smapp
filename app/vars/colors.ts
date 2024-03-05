@@ -15,7 +15,7 @@ const smColors = {
   disabledGray10Alpha: 'rgba(188, 188, 189, 0.1)',
   purple: '#AA58B1',
   darkerPurple: '#814387',
-  blue: '#1776E3',
+  blue: '#588ecc',
   darkerBlue: '#0E4F9A',
   orange: '#F79F53',
   darkOrange: '#EC5C3D',

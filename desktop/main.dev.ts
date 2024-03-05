@@ -23,7 +23,6 @@ import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
-import { init, captureMainException } from './sentry';
 import { cleanupTmpDir } from './testMode';
 import Logger from './logger';
 
@@ -43,8 +42,6 @@ StoreService.init();
 
 // State
 const context = getDefaultAppContext();
-
-init();
 
 // Check arguments
 if (
@@ -68,4 +65,7 @@ app
     context.state = startApp();
     return context.state;
   })
-  .catch(captureMainException);
+  .catch((error) => {
+    logger.error('An error occurred during app initialization', error);
+    process.exit(1);
+  });

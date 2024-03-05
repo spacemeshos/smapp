@@ -4,8 +4,6 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import SentryWebpackPlugin from '@sentry/webpack-plugin';
-
 export default {
   externals: [],
 
@@ -40,18 +38,6 @@ export default {
       NODE_ENV: 'production'
     }),
     new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
-  ].concat(
-    process.env.SENTRY_AUTH_TOKEN ? [
-      new SentryWebpackPlugin({
-        include: '.',
-        ignoreFile: '.sentrycliignore',
-        ignore: ['node_modules', 'webpack.config.js'],
-        release: 'smashapp@' + process.env.npm_package_version,
-        org: 'spacemesh',
-        project: 'smapp',
-        authToken: process.env.SENTRY_AUTH_TOKEN
-      })
-    ] : []
-  )
+  ]
 };
 

@@ -7,7 +7,6 @@
 
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { captureException } from '@sentry/react';
 import { connect } from 'react-redux';
 import { Modal } from './components/common';
 import { Button } from './basicComponents';
@@ -82,8 +81,6 @@ class ErrorBoundary extends Component<Props, State> {
     { componentStack }: { componentStack: string }
   ) {
     console.log(`${error.message} ${componentStack}`); // eslint-disable-line no-console
-    captureException(error);
-
     const { setUiError } = this.props;
     const failedComponentMatch = componentStack
       .split('\n')

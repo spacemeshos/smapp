@@ -11,6 +11,7 @@ const Wrapper = styled.div<{
   line-height: 17px;
   font-weight: ${({ isPrimary }) => (isPrimary ? 400 : 800)};
   text-decoration: underline;
+  text-underline-offset: 3px;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
       ? `color: ${smColors.disabledGray};`
