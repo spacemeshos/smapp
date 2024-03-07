@@ -57,6 +57,9 @@ const Overview = ({ history }: RouteComponentProps) => {
         Object.values(state?.wallet?.transactions?.[account.address] || {})) ||
       []
   );
+  const isNodeSynced = useSelector(
+    (state: RootState) => state.node.status?.isSynced || false
+  );
 
   const isSmeshing = useSelector(
     (state: RootState) =>
@@ -65,6 +68,9 @@ const Overview = ({ history }: RouteComponentProps) => {
   const isCreatingPosData = useSelector(
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS
+  );
+  const explorerUrl = useSelector(
+    (state: RootState) => state.network.explorerUrl
   );
 
   const navigateToSpawnAccount = async () => {
@@ -87,6 +93,8 @@ const Overview = ({ history }: RouteComponentProps) => {
   };
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
+  const navigateToExplorer = () =>
+    window.open(explorerUrl.concat(`accounts/${account.address}`));
 
   const pendingSpawnTx = txs.find(
     (tx) =>
@@ -107,8 +115,31 @@ const Overview = ({ history }: RouteComponentProps) => {
       tx.status === TxState.SUCCESS
   );
 
-  const renderMiddleSection = () =>
-    isAccountSpawned ? (
+  const renderMiddleSection = () => {
+    if (!isNodeSynced) {
+      return (
+        <MiddleSectionText>
+          <strong>The node is syncing...</strong>
+          <br />
+          Please wait until the node sync and then you will be able to initiate
+          transactions.
+          <br />
+          <br />
+          You already can request SMH but it would not be displayed until the
+          node is synced to the layer such transaction was sent.
+          <br />
+          <br />
+          Use&nbsp;
+          <Link
+            onClick={navigateToExplorer}
+            text="Explorer"
+            style={{ marginRight: 'auto', display: 'inline-block' }}
+          />
+          &nbsp;to check incoming transactions.
+        </MiddleSectionText>
+      );
+    }
+    return isAccountSpawned ? (
       <MiddleSectionText>
         Send SMH to anyone, or request to receive SMH.
       </MiddleSectionText>
@@ -120,6 +151,31 @@ const Overview = ({ history }: RouteComponentProps) => {
         else you will need to spawn account first.
       </MiddleSectionText>
     );
+  };
+
+  const renderActionButton = () =>
+    !isAccountSpawned ? (
+      <Button
+        onClick={navigateToSpawnAccount}
+        text="SPAWN"
+        isPrimary
+        width={225}
+        img={sendIcon}
+        imgPosition="after"
+        style={{ marginBottom: 20 }}
+        isDisabled={isAccountPendingSpawnTx}
+      />
+    ) : (
+      <Button
+        onClick={navigateToSendCoins}
+        text="SEND"
+        isPrimary={false}
+        width={225}
+        img={sendIcon}
+        imgPosition="after"
+        style={{ marginBottom: 20 }}
+      />
+    );
 
   return (
     <Wrapper>
@@ -130,26 +186,14 @@ const Overview = ({ history }: RouteComponentProps) => {
           --
         </MiddleSectionHeader>
         {renderMiddleSection()}
-        {!isAccountSpawned ? (
-          <Button
-            onClick={navigateToSpawnAccount}
-            text="SPAWN"
-            isPrimary
-            width={225}
-            img={sendIcon}
-            imgPosition="after"
-            style={{ marginBottom: 20 }}
-            isDisabled={isAccountPendingSpawnTx}
-          />
+        {isNodeSynced ? (
+          renderActionButton()
         ) : (
           <Button
-            onClick={navigateToSendCoins}
-            text="SEND"
-            isPrimary={false}
+            onClick={() => {}}
+            text="WAITING FOR NODE TO SYNC"
             width={225}
-            img={sendIcon}
-            imgPosition="after"
-            style={{ marginBottom: 20 }}
+            isDisabled
           />
         )}
         <Button
