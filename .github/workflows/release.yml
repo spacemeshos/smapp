@@ -50,6 +50,8 @@ jobs:
       # Prepare workspace
       - name: Check out Git repository
         uses: actions/checkout@v2
+        with:
+          submodules: 'true'
 
       - name: Install Node.js, NPM
         id: setup-node
