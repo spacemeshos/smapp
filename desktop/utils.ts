@@ -45,7 +45,15 @@ export const fetch = async (url: string, options?: RequestInit) => {
 };
 
 export const fetchJSON = async (url: string) =>
-  fetch(url).then((res) => res.json());
+  fetch(url).then((res) => {
+    if (!res.ok) {
+      logger.error('fetchJSON', { url, status: res.status });
+      throw new Error(
+        `Cannot fetch ${url}.\nResponse status code: ${res.status}`
+      );
+    }
+    return res.json();
+  });
 
 export const fetchNodeConfig = async (
   url: string,
@@ -53,14 +61,12 @@ export const fetchNodeConfig = async (
 ): Promise<NodeConfig> =>
   isTestMode() && url === STANDALONE_GENESIS_EXTRA
     ? getTestModeNodeConfig()
-    : fetch(
+    : fetchJSON(
         patchQueryString(url, {
           ...(await getEnvInfo()),
           ...(prevHash ? { hash: prevHash } : {}),
         })
-      )
-        .then((res) => res.text())
-        .then((res) => JSON.parse(res));
+      );
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 
