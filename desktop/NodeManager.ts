@@ -234,6 +234,18 @@ class NodeManager extends AbstractManager {
     this.$nodeConfig = $nodeConfig;
   }
 
+  private sendToMainWindow = (eventName: string, data: any) => {
+    if (this.mainWindow.isDestroyed()) {
+      logger.log(
+        'sendToMainWindow',
+        'MainWindow is already destroyed. Cancel:',
+        { eventName, data }
+      );
+      return;
+    }
+    this.mainWindow.webContents.send(eventName, data);
+  };
+
   // Before deleting
   unsubscribe = async () => {
     logger.log('unsubscribe', null);
@@ -254,10 +266,7 @@ class NodeManager extends AbstractManager {
     const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
-          this.mainWindow.webContents.send(
-            ipcConsts.N_M_GET_VERSION_AND_BUILD,
-            payload
-          )
+          this.sendToMainWindow(ipcConsts.N_M_GET_VERSION_AND_BUILD, payload)
         )
         .catch((error) => this.pushNodeError(error));
     const setNodePort = (_event, request) => {
@@ -437,7 +446,7 @@ class NodeManager extends AbstractManager {
     await this.isNodeAlive();
     // Watch for activations
     const ival = this.activationService.watchForAtxAmount((amount) => {
-      this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, amount);
+      this.sendToMainWindow(ipcConsts.UPDATE_ATX_COUNT, amount);
     });
     this.stopWatchingForAtxs = () => clearInterval(ival);
     // update node status once by query request
@@ -601,7 +610,7 @@ class NodeManager extends AbstractManager {
     const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
       posInitStart: Date.now(),
     });
-    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, metadata);
+    this.sendToMainWindow(ipcConsts.SMESHER_METADATA_INFO, metadata);
 
     // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config
@@ -622,7 +631,10 @@ class NodeManager extends AbstractManager {
       this.nodeStartupState = status;
       NodeStartupStateStore.setStatus(status);
     }
-    this.mainWindow.webContents.send(
+    if (this.mainWindow.isDestroyed()) {
+      return;
+    }
+    this.sendToMainWindow(
       ipcConsts.N_M_NODE_STARTUP_STATUS,
       this.nodeStartupState
     );
@@ -769,10 +781,7 @@ class NodeManager extends AbstractManager {
           available,
         };
 
-        this.mainWindow.webContents.send(
-          ipcConsts.UPDATE_QUICKSYNC_STATUS,
-          result
-        );
+        this.sendToMainWindow(ipcConsts.UPDATE_QUICKSYNC_STATUS, result);
         logger.log('runQuicksyncCheck', result);
         return resolve(result);
       });
@@ -1126,7 +1135,7 @@ class NodeManager extends AbstractManager {
     this.$_nodeStatus.next(status);
     if (this.nodeProcess) {
       // Send the status only if Node process in up
-      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+      this.sendToMainWindow(ipcConsts.N_M_SET_NODE_STATUS, status);
     }
   });
 
@@ -1153,7 +1162,7 @@ class NodeManager extends AbstractManager {
 
     if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // Send only critical errors
-      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
+      this.sendToMainWindow(ipcConsts.N_M_SET_NODE_ERROR, error);
     }
   });
 
