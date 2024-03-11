@@ -65,7 +65,7 @@ const CannotFetchConfigsError = () => {
 
   return (
     <ReactPortal modalId="spacemesh-folder-permission">
-      <Modal header="Error" subHeader={subheader} width={600} height={450}>
+      <Modal header="Error" subHeader={subheader} width={600} height={480}>
         <ErrorMessage>
           <RedText>
             Error occured during downloading the file:{'\n'}
