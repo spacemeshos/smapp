@@ -42,6 +42,8 @@ const getStartupStatusText = (startupStatus: NodeStartupState, atxsCount) => {
       return 'Running database migrations...';
     case NodeStartupState.InitializingTortoise:
       return 'Initializing Tortoise...';
+    case NodeStartupState.InitializedTortoise:
+      return 'Waiting for Node readiness...';
     case NodeStartupState.PreparingCache:
       return 'Preparing node cache...';
     case NodeStartupState.Vacuuming:
