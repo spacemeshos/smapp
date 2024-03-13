@@ -270,7 +270,7 @@ const SmesherStatus = ({
         </SmesherId>
       </>
     ))}
-    is&nbsp;
+    &nbsp;is&nbsp;
     <StatusSpan status={status}> {status ? 'ONLINE' : ' OFFLINE'} </StatusSpan>
     &nbsp;on {networkName}.
   </SubHeader>
