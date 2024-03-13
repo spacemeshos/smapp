@@ -68,11 +68,7 @@ const GenericModal = () => {
             <ButtonNew
               key={ix}
               isPrimary={btn.primary || false}
-              onClick={
-                btn.action === 'close'
-                  ? () => close()
-                  : handleButtonClick(btn.action)
-              }
+              onClick={handleButtonClick(btn.action)}
               text={btn.label}
             />
           ))}
