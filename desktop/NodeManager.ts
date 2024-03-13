@@ -34,7 +34,10 @@ import {
   isLocalStateFarBehind,
   isQuicksyncAvailable,
 } from '../shared/quicksync';
-import { QuicksyncStatus } from '../shared/types/quicksync';
+import {
+  PausedQuicksyncStatus,
+  QuicksyncStatus,
+} from '../shared/types/quicksync';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -42,7 +45,7 @@ import NodeService, {
   StatusStreamHandler,
 } from './NodeService';
 import SmesherManager from './SmesherManager';
-import { createDebouncePool, getSpawnErrorReason } from './utils';
+import { createDebouncePool, fetch, getSpawnErrorReason } from './utils';
 import { isEmptyDir } from './fsUtils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import {
@@ -466,6 +469,7 @@ class NodeManager extends AbstractManager {
   runQuicksyncPrompt = async (qsStatus: QuicksyncStatus) => {
     try {
       hideGenericModal(this.mainWindow.webContents);
+
       const prompt = await showGenericPrompt(this.mainWindow.webContents, {
         title: 'Run a Quicksync?',
         message: [
@@ -485,6 +489,38 @@ class NodeManager extends AbstractManager {
       });
 
       if (prompt) {
+        if (qsStatus.paused) {
+          const downloaded = (
+            qsStatus.paused.downloaded /
+            (1024 * 1024)
+          ).toFixed(1);
+          const total = (qsStatus.paused.total / (1024 * 1024)).toFixed(1);
+          const percent = (
+            (qsStatus.paused.downloaded / qsStatus.paused.total) *
+            100
+          ).toFixed(2);
+
+          const resume = await showGenericPrompt(this.mainWindow.webContents, {
+            title: 'Resume interrupted quicksync?',
+            message: [
+              'You have an incomplete download:',
+              `Layer: ${qsStatus.paused.layer}`,
+              `Progress: ${downloaded} MB / ${total} MB (${percent}%)`,
+              '',
+              'Do you want to resume downloading it?',
+              `Or download from scratch for layer: ${qsStatus.available}?`,
+            ].join('\n'),
+            confirmTitle: 'Yes, resume',
+            cancelTitle: 'Download from scratch',
+          });
+          if (!resume) {
+            const { urlFile, downloadFile } = this.getQuicksyncFiles(
+              this.getNodeDataPath()
+            );
+            await fse.remove(urlFile);
+            await fse.remove(downloadFile);
+          }
+        }
         await this.runQuicksyncDownload();
       }
     } catch (err) {
@@ -717,13 +753,65 @@ class NodeManager extends AbstractManager {
       getShortGenesisId(this.genesisID)
     );
 
-  private runQuicksyncCheck = () => {
+  private getQuicksyncFiles = (nodeData: string) => {
+    return {
+      urlFile: path.resolve(nodeData, 'state.url'),
+      downloadFile: path.resolve(nodeData, 'state.download'),
+    };
+  };
+
+  private checkForPausedQuicksync = async (
+    nodeData: string
+  ): Promise<PausedQuicksyncStatus | null> => {
+    const { urlFile, downloadFile } = this.getQuicksyncFiles(nodeData);
+    try {
+      const exists = await fse.pathExists(downloadFile);
+      if (!exists) {
+        // Remove URL file if nothing was downloaded
+        if (await fse.pathExists(urlFile)) {
+          await fse.remove(urlFile);
+        }
+        // And return that there is nothing to resume downloading
+        return null;
+      }
+      const url = await fse.readFile(urlFile, 'utf-8');
+      const layer = parseInt(url.match(/(\d+)\.sql\.(zip|zst)$/i)?.[0] || '0');
+      const resp = await fetch(url, { method: 'HEAD' });
+      const contentLength = resp.headers.get('content-length');
+      if (!resp.ok || !contentLength) {
+        throw new Error(
+          `Cannot fetch the size of trusted state: ${url} (Response ${resp.status}). Dropping files and starting over.`
+        );
+      }
+      const total = parseInt(contentLength);
+      const stat = await fse.stat(downloadFile);
+      const downloaded = stat.size;
+      return {
+        layer,
+        downloaded,
+        total,
+      };
+    } catch (err) {
+      logger.error('checkForPausedQuicksync', err, { urlFile, downloadFile });
+      try {
+        await fse.remove(urlFile);
+        await fse.remove(downloadFile);
+      } catch (err) {
+        logger.error('checkForPausedQuicksync.removeFiles', err);
+      }
+      return null;
+    }
+  };
+
+  private runQuicksyncCheck = async () => {
     const bin = getQuicksyncPath();
+    const nodeDataDir = this.getNodeDataPath();
+    const paused = await this.checkForPausedQuicksync(nodeDataDir);
     return new Promise<QuicksyncStatus>((resolve, reject) => {
       const args = [
         'check',
         '--node-data',
-        this.getNodeDataPath(),
+        nodeDataDir,
         '--go-spacemesh-path',
         getNodePath(),
       ];
@@ -779,6 +867,7 @@ class NodeManager extends AbstractManager {
           db,
           current,
           available,
+          paused,
         };
 
         this.sendToMainWindow(ipcConsts.UPDATE_QUICKSYNC_STATUS, result);
@@ -788,12 +877,13 @@ class NodeManager extends AbstractManager {
     }).catch((err) => {
       logger.error('runQuicksyncCheck', err);
       // Fallback to default syncing
-      return {
-        synced: true,
+      const res: QuicksyncStatus = {
         db: 0,
         current: 0,
         available: 0,
+        paused: null,
       };
+      return res;
     });
   };
 
