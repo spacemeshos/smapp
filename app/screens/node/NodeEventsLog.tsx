@@ -15,8 +15,10 @@ import { RootState } from '../../types';
 import { NodeEvent } from '../../../shared/types';
 import { epochByLayer, nextEpochTime } from '../../../shared/layerUtils';
 import { BackButton, CorneredContainer } from '../../components/common';
+import { getEventPayload, toHexString } from '../../../shared/utils';
 import { safeReactKey, setRef } from '../../infra/utils';
 import { MainPath } from '../../routerPaths';
+import Address, { AddressType } from '../../components/common/Address';
 import { getNodeEventStatusColor } from './nodeEventUtils';
 import NodeEventActivityRow from './NodeEventActivityRow';
 
@@ -118,6 +120,27 @@ const NoWrap = styled.span`
   white-space: nowrap;
 `;
 
+const ensureSmesherIdType = (s: string | Buffer | Uint8Array | undefined) => {
+  if (!s) return null;
+  if (typeof s === 'string') return s;
+  return toHexString(s);
+};
+
+const renderSmesherID = (e: NodeEvent) => {
+  const payload = getEventPayload(e);
+  if (!payload || !('smesher' in payload)) {
+    return null;
+  }
+  const smesherId = ensureSmesherIdType(payload.smesher);
+  if (!smesherId) return null;
+  return (
+    <EventText>
+      Smesher&nbsp;ID:&nbsp;
+      <Address type={AddressType.SMESHER} address={smesherId} isHex />
+    </EventText>
+  );
+};
+
 const NodeEventsLog = ({ history }: RouteComponentProps) => {
   const status = useSelector((state: RootState) => state.node.status);
   const genesisTime = useSelector(
@@ -179,6 +202,7 @@ const NodeEventsLog = ({ history }: RouteComponentProps) => {
             <CustomTimeAgo time={e.timestamp} />
           </NoWrap>
           <EventText>{NodeEventActivityRow(e)}</EventText>
+          {renderSmesherID(e)}
         </TextWrapper>
       </EventRow>
     );

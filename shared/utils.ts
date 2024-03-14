@@ -143,6 +143,14 @@ export const getEventType = (event: NodeEvent): Event['details'] => {
   return eventType;
 };
 
+export const getEventPayload = (event: NodeEvent) => {
+  const eventName = getEventType(event);
+  if (!eventName) {
+    throw new Error(`Cannot get NodeEvent payload: ${JSON.stringify(event)}`);
+  }
+  return event[eventName];
+};
+
 export const generateGenesisID = (genesisTime: string, extraData: string) => {
   return `${toHexString(hash(genesisTime + extraData)).substring(0, 40)}`;
 };
