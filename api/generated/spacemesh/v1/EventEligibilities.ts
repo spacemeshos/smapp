@@ -8,6 +8,7 @@ export interface EventEligibilities {
   'atx'?: (Buffer | Uint8Array | string);
   'activeSetSize'?: (number);
   'eligibilities'?: (_spacemesh_v1_ProposalEligibility)[];
+  'smesher'?: (Buffer | Uint8Array | string);
 }
 
 export interface EventEligibilities__Output {
@@ -16,4 +17,5 @@ export interface EventEligibilities__Output {
   'atx': (Buffer);
   'activeSetSize': (number);
   'eligibilities': (_spacemesh_v1_ProposalEligibility__Output)[];
+  'smesher': (Buffer);
 }
