@@ -17,6 +17,7 @@ export enum NodeStartupState {
   Compacting = 'Compacting',
   RunningMigrations = 'RunningMigrations',
   InitializingTortoise = 'InitializingTortoise',
+  InitializedTortoise = 'InitializedTortoise',
   PreparingCache = 'PreparingCache',
   Vacuuming = 'Vacuuming',
   VerifyingLayers = 'VerifyingLayers',
