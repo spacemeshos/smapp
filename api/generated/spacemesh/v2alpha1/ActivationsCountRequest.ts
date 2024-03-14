@@ -3,8 +3,10 @@
 
 export interface ActivationsCountRequest {
   'epoch'?: (number);
+  '_epoch'?: "epoch";
 }
 
 export interface ActivationsCountRequest__Output {
-  'epoch': (number);
+  'epoch'?: (number);
+  '_epoch': "epoch";
 }

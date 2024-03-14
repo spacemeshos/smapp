@@ -8,6 +8,7 @@ export interface EventPoetWaitRound {
   'publish'?: (number);
   'wait'?: (_google_protobuf_Duration | null);
   'until'?: (_google_protobuf_Timestamp | null);
+  'smesher'?: (Buffer | Uint8Array | string);
 }
 
 export interface EventPoetWaitRound__Output {
@@ -15,4 +16,5 @@ export interface EventPoetWaitRound__Output {
   'publish': (number);
   'wait': (_google_protobuf_Duration__Output | null);
   'until': (_google_protobuf_Timestamp__Output | null);
+  'smesher': (Buffer);
 }

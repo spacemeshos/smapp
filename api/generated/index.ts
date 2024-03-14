@@ -7,6 +7,7 @@ import type { DebugServiceClient as _spacemesh_v1_DebugServiceClient, DebugServi
 import type { GlobalStateServiceClient as _spacemesh_v1_GlobalStateServiceClient, GlobalStateServiceDefinition as _spacemesh_v1_GlobalStateServiceDefinition } from './spacemesh/v1/GlobalStateService';
 import type { MeshServiceClient as _spacemesh_v1_MeshServiceClient, MeshServiceDefinition as _spacemesh_v1_MeshServiceDefinition } from './spacemesh/v1/MeshService';
 import type { NodeServiceClient as _spacemesh_v1_NodeServiceClient, NodeServiceDefinition as _spacemesh_v1_NodeServiceDefinition } from './spacemesh/v1/NodeService';
+import type { PostInfoServiceClient as _spacemesh_v1_PostInfoServiceClient, PostInfoServiceDefinition as _spacemesh_v1_PostInfoServiceDefinition } from './spacemesh/v1/PostInfoService';
 import type { PostServiceClient as _spacemesh_v1_PostServiceClient, PostServiceDefinition as _spacemesh_v1_PostServiceDefinition } from './spacemesh/v1/PostService';
 import type { SmesherServiceClient as _spacemesh_v1_SmesherServiceClient, SmesherServiceDefinition as _spacemesh_v1_SmesherServiceDefinition } from './spacemesh/v1/SmesherService';
 import type { TransactionServiceClient as _spacemesh_v1_TransactionServiceClient, TransactionServiceDefinition as _spacemesh_v1_TransactionServiceDefinition } from './spacemesh/v1/TransactionService';
@@ -91,6 +92,7 @@ export interface ProtoGrpcType {
       AppEventStreamResponse: MessageTypeDefinition
       Block: MessageTypeDefinition
       BuildResponse: MessageTypeDefinition
+      ChangeLogLevelRequest: MessageTypeDefinition
       CheckpointStreamRequest: MessageTypeDefinition
       CheckpointStreamResponse: MessageTypeDefinition
       CoinbaseResponse: MessageTypeDefinition
@@ -182,6 +184,7 @@ export interface ProtoGrpcType {
       ParseTransactionResponse: MessageTypeDefinition
       PeerInfo: MessageTypeDefinition
       PostConfigResponse: MessageTypeDefinition
+      PostInfoService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_PostInfoServiceClient> & { service: _spacemesh_v1_PostInfoServiceDefinition }
       PostService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_PostServiceClient> & { service: _spacemesh_v1_PostServiceDefinition }
       PostSetupOpts: MessageTypeDefinition
       PostSetupProvider: MessageTypeDefinition
@@ -190,6 +193,9 @@ export interface ProtoGrpcType {
       PostSetupStatus: MessageTypeDefinition
       PostSetupStatusResponse: MessageTypeDefinition
       PostSetupStatusStreamResponse: MessageTypeDefinition
+      PostState: MessageTypeDefinition
+      PostStatesRequest: MessageTypeDefinition
+      PostStatesResponse: MessageTypeDefinition
       Proof: MessageTypeDefinition
       ProofMetadata: MessageTypeDefinition
       Proposal: MessageTypeDefinition
