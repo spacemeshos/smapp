@@ -1,13 +1,17 @@
-import { ProtoGrpcType } from '../proto/admin';
-import { Event } from '../proto/spacemesh/v1/Event';
+import { ProtoGrpcType } from '../api/generated';
+import { Event } from '../api/generated/spacemesh/v1/Event';
 
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { getPrivateNodeConnectionConfig } from './main/utils';
 
-const PROTO_PATH = 'proto/admin.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/admin.proto';
 
-class AdminService extends NetServiceFactory<ProtoGrpcType, 'AdminService'> {
+class AdminService extends NetServiceFactory<
+  ProtoGrpcType,
+  'v1',
+  'AdminService'
+> {
   private cancelEventsStream: () => void = () => {};
 
   logger = Logger({ className: 'AdminService' });
@@ -16,6 +20,7 @@ class AdminService extends NetServiceFactory<ProtoGrpcType, 'AdminService'> {
     this.createNetService(
       PROTO_PATH,
       getPrivateNodeConnectionConfig(),
+      'v1',
       'AdminService'
     );
   };

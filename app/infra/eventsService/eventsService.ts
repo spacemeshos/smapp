@@ -4,6 +4,7 @@ import { TemplateRegistry } from '@spacemesh/sm-codec';
 
 import { ipcConsts } from '../../vars';
 import {
+  setAtxsCount,
   setNodeError,
   setNodeStartupStatus,
   setNodeStatus,
@@ -435,6 +436,10 @@ ipcRenderer.on(
   (_, status: QuicksyncStatus) => {
     store.dispatch(updateQuicksyncStatus(status));
   }
+);
+
+ipcRenderer.on(ipcConsts.UPDATE_ATX_COUNT, (_, amount) =>
+  store.dispatch(setAtxsCount(amount))
 );
 
 export default EventsService;

@@ -14,7 +14,7 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
-import { Event } from '../proto/spacemesh/v1/Event';
+import { Event } from '../api/generated/spacemesh/v1/Event';
 import { delay, getShortGenesisId } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';

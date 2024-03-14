@@ -1,5 +1,5 @@
 import { ServiceError } from '@grpc/grpc-js';
-import { ProtoGrpcType } from '../proto/node';
+import { ProtoGrpcType } from '../api/generated';
 import {
   asNodeError,
   NodeError,
@@ -16,7 +16,7 @@ import Logger from './logger';
 import { getLocalNodeConnectionConfig } from './main/utils';
 import NodeStartupStateStore from './main/nodeStartupStateStore';
 
-const PROTO_PATH = 'proto/node.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/node.proto';
 
 export type StatusStreamHandler = (status: NodeStatus) => void;
 export type ErrorStreamHandler = (error: NodeError) => void;
@@ -45,13 +45,18 @@ const NODE_NOT_RESPONDING_ERROR = asNodeError({
   type: NodeErrorType.NODE_NOT_RESPONDING,
 });
 
-class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
+class NodeService extends NetServiceFactory<
+  ProtoGrpcType,
+  'v1',
+  'NodeService'
+> {
   logger = Logger({ className: 'NodeService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
     this.createNetService(
       PROTO_PATH,
       apiUrl || getLocalNodeConnectionConfig(),
+      'v1',
       'NodeService'
     );
   };

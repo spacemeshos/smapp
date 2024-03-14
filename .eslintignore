@@ -50,3 +50,7 @@ package.json
 /.env
 /node/
 /desktop/dist/
+
+# Vendors & generated API
+/vendor
+/api

@@ -1,10 +1,10 @@
-import { ProtoGrpcType } from '../proto/global_state';
-import { Account__Output } from '../proto/spacemesh/v1/Account';
-import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
-import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
-import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountDataStreamResponse';
-import { Reward__Output } from '../proto/spacemesh/v1/Reward';
-import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
+import { ProtoGrpcType } from '../api/generated';
+import { Account__Output } from '../api/generated/spacemesh/v1/Account';
+import { AccountData__Output } from '../api/generated/spacemesh/v1/AccountData';
+import { AccountDataFlag } from '../api/generated/spacemesh/v1/AccountDataFlag';
+import { AccountDataStreamResponse__Output } from '../api/generated/spacemesh/v1/AccountDataStreamResponse';
+import { Reward__Output } from '../api/generated/spacemesh/v1/Reward';
+import { TransactionReceipt__Output } from '../api/generated/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
 import { toHexString } from '../shared/utils';
 import { GlobalStateHash } from '../app/types/events';
@@ -12,7 +12,7 @@ import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
-const PROTO_PATH = 'proto/global_state.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/global_state.proto';
 
 export interface AccountDataStreamHandlerArg {
   [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: Reward__Output;
@@ -45,12 +45,13 @@ const getByFlag = <F extends AccountDataValidFlags>(
 
 class GlobalStateService extends NetServiceFactory<
   ProtoGrpcType,
+  'v1',
   'GlobalStateService'
 > {
   logger = Logger({ className: 'GlobalStateService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'GlobalStateService');
+    this.createNetService(PROTO_PATH, apiUrl, 'v1', 'GlobalStateService');
   };
 
   getGlobalStateHash = (): Promise<GlobalStateHash> =>

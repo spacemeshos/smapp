@@ -1,6 +1,6 @@
-import { _spacemesh_v1_TransactionState_TransactionState as TState } from '../../proto/spacemesh/v1/TransactionState';
-import { _spacemesh_v1_TransactionReceipt_TransactionResult as TReceipt } from '../../proto/spacemesh/v1/TransactionReceipt';
-import { _spacemesh_v1_TransactionResult_Status as TResult } from '../../proto/spacemesh/v1/TransactionResult';
+import { _spacemesh_v1_TransactionState_TransactionState as TState } from '../../api/generated/spacemesh/v1/TransactionState';
+import { _spacemesh_v1_TransactionReceipt_TransactionResult as TReceipt } from '../../api/generated/spacemesh/v1/TransactionReceipt';
+import { _spacemesh_v1_TransactionResult_Status as TResult } from '../../api/generated/spacemesh/v1/TransactionResult';
 import { Bech32Address, HexString } from './misc';
 
 export enum TxState {

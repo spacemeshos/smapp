@@ -73,6 +73,7 @@ import {
   loadCustomNodeConfig,
   loadNodeConfig,
 } from './main/NodeConfig';
+import ActivationV2Service from './ActivationV2Service';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -107,6 +108,10 @@ const FATAL_REGEXP = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+\d{4})\s(FAT
 
 class NodeManager extends AbstractManager {
   private nodeService: NodeService;
+
+  private activationService: ActivationV2Service;
+
+  private stopWatchingForAtxs = () => {};
 
   private smesherManager: SmesherManager;
 
@@ -222,6 +227,7 @@ class NodeManager extends AbstractManager {
   ) {
     super(mainWindow);
     this.nodeService = new NodeService();
+    this.activationService = new ActivationV2Service();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.genesisID = genesisID;
@@ -231,6 +237,7 @@ class NodeManager extends AbstractManager {
   // Before deleting
   unsubscribe = async () => {
     logger.log('unsubscribe', null);
+    this.stopWatchingForAtxs();
     await this.stopNode();
     await this.nodeService.cancelStreams();
     this.unsubscribeIPC();
@@ -425,8 +432,14 @@ class NodeManager extends AbstractManager {
     this.smesherManager.subscribeIPC();
     // Create GRPC Client for NodeService
     this.nodeService.createService();
+    this.activationService.createService();
     // Wait for the GRPC API
     await this.isNodeAlive();
+    // Watch for activations
+    const ival = this.activationService.watchForAtxAmount((amount) => {
+      this.mainWindow.webContents.send(ipcConsts.UPDATE_ATX_COUNT, amount);
+    });
+    this.stopWatchingForAtxs = () => clearInterval(ival);
     // update node status once by query request
     await this.updateNodeStatus();
     // and activate streams

@@ -8,6 +8,7 @@ import {
   SET_NODE_VERSION_AND_BUILD,
   SET_STARTUP_STATUS,
   UPDATE_QUICKSYNC_STATUS,
+  SET_ATXS_COUNT,
 } from './actions';
 
 const initialState: NodeState = {
@@ -20,6 +21,7 @@ const initialState: NodeState = {
   error: null,
   dataPath: '',
   isRestarting: false,
+  atxsCount: 0,
 };
 
 const reducer = (state: NodeState = initialState, action: CustomAction) => {
@@ -53,6 +55,8 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     }
     case RESTART_NODE:
       return { ...state, isRestarting: true };
+    case SET_ATXS_COUNT:
+      return { ...state, atxsCount: action.payload };
     case IPC_BATCH_SYNC:
       return reduceChunkList(['store', 'node'], action.payload, state);
     default:

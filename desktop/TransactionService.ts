@@ -1,20 +1,21 @@
-import { ProtoGrpcType } from '../proto/tx';
+import { ProtoGrpcType } from '../api/generated';
 import { Bech32Address, PublicService, SocketAddress } from '../shared/types';
-import { TransactionsStateStreamResponse__Output } from '../proto/spacemesh/v1/TransactionsStateStreamResponse';
-import { TransactionResult__Output } from '../proto/spacemesh/v1/TransactionResult';
+import { TransactionsStateStreamResponse__Output } from '../api/generated/spacemesh/v1/TransactionsStateStreamResponse';
+import { TransactionResult__Output } from '../api/generated/spacemesh/v1/TransactionResult';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
-const PROTO_PATH = 'proto/tx.proto';
+const PROTO_PATH = 'vendor/api/spacemesh/v1/tx.proto';
 
 class TransactionService extends NetServiceFactory<
   ProtoGrpcType,
+  'v1',
   'TransactionService'
 > {
   logger = Logger({ className: 'TransactionService' });
 
   createService = (apiUrl?: PublicService | SocketAddress) => {
-    this.createNetService(PROTO_PATH, apiUrl, 'TransactionService');
+    this.createNetService(PROTO_PATH, apiUrl, 'v1', 'TransactionService');
   };
 
   submitTransaction = ({ transaction }) =>
