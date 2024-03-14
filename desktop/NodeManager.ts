@@ -498,7 +498,7 @@ class NodeManager extends AbstractManager {
       showGenericModal(this.mainWindow.webContents, {
         title: 'You have outdated config',
         message: [
-          'In go-spacemesh v1.4.0 was a breaking change in the config file. Smapp found that you have used the custom configuration for PoET servers, and now you need to update it to make the Node starts.',
+          'In go-spacemesh v1.4.0 there was a breaking change in the config file. Smapp found that you have used the custom configuration for PoET servers, and now you need to update it to make the Node start.',
           '',
           'Please, follow the <a href="https://github.com/spacemeshos/go-spacemesh/blob/v1.4.0-alpha.1/CHANGELOG.md#configjson">recommendations</a> in the changelog.',
           'And then click "Retry".',
