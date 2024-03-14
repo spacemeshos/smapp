@@ -165,7 +165,7 @@ const startApp = (): AppStore => {
   } = loadNetworkData();
 
   const {
-    $smesherId,
+    $smesherIds,
     $smeshingStarted,
     $smeshingSetupState,
     $nodeEvents,
@@ -258,7 +258,7 @@ const startApp = (): AppStore => {
       $currentLayer,
       $rootHash,
       $nodeVersion,
-      $smesherId,
+      $smesherIds,
       $nodeEvents,
       $hrp
     ),

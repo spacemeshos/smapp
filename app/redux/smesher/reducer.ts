@@ -20,7 +20,7 @@ import {
 } from './actions';
 
 const initialState = {
-  smesherId: '',
+  smesherIds: [],
   isSmeshingStarted: false,
   postSetupProviders: [] as PostSetupProviders[],
   coinbase: '',
@@ -52,7 +52,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       const {
         payload: {
           config,
-          smesherId,
+          smesherIds,
           isSmeshingStarted,
           postSetupState,
           numLabelsWritten,
@@ -68,7 +68,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       return {
         ...state,
         config,
-        smesherId,
+        smesherIds,
         numUnits,
         maxFileSize,
         numLabelsWritten,

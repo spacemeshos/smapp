@@ -3,6 +3,7 @@ import { PickOptionalPropsOf } from './types/utils';
 export interface GenericButtonOpts {
   label: string;
   action: string | 'close';
+  primary?: boolean;
 }
 
 export interface GenericModalOpts {

@@ -4,7 +4,7 @@ import { PassThrough, Writable } from 'stream';
 import { createInterface } from 'readline';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
@@ -68,7 +68,11 @@ import {
   showGenericModal,
   showGenericPrompt,
 } from './main/sendGenericModals';
-import { loadNodeConfig } from './main/NodeConfig';
+import {
+  getCustomNodeConfigPath,
+  loadCustomNodeConfig,
+  loadNodeConfig,
+} from './main/NodeConfig';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -476,6 +480,59 @@ class NodeManager extends AbstractManager {
     }
   };
 
+  // Check for outdated property in config
+  // and display a popup that requires changes in the custom config
+  // before the node can start
+  // https://github.com/spacemeshos/go-spacemesh/blob/v1.4.0-alpha.1/CHANGELOG.md#configjson
+  checkOutdatedConfig = async () => {
+    const customCfg = await loadCustomNodeConfig(this.genesisID);
+    if (!customCfg.main?.['poet-server']) {
+      return true;
+    }
+
+    const customCfgPath = getCustomNodeConfigPath(this.genesisID);
+    const RETRY_START_NODE_ACTION = 'RETRY_START_NODE_ACTION';
+    const SHOW_CONFIG_FILE_ACTION = 'SHOW_CONFIG_FILE_ACTION';
+
+    const showPopup = () => {
+      showGenericModal(this.mainWindow.webContents, {
+        title: 'You have outdated config',
+        message: [
+          'In go-spacemesh v1.4.0 there was a breaking change in the config file. Smapp found that you have used the custom configuration for PoET servers, and now you need to update it to make the Node start.',
+          '',
+          'Please, follow the <a href="https://github.com/spacemeshos/go-spacemesh/blob/v1.4.0-alpha.1/CHANGELOG.md#configjson">recommendations</a> in the changelog.',
+          'And then click "Retry".',
+        ].join('\n'),
+        buttons: [
+          { label: 'Retry', action: RETRY_START_NODE_ACTION, primary: true },
+          { label: 'Reveal config file', action: SHOW_CONFIG_FILE_ACTION },
+        ],
+      });
+
+      return new Promise<boolean>((resolve) => {
+        ipcMain.once(ipcConsts.GENERIC_MODAL_BTN_PRESS, (_, eventName) => {
+          if (eventName === RETRY_START_NODE_ACTION) {
+            this.checkOutdatedConfig()
+              .then(resolve)
+              .catch((err) => {
+                logger.error('checkOutdatedConfig.Retry', err);
+              });
+          }
+          if (eventName === SHOW_CONFIG_FILE_ACTION) {
+            shell.showItemInFolder(customCfgPath);
+            // Show popup again because any button closes popup
+            showPopup()
+              .then(resolve)
+              .catch((err) => {
+                logger.error('checkOutdatedConfig.ShowFile', err);
+              });
+          }
+        });
+      });
+    };
+    return showPopup();
+  };
+
   startNode = async (skipQuicksync = false) => {
     logger.log(
       'startNode',
@@ -486,7 +543,7 @@ class NodeManager extends AbstractManager {
     if (this.isNodeRunning()) return true;
     this.sendNodeStatus(DEFAULT_NODE_STATUS);
     this.$_nodeStatus.reset();
-
+    await this.checkOutdatedConfig();
     const cfg = await loadNodeConfig();
     if (!skipQuicksync && isMainNetConfig(cfg)) {
       const qsStatus = await this.runQuicksyncCheck();
