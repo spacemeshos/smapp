@@ -102,6 +102,10 @@ export const convertBytesToGiB = (maxFileSize: number) =>
 export const convertMiBToBytes = (maxFileSize: number) =>
   maxFileSize * 1024 * 1024;
 
+export const convertHashesToMiBs = (hashesPerSecond: number) => {
+  return ((hashesPerSecond * 16) / 1024 ** 2).toFixed(2); // 1 Hash = 16B, and 1024^2 bytes in a MiB
+};
+
 export const distribute = (min: number, max: number, steps: number) => {
   const delta = max - min;
   const stepsSafe = delta > steps ? steps : delta + 1;

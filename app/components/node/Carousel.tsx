@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { convertHashesToMiBs } from '../../../shared/utils';
 import {
   chevronLeftBlack,
   chevronLeftGray,
@@ -282,7 +283,10 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                 </TextWrapper>
                 <TextWrapper>
                   <Text>
-                    ~{formatWithCommas(provider.performance)} hashes per second
+                    ~{formatWithCommas(provider.performance)} hashes/s
+                  </Text>
+                  <Text>
+                    ~{convertHashesToMiBs(provider.performance)} MiB/s
                   </Text>
                   {/* <Text>TO SAVE DATA</Text> */}
                   {/* TODO: Return it back when estimated time will be available */}
