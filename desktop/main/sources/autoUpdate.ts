@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
+  BehaviorSubject,
   combineLatest,
   filter,
   first,
@@ -40,7 +41,8 @@ const handleAutoUpdates = (
   everyMs: number,
   $mainWindow: Observable<BrowserWindow>,
   $managers: Observable<Managers>,
-  $currentNetwork: Observable<Network | null>
+  $currentNetwork: Observable<Network | null>,
+  $isUpdateInProgress: BehaviorSubject<boolean>
 ) => {
   type DoDownload = boolean;
   type Data = [BrowserWindow, Network, DoDownload];
@@ -136,9 +138,10 @@ const handleAutoUpdates = (
       $request.next(true);
     }),
     // Trigger installation
-    fromIPC<void>(ipcConsts.AU_REQUEST_INSTALL).subscribe(() =>
-      installUpdate()
-    ),
+    fromIPC<void>(ipcConsts.AU_REQUEST_INSTALL).subscribe(() => {
+      $isUpdateInProgress.next(true);
+      return installUpdate();
+    }),
   ];
 
   return () => subs.forEach((sub) => sub.unsubscribe());

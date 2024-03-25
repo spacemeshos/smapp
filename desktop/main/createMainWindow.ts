@@ -1,5 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain, autoUpdater } from 'electron';
 import {
   BehaviorSubject,
   combineLatest,
@@ -35,6 +34,7 @@ export default () => {
   const $quit = new Subject<Electron.IpcMainEvent>();
   const $activate = fromAppEvent('activate');
   const $secondInstance = fromAppEvent('second-instance');
+  const $isUpdateInProgress = new BehaviorSubject<boolean>(false);
 
   //
   // Subscriptions & Reactions
@@ -84,5 +84,6 @@ export default () => {
     $showWindowOnLoad,
     $isWindowReady,
     $isSmappActivated: $activate,
+    $isUpdateInProgress,
   };
 };

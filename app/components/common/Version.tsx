@@ -21,6 +21,10 @@ import { getNetworkInfo } from '../../redux/network/selectors';
 import { checkUpdates as checkUpdatesIco } from '../../assets/images';
 import { AppThDispatch } from '../../types';
 import updaterSlice from '../../redux/updater/slice';
+import { SECOND } from '../../../shared/constants';
+import { Loader } from '../../basicComponents';
+import UpdateApplicationWarningModal from '../../screens/modal/UpdateApplicationWarningModal';
+import * as SmesherSelectors from '../../redux/smesher/selectors';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -194,6 +198,38 @@ const UpdateStatus = () => {
   const isDownloading = useSelector(isUpdateDownloading);
   const isDownloaded = useSelector(isUpdateDownloaded);
   const error = useSelector(getError);
+  const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
+  const [
+    isOpenUpdateApplicationWarningModal,
+    setIsOpenUpdateApplicationWarningModal,
+  ] = useState(false);
+  const [
+    showUpdateApplicationLoader,
+    setShowUpdateApplicationLoader,
+  ] = useState(false);
+
+  const handleRestartNow = () => {
+    setIsOpenUpdateApplicationWarningModal(false);
+    setShowUpdateApplicationLoader(true);
+    eventsService.installUpdate();
+
+    setTimeout(() => {
+      setShowUpdateApplicationLoader(false);
+    }, 10 * SECOND);
+  };
+
+  const handleRestart = () => {
+    if (isSmeshing) {
+      setIsOpenUpdateApplicationWarningModal(true);
+    } else {
+      handleRestartNow();
+    }
+  };
+
+  const handlePostpone = () => {
+    setIsOpenUpdateApplicationWarningModal(false);
+  };
+
   if (!isDownloading && !isDownloaded) return null;
 
   if (progress !== null && !isDownloaded) {
@@ -207,9 +243,15 @@ const UpdateStatus = () => {
     return (
       <>
         <ProgressChunk>Update is ready to install</ProgressChunk>
-        <PrimaryAction onClick={() => eventsService.installUpdate()}>
-          Restart Smapp
-        </PrimaryAction>
+        <PrimaryAction onClick={handleRestart}>Restart Smapp</PrimaryAction>
+        <UpdateApplicationWarningModal
+          isOpen={isOpenUpdateApplicationWarningModal}
+          onApprove={handleRestartNow}
+          onCancel={handlePostpone}
+        />
+        {showUpdateApplicationLoader && (
+          <Loader size={Loader.sizes.BIG} note="UPDATE IN PROGESS..." />
+        )}
       </>
     );
   }

@@ -12,7 +12,8 @@ export default (
   $managers: Subject<Managers>,
   $mainWindow: Subject<BrowserWindow>,
   $isAppClosing: BehaviorSubject<boolean>,
-  $showWindowOnLoad: Subject<boolean>
+  $showWindowOnLoad: Subject<boolean>,
+  $isUpdateInProgress: BehaviorSubject<boolean>
 ) =>
   makeSubscription(
     $quit.pipe(withLatestFrom($mainWindow, $managers)),
@@ -22,6 +23,7 @@ export default (
         mw,
         managers || {},
         $isAppClosing,
-        $showWindowOnLoad
+        $showWindowOnLoad,
+        $isUpdateInProgress
       )(event).catch((err) => logger.error('promptBeforeClose', err))
   );
