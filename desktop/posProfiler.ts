@@ -3,11 +3,17 @@ import { unlink } from 'fs/promises';
 import { app } from 'electron';
 import spawn from 'cross-spawn';
 import parse from 'parse-duration';
-import { BenchmarkRequest, NodeConfig } from '../shared/types';
+import {
+  BenchmarkErrorResult,
+  BenchmarkRequest,
+  NodeConfig,
+} from '../shared/types';
 import { BITS_PER_LABEL } from '../shared/constants';
 import { constrain } from '../app/infra/utils';
 import { getProfilerPath } from './main/binaries';
+import Logger from './logger';
 
+const logger = Logger({ className: 'posProfiler' });
 // Percentage of cycle-gap that are used in max data size calculation
 // to ensure that User will have enough time to create a proof
 const K_SAFE_PERIOD = 0.7;
@@ -35,17 +41,19 @@ export interface BenchmarkRunResult {
   result: BenchmarkResult;
 }
 
-export const runProfiler = (
-  opts: PosProfilerOptions
-): Promise<PosProfilerResult> =>
-  new Promise((resolve, reject) => {
-    const cp = spawn(getProfilerPath(), [
+export const runProfiler = (opts: PosProfilerOptions) =>
+  new Promise<PosProfilerResult>((resolve, reject) => {
+    const bin = getProfilerPath();
+    const args = [
       `--data-file=${opts.datafile}`,
       `--data-size=${opts.datasize}`,
       `--nonces=${opts.nonces}`,
       `--threads=${opts.threads}`,
-    ]);
+    ];
 
+    logger.log('runProfiler', `${bin} ${args.join(' ')}`);
+
+    const cp = spawn(bin, args);
     const out = {
       stderr: '',
       stdout: '',
@@ -56,22 +64,36 @@ export const runProfiler = (
     cp.on('error', reject);
     cp.on('close', (code) => {
       if (code && code > 0) {
-        reject(new Error(out.stderr));
+        reject(
+          new Error(`PoS profiler exited with code ${code}: ${out.stderr}`)
+        );
       }
-      const res = JSON.parse(out.stdout);
-      if (
-        typeof res.time_s !== 'number' ||
-        typeof res.speed_gib_s !== 'number'
-      ) {
-        reject(new Error(`Invalid output of PoS profiler tool: ${out.stdout}`));
+      if (out.stdout.length === 0) {
+        reject(new Error('PoS profiler tool exited unexpectedly'));
       }
-      return resolve({
-        time: res.time_s,
-        speed: res.speed_gib_s,
-      });
+      try {
+        const res = JSON.parse(out.stdout);
+        if (
+          typeof res.time_s !== 'number' ||
+          typeof res.speed_gib_s !== 'number'
+        ) {
+          reject(
+            new Error(`Invalid output of PoS profiler tool: ${out.stdout}`)
+          );
+        }
+        resolve({
+          time: res.time_s,
+          speed: res.speed_gib_s,
+        });
+      } catch (err) {
+        reject(err);
+      }
     });
     cp.stderr?.on('data', appendTo('stderr'));
     cp.stdout?.on('data', appendTo('stdout'));
+  }).catch((err) => {
+    logger.error('runProfiler', err);
+    throw err;
   });
 
 const gibsTobytes = (gib: number) => gib * 1024 ** 3;
@@ -114,10 +136,14 @@ export const runSingleBenchmark = async (
 export const runBenchmarks = async (
   nodeConfig: NodeConfig,
   progressCb: (result: BenchmarkRunResult) => void,
+  errorCb: (errorResult: BenchmarkErrorResult) => void,
   benchmarks: BenchmarkRequest[],
   dataDir: string
 ): Promise<void> => {
-  const cycleGap = parse(nodeConfig.poet['cycle-gap']) / 1000; // in seconds
+  const CYCLE_GAP_DEFAULT = 12 * 60 * 60 * 1000;
+  const cycleGapRaw =
+    parse(nodeConfig.poet['cycle-gap'] || '12h') || CYCLE_GAP_DEFAULT;
+  const cycleGap = cycleGapRaw / 1000; // in seconds
   const unitSize =
     (nodeConfig.post['post-labels-per-unit'] * BITS_PER_LABEL) / 8;
   const maxPossibleSize = nodeConfig.post['post-max-numunits'] * unitSize;
@@ -137,7 +163,14 @@ export const runBenchmarks = async (
           .then(() =>
             runSingleBenchmark(cycleGap, unitSize, maxPossibleSize, benchmark)
           )
-          .then(progressCb),
+          .then(progressCb, (err: Error) =>
+            errorCb({
+              nonces: benchmark.nonces,
+              threads: benchmark.threads,
+              error:
+                err?.message ?? 'Unknown error occured. Please check out logs.',
+            })
+          ),
       Promise.resolve()
     )
     .then(() => unlink(defaultProfilerOpts.datafile));

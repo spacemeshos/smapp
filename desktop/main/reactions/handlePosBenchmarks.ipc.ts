@@ -34,6 +34,11 @@ const handleBenchmarksIpc = (
             ipcConsts.SEND_BENCHMARK_RESULTS,
             convert(result)
           ),
+        (errorResult) =>
+          mainWindow.webContents.send(
+            ipcConsts.SEND_BENCHMARK_ERROR,
+            errorResult
+          ),
         benchmarks,
         dataDir
       );
