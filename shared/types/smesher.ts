@@ -93,6 +93,12 @@ export type BenchmarkResponse = {
   maxUnits: number;
 };
 
+export type BenchmarkErrorResult = {
+  nonces: number;
+  threads: number;
+  error: string;
+};
+
 type PatchWait<T> = Omit<T, 'wait'> & { wait: number };
 type PatchWaitDeep<T> = T extends Event
   ? Omit<Omit<Omit<T, 'atxPublished'>, 'poetWaitProof'>, 'poetWaitRound'> & {
