@@ -10,7 +10,11 @@ import {
 } from '../../basicComponents';
 import { constrain, formatBytes } from '../../infra/utils';
 import { ipcConsts, smColors } from '../../vars';
-import { BenchmarkRequest, BenchmarkResponse } from '../../../shared/types';
+import {
+  BenchmarkErrorResult,
+  BenchmarkRequest,
+  BenchmarkResponse,
+} from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
 import { eventsService } from '../../infra/eventsService';
 import PoSFooter, { PoSFooterProps } from './PoSFooter';
@@ -75,6 +79,7 @@ const COL_WIDTH = {
   SIZE: '26%',
   STATUS: '20%',
   REST: '64%', // SPEED + SIZE + STATUS
+  ERROR: '44%', // SPEED + SIZE
 };
 
 const MaxLabel = styled.span`
@@ -103,6 +108,7 @@ enum BenchmarkStatus {
   Queued = 'Queued',
   Running = 'Running',
   Complete = 'Complete',
+  Error = 'Error',
 }
 
 type Benchmark = {
@@ -112,6 +118,7 @@ type Benchmark = {
   maxSize: number | null;
   maxUnits: number | null;
   status: BenchmarkStatus;
+  error?: string;
 };
 
 const defaultizeBenchmark = (nonces: number, threads: number): Benchmark => ({
@@ -181,6 +188,8 @@ const getStatusColor = (status: BenchmarkStatus) => {
       return smColors.green;
     case BenchmarkStatus.Running:
       return smColors.orange;
+    case BenchmarkStatus.Error:
+      return smColors.red;
     case BenchmarkStatus.Idle:
     case BenchmarkStatus.Queued:
     default:
@@ -241,10 +250,24 @@ const PoSProfiler = ({
           isRunningBatch
         )
       );
+    const errHandler = (_event, result: BenchmarkErrorResult) =>
+      setAndScrollBenchmarks(
+        updateBenchmarks(
+          benchmarks,
+          {
+            ...defaultizeBenchmark(result.nonces, result.threads),
+            status: BenchmarkStatus.Error,
+            error: result.error,
+          },
+          isRunningBatch
+        )
+      );
 
     ipcRenderer.on(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
+    ipcRenderer.on(ipcConsts.SEND_BENCHMARK_ERROR, errHandler);
     return () => {
       ipcRenderer.off(ipcConsts.SEND_BENCHMARK_RESULTS, handler);
+      ipcRenderer.off(ipcConsts.SEND_BENCHMARK_ERROR, errHandler);
     };
   }, [benchmarks, isRunningBatch]);
 
@@ -355,13 +378,21 @@ const PoSProfiler = ({
               >
                 <TCol width={COL_WIDTH.NONCES}>{r.nonces}</TCol>
                 <TCol width={COL_WIDTH.THREADS}>{r.threads}</TCol>
-                <TCol width={COL_WIDTH.SPEED}>
-                  {r.speed?.toPrecision(4) ?? '...'}
-                </TCol>
-                <TCol width={COL_WIDTH.SIZE}>
-                  {r.maxSize ? formatBytes(r.maxSize) : '...'}
-                  {r.maxSize === maxSize && <MaxLabel />}
-                </TCol>
+                {r.error ? (
+                  <TCol width={COL_WIDTH.ERROR} style={{ color: smColors.red }}>
+                    {r.error}
+                  </TCol>
+                ) : (
+                  <>
+                    <TCol width={COL_WIDTH.SPEED}>
+                      {r.speed?.toPrecision(4) ?? '...'}
+                    </TCol>
+                    <TCol width={COL_WIDTH.SIZE}>
+                      {r.maxSize ? formatBytes(r.maxSize) : '...'}
+                      {r.maxSize === maxSize && <MaxLabel />}
+                    </TCol>
+                  </>
+                )}
                 <TCol width={COL_WIDTH.STATUS}>
                   <ColorStatusIndicator color={getStatusColor(r.status)} />
                   {r.status === BenchmarkStatus.Complete
