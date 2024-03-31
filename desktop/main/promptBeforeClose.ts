@@ -66,6 +66,7 @@ const promptBeforeClose = (
   const handleClosingApp = async (event: Electron.Event) => {
     event.preventDefault();
     if (!mainWindow) {
+      logger.log('handleClosingApp', 'no window -> closing');
       await quit();
       return;
     }
@@ -79,11 +80,13 @@ const promptBeforeClose = (
       CloseAppPromptResult.CLOSE;
 
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
+      logger.log('handleClosingApp', 'keep smeshing');
       setTimeout(notify, 1000);
       mainWindow.hide();
       $showWindowOnLoad.next(false);
       mainWindow.reload();
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
+      logger.log('handleClosingApp', 'close');
       isCloseTriggered = true;
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
       await quit();

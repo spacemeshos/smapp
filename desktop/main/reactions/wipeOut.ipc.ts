@@ -63,6 +63,7 @@ const handleWipeOut = (
   const $s = $wipeOut.pipe(withLatestFrom($mainWindow));
   const sub = $s.subscribe(async ([_, mainWindow]) => {
     if (await wipeOut(mainWindow)) {
+      logger.log('wipeOut triggered', null);
       $isAppClosing.next(true);
       app.quit();
     }
