@@ -32,7 +32,7 @@ const Indicator = styled.div<{ indColor?: string }>`
 
 type Props = {
   header: string;
-  subHeader?: string;
+  subHeader?: JSX.Element | string;
   width?: number;
   height?: number;
   headerColor?: string;
