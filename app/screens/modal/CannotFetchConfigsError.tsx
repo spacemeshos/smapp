@@ -33,6 +33,10 @@ const RedText = styled.span`
   color: ${smColors.red};
 `;
 
+const Block = styled.span`
+  display: block;
+`;
+
 const CannotFetchConfigsError = () => {
   const dispatch = useDispatch();
   const warning = useSelector(
@@ -54,27 +58,76 @@ const CannotFetchConfigsError = () => {
 
   const openDiscovery = () => window.open(warning.payload.url);
 
-  const subheader =
-    warning.payload.type === 'networks'
-      ? 'Cannot load networks list'
-      : 'Cannot load the network config';
-
-  const predescription = warning.payload.cacheHit
-    ? 'Application is using configs that were downloaded earlier.'
-    : 'Cannot fetch required data from the internet and does not have cached files.';
-
-  return (
-    <ReactPortal modalId="spacemesh-folder-permission">
-      <Modal header="Error" subHeader={subheader} width={600} height={480}>
+  const renderContents = () => {
+    if (warning.payload.cacheHit) {
+      return (
+        <Modal
+          header="Using cached configs"
+          subHeader={
+            <>
+              {warning.payload.type === 'networks'
+                ? 'Cannot load the fresh networks list.'
+                : 'Cannot load the fresh network config.'}
+              <br />
+              The node is using the previously downloaded config.
+            </>
+          }
+          width={600}
+          height={480}
+        >
+          <ErrorMessage>
+            <Block>Error: {warning.message}</Block>
+            {'\n'}
+            Keep the Smapp online, no need to restart the application or node.
+            {'\n\n'}
+            Only if you need to update the config, please follow these steps:
+            {'\n'}
+            <ol>
+              <li>
+                1. manually download fresh configs from
+                <Link
+                  onClick={openDiscovery}
+                  text="the&nbsp;discovery&nbsp;service"
+                  style={{ display: 'inline', margin: '0 0.6em' }}
+                />
+              </li>
+              <li>
+                2. put them into
+                <Link
+                  onClick={showDir}
+                  text="ConfigCache&nbsp;directory"
+                  style={{ display: 'inline', margin: '0 0.6em' }}
+                />
+              </li>
+              <li>3. restart Smapp.</li>
+            </ol>
+          </ErrorMessage>
+          <ButtonsWrapper>
+            <Button isPrimary={false} onClick={handleDismiss} text="DISMISS" />
+          </ButtonsWrapper>
+        </Modal>
+      );
+    }
+    return (
+      <Modal
+        header="Error"
+        subHeader={
+          warning.payload.type === 'networks'
+            ? 'Cannot load the networks list'
+            : 'Cannot load the network config'
+        }
+        width={600}
+        height={480}
+      >
         <ErrorMessage>
           <RedText>
-            Error occured during downloading the file:{'\n'}
+            Smapp cannot reach the config service:{'\n'}
             {warning.message}
           </RedText>
           {'\n\n'}
-          {predescription}
+          Cannot fetch required data from the internet and does not have cached
+          files.
           {'\n\n'}
-
           {warning.payload.cacheHit
             ? 'To update cached configs try to:'
             : 'Follow these steps:'}
@@ -102,6 +155,12 @@ const CannotFetchConfigsError = () => {
           <Button isPrimary={false} onClick={handleDismiss} text="DISMISS" />
         </ButtonsWrapper>
       </Modal>
+    );
+  };
+
+  return (
+    <ReactPortal modalId="spacemesh-folder-permission">
+      {renderContents()}
     </ReactPortal>
   );
 };
