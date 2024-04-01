@@ -735,11 +735,11 @@ class NodeManager extends AbstractManager {
         sendStatus(NodeStartupState.VerifyingLayers);
       } else if (line.includes('syncing malicious proofs')) {
         sendStatus(NodeStartupState.SyncingMaliciousProofs);
-      } else if (line.includes('syncing atx')) {
+      } else if (line.includes('starting atx sync')) {
         sendStatus(NodeStartupState.SyncingAtxs);
       } else if (
         line.includes('app started') ||
-        line.includes('atxs synced') ||
+        line.includes('atx sync completed') ||
         line.includes('malicious IDs synced')
       ) {
         sendStatus(NodeStartupState.Ready);
