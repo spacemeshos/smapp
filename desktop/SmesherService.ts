@@ -12,6 +12,7 @@ import memoDebounce from '../shared/memoDebounce';
 import { BITS_PER_LABEL, MINUTE } from '../shared/constants';
 import { toHexString } from '../shared/utils';
 
+import { SmesherIDsResponse__Output } from '../api/generated/spacemesh/v1/SmesherIDsResponse';
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import { getPrivateNodeConnectionConfig } from './main/utils';
