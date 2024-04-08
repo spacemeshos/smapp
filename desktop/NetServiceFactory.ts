@@ -91,7 +91,7 @@ class NetServiceFactory<
     version: Version,
     serviceName: string
   ) => {
-    this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
+    this.logger?.log(`createNetService(${serviceName})`, apiUrl);
     if (this.service && this.apiUrl && isNodeApiEq(this.apiUrl, apiUrl)) {
       this.logger?.debug(
         `createNetService(${serviceName}) cancelled: no change in apiUrl. Keep old one`
@@ -197,8 +197,7 @@ class NetServiceFactory<
 
   callServiceWithRetries = <K extends keyof Service<T, Version, ServiceName>>(
     method: K,
-    opts: ServiceOpts<T, Version, ServiceName, K>,
-    retriesLeft = 300
+    opts: ServiceOpts<T, Version, ServiceName, K>
   ) => {
     type ResultArg = ServiceCallbackResult<T, Version, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
@@ -209,12 +208,27 @@ class NetServiceFactory<
           // If Node is not in Ready state — wait longer and then try again
           // And do not reduce the retries amount
           await delay(30000);
-          return this.callServiceWithRetries(method, opts, retriesLeft);
+          this.logger?.log(
+            `callServiceWithRetries(${String(method)}) after err`,
+            err,
+            opts
+          );
+          return this.callServiceWithRetries(method, opts);
         }
-        if (err.code === 14 && retriesLeft > 0) {
-          await delay(5000);
-          return this.callServiceWithRetries(method, opts, retriesLeft - 1);
+        if (err.code === 14) {
+          await delay(10000);
+          this.logger?.log(
+            `callServiceWithRetries(${String(method)}) after err(14)`,
+            err,
+            opts
+          );
+          return this.callServiceWithRetries(method, opts);
         } else {
+          this.logger?.error(
+            `callServiceWithRetries(${String(method)}) throws`,
+            err,
+            opts
+          );
           throw err;
         }
       }
@@ -244,7 +258,7 @@ class NetServiceFactory<
     onError: (error: grpc.ServiceError) => void = () => {}
   ) => {
     if (!this.service) {
-      this.logger?.debug(
+      this.logger?.log(
         `${this.serviceName}.${String(method)} > Service ${
           this.serviceName
         } is not running`,
@@ -252,7 +266,7 @@ class NetServiceFactory<
       );
       return () => {};
     }
-    this.logger?.debug(
+    this.logger?.log(
       `running stream ${this.serviceName}.${String(method)} with`,
       opts
     );
@@ -267,7 +281,7 @@ class NetServiceFactory<
           if (stream && stream.cancel) {
             stream.cancel();
             stream.destroy();
-            this.logger?.debug(
+            this.logger?.log(
               `grpc ${this.serviceName}.${String(method)}`,
               'cancelled'
             );
@@ -292,7 +306,7 @@ class NetServiceFactory<
         );
         return;
       }
-      this.logger?.debug(
+      this.logger?.log(
         `${this.serviceName}.${String(method)} connecting`,
         `Attempt #${attempt}`
       );
@@ -307,10 +321,7 @@ class NetServiceFactory<
         if (error.code === 1) return; // Cancelled on client
         if (this.isStarted) {
           // Do not log error messages if it is not fully connected yet
-          this.logger?.debug(
-            `grpc ${this.serviceName}.${String(method)}`,
-            error
-          );
+          this.logger?.log(`grpc ${this.serviceName}.${String(method)}`, error);
         }
         onError(error);
       });
@@ -319,7 +330,7 @@ class NetServiceFactory<
           await delay(10000);
           if (this.isStarted) {
             // Do not log error messages if it is not fully connected yet
-            this.logger?.debug(
+            this.logger?.log(
               `grpc ${this.serviceName}.${String(method)} reconnecting...`,
               opts
             );
