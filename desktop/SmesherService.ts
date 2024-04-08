@@ -87,7 +87,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({ providers: [] }));
 
   isSmeshing = () =>
-    this.callServiceWithRetries('IsSmeshing', {})
+    this.callService('IsSmeshing', {})
       .then((response) => ({
         ...response,
         isSmeshing: response?.isSmeshing || false,
