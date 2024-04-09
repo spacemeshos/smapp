@@ -12,6 +12,7 @@ import memoDebounce from '../shared/memoDebounce';
 import { BITS_PER_LABEL, MINUTE } from '../shared/constants';
 import { toHexString } from '../shared/utils';
 
+import { SmesherIDsResponse__Output } from '../api/generated/spacemesh/v1/SmesherIDsResponse';
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import { getPrivateNodeConnectionConfig } from './main/utils';
@@ -86,7 +87,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({ providers: [] }));
 
   isSmeshing = () =>
-    this.callServiceWithRetries('IsSmeshing', {})
+    this.callService('IsSmeshing', {})
       .then((response) => ({
         ...response,
         isSmeshing: response?.isSmeshing || false,

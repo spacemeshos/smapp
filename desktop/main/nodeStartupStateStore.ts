@@ -11,5 +11,6 @@ export default class NodeStartupStateStore {
   static getStatus = () => NodeStartupStateStore.status;
 
   static isReady = () =>
-    NodeStartupStateStore.status === NodeStartupState.Ready;
+    NodeStartupStateStore.status === NodeStartupState.Ready ||
+    NodeStartupStateStore.status === NodeStartupState.SyncingAtxs;
 }

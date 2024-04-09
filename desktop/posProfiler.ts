@@ -1,8 +1,10 @@
-import { resolve } from 'path';
+import { dirname, resolve } from 'path';
 import { unlink } from 'fs/promises';
 import { app } from 'electron';
 import spawn from 'cross-spawn';
 import parse from 'parse-duration';
+import { ensureDir } from 'fs-extra';
+
 import {
   BenchmarkErrorResult,
   BenchmarkRequest,
@@ -107,6 +109,7 @@ export const runSingleBenchmark = async (
   maxPossibleSize: number,
   profilerOpts: PosProfilerOptions
 ): Promise<BenchmarkRunResult> => {
+  await ensureDir(dirname(profilerOpts.datafile));
   const profiler = await runProfiler(profilerOpts);
   // Let's assume that 288 nonces has about 100% chance to generate the proof
   // so everything is less — we'd like to have a chance to try generate it
