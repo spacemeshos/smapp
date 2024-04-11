@@ -210,8 +210,7 @@ class NetServiceFactory<
           await delay(30000);
           this.logger?.log(
             `callServiceWithRetries(${String(method)}) after err`,
-            err,
-            opts
+            err
           );
           return this.callServiceWithRetries(method, opts);
         }
@@ -219,8 +218,7 @@ class NetServiceFactory<
           await delay(10000);
           this.logger?.log(
             `callServiceWithRetries(${String(method)}) after err(14)`,
-            err,
-            opts
+            err
           );
           return this.callServiceWithRetries(method, opts);
         } else {
@@ -258,7 +256,7 @@ class NetServiceFactory<
     onError: (error: grpc.ServiceError) => void = () => {}
   ) => {
     if (!this.service) {
-      this.logger?.log(
+      this.logger?.debug(
         `${this.serviceName}.${String(method)} > Service ${
           this.serviceName
         } is not running`,
@@ -266,7 +264,7 @@ class NetServiceFactory<
       );
       return () => {};
     }
-    this.logger?.log(
+    this.logger?.debug(
       `running stream ${this.serviceName}.${String(method)} with`,
       opts
     );
@@ -332,7 +330,7 @@ class NetServiceFactory<
             // Do not log error messages if it is not fully connected yet
             this.logger?.log(
               `grpc ${this.serviceName}.${String(method)} reconnecting...`,
-              opts
+              null
             );
           }
           await cancel();
