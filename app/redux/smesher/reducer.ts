@@ -3,10 +3,10 @@ import {
   DEFAULT_POS_MAX_FILE_SIZE,
   PostSetupProvider as PostSetupProviders,
   PostSetupState,
-  SmesherConfig,
 } from '../../../shared/types';
 import { BITS } from '../../types';
 import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
+import DEFAULT_SMESHING_CONFIG from '../../../shared/defaultSmeshingConfig';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
@@ -43,7 +43,7 @@ const initialState = {
   },
   activations: [],
   events: [],
-  config: {} as SmesherConfig,
+  config: DEFAULT_SMESHING_CONFIG,
 };
 
 const reducer = (state: SmesherState = initialState, action: CustomAction) => {
