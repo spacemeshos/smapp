@@ -46,7 +46,7 @@ import NodeService, {
 } from './NodeService';
 import SmesherManager from './SmesherManager';
 import { createDebouncePool, fetch, getSpawnErrorReason } from './utils';
-import { isEmptyDir, isRoot } from './fsUtils';
+import { isEmptyDir, isFileExists, isRoot } from './fsUtils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import {
   DEFAULT_GRPC_PRIVATE_PORT,
@@ -322,29 +322,43 @@ class NodeManager extends AbstractManager {
         ].join('\n'),
         buttons: [],
       });
-      const qsStatus = await this.runQuicksyncCheck();
-      if (
-        isQuicksyncAvailable(qsStatus) &&
-        isLocalStateFarBehind(qsStatus, 100)
-      ) {
-        await this.runQuicksyncPrompt(qsStatus);
-      } else {
-        hideGenericModal(this.mainWindow.webContents);
-        const isForce = await showGenericPrompt(this.mainWindow.webContents, {
-          title: 'Quick sync is not needed',
-          message: [
-            `Latest layer in your database: ${qsStatus.db}`,
-            `Latest layer in the trusted state: ${qsStatus.available}`,
-            `Current layer in the network: ${qsStatus.current}`,
-            '',
-            'Your node is nearly synced. We recommend you to keep using your local state.',
-            'Do you want to download the trusted state anyway?',
-          ].join('\n'),
-          confirmTitle: 'Download anyway!',
-          cancelTitle: 'No, thanks!',
-          cancelTimeout: 60,
-        });
-        isForce && (await this.runQuicksyncDownload());
+      try {
+        const qsStatus = await this.runQuicksyncCheck();
+        if (
+          isQuicksyncAvailable(qsStatus) &&
+          isLocalStateFarBehind(qsStatus, 100)
+        ) {
+          await this.runQuicksyncPrompt(qsStatus);
+        } else {
+          hideGenericModal(this.mainWindow.webContents);
+          const isForce = await showGenericPrompt(this.mainWindow.webContents, {
+            title: 'Quick sync is not needed',
+            message: [
+              `Latest layer in your database: ${qsStatus.db}`,
+              `Latest layer in the trusted state: ${qsStatus.available}`,
+              `Current layer in the network: ${qsStatus.current}`,
+              '',
+              'Your node is nearly synced. We recommend you to keep using your local state.',
+              'Do you want to download the trusted state anyway?',
+            ].join('\n'),
+            confirmTitle: 'Download anyway!',
+            cancelTitle: 'No, thanks!',
+            cancelTimeout: 60,
+          });
+          isForce && (await this.runQuicksyncDownload());
+        }
+      } catch (err) {
+        logger.error('runQuicksyncByButton', err);
+        if (err instanceof Error) {
+          showGenericModal(this.mainWindow.webContents, {
+            title: 'Quicksync failed',
+            message: [
+              err.message,
+              '',
+              'You can run Quicksync again from the Settings screen.',
+            ].join('\n'),
+          });
+        }
       }
       await this.startNode(true);
     };
@@ -604,15 +618,19 @@ class NodeManager extends AbstractManager {
     await this.checkOutdatedConfig();
     const cfg = await loadNodeConfig();
     if (!skipQuicksync && isMainNetConfig(cfg)) {
-      const qsStatus = await this.runQuicksyncCheck();
-      const epochSize = Math.floor(
-        ((await cfg).main['layers-per-epoch'] || 4032) / 2
-      );
-      if (
-        isQuicksyncAvailable(qsStatus) &&
-        isLocalStateFarBehind(qsStatus, epochSize)
-      ) {
-        await this.runQuicksyncPrompt(qsStatus);
+      try {
+        const qsStatus = await this.runQuicksyncCheck();
+        const epochSize = Math.floor(
+          ((await cfg).main['layers-per-epoch'] || 4032) / 2
+        );
+        if (
+          isQuicksyncAvailable(qsStatus) &&
+          isLocalStateFarBehind(qsStatus, epochSize)
+        ) {
+          await this.runQuicksyncPrompt(qsStatus);
+        }
+      } catch (err) {
+        logger.error('startNode.Quicksync', err);
       }
     }
     await this.spawnNode();
@@ -874,16 +892,6 @@ class NodeManager extends AbstractManager {
         logger.log('runQuicksyncCheck', result);
         return resolve(result);
       });
-    }).catch((err) => {
-      logger.error('runQuicksyncCheck', err);
-      // Fallback to default syncing
-      const res: QuicksyncStatus = {
-        db: 0,
-        current: 0,
-        available: 0,
-        paused: null,
-      };
-      return res;
     });
   };
 
@@ -915,6 +923,10 @@ class NodeManager extends AbstractManager {
     logger.log('runQuicksync:download', `${bin} ${args.join(' ')}`);
 
     return new Promise((resolve, reject) => {
+      if (!isFileExists(bin)) {
+        reject(new Error(`Quicksync tool is not found: ${bin}`));
+        return;
+      }
       const process = spawn(bin, args);
       let cancelled = false;
 
@@ -943,7 +955,6 @@ class NodeManager extends AbstractManager {
           ],
         });
       };
-
       ipcMain.once(ipcConsts.GENERIC_MODAL_BTN_PRESS, (_, eventName) => {
         if (eventName === 'cancel') {
           cancelled = true;
