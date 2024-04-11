@@ -1,6 +1,7 @@
 import util from 'util';
 import fs from 'fs';
 import { F_OK } from 'constants';
+import { join } from 'path';
 
 export const readFileAsync = util.promisify(fs.readFile);
 
@@ -23,4 +24,9 @@ export const isEmptyDir = async (path: string) => {
   } catch (error) {
     return false;
   }
+};
+
+export const isRoot = (path: string) => {
+  const parentPath = join(path, '../');
+  return path === parentPath || parentPath === './';
 };

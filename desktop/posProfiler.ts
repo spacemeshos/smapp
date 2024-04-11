@@ -14,6 +14,7 @@ import { BITS_PER_LABEL } from '../shared/constants';
 import { constrain } from '../app/infra/utils';
 import { getProfilerPath } from './main/binaries';
 import Logger from './logger';
+import { isRoot } from './fsUtils';
 
 const logger = Logger({ className: 'posProfiler' });
 // Percentage of cycle-gap that are used in max data size calculation
@@ -109,7 +110,8 @@ export const runSingleBenchmark = async (
   maxPossibleSize: number,
   profilerOpts: PosProfilerOptions
 ): Promise<BenchmarkRunResult> => {
-  await ensureDir(dirname(profilerOpts.datafile));
+  const datadir = dirname(profilerOpts.datafile);
+  !isRoot(datadir) && (await ensureDir(datadir));
   const profiler = await runProfiler(profilerOpts);
   // Let's assume that 288 nonces has about 100% chance to generate the proof
   // so everything is less — we'd like to have a chance to try generate it

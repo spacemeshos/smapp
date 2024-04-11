@@ -46,7 +46,7 @@ import NodeService, {
 } from './NodeService';
 import SmesherManager from './SmesherManager';
 import { createDebouncePool, fetch, getSpawnErrorReason } from './utils';
-import { isEmptyDir } from './fsUtils';
+import { isEmptyDir, isRoot } from './fsUtils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import {
   DEFAULT_GRPC_PRIVATE_PORT,
@@ -288,7 +288,7 @@ class NodeManager extends AbstractManager {
       if (oldPath === newPath) return true;
       logger.log('promptChangeDir', { oldPath, newPath: prompt.filePaths[0] });
       // Validate new dir
-      await fse.ensureDir(newPath);
+      !isRoot(newPath) && (await fse.ensureDir(newPath));
       if (!(await isEmptyDir(newPath))) {
         throw new Error(
           `Can not switch Node Data directory: ${newPath} is not empty`
