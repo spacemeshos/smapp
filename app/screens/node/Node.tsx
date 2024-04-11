@@ -265,7 +265,7 @@ const SmesherStatus = ({
     {smesherIds.map((smesherID, idx) => (
       <>
         {idx > 0 && ', '}
-        <SmesherId key={`smesher_${smesherID}`}>
+        <SmesherId key={`smesher_${smesherID}_${idx}`}>
           <Address type={AddressType.SMESHER} address={smesherID} isHex />
         </SmesherId>
       </>
@@ -445,7 +445,7 @@ const Node = ({ history, location }: Props) => {
             <>
               {idx > 0 && ', '}
               <Address
-                key={`smesher_${smesherId}`}
+                key={`smesher_${smesherId}_${idx}`}
                 type={AddressType.SMESHER}
                 address={smesherId}
                 isHex
