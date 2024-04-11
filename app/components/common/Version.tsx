@@ -226,10 +226,6 @@ const Updater = () => {
   );
 };
 
-const ForceUpdateInfo = ({ updateInfo }: { updateInfo: UpdateInfoT }) => (
-  <Attractor>Smapp is auto-updating to version {updateInfo.version}</Attractor>
-);
-
 const CheckForUpdates = () => {
   const updateInfo = useSelector(getUpdateInfo);
   const network = useSelector(getNetworkInfo);
@@ -285,23 +281,10 @@ const CheckForUpdates = () => {
 };
 
 const Version = () => {
-  const [forceUpdateInfo, setForceUpdateInfo] = useState<UpdateInfoT | null>(
-    null
-  );
-
-  useEffect(() => {
-    const handler = (_, nextUpdateInfo) => setForceUpdateInfo(nextUpdateInfo);
-    ipcRenderer.on(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
-    return () => {
-      ipcRenderer.off(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
-    };
-  });
-
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
-      {forceUpdateInfo && <ForceUpdateInfo updateInfo={forceUpdateInfo} />}
-      {!forceUpdateInfo && <CheckForUpdates />}
+      <CheckForUpdates />
       <Updater />
       <UpdateError />
       <FeedbackButton />

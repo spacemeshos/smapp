@@ -264,12 +264,7 @@ const startApp = (): AppStore => {
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
-    handleAutoUpdates(
-      CHECK_UPDATES_INTERVAL,
-      $mainWindow,
-      $managers,
-      $currentNetwork
-    ),
+    handleAutoUpdates(CHECK_UPDATES_INTERVAL, $mainWindow, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
     sendWarningsToRenderer($warnings, $mainWindow, $isWindowReady),
     collectWarnings($managers, $warnings),
