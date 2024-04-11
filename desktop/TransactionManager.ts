@@ -255,14 +255,15 @@ class TransactionManager extends AbstractManager {
 
     const addReward = this.addReward(address);
     this.retrieveRewards(address, 0)
-      .then((rewards) => this.replaceRewards(address, rewards))
+      .then((rewards) => {
+        this.unsubs[address].push(
+          this.glStateService.listenRewardsByCoinbase(address, addReward)
+        );
+        return this.replaceRewards(address, rewards);
+      })
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
       });
-
-    this.unsubs[address].push(
-      this.glStateService.listenRewardsByCoinbase(address, addReward)
-    );
   };
 
   watchForAddress = (address: Bech32Address) => {
