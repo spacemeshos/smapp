@@ -1058,6 +1058,7 @@ class NodeManager extends AbstractManager {
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
+      '--no-main-override',
       ...Object.entries(nodeArgumentsMap)
         .filter(([_, value]) => value)
         .map(([key]) => `--${key}`), // ['--key']
