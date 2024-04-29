@@ -45,9 +45,6 @@ export const notifyDownloadManually = notify<string>(
 );
 export const notifyNoUpdates = notify<void>(ipcConsts.AU_NO_UPDATES_AVAILABLE);
 export const notifyError = notify<Error>(ipcConsts.AU_ERROR);
-export const notifyForceUpdate = notify<UpdateInfo>(
-  ipcConsts.AU_FORCE_UPDATE_STARTED
-);
 
 // Utils
 export const getCurrentVersion = () =>
@@ -74,20 +71,15 @@ export const checkUpdates = async (
   autoDownload = false
 ): Promise<CheckUpdateResults> => {
   const currentVersion = getCurrentVersion();
-  const {
-    latestSmappRelease,
-    minSmappRelease,
-    smappBaseDownloadUrl,
-  } = currentNetwork;
+  const { latestSmappRelease, smappBaseDownloadUrl } = currentNetwork;
   const isEqualVersion = currentVersion.compare(latestSmappRelease) === 0;
 
   if (isEqualVersion) {
     return { status: UpdateInfoStatus.UpdateNotAvailable };
   }
 
-  const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
   autoUpdater.allowDowngrade = true;
-  autoUpdater.autoDownload = autoDownload || isOutdatedVersion;
+  autoUpdater.autoDownload = autoDownload;
   const feedUrl = getFeedUrl(smappBaseDownloadUrl, latestSmappRelease);
   autoUpdater.setFeedURL(feedUrl);
   try {
@@ -159,12 +151,10 @@ export const subscribe = (
       if (mainWindow.isMinimized()) {
         const notification = new Notification({
           title: `Spacemesh software requires a critical update: ${info.version}`,
-          subtitle:
-            'Do not turn off your computer — it will be updated automatically',
+          subtitle: 'Please update Spacemesh application as soon as possible.',
         });
         notification.show();
       }
-      return;
     }
 
     logger.log('update-available', info);

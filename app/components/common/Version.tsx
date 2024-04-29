@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { UpdateInfo as UpdateInfoT } from 'electron-updater';
 import { ipcRenderer } from 'electron';
@@ -16,7 +15,6 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { ipcConsts, smColors } from '../../vars';
 import packageInfo from '../../../package.json';
-import { AuthPath } from '../../routerPaths';
 import { getNetworkInfo } from '../../redux/network/selectors';
 import { checkUpdates as checkUpdatesIco } from '../../assets/images';
 import { AppThDispatch } from '../../types';
@@ -83,10 +81,6 @@ const SecondaryAction = styled.a`
   ${Action}
   ${hoverColor(smColors.purple, smColors.darkerPurple)}
 `;
-const SwitchNetwork = styled.a`
-  ${Action}
-  ${hoverColor(smColors.blue, smColors.darkerBlue)}
-`;
 
 const Attractor = styled.div`
   ${ChunkStyles};
@@ -110,7 +104,6 @@ const Error = styled(Chunk)`
 `;
 
 const UpdateInfo = ({ info }: { info: UpdateInfoT }) => {
-  const history = useHistory();
   const curVersion = new SemVer(packageInfo.version);
   const isDowngrade = curVersion.compare(info.version) === 1;
   return (
@@ -130,17 +123,11 @@ const UpdateInfo = ({ info }: { info: UpdateInfoT }) => {
       >
         Release notes
       </SecondaryAction>
-      {isDowngrade && (
-        <SwitchNetwork onClick={() => history.push(AuthPath.SwitchNetwork)}>
-          Switch network
-        </SwitchNetwork>
-      )}
     </>
   );
 };
 
 const ManualUpdateInfo = ({ version }: { version: string }) => {
-  const history = useHistory();
   const curVersion = new SemVer(packageInfo.version);
   const isDowngrade = curVersion.compare(version) === 1;
   return (
@@ -157,11 +144,6 @@ const ManualUpdateInfo = ({ version }: { version: string }) => {
       >
         Download
       </SecondaryAction>
-      {isDowngrade && (
-        <SwitchNetwork onClick={() => history.push(AuthPath.SwitchNetwork)}>
-          Switch network
-        </SwitchNetwork>
-      )}
     </>
   );
 };
@@ -244,10 +226,6 @@ const Updater = () => {
   );
 };
 
-const ForceUpdateInfo = ({ updateInfo }: { updateInfo: UpdateInfoT }) => (
-  <Attractor>Smapp is auto-updating to version {updateInfo.version}</Attractor>
-);
-
 const CheckForUpdates = () => {
   const updateInfo = useSelector(getUpdateInfo);
   const network = useSelector(getNetworkInfo);
@@ -303,23 +281,10 @@ const CheckForUpdates = () => {
 };
 
 const Version = () => {
-  const [forceUpdateInfo, setForceUpdateInfo] = useState<UpdateInfoT | null>(
-    null
-  );
-
-  useEffect(() => {
-    const handler = (_, nextUpdateInfo) => setForceUpdateInfo(nextUpdateInfo);
-    ipcRenderer.on(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
-    return () => {
-      ipcRenderer.off(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
-    };
-  });
-
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
-      {forceUpdateInfo && <ForceUpdateInfo updateInfo={forceUpdateInfo} />}
-      {!forceUpdateInfo && <CheckForUpdates />}
+      <CheckForUpdates />
       <Updater />
       <UpdateError />
       <FeedbackButton />
