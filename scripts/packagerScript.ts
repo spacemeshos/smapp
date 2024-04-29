@@ -53,7 +53,7 @@ const getBuildOptions = ({ target }) => {
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
-        'desktop/bip32_bg.wasm',
+        'desktop/index_bg.wasm',
         'desktop/config.json',
         'package.json',
         'vendor/',
@@ -163,10 +163,10 @@ const getBuildOptions = ({ target }) => {
 };
 
 const preBuild = async () => {
-  // Copy bip32_bg.wasm to /desktop/bip32_bg.wasm
+  // Copy index_bg.wasm to /desktop/index_bg.wasm
   await fs.copyFile(
-    path.join(__dirname, '../node_modules/@spacemesh/ed25519-bip32/gen/bip32_bg.wasm'),
-    path.join(__dirname, '../desktop/bip32_bg.wasm')
+    path.join(__dirname, '../node_modules/@spacemesh/ed25519-bip32/node/index_bg.wasm'),
+    path.join(__dirname, '../desktop/index_bg.wasm')
   );
 
   return true;

@@ -43,4 +43,5 @@ ct-libc/
 .vscode
 /desktop/dist
 /desktop/bip32_bg.wasm
+/desktop/index_bg.wasm
 key.bin

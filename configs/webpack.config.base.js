@@ -38,6 +38,7 @@ export default {
       NODE_ENV: 'production'
     }),
     new webpack.IgnorePlugin({ resourceRegExp: /^\.\/wordlists\/(?!english)/, contextRegExp: /bip39\/src$/ }),
-  ]
+    new webpack.IgnorePlugin({ resourceRegExp: /index_bg\.wasm$/, contextRegExp: /bip32/ }),
+  ],
 };
 

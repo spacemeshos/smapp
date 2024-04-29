@@ -2541,10 +2541,10 @@
   resolved "https://registry.yarnpkg.com/@spacemesh/address-wasm/-/address-wasm-0.2.1.tgz#ae6468eb9a9063b3bd33c662966aba1dcd36444f"
   integrity sha512-YsQiZ4edwUts4rwJpYGxpkQgleKjzNyyi626ep03saCCxN4/yksSh5Gn987QS6KxWJlNufZM1KHnUq4+Kasr5g==
 
-"@spacemesh/ed25519-bip32@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@spacemesh/ed25519-bip32/-/ed25519-bip32-0.1.0.tgz#cbdaaa4c8606ff834a95d0434d49b57a5689ce82"
-  integrity sha512-paXkpc5Vj/XoSPGYtUyoqmc4TOfw735udx+HtIGmxhnCQaW3ar0zFOKm9ACPqsM0BF5AbSea5th3uxRmqFpcag==
+"@spacemesh/ed25519-bip32@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@spacemesh/ed25519-bip32/-/ed25519-bip32-0.2.1.tgz#f622616060fb477b1fbc5d1292ff21993927a3b2"
+  integrity sha512-wwB9FHotFBc1IqYLNZRXt9jZIm7K4gWap4EaotEGeoRLvVJNR/J63TXZBEsHhPrMOWTC2yAcxi6GC47bxsYOhA==
 
 "@spacemesh/sm-codec@^0.4.1":
   version "0.4.1"

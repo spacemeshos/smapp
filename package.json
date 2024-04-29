@@ -181,7 +181,7 @@
     "@grpc/proto-loader": "0.6.2",
     "@reduxjs/toolkit": "^1.9.5",
     "@spacemesh/address-wasm": "^0.2.0",
-    "@spacemesh/ed25519-bip32": "^0.1.0",
+    "@spacemesh/ed25519-bip32": "^0.2.1",
     "@spacemesh/sm-codec": "^0.4.1",
     "auto-launch": "^5.0.6",
     "bip39": "3.0.3",
