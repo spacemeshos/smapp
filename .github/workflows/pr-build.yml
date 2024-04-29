@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: macos-latest
+          - image: macos-13
             id: macos
             platform: macos
             node: mac-amd64
