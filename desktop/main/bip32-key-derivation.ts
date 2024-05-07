@@ -1,4 +1,4 @@
-import { derive_key } from '@spacemesh/ed25519-bip32';
+import { derive_key } from '@spacemesh/ed25519-bip32/node';
 
 export default class Bip32KeyDerivation {
   static COIN_TYPE = 540;
