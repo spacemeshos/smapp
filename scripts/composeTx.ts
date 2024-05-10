@@ -3,7 +3,7 @@ import Bech32 from '@spacemesh/address-wasm';
 import prompts from 'prompts';
 
 import { sign } from '../desktop/ed25519';
-import { fromHexString, generateGenesisID } from '../shared/utils';
+import { fromHexString } from '../shared/utils';
 import { SingleSigMethods } from '../shared/templateConsts';
 
 (async () => {
@@ -17,19 +17,13 @@ import { SingleSigMethods } from '../shared/templateConsts';
       choices: [
         { title: 'TestNet', value: 'stest' },
         { title: 'MainNet', value: 'sm' },
+        { title: 'Standalone', value: 'standalone' },
       ],
     },
     {
       type: 'text',
-      name: 'genesisTime',
-      message: 'Genesis Time',
-      validate: (val) => Boolean(new Date(val)),
-    },
-    {
-      type: 'text',
-      name: 'genesisExtraData',
-      message: 'Genesis Extra Data',
-      validate: (val) => Boolean(new Date(val)),
+      name: 'genesisID',
+      message: 'Genesis ID',
     },
     {
       type: 'text',
@@ -137,13 +131,12 @@ import { SingleSigMethods } from '../shared/templateConsts';
   logBytes('encodedTx', encodedTx);
 
   if (inputs.doSign) {
-    const { genesisTime, genesisExtraData } = inputs
-    const genesisID = generateGenesisID((new Date(genesisTime)).toString(), genesisExtraData)
-    const hash = sm.hash(new Uint8Array([...genesisID, ...encodedTx]));
-    const sig = sign(hash, inputs.secretKey);
+    const { genesisID } = inputs
+    const sig = sign(new Uint8Array([...Buffer.from(genesisID, 'base64'), ...encodedTx]), inputs.secretKey);
     logBytes('signature', sig);
     const signed = tpl.sign(encodedTx, sig);
     logBytes('signedTx', signed);
+    console.log('Base64:', Buffer.from(signed).toString('base64'));
 
     console.log('Verify...');
     console.dir(tpl.decode(signed), { depth: null, colors: true });
