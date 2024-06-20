@@ -172,7 +172,7 @@ jobs:
           ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
 
       - name: Install libOpenCL.so
-        if: ${{ matrix.id == 'linux' || matrix.os == 'ubuntu-latest-arm-8-cores' }}
+        if: ${{ matrix.id == 'linux' || matrix.image == 'ubuntu-latest-arm-8-cores' }}
         run: |
           sudo apt update
           sudo apt install ocl-icd-opencl-dev
