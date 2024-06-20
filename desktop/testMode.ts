@@ -39,26 +39,19 @@ export const getTestModeNodeConfig = (): NodeConfig => ({
   main: {
     'layer-duration': '6s',
     'layers-per-epoch': 10,
-    'eligibility-confidence-param': 18,
-    'tick-size': 67000,
     'network-hrp': HRP.Standalone,
   },
-  genesis: {
-    'genesis-time': TEST_MODE_GENESIS_TIME,
-    'genesis-extra-data': 'standalone',
-  },
   poet: {
-    'phase-shift': '30s',
     'cycle-gap': '30s',
-    'grace-period': '10s',
   },
   post: {
     'post-labels-per-unit': 128,
     'post-max-numunits': 4,
     'post-min-numunits': 1,
-    'post-k1': 12,
-    'post-k2': 4,
-    'post-k3': 4,
+  },
+  genesis: {
+    'genesis-time': TEST_MODE_GENESIS_TIME,
+    'genesis-extra-data': 'standalone',
   },
 });
 
