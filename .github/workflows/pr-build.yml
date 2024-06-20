@@ -119,9 +119,9 @@ jobs:
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $( curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}} ) == "200" ]] &&
-          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
-          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
+          [[ $( curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{ steps.node-link.outputs.link }} ) == "200" ]] &&
+          echo "Atifacts found: ${{ steps.node-link.outputs.link }}" && exit 0 ||
+          echo "Not found: ${{ steps.node-link.outputs.link }}" && exit 1
         shell: bash
 
       - id: platform
@@ -133,7 +133,7 @@ jobs:
       - name: Download go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          curl -L --output ./node/release.zip --create-dirs ${{steps.node-link.outputs.link}}
+          curl -L --output ./node/release.zip --create-dirs ${{ steps.node-link.outputs.link }}
 
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -169,10 +169,10 @@ jobs:
       - name: ls ./node
         run: |
           7z l ./node/release.zip
-          ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
+          ls ${{ matrix.platform != 'windows' && '-la' || '' }} ./node/${{ steps.platform.outputs.dir }}/
 
       - name: Install libOpenCL.so
-        if: ${{ matrix.id == 'linux' || matrix.image == 'ubuntu-latest-arm-8-cores' }}
+        if: ${{ matrix.platform == 'linux' }}
         run: |
           sudo apt update
           sudo apt install ocl-icd-opencl-dev
@@ -208,7 +208,7 @@ jobs:
           DONT_SIGN_APP: true # Do not sign the development artifacts
 
       - name: ls ./release
-        run: ls ${{matrix.platform != 'windows' && '-la' || ''}} ./release
+        run: ls ${{ matrix.platform != 'windows' && '-la' || '' }} ./release
 
       # Upload artifacts to GCS
       - name: get-smapp-version
