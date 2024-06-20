@@ -124,7 +124,7 @@ jobs:
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{ steps.node-link.outputs.link }}) == "200" ]] &&
-          echo "Atifacts found: ${{ steps.node-link.outputs.link }}" && exit 0 ||
+          echo "Artifacts found: ${{ steps.node-link.outputs.link }}" && exit 0 ||
           echo "Not found: ${{ steps.node-link.outputs.link }}" && exit 1
         shell: bash
 
@@ -181,6 +181,12 @@ jobs:
         run: |
           sudo apt update
           sudo apt install ocl-icd-opencl-dev
+
+      - name: Install fpm
+        if: matrix.id == 'linux-arm64'
+        run: |
+          sudo apt-get install -y ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
 
       # Run tests and build
       - name: Test

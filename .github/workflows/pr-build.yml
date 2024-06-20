@@ -172,10 +172,16 @@ jobs:
           ls ${{ matrix.platform != 'windows' && '-la' || '' }} ./node/${{ steps.platform.outputs.dir }}/
 
       - name: Install libOpenCL.so
-        if: ${{ matrix.platform == 'linux' }}
+        if: matrix.platform == 'linux'
         run: |
           sudo apt update
           sudo apt install ocl-icd-opencl-dev
+
+      - name: Install fpm
+        if: matrix.id == 'linux-arm64'
+        run: |
+          sudo apt-get install -y ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
 
       # Run tests
       - name: yarn test
@@ -190,7 +196,7 @@ jobs:
       - if: matrix.platform == 'linux'
         name: Build linux app
         run: |
-          echo "USE_SYSTEM_FPM?$(echo $USE_SYSTEM_FPM)"
+          echo "USE_SYSTEM_FPM? $(echo $USE_SYSTEM_FPM)"
           yarn package-linux
         env:
           USE_SYSTEM_FPM: ${{ matrix.id == 'linux-arm64' && 'true' }}
