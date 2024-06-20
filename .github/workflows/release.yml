@@ -36,7 +36,7 @@ jobs:
             node: mac-arm64
             arch: arm64
             quicksync: macos-arm64
-          - image: [self-hosted, linux, arm64]
+          - image: ubuntu-latest-arm-8-cores
             id: linux-arm64
             platform: linux
             node: linux-arm64
@@ -123,9 +123,9 @@ jobs:
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
-          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
-          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
+          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{ steps.node-link.outputs.link }}) == "200" ]] &&
+          echo "Artifacts found: ${{ steps.node-link.outputs.link }}" && exit 0 ||
+          echo "Not found: ${{ steps.node-link.outputs.link }}" && exit 1
         shell: bash
 
       - id: platform
@@ -138,7 +138,7 @@ jobs:
       - name: Download go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          curl -L --output ./node/release.zip --create-dirs ${{steps.node-link.outputs.link}}
+          curl -L --output ./node/release.zip --create-dirs ${{ steps.node-link.outputs.link }}
 
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -174,13 +174,19 @@ jobs:
       - name: ls archive and ./node
         run: |
           7z l ./node/release.zip
-          ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
+          ls ${{ matrix.platform != 'windows' && '-la' || '' }} ./node/${{ steps.platform.outputs.dir }}/
 
       - name: Install libOpenCL.so
-        if: matrix.id == 'linux'
+        if: matrix.platform == 'linux'
         run: |
           sudo apt update
           sudo apt install ocl-icd-opencl-dev
+
+      - name: Install fpm
+        if: matrix.id == 'linux-arm64'
+        run: |
+          sudo apt-get install -y ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
 
       # Run tests and build
       - name: Test
@@ -297,14 +303,14 @@ jobs:
         with:
           file: ./signed/latest.yml
           path: sha512
-          set: ${{steps.sha512.outputs.value}}
+          set: ${{ steps.sha512.outputs.value }}
 
       - name: Update latest.yml (files.0.sha512)
         uses: endaft/action-yamler@v1.0.9
         with:
           file: ./signed/latest.yml
           path: files.0.sha512
-          set: ${{steps.sha512.outputs.value}}
+          set: ${{ steps.sha512.outputs.value }}
 
       - name: Store signed artifact
         uses: actions/upload-artifact@v2
@@ -442,7 +448,7 @@ jobs:
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source_dir: ./release/macos/
           destination_dir: dist/${{ needs.build.outputs.tagName }}
@@ -452,7 +458,7 @@ jobs:
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source_dir: ./release/macos-arm64/
           destination_dir: dist/${{ needs.build.outputs.tagName }}
@@ -462,7 +468,7 @@ jobs:
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source_dir: ./release/windows-signed/
           destination_dir: dist/${{ needs.build.outputs.tagName }}
@@ -472,7 +478,7 @@ jobs:
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source_dir: ./release/linux/
           destination_dir: dist/${{ needs.build.outputs.tagName }}
@@ -482,7 +488,7 @@ jobs:
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
           source_dir: ./release/linux-arm64/
           destination_dir: dist/${{ needs.build.outputs.tagName }}
