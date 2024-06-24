@@ -49,6 +49,7 @@ import syncAutoStartAndConfig from './reactions/syncAutoStartAndConfig';
 import restartNode from './reactions/restartNode';
 import { updateConfigHash } from './configHash';
 import { ensureConfigCacheDir } from './fallbackConfigs';
+import handleExportInfoIPC from './reactions/handleExportInfoIPC';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -271,6 +272,7 @@ const startApp = (): AppStore => {
     listenNodeConfigAndRestartNode($nodeConfig, $managers),
     handleBenchmarksIpc($mainWindow, $nodeConfig),
     syncAutoStartAndConfig($warnings),
+    handleExportInfoIPC($mainWindow),
   ];
 
   return {

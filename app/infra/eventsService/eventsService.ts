@@ -247,6 +247,8 @@ class EventsService {
 
   /** **************************************   MISC   ***************************************** */
 
+  static exportNetInfo = () => ipcRenderer.invoke(ipcConsts.EXPORT_NET_INFO);
+
   static print = ({ content }: { content: string }) =>
     ipcRenderer.send(ipcConsts.PRINT, { content });
 
