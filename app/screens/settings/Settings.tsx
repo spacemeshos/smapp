@@ -492,6 +492,17 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title={categories[3]} name={categories[3]}>
               <SettingRow
+                upperPartLeft="Export network information"
+                upperPartRight={
+                  <Button
+                    onClick={eventsService.exportNetInfo}
+                    text="EXPORT INFO"
+                    width={180}
+                  />
+                }
+                rowName=""
+              />
+              <SettingRow
                 upperPartLeft={getFormattedTimestamp(genesisTime)}
                 isUpperPartLeftText
                 rowName="Genesis time"

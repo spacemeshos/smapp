@@ -102,6 +102,7 @@ export interface NodeConfig {
   post: {
     'post-labels-per-unit': number;
     'post-max-numunits': number;
+    'post-min-numunits'?: number;
   };
 }
 

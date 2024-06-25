@@ -1,6 +1,7 @@
 import { ProtoGrpcType } from '../api/generated';
 import { Event } from '../api/generated/spacemesh/v1/Event';
 
+import { PeerInfo__Output } from '../api/generated/spacemesh/v1/PeerInfo';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { getPrivateNodeConnectionConfig } from './main/utils';
@@ -37,6 +38,23 @@ class AdminService extends NetServiceFactory<
     );
     return this.cancelEventsStream;
   };
+
+  getPeerInfo = () =>
+    new Promise((resolve, reject) => {
+      if (!this.service) {
+        reject(new Error('Service is not started yet'));
+        return;
+      }
+
+      const result: PeerInfo__Output[] = [];
+      const stream = this.service?.PeerInfoStream({});
+      if (!stream) {
+        resolve([]);
+        return;
+      }
+      stream.on('data', (d) => result.push(d));
+      stream.on('close', () => resolve(result));
+    });
 }
 
 export default AdminService;
