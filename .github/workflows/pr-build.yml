@@ -269,53 +269,55 @@ jobs:
       # Upload artifacts to Cloudflare
       - if: matrix.platform == 'macos'
         name: Upload macos build to R2
-        uses: shallwefootball/s3-upload-action@master
-        env:
-          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
+        uses: jakejarvis/s3-sync-action@master
         with:
-          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
-          source_dir: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg
-          destination_dir: dist/pr-${{ github.sha }}
-          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          args: --acl public-read --follow-symlinks --delete
+        env:
+            AWS_S3_BUCKET: ${{ secrets.CLOUDFLARE_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+            SOURCE_DIR: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ matrix.arch != '' && '-' || '' }}${{ matrix.arch }}.dmg
+            DEST_DIR: 'dist/pr-${{ github.sha }}'
+            AWS_S3_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - if: matrix.platform == 'windows'
         name: Upload windows build to R2
-        uses: shallwefootball/s3-upload-action@master
+        uses: jakejarvis/s3-sync-action@master
         with:
-          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
-          source_dir: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
-          destination_dir: dist/pr-${{ github.sha }}
-          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          args: --acl public-read --follow-symlinks --delete
+        env:
+            AWS_S3_BUCKET: ${{ secrets.CLOUDFLARE_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+            SOURCE_DIR: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
+            DEST_DIR: 'dist/pr-${{ github.sha }}'
+            AWS_S3_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - if: matrix.platform == 'linux'
         name: Upload linux build to R2
-        uses: shallwefootball/s3-upload-action@master
-        env:
-          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
+        uses: jakejarvis/s3-sync-action@master
         with:
-          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
-          source_dir: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb
-          destination_dir: dist/pr-${{ github.sha }}
-          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          args: --acl public-read --follow-symlinks --delete
+        env:
+            AWS_S3_BUCKET: ${{ secrets.CLOUDFLARE_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+            SOURCE_DIR: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}.deb
+            DEST_DIR: 'dist/pr-${{ github.sha }}'
+            AWS_S3_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - if: matrix.platform == 'linux'
         name: Upload linux build to R2
-        uses: shallwefootball/s3-upload-action@master
-        env:
-          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+        uses: jakejarvis/s3-sync-action@master
         with:
-          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
-          source_dir: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
-          destination_dir: dist/pr-${{ github.sha }}
-          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          args: --acl public-read --follow-symlinks --delete
+        env:
+            AWS_S3_BUCKET: ${{ secrets.CLOUDFLARE_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+            SOURCE_DIR: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}.AppImage
+            DEST_DIR: 'dist/pr-${{ github.sha }}'
+            AWS_S3_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
   post-links:
     runs-on: ubuntu-latest
