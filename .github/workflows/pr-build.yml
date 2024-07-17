@@ -266,6 +266,57 @@ jobs:
           path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
+      # Upload artifacts to Cloudflare
+      - if: matrix.platform == 'macos'
+        name: Upload macos build to R2
+        uses: shallwefootball/s3-upload-action@master
+        env:
+          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg
+          destination_dir: dist/pr-${{ github.sha }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - if: matrix.platform == 'windows'
+        name: Upload windows build to R2
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
+          destination_dir: dist/pr-${{ github.sha }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - if: matrix.platform == 'linux'
+        name: Upload linux build to R2
+        uses: shallwefootball/s3-upload-action@master
+        env:
+          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb
+          destination_dir: dist/pr-${{ github.sha }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - if: matrix.platform == 'linux'
+        name: Upload linux build to R2
+        uses: shallwefootball/s3-upload-action@master
+        env:
+          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+        with:
+          aws_key_id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.CLOUDFLARE_BUCKET }}
+          source_dir: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
+          destination_dir: dist/pr-${{ github.sha }}
+          endpoint: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
   post-links:
     runs-on: ubuntu-latest
     needs: build-and-upload
