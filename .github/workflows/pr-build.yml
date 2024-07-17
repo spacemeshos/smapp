@@ -273,7 +273,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          region: ${{ secrets.CLOUDFLARE_BUCKET_REGION}}
+          aws-region: ${{ secrets.CLOUDFLARE_BUCKET_REGION}}
 
       - if: matrix.platform == 'macos'
         name: Upload macos build to R2
