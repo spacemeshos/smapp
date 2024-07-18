@@ -270,7 +270,7 @@ jobs:
 
       - if: matrix.platform == 'macos'
         name: aws cli macos
-        run: brew install awscli
+        run: aws --version
 
       - if: matrix.platform == 'windows'
         name: aws cli windows
