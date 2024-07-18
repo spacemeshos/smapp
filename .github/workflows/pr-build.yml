@@ -268,12 +268,23 @@ jobs:
 
       # Upload artifacts to Cloudflare
 
+      - if: matrix.platform == 'macos'
+        name: aws cli macos
+        run: brew install awscli
+
+      - if: matrix.platform == 'windows'
+        name: aws cli windows
+        run: choco install awscli
+
+      - if: matrix.platform == 'linux'
+        name: aws cli linux
+        run: sudo apt install awscli
+
       - name: Set Up AWS export_default_credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY}}
-          aws-region: ${{ secrets.CLOUDFLARE_BUCKET_REGION}}
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }} && \
+          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }} && \
+          aws configure set region ${{ secrets.CLOUDFLARE_BUCKET_REGION }}
 
       - if: matrix.platform == 'macos'
         name: Upload macos build to R2
