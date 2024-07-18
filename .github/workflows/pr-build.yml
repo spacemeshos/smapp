@@ -282,8 +282,8 @@ jobs:
 
       - name: Set Up AWS export_default_credentials
         run: |
-          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }} && \
-          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }} && \
+          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           aws configure set region ${{ secrets.CLOUDFLARE_BUCKET_REGION }}
 
       - if: matrix.platform == 'macos'
