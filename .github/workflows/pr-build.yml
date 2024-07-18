@@ -299,10 +299,9 @@ jobs:
       - if: matrix.platform == 'windows'
         name: Upload windows build to R2
         run: | 
-          BUILD_PATH='Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe'
+          $BUILD_PATH='Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe'
 
-          aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
-          --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          aws s3 cp "./release/$BUILD_PATH" "s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/$BUILD_PATH" --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
       - if: matrix.platform == 'linux'
         name: Upload linux build to R2
