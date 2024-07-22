@@ -255,12 +255,12 @@ jobs:
       - name: Download CodeSignTool archive
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
         run: |
-          curl -L -k --output ./codesigntool.zip --create-dirs https://storage.googleapis.com/smapp/tools/codesigntool.zip
+          curl -L -k --output ./codesigntool.zip --create-dirs https://smapp-downloads.spacemesh.network/codesigntool.zip
 
       - name: Unzip archive
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
         run: |
-          unzip -d ./codesigntool/ ./codesigntool.zip
+          unzip -d ./ ./codesigntool.zip
           chmod 755 ./codesigntool/*
 
       # CodeSignTool requires Java 11 and ubuntu-latest uses it by default
