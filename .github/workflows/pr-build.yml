@@ -266,19 +266,72 @@ jobs:
           path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
+      # Upload artifacts to Cloudflare
+      - if: matrix.platform == 'windows'
+        name: aws cli windows
+        run: choco install awscli
+
+      - if: matrix.platform == 'linux'
+        name: aws cli linux
+        run: sudo apt install awscli
+
+      - name: Set Up AWS export_default_credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.CLOUDFLARE_BUCKET_REGION }}
+
+      - if: matrix.platform == 'macos'
+        name: Upload macos build to R2
+        env:
+          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
+        run: | 
+          BUILD_PATH='Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg'
+
+          aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
+          --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - if: matrix.platform == 'windows'
+        name: Upload windows build to R2
+        run: | 
+          $BUILD_PATH='Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe'
+
+          aws s3 cp "./release/$BUILD_PATH" "s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/$BUILD_PATH" --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - if: matrix.platform == 'linux'
+        name: Upload linux build to R2
+        env:
+          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
+        run: | 
+          BUILD_PATH='spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb'
+
+          aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
+          --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+
+      - if: matrix.platform == 'linux'
+        name: Upload linux build to R2
+        env:
+          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+        run: | 
+          BUILD_PATH='Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage'
+
+          aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
+          --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
   post-links:
     runs-on: ubuntu-latest
     needs: build-and-upload
     steps:
       - name: Links to artifacts
         run: |
-          echo "Windows (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
-          echo "macOS (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
-          echo "macOS (arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg"
-          echo "Linux (deb, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
-          echo "Linux (AppImage, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage"
-          echo "Linux (deb, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb"
-          echo "Linux (AppImage, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage"
+          echo "Windows (x64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "macOS (x64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+          echo "macOS (arm64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg"
+          echo "Linux (deb, amd64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Linux (AppImage, amd64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage"
+          echo "Linux (deb, arm64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb"
+          echo "Linux (AppImage, arm64): https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage"
       - name: Post links to PR
         if: github.event_name == 'pull_request'
         uses: mshick/add-pr-comment@v1
@@ -287,8 +340,8 @@ jobs:
         with:
           message: |
             ## Compiled Binaries
-            - Windows: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe)
-            - macOS: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg)
+            - Windows: [x64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe)
+            - macOS: [x64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg) [arm64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg)
             - Linux
-              - AppImage [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage)
-              - deb [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb)
+              - AppImage [x64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage) [arm64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage)
+              - deb [x64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb) [arm64](https://smapp.spacemesh.network/dist/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb)
