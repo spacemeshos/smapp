@@ -223,7 +223,7 @@ jobs:
 
       # Store artifacts for further jobs
       - name: Store artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.id }}
           path: |
@@ -313,7 +313,7 @@ jobs:
           set: ${{ steps.sha512.outputs.value }}
 
       - name: Store signed artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: windows-signed
           path: ./signed/*
@@ -367,14 +367,14 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Store x64 signature
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux
           path: ./release/linux/${{ steps.filename.outputs.x64 }}.sig
           if-no-files-found: error
 
       - name: Store arm64 signature
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-arm64
           path: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig
