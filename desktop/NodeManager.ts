@@ -778,6 +778,9 @@ class NodeManager extends AbstractManager {
     };
   };
 
+  private getNodeStateFile = (nodeData: string) =>
+    path.resolve(nodeData, 'state.sql');
+
   private checkForPausedQuicksync = async (
     nodeData: string
   ): Promise<PausedQuicksyncStatus | null> => {
@@ -912,13 +915,20 @@ class NodeManager extends AbstractManager {
     }
 
     const bin = getQuicksyncPath();
-    const args = [
-      'download',
-      '--node-data',
-      this.getNodeDataPath(),
-      '--go-spacemesh-path',
-      getNodePath(),
-    ];
+
+    const nodeDataPath = this.getNodeDataPath();
+    const stateFile = this.getNodeStateFile(nodeDataPath);
+    const shouldDownloadEntire = !(await fse.pathExists(stateFile));
+
+    const args = shouldDownloadEntire
+      ? [
+          'download',
+          '--node-data',
+          nodeDataPath,
+          '--go-spacemesh-path',
+          getNodePath(),
+        ]
+      : ['partial', '-s', stateFile, '-j', '1'];
 
     logger.log('runQuicksync:download', `${bin} ${args.join(' ')}`);
 
