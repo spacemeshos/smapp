@@ -329,11 +329,33 @@ class NodeManager extends AbstractManager {
           isLocalStateFarBehind(qsStatus, 100)
         ) {
           await this.runQuicksyncPrompt(qsStatus);
+        } else if (
+          qsStatus.partial &&
+          qsStatus.db >= qsStatus.partial.from &&
+          qsStatus.partial.to >= qsStatus.current - 10
+        ) {
+          hideGenericModal(this.mainWindow.webContents);
+          const isForce = await showGenericPrompt(this.mainWindow.webContents, {
+            title: 'Quick sync is not needed',
+            message: [
+              `Partial quicksync available from layer ${qsStatus.partial.from} to ${qsStatus.partial.to}`,
+              `Latest layer in your database: ${qsStatus.db}`,
+              `Current layer in the network: ${qsStatus.current}`,
+              '',
+              'Your node is nearly synced. We recommend you to keep using your local state.',
+              'Do you want to partially update to the trusted state anyway?',
+            ].join('\n'),
+            confirmTitle: 'Update partially!',
+            cancelTitle: 'No, thanks!',
+            cancelTimeout: 60,
+          });
+          isForce && (await this.runQuicksyncDownload());
         } else {
           hideGenericModal(this.mainWindow.webContents);
           const isForce = await showGenericPrompt(this.mainWindow.webContents, {
             title: 'Quick sync is not needed',
             message: [
+              'Partial update is not available.',
               `Latest layer in your database: ${qsStatus.db}`,
               `Latest layer in the trusted state: ${qsStatus.available}`,
               `Current layer in the network: ${qsStatus.current}`,
@@ -341,11 +363,11 @@ class NodeManager extends AbstractManager {
               'Your node is nearly synced. We recommend you to keep using your local state.',
               'Do you want to download the trusted state anyway?',
             ].join('\n'),
-            confirmTitle: 'Download anyway!',
+            confirmTitle: 'Download entire state!',
             cancelTitle: 'No, thanks!',
             cancelTimeout: 60,
           });
-          isForce && (await this.runQuicksyncDownload());
+          isForce && (await this.runQuicksyncDownload(isForce));
         }
       } catch (err) {
         logger.error('runQuicksyncByButton', err);
@@ -484,9 +506,19 @@ class NodeManager extends AbstractManager {
     try {
       hideGenericModal(this.mainWindow.webContents);
 
+      const isPartialAvailable =
+        qsStatus.partial !== null &&
+        qsStatus.db >= qsStatus.partial.from &&
+        qsStatus.db < qsStatus.partial.to;
+
       const prompt = await showGenericPrompt(this.mainWindow.webContents, {
         title: 'Run a Quicksync?',
         message: [
+          `Partial update is ${
+            isPartialAvailable
+              ? `available from layer ${qsStatus.partial?.from} to ${qsStatus.partial?.to}`
+              : 'not available'
+          }`,
           `Latest layer in your database: ${qsStatus.db}`,
           `Latest layer in the trusted state: ${qsStatus.available}`,
           `Current layer in the network: ${qsStatus.current}`,
@@ -497,7 +529,7 @@ class NodeManager extends AbstractManager {
           '',
           'You can run the Quicksync from the settings page later.',
         ].join('\n'),
-        confirmTitle: 'Yes, download it!',
+        confirmTitle: 'Yes, run quicksync!',
         cancelTitle: 'Sync as usual',
         cancelTimeout: 60,
       });
@@ -517,24 +549,33 @@ class NodeManager extends AbstractManager {
           const resume = await showGenericPrompt(this.mainWindow.webContents, {
             title: 'Resume interrupted quicksync?',
             message: [
-              'You have an incomplete download:',
+              'You have an incomplete download of the entire state:',
               `Layer: ${qsStatus.paused.layer}`,
               `Progress: ${downloaded} MB / ${total} MB (${percent}%)`,
               '',
               'Do you want to resume downloading it?',
-              `Or download from scratch for layer: ${qsStatus.available}?`,
+              isPartialAvailable
+                ? 'Or delete downloaded data and run partial quicksync?'
+                : `Or download from scratch for layer: ${qsStatus.available}?`,
             ].join('\n'),
             confirmTitle: 'Yes, resume',
-            cancelTitle: 'Download from scratch',
+            cancelTitle: isPartialAvailable
+              ? 'Run partial quicksync'
+              : 'Download from scratch',
           });
-          if (!resume) {
-            const { urlFile, downloadFile } = this.getQuicksyncFiles(
-              this.getNodeDataPath()
-            );
-            await fse.remove(urlFile);
-            await fse.remove(downloadFile);
+          if (resume) {
+            // Continue downloading
+            await this.runQuicksyncDownload(true);
+            return;
           }
+          // Otherwise clean up downloaded files
+          const { urlFile, downloadFile } = this.getQuicksyncFiles(
+            this.getNodeDataPath()
+          );
+          await fse.remove(urlFile);
+          await fse.remove(downloadFile);
         }
+        // And run quicksync as usual
         await this.runQuicksyncDownload();
       }
     } catch (err) {
@@ -824,10 +865,74 @@ class NodeManager extends AbstractManager {
     }
   };
 
+  private checkForPartialQuicksync = async (nodeDataDir: string) => {
+    const bin = getQuicksyncPath();
+    const stateFile = path.resolve(nodeDataDir, 'state.sql');
+
+    return new Promise<QuicksyncStatus['partial']>((resolve, reject) => {
+      const args = ['partial-check', '--state-sql', stateFile];
+      const process = spawn(bin, args);
+      logger.log('runQuicksync:check', `${bin} ${args.join(' ')}`);
+
+      let stdout = '';
+      let stderr = '';
+      process.stdout.on('data', (data) => {
+        stdout += data;
+      });
+      process.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      process.on('error', (err) => {
+        reject(
+          new Error(
+            `Cannot run Quicksync tool to check the database: ${err.message}`
+          )
+        );
+      });
+
+      process.on('close', async (code) => {
+        if (code !== 0) {
+          // TODO: Better error for known codes
+          return reject(
+            new Error(
+              `Quicksync tool failed with exit code ${code}:\n${stderr}`
+            )
+          );
+        }
+
+        const stats = stdout
+          .split('\n')
+          .filter((l) => l.startsWith('Possible to restore'));
+
+        if (stats.length !== 2) {
+          return reject(
+            new Error(
+              `Unknown result of running Quicksync tool:\n${stdout}\n${stderr}`
+            )
+          );
+        }
+
+        const result: QuicksyncStatus['partial'] = {
+          from: parseInt(stats[0].match(/(\d+)/)?.[0] || '0', 10),
+          to: parseInt(stats[1].match(/(\d+)/)?.[0] || '0', 10),
+        };
+
+        logger.log('runQuicksyncPartialCheck', result);
+        return resolve(result);
+      });
+    }).catch(() => {
+      return null;
+    });
+  };
+
+  private quicksyncStatus: QuicksyncStatus | null = null;
+
   private runQuicksyncCheck = async () => {
     const bin = getQuicksyncPath();
     const nodeDataDir = this.getNodeDataPath();
     const paused = await this.checkForPausedQuicksync(nodeDataDir);
+    const partial = await this.checkForPartialQuicksync(nodeDataDir);
     return new Promise<QuicksyncStatus>((resolve, reject) => {
       const args = [
         'check',
@@ -889,8 +994,10 @@ class NodeManager extends AbstractManager {
           current,
           available,
           paused,
+          partial,
         };
 
+        this.quicksyncStatus = result;
         this.sendToMainWindow(ipcConsts.UPDATE_QUICKSYNC_STATUS, result);
         logger.log('runQuicksyncCheck', result);
         return resolve(result);
@@ -898,7 +1005,9 @@ class NodeManager extends AbstractManager {
     });
   };
 
-  private runQuicksyncDownload = async () => {
+  private runQuicksyncDownload = async (
+    forceEntire = false
+  ): Promise<boolean> => {
     if (this.nodeProcess) {
       showGenericModal(this.mainWindow.webContents, {
         title: 'Quicksyncing...',
@@ -918,21 +1027,27 @@ class NodeManager extends AbstractManager {
 
     const nodeDataPath = this.getNodeDataPath();
     const stateFile = this.getNodeStateFile(nodeDataPath);
-    const shouldDownloadEntire = !(await fse.pathExists(stateFile));
 
-    const args = shouldDownloadEntire
-      ? [
+    const isPartialAvailable =
+      this.quicksyncStatus?.partial &&
+      this.quicksyncStatus.db >= this.quicksyncStatus.partial.from &&
+      this.quicksyncStatus.db < this.quicksyncStatus.partial.to;
+
+    const shouldQuicksyncPartially = !forceEntire && isPartialAvailable;
+
+    const args = shouldQuicksyncPartially
+      ? ['partial', '--state-sql', stateFile]
+      : [
           'download',
           '--node-data',
           nodeDataPath,
           '--go-spacemesh-path',
           getNodePath(),
-        ]
-      : ['partial', '-s', stateFile, '-j', '1'];
+        ];
 
     logger.log('runQuicksync:download', `${bin} ${args.join(' ')}`);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
       if (!isFileExists(bin)) {
         reject(new Error(`Quicksync tool is not found: ${bin}`));
         return;
