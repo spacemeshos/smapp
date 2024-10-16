@@ -330,22 +330,22 @@ class NodeManager extends AbstractManager {
         ) {
           await this.runQuicksyncPrompt(qsStatus);
         } else if (
-          qsStatus.partial &&
-          qsStatus.db >= qsStatus.partial.from &&
-          qsStatus.partial.to >= qsStatus.current - 10
+          qsStatus.incremental &&
+          qsStatus.db >= qsStatus.incremental.from &&
+          qsStatus.incremental.to >= qsStatus.current - 10
         ) {
           hideGenericModal(this.mainWindow.webContents);
           const isForce = await showGenericPrompt(this.mainWindow.webContents, {
             title: 'Quick sync is not needed',
             message: [
-              `Partial quicksync available from layer ${qsStatus.partial.from} to ${qsStatus.partial.to}`,
+              `Incremental quicksync available from layer ${qsStatus.incremental.from} to ${qsStatus.incremental.to}`,
               `Latest layer in your database: ${qsStatus.db}`,
               `Current layer in the network: ${qsStatus.current}`,
               '',
               'Your node is nearly synced. We recommend you to keep using your local state.',
-              'Do you want to partially update to the trusted state anyway?',
+              'Do you want to incrementally update to the trusted state anyway?',
             ].join('\n'),
-            confirmTitle: 'Update partially!',
+            confirmTitle: 'Update incrementally!',
             cancelTitle: 'No, thanks!',
             cancelTimeout: 60,
           });
@@ -355,7 +355,7 @@ class NodeManager extends AbstractManager {
           const isForce = await showGenericPrompt(this.mainWindow.webContents, {
             title: 'Quick sync is not needed',
             message: [
-              'Partial update is not available.',
+              'Incremental update is not available.',
               `Latest layer in your database: ${qsStatus.db}`,
               `Latest layer in the trusted state: ${qsStatus.available}`,
               `Current layer in the network: ${qsStatus.current}`,
@@ -506,17 +506,17 @@ class NodeManager extends AbstractManager {
     try {
       hideGenericModal(this.mainWindow.webContents);
 
-      const isPartialAvailable =
-        qsStatus.partial !== null &&
-        qsStatus.db >= qsStatus.partial.from &&
-        qsStatus.db < qsStatus.partial.to;
+      const isIncrementalAvailable =
+        qsStatus.incremental !== null &&
+        qsStatus.db >= qsStatus.incremental.from &&
+        qsStatus.db < qsStatus.incremental.to;
 
       const prompt = await showGenericPrompt(this.mainWindow.webContents, {
         title: 'Run a Quicksync?',
         message: [
-          `Partial update is ${
-            isPartialAvailable
-              ? `available from layer ${qsStatus.partial?.from} to ${qsStatus.partial?.to}`
+          `Incremental update is ${
+            isIncrementalAvailable
+              ? `available from layer ${qsStatus.incremental?.from} to ${qsStatus.incremental?.to}`
               : 'not available'
           }`,
           `Latest layer in your database: ${qsStatus.db}`,
@@ -554,13 +554,13 @@ class NodeManager extends AbstractManager {
               `Progress: ${downloaded} MB / ${total} MB (${percent}%)`,
               '',
               'Do you want to resume downloading it?',
-              isPartialAvailable
-                ? 'Or delete downloaded data and run partial quicksync?'
+              isIncrementalAvailable
+                ? 'Or delete downloaded data and run incremental quicksync?'
                 : `Or download from scratch for layer: ${qsStatus.available}?`,
             ].join('\n'),
             confirmTitle: 'Yes, resume',
-            cancelTitle: isPartialAvailable
-              ? 'Run partial quicksync'
+            cancelTitle: isIncrementalAvailable
+              ? 'Run incremental quicksync'
               : 'Download from scratch',
           });
           if (resume) {
@@ -865,12 +865,12 @@ class NodeManager extends AbstractManager {
     }
   };
 
-  private checkForPartialQuicksync = async (nodeDataDir: string) => {
+  private checkForIncrementalQuicksync = async (nodeDataDir: string) => {
     const bin = getQuicksyncPath();
     const stateFile = path.resolve(nodeDataDir, 'state.sql');
 
-    return new Promise<QuicksyncStatus['partial']>((resolve, reject) => {
-      const args = ['partial-check', '--state-sql', stateFile];
+    return new Promise<QuicksyncStatus['incremental']>((resolve, reject) => {
+      const args = ['incremental-check', '--state-sql', stateFile];
       const process = spawn(bin, args);
       logger.log('runQuicksync:check', `${bin} ${args.join(' ')}`);
 
@@ -913,12 +913,12 @@ class NodeManager extends AbstractManager {
           );
         }
 
-        const result: QuicksyncStatus['partial'] = {
+        const result: QuicksyncStatus['incremental'] = {
           from: parseInt(stats[0].match(/(\d+)/)?.[0] || '0', 10),
           to: parseInt(stats[1].match(/(\d+)/)?.[0] || '0', 10),
         };
 
-        logger.log('runQuicksyncPartialCheck', result);
+        logger.log('runQuicksyncIncrementalCheck', result);
         return resolve(result);
       });
     }).catch(() => {
@@ -932,7 +932,7 @@ class NodeManager extends AbstractManager {
     const bin = getQuicksyncPath();
     const nodeDataDir = this.getNodeDataPath();
     const paused = await this.checkForPausedQuicksync(nodeDataDir);
-    const partial = await this.checkForPartialQuicksync(nodeDataDir);
+    const incremental = await this.checkForIncrementalQuicksync(nodeDataDir);
     return new Promise<QuicksyncStatus>((resolve, reject) => {
       const args = [
         'check',
@@ -994,7 +994,7 @@ class NodeManager extends AbstractManager {
           current,
           available,
           paused,
-          partial,
+          incremental,
         };
 
         this.quicksyncStatus = result;
@@ -1028,15 +1028,15 @@ class NodeManager extends AbstractManager {
     const nodeDataPath = this.getNodeDataPath();
     const stateFile = this.getNodeStateFile(nodeDataPath);
 
-    const isPartialAvailable =
-      this.quicksyncStatus?.partial &&
-      this.quicksyncStatus.db >= this.quicksyncStatus.partial.from &&
-      this.quicksyncStatus.db < this.quicksyncStatus.partial.to;
+    const isIncrementalAvailable =
+      this.quicksyncStatus?.incremental &&
+      this.quicksyncStatus.db >= this.quicksyncStatus.incremental.from &&
+      this.quicksyncStatus.db < this.quicksyncStatus.incremental.to;
 
-    const shouldQuicksyncPartially = !forceEntire && isPartialAvailable;
+    const shouldQuicksyncIncrementally = !forceEntire && isIncrementalAvailable;
 
-    const args = shouldQuicksyncPartially
-      ? ['partial', '--state-sql', stateFile]
+    const args = shouldQuicksyncIncrementally
+      ? ['incremental', '--state-sql', stateFile]
       : [
           'download',
           '--node-data',
