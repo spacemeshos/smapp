@@ -1,7 +1,7 @@
 import React from 'react';
 import { NodeEvent } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
-import { getEventType } from '../../../shared/utils';
+import { getEventType, longToNumber } from '../../../shared/utils';
 import { CustomTimeAgo } from '../../basicComponents';
 import { getNodeEventStage } from './nodeEventUtils';
 
@@ -88,6 +88,18 @@ export default (event: NodeEvent) => {
       return `Published proposal on layer ${event.proposal?.layer}`;
     case 'beacon':
       return `Node computed randomness beacon for epoch ${event.beacon?.epoch}`;
+    case 'bestProofSelected': {
+      const ticks = longToNumber(
+        typeof event.bestProofSelected?.ticks === 'string'
+          ? parseInt(event.bestProofSelected?.ticks, 10)
+          : event.bestProofSelected?.ticks ?? 0
+      );
+      return `The best PoET proof is selected for round ${
+        event.bestProofSelected?.roundId ?? ''
+      }: ${ticks} ticks`;
+    }
+    case 'registeredInPoet':
+      return `Registered in PoET. Round ID: ${event.registeredInPoet?.roundId}`;
     default:
       return event.help ?? 'Node is preparing...';
   }
