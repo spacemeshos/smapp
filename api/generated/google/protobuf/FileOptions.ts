@@ -1,6 +1,7 @@
 // Original file: null
 
 import type { UninterpretedOption as _google_protobuf_UninterpretedOption, UninterpretedOption__Output as _google_protobuf_UninterpretedOption__Output } from '../../google/protobuf/UninterpretedOption';
+import type { Swagger as _grpc_gateway_protoc_gen_openapiv2_options_Swagger, Swagger__Output as _grpc_gateway_protoc_gen_openapiv2_options_Swagger__Output } from '../../grpc/gateway/protoc_gen_openapiv2/options/Swagger';
 
 // Original file: null
 
@@ -26,6 +27,7 @@ export interface FileOptions {
   'objcClassPrefix'?: (string);
   'csharpNamespace'?: (string);
   'uninterpretedOption'?: (_google_protobuf_UninterpretedOption)[];
+  '.grpc.gateway.protoc_gen_openapiv2.options.openapiv2Swagger'?: (_grpc_gateway_protoc_gen_openapiv2_options_Swagger | null);
 }
 
 export interface FileOptions__Output {
@@ -44,4 +46,5 @@ export interface FileOptions__Output {
   'objcClassPrefix': (string);
   'csharpNamespace': (string);
   'uninterpretedOption': (_google_protobuf_UninterpretedOption__Output)[];
+  '.grpc.gateway.protoc_gen_openapiv2.options.openapiv2Swagger': (_grpc_gateway_protoc_gen_openapiv2_options_Swagger__Output | null);
 }

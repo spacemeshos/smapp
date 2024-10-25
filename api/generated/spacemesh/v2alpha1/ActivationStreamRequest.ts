@@ -4,8 +4,8 @@
 export interface ActivationStreamRequest {
   'startEpoch'?: (number);
   'endEpoch'?: (number);
-  'id'?: (Buffer | Uint8Array | string);
-  'nodeId'?: (Buffer | Uint8Array | string);
+  'id'?: (Buffer | Uint8Array | string)[];
+  'smesherId'?: (Buffer | Uint8Array | string)[];
   'coinbase'?: (string);
   'watch'?: (boolean);
 }
@@ -13,8 +13,8 @@ export interface ActivationStreamRequest {
 export interface ActivationStreamRequest__Output {
   'startEpoch': (number);
   'endEpoch': (number);
-  'id': (Buffer);
-  'nodeId': (Buffer);
+  'id': (Buffer)[];
+  'smesherId': (Buffer)[];
   'coinbase': (string);
   'watch': (boolean);
 }

@@ -14,6 +14,7 @@ export interface Activation {
   'prevAtx'?: (_spacemesh_v1_ActivationId | null);
   'numUnits'?: (number);
   'sequence'?: (number | string | Long);
+  'previousAtxs'?: (_spacemesh_v1_ActivationId)[];
 }
 
 export interface Activation__Output {
@@ -24,4 +25,5 @@ export interface Activation__Output {
   'prevAtx': (_spacemesh_v1_ActivationId__Output | null);
   'numUnits': (number);
   'sequence': (Long);
+  'previousAtxs': (_spacemesh_v1_ActivationId__Output)[];
 }

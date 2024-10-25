@@ -5,8 +5,8 @@ import type { Long } from '@grpc/proto-loader';
 export interface ActivationRequest {
   'startEpoch'?: (number);
   'endEpoch'?: (number);
-  'id'?: (Buffer | Uint8Array | string);
-  'nodeId'?: (Buffer | Uint8Array | string);
+  'id'?: (Buffer | Uint8Array | string)[];
+  'smesherId'?: (Buffer | Uint8Array | string)[];
   'coinbase'?: (string);
   'offset'?: (number | string | Long);
   'limit'?: (number | string | Long);
@@ -15,8 +15,8 @@ export interface ActivationRequest {
 export interface ActivationRequest__Output {
   'startEpoch': (number);
   'endEpoch': (number);
-  'id': (Buffer);
-  'nodeId': (Buffer);
+  'id': (Buffer)[];
+  'smesherId': (Buffer)[];
   'coinbase': (string);
   'offset': (Long);
   'limit': (Long);

@@ -11,6 +11,7 @@ export enum _spacemesh_v1_MalfeasanceProof_MalfeasanceType {
   MALFEASANCE_BALLOT = 2,
   MALFEASANCE_HARE = 3,
   MALFEASANCE_POST_INDEX = 4,
+  MALFEASANCE_INCORRECT_PREV_ATX = 5,
 }
 
 export interface MalfeasanceProof {
