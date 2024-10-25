@@ -15,12 +15,21 @@ import { RootState } from '../../types';
 import { NodeEvent } from '../../../shared/types';
 import { epochByLayer, nextEpochTime } from '../../../shared/layerUtils';
 import { BackButton, CorneredContainer } from '../../components/common';
-import { getEventPayload, toHexString } from '../../../shared/utils';
+import {
+  getEventPayload,
+  getEventType,
+  toHexString,
+} from '../../../shared/utils';
 import { safeReactKey, setRef } from '../../infra/utils';
 import { MainPath } from '../../routerPaths';
 import Address, { AddressType } from '../../components/common/Address';
 import { getNodeEventStatusColor } from './nodeEventUtils';
 import NodeEventActivityRow from './NodeEventActivityRow';
+
+const DEPRECATED_EVENTS: NodeEvent['details'][] = [
+  'poetWaitRound',
+  'poetWaitProof',
+];
 
 const Wrapper = styled.div`
   display: flex;
@@ -189,14 +198,14 @@ const NodeEventsLog = ({ history }: RouteComponentProps) => {
   }, [events.length, shouldSticky, scrollToItem]);
 
   const renderRow = (e: NodeEvent, idx: number) => {
-    // TODO: Refactor screen and Node Dashboard
-    //       to avoid excessive re-rendering of the whole screen
-    //       on each progress update, which causes blinking
+    // Drop deprecated events
+    const type = getEventType(e);
+    if (DEPRECATED_EVENTS.includes(type)) {
+      return null;
+    }
+
     return (
-      <EventRow
-        key={`${e.timestamp}_${e.details}_${idx}`}
-        isError={!!e?.failure}
-      >
+      <EventRow key={`${e.timestamp}_${idx}`} isError={!!e?.failure}>
         <TextWrapper>
           <ColorStatusIndicator
             color={getNodeEventStatusColor(e)}
