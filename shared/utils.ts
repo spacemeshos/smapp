@@ -1,4 +1,5 @@
 import os from 'os';
+import Long from 'long';
 import { hash } from '@spacemesh/sm-codec';
 import { Timestamp } from '@grpc/grpc-js/build/src/generated/google/protobuf/Timestamp';
 import { Event } from '../api/generated/spacemesh/v1/Event';
@@ -91,8 +92,16 @@ export const toHexString = (
 
 export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 
+/* eslint-disable no-nested-ternary */
 export const longToNumber = (val: Long | number) =>
-  typeof val === 'number' ? val : val.toNumber();
+  typeof val === 'number'
+    ? val
+    : val instanceof Long
+    ? val.toNumber()
+    : Object.hasOwn(val, 'low') && Object.hasOwn(val, 'high')
+    ? Long.fromValue(val).toNumber()
+    : NaN;
+/* eslint-enable no-nested-ternary */
 
 export const convertBytesToMiB = (maxFileSize: number) =>
   maxFileSize / 1024 / 1024;

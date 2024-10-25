@@ -1,13 +1,19 @@
 // Original file: vendor/api/spacemesh/v2alpha1/reward.proto
 
-import type { RewardV1 as _spacemesh_v2alpha1_RewardV1, RewardV1__Output as _spacemesh_v2alpha1_RewardV1__Output } from '../../spacemesh/v2alpha1/RewardV1';
+import type { Long } from '@grpc/proto-loader';
 
 export interface Reward {
-  'v1'?: (_spacemesh_v2alpha1_RewardV1 | null);
-  'versioned'?: "v1";
+  'layer'?: (number);
+  'total'?: (number | string | Long);
+  'layerReward'?: (number | string | Long);
+  'coinbase'?: (string);
+  'smesher'?: (Buffer | Uint8Array | string);
 }
 
 export interface Reward__Output {
-  'v1'?: (_spacemesh_v2alpha1_RewardV1__Output | null);
-  'versioned': "v1";
+  'layer': (number);
+  'total': (Long);
+  'layerReward': (Long);
+  'coinbase': (string);
+  'smesher': (Buffer);
 }

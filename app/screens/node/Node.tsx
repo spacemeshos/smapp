@@ -372,7 +372,7 @@ const Node = ({ history, location }: Props) => {
   const renderTable = (data: RowData[]) =>
     data.map(([label, value], idx) => {
       return (
-        <LineWrap key={`smeshing-status-${idx}`}>
+        <LineWrap key={`smeshing-status-${idx}-${label}`}>
           <TextWrapper>
             <Text>{label}</Text>
             <Text>{value}</Text>

@@ -26,6 +26,8 @@ export interface ProtoGrpcType {
       CustomHttpPattern: MessageTypeDefinition
       Http: MessageTypeDefinition
       HttpRule: MessageTypeDefinition
+      Visibility: MessageTypeDefinition
+      VisibilityRule: MessageTypeDefinition
     }
     protobuf: {
       Any: MessageTypeDefinition
@@ -42,19 +44,49 @@ export interface ProtoGrpcType {
       FileDescriptorSet: MessageTypeDefinition
       FileOptions: MessageTypeDefinition
       GeneratedCodeInfo: MessageTypeDefinition
+      ListValue: MessageTypeDefinition
       MessageOptions: MessageTypeDefinition
       MethodDescriptorProto: MessageTypeDefinition
       MethodOptions: MessageTypeDefinition
+      NullValue: EnumTypeDefinition
       OneofDescriptorProto: MessageTypeDefinition
       OneofOptions: MessageTypeDefinition
       ServiceDescriptorProto: MessageTypeDefinition
       ServiceOptions: MessageTypeDefinition
       SourceCodeInfo: MessageTypeDefinition
+      Struct: MessageTypeDefinition
       Timestamp: MessageTypeDefinition
       UninterpretedOption: MessageTypeDefinition
+      Value: MessageTypeDefinition
     }
     rpc: {
       Status: MessageTypeDefinition
+    }
+  }
+  grpc: {
+    gateway: {
+      protoc_gen_openapiv2: {
+        options: {
+          Contact: MessageTypeDefinition
+          ExternalDocumentation: MessageTypeDefinition
+          Header: MessageTypeDefinition
+          HeaderParameter: MessageTypeDefinition
+          Info: MessageTypeDefinition
+          JSONSchema: MessageTypeDefinition
+          License: MessageTypeDefinition
+          Operation: MessageTypeDefinition
+          Parameters: MessageTypeDefinition
+          Response: MessageTypeDefinition
+          Schema: MessageTypeDefinition
+          Scheme: EnumTypeDefinition
+          Scopes: MessageTypeDefinition
+          SecurityDefinitions: MessageTypeDefinition
+          SecurityRequirement: MessageTypeDefinition
+          SecurityScheme: MessageTypeDefinition
+          Swagger: MessageTypeDefinition
+          Tag: MessageTypeDefinition
+        }
+      }
     }
   }
   spacemesh: {
@@ -101,6 +133,7 @@ export interface ProtoGrpcType {
       CurrentEpochResponse: MessageTypeDefinition
       CurrentLayerRequest: MessageTypeDefinition
       CurrentLayerResponse: MessageTypeDefinition
+      DataStats: MessageTypeDefinition
       DebugService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_DebugServiceClient> & { service: _spacemesh_v1_DebugServiceDefinition }
       EchoRequest: MessageTypeDefinition
       EchoResponse: MessageTypeDefinition
@@ -118,6 +151,7 @@ export interface ProtoGrpcType {
       Event: MessageTypeDefinition
       EventAtxPubished: MessageTypeDefinition
       EventBeacon: MessageTypeDefinition
+      EventBestProofSelected: MessageTypeDefinition
       EventEligibilities: MessageTypeDefinition
       EventInitComplete: MessageTypeDefinition
       EventInitFailed: MessageTypeDefinition
@@ -129,8 +163,12 @@ export interface ProtoGrpcType {
       EventPostServiceStarted: MessageTypeDefinition
       EventPostServiceStopped: MessageTypeDefinition
       EventPostStart: MessageTypeDefinition
+      EventProofDownloadedFromPoet: MessageTypeDefinition
       EventProposal: MessageTypeDefinition
+      EventRegisteredInPoet: MessageTypeDefinition
       EventStreamRequest: MessageTypeDefinition
+      EventWaitingForPoETRegistrationWindow: MessageTypeDefinition
+      EventWaitingForPoETRoundEnd: MessageTypeDefinition
       GenProofRequest: MessageTypeDefinition
       GenProofResponse: MessageTypeDefinition
       GenProofStatus: EnumTypeDefinition
@@ -183,6 +221,7 @@ export interface ProtoGrpcType {
       ParseTransactionRequest: MessageTypeDefinition
       ParseTransactionResponse: MessageTypeDefinition
       PeerInfo: MessageTypeDefinition
+      PeerRequestStats: MessageTypeDefinition
       PostConfigResponse: MessageTypeDefinition
       PostInfoService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_PostInfoServiceClient> & { service: _spacemesh_v1_PostInfoServiceDefinition }
       PostService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_PostServiceClient> & { service: _spacemesh_v1_PostServiceDefinition }
@@ -248,20 +287,15 @@ export interface ProtoGrpcType {
       ActivationService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v2alpha1_ActivationServiceClient> & { service: _spacemesh_v2alpha1_ActivationServiceDefinition }
       ActivationStreamRequest: MessageTypeDefinition
       ActivationStreamService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v2alpha1_ActivationStreamServiceClient> & { service: _spacemesh_v2alpha1_ActivationStreamServiceDefinition }
-      ActivationV1: MessageTypeDefinition
       ActivationsCountRequest: MessageTypeDefinition
       ActivationsCountResponse: MessageTypeDefinition
-      PoetMembershipProof: MessageTypeDefinition
-      Post: MessageTypeDefinition
-      PostMeta: MessageTypeDefinition
       Reward: MessageTypeDefinition
       RewardList: MessageTypeDefinition
       RewardRequest: MessageTypeDefinition
       RewardService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v2alpha1_RewardServiceClient> & { service: _spacemesh_v2alpha1_RewardServiceDefinition }
       RewardStreamRequest: MessageTypeDefinition
       RewardStreamService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v2alpha1_RewardStreamServiceClient> & { service: _spacemesh_v2alpha1_RewardStreamServiceDefinition }
-      RewardV1: MessageTypeDefinition
-      VRFPostIndex: MessageTypeDefinition
+      SortOrder: EnumTypeDefinition
     }
   }
 }

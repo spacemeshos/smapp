@@ -1,5 +1,6 @@
 // Original file: vendor/api/spacemesh/v1/debug_types.proto
 
+import type { DataStats as _spacemesh_v1_DataStats, DataStats__Output as _spacemesh_v1_DataStats__Output } from '../../spacemesh/v1/DataStats';
 
 // Original file: vendor/api/spacemesh/v1/debug_types.proto
 
@@ -25,6 +26,7 @@ export interface NetworkInfoResponse {
   'natTypeTcp'?: (_spacemesh_v1_NetworkInfoResponse_NATType | keyof typeof _spacemesh_v1_NetworkInfoResponse_NATType);
   'reachability'?: (_spacemesh_v1_NetworkInfoResponse_Reachability | keyof typeof _spacemesh_v1_NetworkInfoResponse_Reachability);
   'dhtServerEnabled'?: (boolean);
+  'stats'?: ({[key: string]: _spacemesh_v1_DataStats});
 }
 
 export interface NetworkInfoResponse__Output {
@@ -35,4 +37,5 @@ export interface NetworkInfoResponse__Output {
   'natTypeTcp': (_spacemesh_v1_NetworkInfoResponse_NATType);
   'reachability': (_spacemesh_v1_NetworkInfoResponse_Reachability);
   'dhtServerEnabled': (boolean);
+  'stats': ({[key: string]: _spacemesh_v1_DataStats__Output});
 }

@@ -15,6 +15,11 @@ import type { EventInitFailed as _spacemesh_v1_EventInitFailed, EventInitFailed_
 import type { EventMalfeasance as _spacemesh_v1_EventMalfeasance, EventMalfeasance__Output as _spacemesh_v1_EventMalfeasance__Output } from '../../spacemesh/v1/EventMalfeasance';
 import type { EventPostServiceStarted as _spacemesh_v1_EventPostServiceStarted, EventPostServiceStarted__Output as _spacemesh_v1_EventPostServiceStarted__Output } from '../../spacemesh/v1/EventPostServiceStarted';
 import type { EventPostServiceStopped as _spacemesh_v1_EventPostServiceStopped, EventPostServiceStopped__Output as _spacemesh_v1_EventPostServiceStopped__Output } from '../../spacemesh/v1/EventPostServiceStopped';
+import type { EventWaitingForPoETRegistrationWindow as _spacemesh_v1_EventWaitingForPoETRegistrationWindow, EventWaitingForPoETRegistrationWindow__Output as _spacemesh_v1_EventWaitingForPoETRegistrationWindow__Output } from '../../spacemesh/v1/EventWaitingForPoETRegistrationWindow';
+import type { EventProofDownloadedFromPoet as _spacemesh_v1_EventProofDownloadedFromPoet, EventProofDownloadedFromPoet__Output as _spacemesh_v1_EventProofDownloadedFromPoet__Output } from '../../spacemesh/v1/EventProofDownloadedFromPoet';
+import type { EventRegisteredInPoet as _spacemesh_v1_EventRegisteredInPoet, EventRegisteredInPoet__Output as _spacemesh_v1_EventRegisteredInPoet__Output } from '../../spacemesh/v1/EventRegisteredInPoet';
+import type { EventBestProofSelected as _spacemesh_v1_EventBestProofSelected, EventBestProofSelected__Output as _spacemesh_v1_EventBestProofSelected__Output } from '../../spacemesh/v1/EventBestProofSelected';
+import type { EventWaitingForPoETRoundEnd as _spacemesh_v1_EventWaitingForPoETRoundEnd, EventWaitingForPoETRoundEnd__Output as _spacemesh_v1_EventWaitingForPoETRoundEnd__Output } from '../../spacemesh/v1/EventWaitingForPoETRoundEnd';
 
 export interface Event {
   'timestamp'?: (_google_protobuf_Timestamp | null);
@@ -34,7 +39,12 @@ export interface Event {
   'malfeasance'?: (_spacemesh_v1_EventMalfeasance | null);
   'postServiceStarted'?: (_spacemesh_v1_EventPostServiceStarted | null);
   'postServiceStopped'?: (_spacemesh_v1_EventPostServiceStopped | null);
-  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped";
+  'waitingForPoetRegistrationWindow'?: (_spacemesh_v1_EventWaitingForPoETRegistrationWindow | null);
+  'proofDownloadedFromPoet'?: (_spacemesh_v1_EventProofDownloadedFromPoet | null);
+  'registeredInPoet'?: (_spacemesh_v1_EventRegisteredInPoet | null);
+  'bestProofSelected'?: (_spacemesh_v1_EventBestProofSelected | null);
+  'waitingForPoetRoundEnd'?: (_spacemesh_v1_EventWaitingForPoETRoundEnd | null);
+  'details'?: "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped"|"waitingForPoetRegistrationWindow"|"proofDownloadedFromPoet"|"registeredInPoet"|"bestProofSelected"|"waitingForPoetRoundEnd";
 }
 
 export interface Event__Output {
@@ -55,5 +65,10 @@ export interface Event__Output {
   'malfeasance'?: (_spacemesh_v1_EventMalfeasance__Output | null);
   'postServiceStarted'?: (_spacemesh_v1_EventPostServiceStarted__Output | null);
   'postServiceStopped'?: (_spacemesh_v1_EventPostServiceStopped__Output | null);
-  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped";
+  'waitingForPoetRegistrationWindow'?: (_spacemesh_v1_EventWaitingForPoETRegistrationWindow__Output | null);
+  'proofDownloadedFromPoet'?: (_spacemesh_v1_EventProofDownloadedFromPoet__Output | null);
+  'registeredInPoet'?: (_spacemesh_v1_EventRegisteredInPoet__Output | null);
+  'bestProofSelected'?: (_spacemesh_v1_EventBestProofSelected__Output | null);
+  'waitingForPoetRoundEnd'?: (_spacemesh_v1_EventWaitingForPoETRoundEnd__Output | null);
+  'details': "beacon"|"initStart"|"initComplete"|"postStart"|"postComplete"|"poetWaitRound"|"poetWaitProof"|"atxPublished"|"eligibilities"|"proposal"|"initFailed"|"malfeasance"|"postServiceStarted"|"postServiceStopped"|"waitingForPoetRegistrationWindow"|"proofDownloadedFromPoet"|"registeredInPoet"|"bestProofSelected"|"waitingForPoetRoundEnd";
 }
