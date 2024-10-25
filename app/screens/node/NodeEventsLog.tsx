@@ -127,18 +127,22 @@ const ensureSmesherIdType = (s: string | Buffer | Uint8Array | undefined) => {
 };
 
 const renderSmesherID = (e: NodeEvent) => {
-  const payload = getEventPayload(e);
-  if (!payload || !('smesher' in payload)) {
+  try {
+    const payload = getEventPayload(e);
+    if (!payload || !('smesher' in payload)) {
+      return null;
+    }
+    const smesherId = ensureSmesherIdType(payload.smesher);
+    if (!smesherId) return null;
+    return (
+      <EventText>
+        Smesher&nbsp;ID:&nbsp;
+        <Address type={AddressType.SMESHER} address={smesherId} isHex />
+      </EventText>
+    );
+  } catch (e) {
     return null;
   }
-  const smesherId = ensureSmesherIdType(payload.smesher);
-  if (!smesherId) return null;
-  return (
-    <EventText>
-      Smesher&nbsp;ID:&nbsp;
-      <Address type={AddressType.SMESHER} address={smesherId} isHex />
-    </EventText>
-  );
 };
 
 const NodeEventsLog = ({ history }: RouteComponentProps) => {
