@@ -225,47 +225,6 @@ jobs:
         run: |
           echo "Version: ${{ steps.package-version.outputs.version }}"
 
-      - name: Set up GCloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-
-      - if: matrix.platform == 'macos'
-        name: upload macos build
-        uses: google-github-actions/upload-cloud-storage@v0
-        env:
-          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
-        with:
-          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg
-          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
-
-      - if: matrix.platform == 'windows'
-        name: upload windows build
-        uses: google-github-actions/upload-cloud-storage@v0
-        with:
-          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
-          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
-
-      - if: matrix.platform == 'linux'
-        name: upload linux build
-        uses: google-github-actions/upload-cloud-storage@v0
-        env:
-          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
-        with:
-          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb
-          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
-
-      - if: matrix.platform == 'linux'
-        name: upload linux build
-        uses: google-github-actions/upload-cloud-storage@v0
-        env:
-          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
-        with:
-          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
-          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
-
       # Upload artifacts to Cloudflare
       - if: matrix.platform == 'windows'
         name: aws cli windows
