@@ -226,14 +226,6 @@ jobs:
           echo "Version: ${{ steps.package-version.outputs.version }}"
 
       # Upload artifacts to Cloudflare
-      - if: matrix.platform == 'windows'
-        name: aws cli windows
-        run: choco install awscli
-
-      - if: matrix.platform == 'linux'
-        name: aws cli linux
-        run: sudo apt install awscli
-
       - name: Set Up AWS export_default_credentials
         run: |
           aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
