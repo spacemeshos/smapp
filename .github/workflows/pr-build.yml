@@ -247,7 +247,7 @@ jobs:
           
       - name: Install aws-cli on windows
         if: ${{ matrix.node == 'win-amd64' }}
-        run: choco install awscli --version=2.22.35 --allow-downgrade
+        run: choco upgrade awscli --version=2.22.35 --allow-downgrade
 
       # Upload artifacts to Cloudflare
       - name: Set Up AWS export_default_credentials
