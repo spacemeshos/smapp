@@ -240,7 +240,7 @@ jobs:
           sudo ./aws/install --update
 
       - name: Install aws-cli on mac
-        if: ${{ matrix.node == 'mac-arm64' }}
+        if: ${{ matrix.platform == 'macos' }}
         run: |
           curl "https://awscli.amazonaws.com/AWSCLIV2-2.22.35.pkg" -o "AWSCLIV2.pkg"
           sudo installer -pkg AWSCLIV2.pkg -target /
