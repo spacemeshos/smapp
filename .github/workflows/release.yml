@@ -369,14 +369,14 @@ jobs:
       - name: Store x64 signature
         uses: actions/upload-artifact@v4
         with:
-          name: linux
+          name: linux-signed
           path: ./release/linux/${{ steps.filename.outputs.x64 }}.sig
           if-no-files-found: error
 
       - name: Store arm64 signature
         uses: actions/upload-artifact@v4
         with:
-          name: linux-arm64
+          name: linux-arm64-signed
           path: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig
           if-no-files-found: error
 
