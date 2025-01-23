@@ -477,5 +477,7 @@ jobs:
             windows
             linux
             linux-arm64
+            linux-signed
+            linux-arm64-signed
             macos
             macos-arm64
