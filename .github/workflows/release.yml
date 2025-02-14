@@ -399,6 +399,8 @@ jobs:
       - run: cat ./release/latest-merged.yml
       - run: cp -f ./release/latest-merged.yml ./release/macos/latest-mac.yml
       - run: cp -f ./release/latest-merged.yml ./release/macos-arm64/latest-mac.yml
+      - run: cp -f ./release/linux-signed/* ./release/linux/
+      - run: cp -f ./release/linux-arm64-signed/* ./release/linux/
 
       # Upload artifacts to Cloudflare
       - name: Upload macos artifact CF
