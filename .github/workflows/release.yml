@@ -3,7 +3,7 @@ name: Publish Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
@@ -16,13 +16,13 @@ jobs:
             id: macos
             platform: macos
             node: mac-amd64
-            arch: '' # x64
+            arch: "" # x64
             quicksync: macos
           - image: windows-latest
             id: windows
             platform: windows
             node: win-amd64
-            arch: '' # x64
+            arch: "" # x64
             quicksync: windows
           - image: ubuntu-latest
             id: linux
@@ -51,19 +51,19 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
         with:
-          submodules: 'true'
+          submodules: "true"
 
       - name: Install Node.js, NPM
         id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version-file: 'package.json'
+          node-version-file: "package.json"
 
       - name: Install Yarn
         run: npm install -g yarn@1.22.19
 
       - name: Get node_modules cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3
         id: node_modules
         with:
           path: |
@@ -148,10 +148,10 @@ jobs:
       - name: Download quicksync tool
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-          repo: 'spacemeshos/quicksync-rs'
-          version: 'tags/${{ steps.latestQuicksync.outputs.version }}'
-          file: 'quicksync-${{ matrix.quicksync }}-${{ steps.latestQuicksync.outputs.version }}.zip'
-          target: 'node/quicksync.zip'
+          repo: "spacemeshos/quicksync-rs"
+          version: "tags/${{ steps.latestQuicksync.outputs.version }}"
+          file: "quicksync-${{ matrix.quicksync }}-${{ steps.latestQuicksync.outputs.version }}.zip"
+          target: "node/quicksync.zip"
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Unzip archive & get rid of redundant files
@@ -268,8 +268,8 @@ jobs:
       - name: Switch to Java 11
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: "adopt"
+          java-version: "11"
 
       - name: Create directory for signed artifact
         run: mkdir -p ./signed/
@@ -291,7 +291,7 @@ jobs:
       - name: Install Node.js, NPM
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '16'
+          node-version: "16"
 
       - name: Get new sha512
         id: sha512
@@ -379,7 +379,6 @@ jobs:
           name: linux-arm64-signed
           path: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig
           if-no-files-found: error
-
 
   release:
     runs-on: ubuntu-latest
