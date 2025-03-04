@@ -1,9 +1,9 @@
 name: PR Build
 
 on:
- workflow_dispatch:
- pull_request:
-   types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   build-and-upload:
@@ -17,13 +17,13 @@ jobs:
             id: macos
             platform: macos
             node: mac-amd64
-            arch: '' # x64
+            arch: "" # x64
             quicksync: macos
           - image: windows-latest
             id: windows
             platform: windows
             node: win-amd64
-            arch: '' # x64
+            arch: "" # x64
             quicksync: windows
           - image: ubuntu-latest
             id: linux
@@ -54,19 +54,19 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
         with:
-          submodules: 'true'
+          submodules: "true"
 
       - name: Install Node.js, NPM
         id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version-file: 'package.json'
+          node-version-file: "package.json"
 
       - name: Install Yarn
         run: npm install -g yarn@1.22.19
 
       - name: Get node_modules cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3
         id: node_modules
         with:
           path: |
@@ -143,10 +143,10 @@ jobs:
       - name: Download quicksync tool
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-          repo: 'spacemeshos/quicksync-rs'
-          version: 'tags/${{ steps.latestQuicksync.outputs.version }}'
-          file: 'quicksync-${{ matrix.quicksync }}-${{ steps.latestQuicksync.outputs.version }}.zip'
-          target: 'node/quicksync.zip'
+          repo: "spacemeshos/quicksync-rs"
+          version: "tags/${{ steps.latestQuicksync.outputs.version }}"
+          file: "quicksync-${{ matrix.quicksync }}-${{ steps.latestQuicksync.outputs.version }}.zip"
+          target: "node/quicksync.zip"
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Unzip archive & get rid of redundant files
@@ -244,7 +244,7 @@ jobs:
         run: |
           curl "https://awscli.amazonaws.com/AWSCLIV2-2.22.35.pkg" -o "AWSCLIV2.pkg"
           sudo installer -pkg AWSCLIV2.pkg -target /
-          
+
       - name: Install aws-cli on windows
         if: ${{ matrix.node == 'win-amd64' }}
         run: |
@@ -263,7 +263,7 @@ jobs:
         name: Upload macos build to R2
         env:
           preSuffix: ${{ matrix.arch != '' && '-' || '' }}
-        run: | 
+        run: |
           BUILD_PATH='Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg'
 
           aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
@@ -271,7 +271,7 @@ jobs:
 
       - if: matrix.platform == 'windows'
         name: Upload windows build to R2
-        run: | 
+        run: |
           $BUILD_PATH='Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe'
 
           aws s3 cp "./release/$BUILD_PATH" "s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/$BUILD_PATH" --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
@@ -280,18 +280,17 @@ jobs:
         name: Upload linux build to R2
         env:
           preSuffix: ${{ matrix.arch != '' && '_' || '' }}
-        run: | 
+        run: |
           BUILD_PATH='spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb'
 
           aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
           --endpoint-url https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
 
-
       - if: matrix.platform == 'linux'
         name: Upload linux build to R2
         env:
           arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
-        run: | 
+        run: |
           BUILD_PATH='Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage'
 
           aws s3 cp ./release/${BUILD_PATH} s3://${{ secrets.CLOUDFLARE_BUCKET }}/dist/pr-${{ github.sha }}/${BUILD_PATH} \
