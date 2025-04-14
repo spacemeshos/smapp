@@ -9,4 +9,8 @@ export interface QuicksyncStatus {
   current: number;
   available: number;
   paused: PausedQuicksyncStatus | null;
+  incremental: {
+    from: number;
+    to: number;
+  } | null;
 }
